@@ -1,0 +1,56 @@
+.overflowPopover {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+  padding: calc(var(--layout-spacing) / 2);
+  border-radius: var(--layout-radius);
+  border: 1px solid var(--theme-subdue);
+  filter: drop-shadow(var(--theme-elevate));
+  box-sizing: border-box;
+  max-width: var(--constraints-popover, 500px);
+  width: max-content;
+}
+
+.overflowMenu {
+  outline: none;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--layout-spacing) / 2);
+  padding: calc(var(--layout-spacing) / 2);
+  border-radius: var(--layout-radius);
+  outline: none;
+}
+
+.menuItem[data-hovered] {
+  background-color: var(--theme-hover);
+}
+
+.menuItem[data-focus-visible] {
+  outline: 2px solid var(--theme-focus);
+}
+
+.menuItem[data-disabled] {
+  color: var(--theme-disable);
+}
+
+.menuItem > svg {
+  width: calc(var(--icon-size, 24px) / 1.5);
+  height: calc(var(--icon-size, 24px) / 1.5);
+  fill: currentColor;
+}
+
+.menuItemLabel {
+  font-size: 1rem;
+}
+
+.menuItemKbdShortcut {
+  font-family: monospace;
+  font-weight: bold;
+  color: var(--theme-subdue);
+  padding: 5px;
+  margin-inline-start: auto;
+  border-radius: var(--layout-radius);
+  border: 1px solid var(--theme-subdue);
+}

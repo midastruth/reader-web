@@ -1,13 +1,58 @@
 {
-  "name": "playground",
-  "version": "0.0.1",
+  "name": "thorium-web",
   "description": "Play with the capabilities of the Readium Web toolkit",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": ["readium", "demo", "web reader"],
-  "author": "Henry <chocolatkey@gmail.com>",
+  "keywords": [
+    "edrlab",
+    "thorium",
+    "demo",
+    "toolkit",
+    "web reader"
+  ],
+  "license": "BSD-3-Clause",
+  "version": "0.9",
   "private": true,
-  "license": "BSD-3-Clause"
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:all": "pnpm run build:submodules && next build",
+    "build:submodules": "pnpm run build:shared && pnpm run build:navigator",
+    "build:shared": "cd ./src/readium/ts-toolkit/shared && pnpm run build",
+    "build:navigator": "pnpm run build:injectables && cd ./src/readium/ts-toolkit/navigator && pnpm run build",
+    "build:injectables": "cd ./src/readium/ts-toolkit/navigator-html-injectables && pnpm run build",
+    "start": "next start",
+    "lint": "next lint",
+    "deploy": "npx @cloudflare/next-on-pages && npx wrangler pages deploy",
+    "preinstall": "npx only-allow pnpm && cd ./src/readium/ts-toolkit && pnpm install",
+    "postinstall": "pnpm run build:submodules"
+  },
+  "dependencies": {
+    "@readium/navigator": "link:src/readium/ts-toolkit/navigator",
+    "@readium/navigator-html-injectables": "link:src/readium/ts-toolkit/navigator-html-injectables",
+    "@readium/shared": "link:src/readium/ts-toolkit/shared",
+    "@reduxjs/toolkit": "^2.6.1",
+    "classnames": "^2.5.1",
+    "debounce": "^2.2.0",
+    "json-templates": "^5.1.0",
+    "motion": "^12.6.3",
+    "next": "15.2.4",
+    "react": "^19.1.0",
+    "react-aria": "^3.38.1",
+    "react-aria-components": "^1.7.1",
+    "react-dom": "^19.1.0",
+    "react-modal-sheet": "^4.0.1",
+    "react-redux": "^9.2.0",
+    "react-resizable-panels": "^2.1.7",
+    "react-stately": "^3.36.1"
+  },
+  "devDependencies": {
+    "@readium/css": ">=2.0.0-beta.11",
+    "@svgr/webpack": "^8.1.0",
+    "@types/json-templates": "^3.0.3",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
+    "eslint": "^9.23.0",
+    "eslint-config-next": "15.2.4",
+    "typescript": "^5.8.2"
+  }
 }

@@ -1,0 +1,40 @@
+.dockerWrapper {
+  margin-inline-start: auto;
+  margin-inline-end: calc(var(--icon-size, 24px) * (1 / 4) * -1); /* Optical alingment */
+  display: flex;
+  gap: 2px;
+  padding-inline-start: var(--layout-spacing);
+}
+
+.docker {
+  display: flex;
+  gap: 2px;
+}
+
+.dockResizeHandle {
+  position: relative;
+  width: 0;
+}
+
+.dockResizeHandle:focus-visible {
+  outline: 2px solid var(--theme-focus);
+}
+
+.dockResizeHandleGrab {
+  position: absolute;
+  z-index: 1000;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 50px;
+  border-radius: 5px;
+  background-color: var(--theme-subdue);
+}
+
+.dockResizeHandleGrabLeft {
+  left: 0;
+}
+
+.dockResizeHandleGrabRight {
+  left: -5px;
+}

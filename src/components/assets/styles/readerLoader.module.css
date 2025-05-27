@@ -1,0 +1,40 @@
+.readerLoaderWrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.readerLoader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--theme-text);
+  background-color: var(--theme-background);
+  font-weight: bold;
+}
+
+.readerLoader::after {
+  content: "...";
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  animation: ellipsis-dot 1s infinite .3s;
+  animation-fill-mode: forwards;
+  width: 3ch;
+}
+
+@keyframes ellipsis-dot {
+  25% {
+    content: "";
+  }
+  50% {
+    content: ".";
+  }
+  75% {
+    content: "..";
+  }
+  100% {
+    content: "...";
+  }
+}

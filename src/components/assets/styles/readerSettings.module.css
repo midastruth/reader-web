@@ -1,0 +1,311 @@
+.readerSettingsGroup {
+  margin: calc(var(--layout-spacing) * 2) 0; 
+}
+
+.readerSettings .readerSettingsGroup:first-of-type {
+  margin-top: 0;
+}
+
+.readerSettings .readerSettingsGroup:last-of-type {
+  margin-bottom: 0;
+}
+
+.readerSettingsAdvancedGroup {
+  position: relative;
+}
+
+.readerSettingsAdvancedIcon {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: 0;
+}
+
+.readerSettingsLabel {
+  display: block;
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.readerSettingsGroupLabel {
+  padding-top: calc(var(--icon-size, 24px) * (1/3));
+}
+
+.readerSettingsRadioWrapper,
+.readerSettingsGroupWrapper {
+  display: flex;
+  gap: var(--layout-spacing) calc(var(--layout-spacing) / 2);
+  margin: var(--layout-spacing) 0;
+  text-align: center;
+  border-radius: var(--layout-radius);
+}
+
+.readerSettingsGroupWrapper {
+  width: fit-content;
+}
+
+.readerSettingsAdvancedGroup .readerSettingsRadioWrapper {
+  margin-bottom: 0;
+}
+
+.readerSettingsGroupWrapper[data-focus-within]:has(input[data-focus-visible]) {
+  outline: 2px solid var(--theme-focus);
+}
+
+.readerSettingsNumberField .readerSettingsInput {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+  font-weight: bold;
+  align-self: center;
+  max-width: 10ch;
+}
+
+.readerSettingsGroupWrapper[data-disabled] .readerSettingsInput {
+  color: var(--theme-disable)
+}
+
+.readerSettingsRadio {
+  padding: 5px;
+  border-radius: var(--layout-radius);
+  box-sizing: border-box;
+  border: 2px solid transparent;
+}
+
+.readerSettingsRadio:not(.readerSettingsThemeRadio)[data-selected] {
+  border: 2px solid var(--theme-subdue);
+}
+
+.readerSettingsRadio[data-disabled] {
+  color: var(--theme-disable);
+}
+
+.readerSettingsRadio[data-hovered] {
+  background-color: var(--theme-hover);
+}
+
+.readerSettingsRadio[data-focus-visible] {
+  outline: 2px solid var(--theme-focus);
+}
+
+.readerSettingsRadio svg {
+  width: var(--icon-size, 32px);
+  height: var(--icon-size, 32px);
+  /* So that it’s the same color as text based on state */
+  fill: currentColor;
+}
+
+.readerSettingsRadio span {
+  display: block;
+}
+
+.readerSettingsThemesWrapper {
+  /* TMP until we have all the sheets/modals */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: row;
+  max-width: 100%;
+  gap: calc(var(--layout-spacing) / 2);
+}
+
+.readerSettingsThemeRadio {
+  padding-block: 5px;
+  padding-inline: 25px;
+  position: relative;
+}
+
+.readerSettingsThemeRadio svg {
+  width: calc(var(--icon-size, 24px) * 5/6);
+  height: calc(var(--icon-size, 24px) * 5/6);
+  position: absolute;
+  inset-inline-end: 5px;
+  inset-block-start: 5px;
+  /* So that it’s the same color as text w/o having to expose a custom prop globally */
+  fill: currentColor;
+}
+
+.readerSettingsSeparator {
+  border: none;
+  border-top: 1px solid var(--theme-subdue);
+}
+
+/* Slider */
+
+.readerSettingsSlider {
+  display: grid;
+  grid-template-areas: "label output blank"
+                       "track track blank";
+  grid-template-columns: 1fr auto minmax(calc(var(--layout-spacing) / 2), 20%);
+  gap: calc(var(--layout-spacing) / 2);
+  color: var(--theme-text);
+  flex-direction: column;
+  max-width: 100%;
+}
+
+.readerSettingsSliderLabel {
+  grid-area: label;
+}
+
+.readerSettingsSliderOutput {
+  grid-area: output;
+}
+
+.readerSettingsSlider[data-disabled] .readerSettingsSliderLabel,
+.readerSettingsSlider[data-disabled] .readerSettingsSliderOutput {
+  color: var(--theme-disable);
+}
+
+.readerSettingsSliderTrack {
+  grid-area: track;
+  position: relative;
+  height: 30px;
+  width: auto;
+  box-sizing: border-box;
+  margin-inline: calc(var(--layout-spacing) / 2);
+}
+
+.readerSettingsSliderTrack::before {
+  content: "";
+  display: block;
+  position: absolute;
+  background: var(--theme-subdue);
+  height: 3px;
+  width: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.readerSettingsSliderThumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--theme-text);
+  border: 2px solid var(--theme-subdue);
+  top: 50%;
+}
+
+.readerSettingsSlider[data-disabled] .readerSettingsSliderThumb {
+  background: var(--theme-disable);
+  border: 2px solid var(--theme-disable);
+}
+
+.readerSettingsSliderThumb[data-dragging] {
+  background: var(--theme-subdue);
+}
+
+.readerSettingsSliderThumb[data-focus-visible] {
+  outline: 2px solid var(--theme-focus);
+  border: 2px solid var(--theme-focus);
+}
+
+/* TMP?: Dropdown */
+
+.readerSettingsDropdownButton {
+  margin-top: var(--layout-spacing);
+  position: relative;
+  padding-block: calc(var(--layout-spacing) / 2);
+  padding-inline: calc(var(--layout-spacing) / 2) calc(var(--icon-size, 24px) * 6/5);
+  border-radius: var(--layout-radius);
+  box-sizing: border-box;
+  border: 1px solid var(--theme-subdue);
+  max-width: 100%;
+}
+
+.readerSettingsDropdownButton[data-focus-visible] {
+  outline: 2px solid var(--theme-focus);
+}
+
+.readerSettingsDropdownButton svg {
+  width: calc(var(--icon-size, 24px) * 5/6);
+  height: calc(var(--icon-size, 24px) * 5/6);
+  position: absolute;
+  inset-inline-end: calc(var(--layout-spacing) / 4);
+  inset-block-start: calc(var(--layout-spacing) / 2);
+  fill: currentColor;
+}
+
+.readerSettingsDropdownPopover {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+  padding: calc(var(--layout-spacing) / 2);
+  border-radius: var(--layout-radius);
+  border: 1px solid var(--theme-subdue);
+  filter: drop-shadow(var(--theme-elevate));
+  box-sizing: border-box;
+  width: max-content;
+  /* TMP: Needs to be higher than bottom sheet, which requires hack for Safari iOS */
+  z-index: 1000000 !important;
+}
+
+.readerSettingsDropdownListbox {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--layout-spacing) / 2);
+}
+
+.readerSettingsDropdownListboxItem {
+  padding: calc(var(--layout-spacing) / 4);
+}
+
+.readerSettingsDropdownListboxItem[data-selected] {
+  color: var(--theme-subdue);
+}
+
+.readerSettingsDropdownListboxItem[data-focus-visible] {
+  outline: 2px solid var(--theme-focus);
+}
+
+.readerSettingsDropdownListboxItem[data-disabled] {
+  color: var(--theme-disable);
+}
+
+/* TMP: maxChars switch */
+
+.readerSettingsSwitch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--theme-text);
+  margin: var(--layout-spacing) 0;
+}
+
+.readerSettingsSwitchIndicator {
+  width: 2rem;
+  height: 1.143rem;
+  border: 2px solid var(--theme-subdue);
+  background: var(--theme-background);
+  border-radius: 1.143rem;
+  transition: all 200ms;
+}
+
+.readerSettingsSwitchIndicator::before {
+  content: '';
+  display: block;
+  margin: 0.143rem;
+  width: 0.857rem;
+  height: 0.857rem;
+  background: var(--theme-subdue);
+  border-radius: 16px;
+  transition: all 200ms;
+}
+
+.readerSettingsSwitch[data-selected] .readerSettingsSwitchIndicator::before {
+  background: var(--theme-text);
+  transform: translateX(100%);
+}
+
+:dir(rtl) .readerSettingsSwitch[data-selected] .readerSettingsSwitchIndicator::before {
+  background: var(--theme-text);
+  transform: translateX(-100%);
+}
+
+.readerSettingsSwitch[data-focus-visible] .readerSettingsSwitchIndicator {
+  outline: 2px solid var(--theme-focus);
+}
+
+.readerSettingsSwitch[data-disabled] {
+  color: var(--theme-disable);
+}
+
+.readerSettingsSwitch[data-disabled] .readerSettingsSwitchIndicator::before {
+  background: var(--theme-disable) !important;
+}

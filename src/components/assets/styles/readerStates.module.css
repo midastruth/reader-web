@@ -1,0 +1,26 @@
+.immersive {
+  opacity: var(--theme-immerse);
+}
+
+.immersiveHovering {
+  opacity: 1;
+}
+
+.immersiveHidden {
+  opacity: 0;
+}
+
+/* Relative to immersive opacity */
+.subduedAlways {
+  opacity: 1;
+}
+
+.subduedPartially:not([data-hovered]):not([data-focus-visible]) {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
