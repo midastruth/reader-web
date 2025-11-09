@@ -9,12 +9,11 @@ import {
   useTheming
 } from "../../preferences";
 
-import "../assets/styles/reader.css";
+import readerStyles from "../assets/styles/reader.module.css";
 import arrowStyles from "../assets/styles/readerArrowButton.module.css";
 
 import { 
-  ThActionsKeys, 
-  ThBreakpoints, 
+  ThActionsKeys,  
   ThLineHeightOptions, 
   ThTextAlignOptions, 
   ThLayoutUI,
@@ -114,6 +113,7 @@ import Peripherals from "../../helpers/peripherals";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { deserializePositions } from "@/helpers/deserializePositions";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
+import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
@@ -851,19 +851,18 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     <>
     <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider navigator={ epubNavigator }>
-      <main id="reader-main">
+      <main className={ readerStyles.thoriumWebReaderMain }>
         <StatefulDockingWrapper>
           <div 
-            id="reader-shell" 
             className={ 
-              classNames(
-                isFXL ? "isFXL" : "isReflow",
-                isImmersive ? "isImmersive" : "",
-                isHovering ? "isHovering" : "",
-                isScroll ? "isScroll" : "isPaged",
+              getReaderClassNames({
+                isScroll,
+                isImmersive,
+                isHovering,
+                isFXL,
                 layoutUI,
                 breakpoint
-              )
+              })
             }
           >
             <StatefulReaderHeader 
@@ -893,8 +892,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             </nav> 
             : <></> }
 
-            <article id="wrapper" aria-label={ t("reader.app.publicationWrapper") }>
-              <div id="container" ref={ container }></div>
+            <article className={ readerStyles.thoriumWebWrapper } aria-label={ t("reader.app.publicationWrapper") }>
+              <div id="thorium-web-container" className={ readerStyles.thoriumWebContainer } ref={ container }></div>
             </article>
 
           { !isScroll 

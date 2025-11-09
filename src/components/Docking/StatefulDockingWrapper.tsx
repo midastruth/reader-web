@@ -2,6 +2,7 @@
 
 import { ReactNode, useCallback, useEffect, useRef } from "react";
 
+import readerStyles from "../assets/styles/reader.module.css";
 import dockingStyles from "./assets/styles/docking.module.css";
 
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
@@ -90,7 +91,7 @@ const DockPanel = ({
   const direction = useAppSelector(state => state.reader.direction);
   const dispatch = useAppDispatch();
 
-  const dockClassName = flow === ThDockingKeys.end && direction === ThLayoutDirection.ltr ? "right-dock" : "left-dock";
+  const dockClassName = flow === ThDockingKeys.end && direction === ThLayoutDirection.ltr ? readerStyles.thoriumWebRightDock : readerStyles.thoriumWebLeftDock;
 
   const makeDockLabel = useCallback(() => {    
     let label = "";

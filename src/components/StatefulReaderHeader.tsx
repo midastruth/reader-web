@@ -2,12 +2,13 @@
 
 import React, { useCallback, useEffect, useRef } from "react";
 
-import { ActionKeyType, usePreferenceKeys } from "@/preferences";
+import { ActionKeyType } from "@/preferences";
 import { ThRunningHeadFormat } from "@/preferences/models/enums";
 import { ThFormatPref } from "@/preferences";
 
 import { ThLayoutUI } from "@/preferences/models/enums";
 
+import readerStyles from "./assets/styles/reader.module.css";
 import readerHeaderStyles from "./assets/styles/readerHeader.module.css";
 import overflowMenuStyles from "./Actions/assets/styles/overflowMenu.module.css";
 
@@ -26,6 +27,8 @@ import { useFocusWithin } from "react-aria";
 
 import { setHovering } from "@/lib/readerReducer";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+
+import classNames from "classnames";
 
 export const StatefulReaderHeader = ({
   actionKeys,
@@ -109,8 +112,7 @@ export const StatefulReaderHeader = ({
   return (
     <>
     <ThInteractiveOverlay 
-      id="reader-header-overlay"
-      className="bar-overlay"
+      className={ classNames(readerStyles.thoriumWebBarOverlay, readerStyles.thoriumWebReaderHeaderOverlay) }
       isActive={ layout === ThLayoutUI.layered && isImmersive && !isHovering }
       onMouseEnter={ setHover }
       onMouseLeave={ removeHover }
@@ -118,8 +120,7 @@ export const StatefulReaderHeader = ({
 
     <ThHeader 
       ref={ headerRef }
-      className={ readerHeaderStyles.header } 
-      id="top-bar" 
+      className={ classNames(readerStyles.thoriumWebTopBar, readerHeaderStyles.header) } 
       aria-label={ t("reader.app.header.label") } 
       onMouseEnter={ setHover } 
       onMouseLeave={ removeHover }

@@ -68,7 +68,7 @@
   opacity: 1;
 }
 
-:global(.stacked-ui.isImmersive:not(.isHovering)) .partiallyVisible {
+:global(.thoriumWebStackedUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .partiallyVisible {
   opacity: 0;
 }
 
