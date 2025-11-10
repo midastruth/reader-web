@@ -1,32 +1,35 @@
-.container {
+.readerArrowContainer {
   position: absolute;
   z-index: 2;
 }
 
-#left {
+.readerArrowContainerLeft {
   top: 50vh;
   top: 50dvh;
   transform: translateY(-50%);
   left: 0;
 }
 
-#left button {
+.readerArrowContainerLeft .readerArrowButton {
   margin-left: var(--arrow-offset, 0);
 }
 
-#right {
+.readerArrowContainerRight {
   top: 50vh;
   top: 50dvh;
   transform: translateY(-50%);
   right: 0;
 }
 
-#right button {
+.readerArrowContainerRight .readerArrowButton {
   margin-right: var(--arrow-offset, 0);
 }
 
-.container button {
-  composes: button from "/src/components/assets/styles/base.module.css";
+.readerArrowButton {
+  composes: button from "./base.module.css";
+}
+
+.readerArrowContainer .readerArrowButton {
   width: var(--arrow-size, 40px);
   /* height: var(--arrow-size, 40px); */
   height: 40vh;
@@ -40,37 +43,42 @@
   border: 1px solid var(--theme-text);
 }
 
-.container .viewportLarge {
+.readerArrowContainer .readerArrowButtonOccupiesSpace {
   background-color: transparent;
   border: none;
 }
 
-.container button:disabled {
+.readerArrowContainer .readerArrowButton[data-disabled] {
   pointer-events: none;
 }
 
-.container .visuallyHidden {
+.readerArrowContainer .readerArrowButton[data-hovered] {
+  opacity: 1;
+  transition: all 200ms;
+}
+
+.readerArrowContainer .readerArrowButtonVisuallyHidden {
   opacity: 0;
 }
 
-.container button[data-focused] {
+.readerArrowContainer .readerArrowButton[data-focused] {
   outline: 2px solid var(--theme-focus);
   opacity: 1;
 }
 
-.container button[data-disabled] {
+.readerArrowContainer .readerArrowButton[data-disabled] {
   opacity: 0;
 }
 
 /* Exclude taps as they will eventually apply hover state */
 @media (hover: hover) and (pointer: fine) {
-  .container button:not(:disabled):hover {
+  .readerArrowContainer .readerArrowButton:not([data-disabled])[data-hovered] {
     opacity: 1;
     transition: all 200ms;
   }
 }
 
-.container button svg {
+.readerArrowContainer .readerArrowButton svg {
   fill: var(--theme-text);
   stroke: var(--theme-text);
   width: 100%;

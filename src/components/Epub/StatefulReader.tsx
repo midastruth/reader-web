@@ -877,7 +877,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             />
 
           { !isScroll 
-            ? <nav className={ arrowStyles.container } id={ arrowStyles.left }>
+            ? <nav className={ classNames(arrowStyles.readerArrowContainer, arrowStyles.readerArrowContainerLeft) }>
                 <StatefulReaderArrowButton 
                   direction="left" 
                   isDisabled={ atPublicationStart } 
@@ -897,7 +897,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             </article>
 
           { !isScroll 
-            ? <nav className={ arrowStyles.container } id={ arrowStyles.right }>
+            ? <nav className={ classNames(arrowStyles.readerArrowContainer, arrowStyles.readerArrowContainerRight) }>
                 <StatefulReaderArrowButton 
                   direction="right" 
                   isDisabled={ atPublicationEnd } 

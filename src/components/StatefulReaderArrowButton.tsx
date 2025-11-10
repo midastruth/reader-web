@@ -5,16 +5,13 @@ import React, { useEffect, useRef, useState } from "react";
 import arrowStyles from "./assets/styles/readerArrowButton.module.css";
 import readerSharedUI from "./assets/styles/readerSharedUI.module.css";
 
-import { PressEvent } from "react-aria";
-
 import { ThNavigationButton, ThNavigationButtonProps } from "@/core/Components/Buttons/ThNavigationButton";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useI18n } from "@/i18n/useI18n";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { setUserNavigated } from "@/lib/readerReducer";
+import { useAppSelector } from "@/lib/hooks";
 
 import { isActiveElement } from "@/core/Helpers/focusUtilities";
 
@@ -41,13 +38,9 @@ export const StatefulReaderArrowButton = ({
 
   const { 
     isVisible, 
-    occupySpace, 
-    shouldTrackNavigation 
+    occupySpace 
   } = usePaginatedArrows();
   
-
-  const dispatch = useAppDispatch();
-
   const [isHovering, setIsHovering] = useState(false);
 
   const label = (
@@ -60,7 +53,7 @@ export const StatefulReaderArrowButton = ({
   const handleClassNameFromState = () => {
     let className = "";
     if (!isVisible) {
-      className = arrowStyles.visuallyHidden;
+      className = arrowStyles.readerArrowButtonVisuallyHidden;
     }
     return className;
   };
@@ -68,7 +61,7 @@ export const StatefulReaderArrowButton = ({
   const handleClassNameFromSpaceProp = () => {
     let className = "";
     if (occupySpace) {
-      className = arrowStyles.viewportLarge;
+      className = arrowStyles.readerArrowButtonOccupiesSpace;
     }
     return className;
   };
@@ -94,7 +87,7 @@ export const StatefulReaderArrowButton = ({
       onPress={ onPress }
       onHoverChange={ (isHovering: boolean) => setIsHovering(isHovering) } 
       onKeyDown={ blurOnEsc }
-      className={ classNames(className, handleClassNameFromSpaceProp(), handleClassNameFromState()) }
+      className={ classNames(className, arrowStyles.readerArrowButton, handleClassNameFromSpaceProp(), handleClassNameFromState()) }
       isDisabled={ isDisabled }
       preventFocusOnPress={ true }
       { ...props }
