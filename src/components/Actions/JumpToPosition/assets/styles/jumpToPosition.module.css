@@ -9,6 +9,7 @@
 }
 
 .jumpToPositionInput {
+  composes: input from "../../../../assets/styles/base.module.css";
   display: block;
   font-weight: bold;
   padding: calc(var(--icon-size, 24px) * (1/4)) calc(var(--layout-spacing) / 2);
@@ -17,6 +18,7 @@
 }
 
 .jumpToPositionButton {
+  composes: button from "../../../../assets/styles/base.module.css";
   box-sizing: content-box;
   border: 2px solid var(--theme-subdue);
   padding: calc(var(--icon-size, 24px) * (1/4)) calc(var(--icon-size, 24px) * (1/2));

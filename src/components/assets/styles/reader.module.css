@@ -14,36 +14,6 @@ body:has(.thoriumWebReaderMain) {
 
 /* Resets scoped to the reader component */
 /* Using :where() to avoid specificity issues */
-:where(.thoriumWebReaderMain) button {
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: 0;
-  text-align: inherit;
-  background: none;
-  box-shadow: none;
-  padding: 0;
-  cursor: pointer;
-  border: none;
-  color: inherit;
-  font: inherit;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-:where(.thoriumWebReaderMain) input {
-  font-size: 1rem;
-  border-radius: 0;
-  text-align: inherit;
-  background: none;
-  box-shadow: none;
-  padding: 0;
-  cursor: text;
-  border: none;
-  color: inherit;
-  font: inherit;
-  outline: none;
-}
-
 :where(.thoriumWebReaderMain) ::selection {
   background-color: var(--theme-select);
   color: var(--theme-onSelect);

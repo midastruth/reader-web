@@ -16,6 +16,7 @@
 }
 
 .tocSearchInput {
+  composes: input from "../../../../assets/styles/base.module.css";
   grid-area: input;
   box-sizing: border-box;
   width: 100%;
@@ -37,6 +38,7 @@
 
 .tocSearchIcon,
 .tocClearButton {
+  composes: button from "../../../../assets/styles/base.module.css";
   grid-area: button;
   margin-inline-start: calc(var(--icon-size, 24px) * -1.25);
   height: 100%;
@@ -105,6 +107,7 @@
 }
 
 .tocTreeItemButton {
+  composes: button from "../../../../assets/styles/base.module.css";
   align-self: flex-start;
   width: calc(var(--icon-size, 24px) * 5/6);
   height: calc(var(--icon-size, 24px) * 5/6);

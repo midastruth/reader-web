@@ -2,6 +2,7 @@
 .dockerButton,
 .closeButton,
 .backButton {
+  composes: button from "./base.module.css";
   box-sizing: border-box;
   padding: calc(var(--icon-size, 24px) * (1/4));
   text-align: center;

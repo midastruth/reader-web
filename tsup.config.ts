@@ -18,7 +18,7 @@ export default defineConfig({
     "src/components/WebPub/index.ts"
   ],
   loader: {
-    ".css": "copy"
+    ".css": "local-css"
   },
   esbuildPlugins: [svgrPlugin()],
   sourcemap: true,

@@ -26,6 +26,7 @@
 }
 
 .container button {
+  composes: button from "/src/components/assets/styles/base.module.css";
   width: var(--arrow-size, 40px);
   /* height: var(--arrow-size, 40px); */
   height: 40vh;
