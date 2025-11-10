@@ -84,8 +84,11 @@
 
 /* Number field */
 
-.readerSettingsNumberField .readerSettingsInput {
+.readerSettingsInput {
   composes: input from "../../../assets/styles/base.module.css";
+}
+
+.readerSettingsNumberField .readerSettingsInput {
   background-color: var(--theme-background);
   color: var(--theme-text);
   font-weight: bold;
