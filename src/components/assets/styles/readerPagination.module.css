@@ -31,11 +31,6 @@
   justify-self: end;
 }
 
-.previousButton,
-.nextButton {
-    composes: button from "./base.module.css";
-}
-
 .paginationListItem button {
   box-sizing: border-box;
   padding: calc(var(--icon-size, 24px) * (1/4)) calc(var(--layout-spacing) / 2);

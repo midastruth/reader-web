@@ -1,4 +1,4 @@
-.button {
+button {
   -webkit-appearance: none;
   appearance: none;
   border: none;
@@ -12,8 +12,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-
-.input {
+input {
   font-size: 1rem;
   border-radius: 0;
   text-align: inherit;
@@ -25,4 +24,9 @@
   color: inherit;
   font: inherit;
   outline: none;
+}
+
+::selection {
+  background-color: var(--theme-select);
+  color: var(--theme-onSelect);
 }

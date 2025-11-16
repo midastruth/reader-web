@@ -7,6 +7,7 @@ import { usePublication } from "@/hooks/usePublication";
 import { useAppSelector } from "@/lib/hooks";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
 
+import "@/app/reset.css";
 import "@/app/app.css";
 
 const WEB_MANIFESTS = {

@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import { isManifestRouteEnabled } from "./ManifestRouteEnabled";
 
+import "./reset.css";
 import "./home.css";
 
 const books = [

@@ -1,7 +1,3 @@
-.hintButton {
-  composes: button from "../../../assets/styles/base.module.css";
-}
-
 :global(.thoriumWebLayeredUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .hintButton {
   transform: translateY(calc(var(--icon-size, 24px) * 2.5));
   transition-property: transform;

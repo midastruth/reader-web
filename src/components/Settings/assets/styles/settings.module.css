@@ -78,15 +78,10 @@
 /* Reset button */
 
 .readerSettingsResetButton {
-  composes: button from "../../../assets/styles/base.module.css";
   margin-inline-start: auto;
 }
 
 /* Number field */
-
-.readerSettingsInput {
-  composes: input from "../../../assets/styles/base.module.css";
-}
 
 .readerSettingsNumberField .readerSettingsInput {
   background-color: var(--theme-background);
@@ -330,7 +325,6 @@
 }
 
 .readerSettingsDropdownButton {
-  composes: button from "../../../assets/styles/base.module.css";
   margin-top: var(--layout-spacing);
   position: relative;
   padding-block: calc(var(--layout-spacing) / 2);

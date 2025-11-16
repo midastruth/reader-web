@@ -25,10 +25,6 @@
   margin-right: var(--arrow-offset, 0);
 }
 
-.readerArrowButton {
-  composes: button from "./base.module.css";
-}
-
 .readerArrowContainer .readerArrowButton {
   width: var(--arrow-size, 40px);
   /* height: var(--arrow-size, 40px); */
