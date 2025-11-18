@@ -1,31 +1,31 @@
-.readerArrowContainer {
+.container {
   position: absolute;
   z-index: 2;
 }
 
-.readerArrowContainerLeft {
+.leftContainer {
   top: 50vh;
   top: 50dvh;
   transform: translateY(-50%);
   left: 0;
 }
 
-.readerArrowContainerLeft .readerArrowButton {
+.leftContainer button {
   margin-left: var(--arrow-offset, 0);
 }
 
-.readerArrowContainerRight {
+.rightContainer {
   top: 50vh;
   top: 50dvh;
   transform: translateY(-50%);
   right: 0;
 }
 
-.readerArrowContainerRight .readerArrowButton {
+.rightContainer button {
   margin-right: var(--arrow-offset, 0);
 }
 
-.readerArrowContainer .readerArrowButton {
+.container button {
   width: var(--arrow-size, 40px);
   /* height: var(--arrow-size, 40px); */
   height: 40vh;
@@ -39,42 +39,42 @@
   border: 1px solid var(--theme-text);
 }
 
-.readerArrowContainer .readerArrowButtonOccupiesSpace {
+.container .occupiesSpace {
   background-color: transparent;
   border: none;
 }
 
-.readerArrowContainer .readerArrowButton[data-disabled] {
+.container button[data-disabled] {
   pointer-events: none;
 }
 
-.readerArrowContainer .readerArrowButton[data-hovered] {
+.container button[data-hovered] {
   opacity: 1;
   transition: all 200ms;
 }
 
-.readerArrowContainer .readerArrowButtonVisuallyHidden {
+.container .visuallyHidden {
   opacity: 0;
 }
 
-.readerArrowContainer .readerArrowButton[data-focused] {
+.container button[data-focused] {
   outline: 2px solid var(--theme-focus);
   opacity: 1;
 }
 
-.readerArrowContainer .readerArrowButton[data-disabled] {
+.container button[data-disabled] {
   opacity: 0;
 }
 
 /* Exclude taps as they will eventually apply hover state */
 @media (hover: hover) and (pointer: fine) {
-  .readerArrowContainer .readerArrowButton:not([data-disabled])[data-hovered] {
+  .container button:not([data-disabled])[data-hovered] {
     opacity: 1;
     transition: all 200ms;
   }
 }
 
-.readerArrowContainer .readerArrowButton svg {
+.container button svg {
   fill: var(--theme-text);
   stroke: var(--theme-text);
   width: 100%;

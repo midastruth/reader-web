@@ -851,7 +851,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     <>
     <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider navigator={ epubNavigator }>
-      <main className={ readerStyles.thoriumWebReaderMain }>
+      <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
           <div 
             className={ 
@@ -877,7 +877,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             />
 
           { !isScroll 
-            ? <nav className={ classNames(arrowStyles.readerArrowContainer, arrowStyles.readerArrowContainerLeft) }>
+            ? <nav className={ classNames(arrowStyles.container, arrowStyles.leftContainer) }>
                 <StatefulReaderArrowButton 
                   direction="left" 
                   isDisabled={ atPublicationStart } 
@@ -892,12 +892,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             </nav> 
             : <></> }
 
-            <article className={ readerStyles.thoriumWebWrapper } aria-label={ t("reader.app.publicationWrapper") }>
-              <div id="thorium-web-container" className={ readerStyles.thoriumWebContainer } ref={ container }></div>
+            <article className={ readerStyles.wrapper } aria-label={ t("reader.app.publicationWrapper") }>
+              <div id="thorium-web-container" className={ readerStyles.iframeContainer } ref={ container }></div>
             </article>
 
           { !isScroll 
-            ? <nav className={ classNames(arrowStyles.readerArrowContainer, arrowStyles.readerArrowContainerRight) }>
+            ? <nav className={ classNames(arrowStyles.container, arrowStyles.rightContainer) }>
                 <StatefulReaderArrowButton 
                   direction="right" 
                   isDisabled={ atPublicationEnd } 

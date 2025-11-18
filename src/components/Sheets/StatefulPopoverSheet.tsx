@@ -76,7 +76,7 @@ export const StatefulPopoverSheet = ({
           updateState: resetFocus
         }}
         placement={ placement || "bottom" }
-        className={ classNames(sheetStyles.popOverSheet , className) }
+        className={ classNames(sheetStyles.popover , className) }
         isOpen={ isOpen }
         onOpenChange={ onOpenChange } 
         isKeyboardDismissDisabled={ dismissEscapeKeyClose }
@@ -85,17 +85,17 @@ export const StatefulPopoverSheet = ({
         }}
         compounds={{
           dialog: {
-            className: sheetStyles.sheetDialog
+            className: sheetStyles.dialog
           }
         }}
       >
         <ThContainerHeader 
           ref={ popoverHeaderRef }
-          className={ sheetStyles.sheetHeader }
+          className={ sheetStyles.header }
           label={ heading }
           compounds={{
             heading: {
-              className: sheetStyles.sheetHeading
+              className: sheetStyles.heading
             }
           }}
         >
@@ -118,7 +118,7 @@ export const StatefulPopoverSheet = ({
         </ThContainerHeader>
         <ThContainerBody
           ref={ popoverBodyRef }
-          className={ sheetStyles.sheetBody }
+          className={ sheetStyles.body }
         >
           { children }
         </ThContainerBody>

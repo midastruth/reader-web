@@ -19,7 +19,7 @@ export const DefaultImage = ({
   <img
     src={ src }
     alt={ alt }
-    className={ publicationGridStyles.publicationImage }
+    className={ publicationGridStyles.image }
     loading="lazy"
   />
 );
@@ -64,7 +64,7 @@ export const PublicationGrid = ({
 
     return cloneElement(cover, {
       className: classNames(
-        publicationGridStyles.publicationImage,
+        publicationGridStyles.image,
         cover.props.className
       )
     });
@@ -72,7 +72,7 @@ export const PublicationGrid = ({
 
   return (
     <ThGrid
-      className={ publicationGridStyles.publicationGrid }
+      className={ publicationGridStyles.wrapper }
       items={ publications }
       columnWidth={ columnWidth }
       gap={ gap }
@@ -80,20 +80,20 @@ export const PublicationGrid = ({
         <Link
           href={ publication.url }
           key={ index }
-          className={ publicationGridStyles.publicationCard }
+          className={ publicationGridStyles.card }
         >
-          <figure className={ publicationGridStyles.publicationCover }>
+          <figure className={ publicationGridStyles.cover }>
             { renderCoverWithClass(publication) }
           </figure>
-          <div className={ publicationGridStyles.publicationInfo }>
-            <h2 className={ publicationGridStyles.publicationTitle }>
+          <div className={ publicationGridStyles.info }>
+            <h2 className={ publicationGridStyles.title }>
               { publication.title }
             </h2>
-            <p className={ publicationGridStyles.publicationAuthor }>
+            <p className={ publicationGridStyles.author }>
               { publication.author }
             </p>
             { publication.rendition && (
-              <p className={ publicationGridStyles.publicationRendition }>
+              <p className={ publicationGridStyles.rendition }>
                 { publication.rendition }
               </p>
             ) }

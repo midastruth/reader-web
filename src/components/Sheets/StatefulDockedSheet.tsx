@@ -49,9 +49,9 @@ export const StatefulDockedSheet = ({
 
   const classFromFlow = useCallback(() => {
     if (flow === ThDockingKeys.start) {
-      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedSheetLeftBorder : sheetStyles.dockedSheetRightBorder;
+      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedLeftBorder : sheetStyles.dockedRightBorder;
     } else if (flow === ThDockingKeys.end) {
-      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedSheetRightBorder : sheetStyles.dockedSheetLeftBorder;
+      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedRightBorder : sheetStyles.dockedLeftBorder;
     }
   }, [flow, direction]);
 
@@ -76,18 +76,18 @@ export const StatefulDockedSheet = ({
           },
           updateState: resetFocus
         }}
-        className={ classNames(sheetStyles.dockedSheet, className, classFromFlow()) }
+        className={ classNames(sheetStyles.docked, className, classFromFlow()) }
         style={{
           "--sheet-sticky-header": dockedSheetHeaderRef.current ? `${ dockedSheetHeaderRef.current.clientHeight }px` : undefined
         }}
       >
         <ThContainerHeader 
           ref={ dockedSheetHeaderRef }
-          className={ sheetStyles.sheetHeader }
+          className={ sheetStyles.header }
           label={ heading }
           compounds={{
             heading: {
-              className: sheetStyles.sheetHeading
+              className: sheetStyles.heading
             }
           }}
         >
@@ -110,7 +110,7 @@ export const StatefulDockedSheet = ({
         </ThContainerHeader>
         <ThContainerBody 
           ref={ dockedSheetBodyRef }
-          className={ sheetStyles.sheetBody }
+          className={ sheetStyles.body }
         >
           { children }
         </ThContainerBody>

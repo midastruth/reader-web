@@ -1,4 +1,4 @@
-.backLink {
+.link {
   display: block;
   box-sizing: content-box;
   padding: calc(var(--icon-size, 24px) * (1/4));
@@ -8,29 +8,29 @@
   height: var(--icon-size, 24px);
 }
 
-.backLink svg {
+.link svg {
   fill: var(--theme-text);
   max-width: 100%;
   height: 100%;
 }
 
-.backLink img {
+.link img {
   max-width: 100%;
   height: 100%;
 }
 
-.backLink[data-hovered] {
+.link[data-hovered] {
   background-color: var(--theme-hover);
 }
 
-.backLink[data-focus-visible] {
+.link[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
 }
 
-.backLink[data-disabled] {
+.link[data-disabled] {
   color: var(--theme-disable)
 }
 
-.backLink[data-disabled] svg {
+.link[data-disabled] svg {
   fill: var(--theme-disable);
 }

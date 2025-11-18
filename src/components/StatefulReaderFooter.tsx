@@ -84,12 +84,12 @@ export const StatefulReaderFooter = ({
       links.previous = {
         node: breakpoint !== ThBreakpoints.compact && breakpoint !== ThBreakpoints.medium ? (
           <>
-            <span className={ readerStyles.thoriumWebSROnly }>{ t("reader.navigation.scroll.prevA11yLabel") }</span>
-            <span className={ readerPaginationStyles.paginationLabel }>{ timeline?.previousItem?.title || previous.title || t("reader.navigation.scroll.prevLabel") }</span>
+            <span className={ readerStyles.srOnly }>{ t("reader.navigation.scroll.prevA11yLabel") }</span>
+            <span className={ readerPaginationStyles.label }>{ timeline?.previousItem?.title || previous.title || t("reader.navigation.scroll.prevLabel") }</span>
           </>
         ) : (
           <>
-            <span className={ readerPaginationStyles.paginationLabel }>{ t("reader.navigation.scroll.prevLabel") }</span>
+            <span className={ readerPaginationStyles.label }>{ t("reader.navigation.scroll.prevLabel") }</span>
           </>
         ),
         onPress: () => go(previous, !reducedMotion, () => {})
@@ -100,12 +100,12 @@ export const StatefulReaderFooter = ({
       links.next = {
         node: breakpoint !== ThBreakpoints.compact && breakpoint !== ThBreakpoints.medium ? (
           <>
-            <span className={ readerStyles.thoriumWebSROnly }>{ t("reader.navigation.scroll.nextA11yLabel") }</span>
-            <span className={ readerPaginationStyles.paginationLabel }>{ timeline?.nextItem?.title || next.title || t("reader.navigation.scroll.nextLabel") }</span>
+            <span className={ readerStyles.srOnly }>{ t("reader.navigation.scroll.nextA11yLabel") }</span>
+            <span className={ readerPaginationStyles.label }>{ timeline?.nextItem?.title || next.title || t("reader.navigation.scroll.nextLabel") }</span>
           </>
         ) : ( 
           <>
-            <span className={ readerPaginationStyles.paginationLabel }>{ t("reader.navigation.scroll.nextLabel") }</span>
+            <span className={ readerPaginationStyles.label }>{ t("reader.navigation.scroll.nextLabel") }</span>
           </>
         ),
         onPress: () => go(next, !reducedMotion, () => {})
@@ -132,7 +132,7 @@ export const StatefulReaderFooter = ({
   return(
     <>
     <ThInteractiveOverlay 
-      className={ classNames(readerStyles.thoriumWebBarOverlay, readerStyles.thoriumWebReaderFooterOverlay) }
+      className={ classNames(readerStyles.barOverlay, readerStyles.footerOverlay) }
       isActive={ layout === ThLayoutUI.layered && isImmersive && !isHovering }
       onMouseEnter={ setHover }
       onMouseLeave={ removeHover }
@@ -140,7 +140,7 @@ export const StatefulReaderFooter = ({
     
     <ThFooter 
       ref={ footerRef }
-      className={ readerStyles.thoriumWebBottomBar }
+      className={ readerStyles.bottomBar }
       aria-label={ t("reader.app.footer.label") } 
       onMouseEnter={ setHover } 
       onMouseLeave={ removeHover }
@@ -152,7 +152,7 @@ export const StatefulReaderFooter = ({
             links={ updateLinks() } 
             compounds={ {
               listItem: {
-                className: readerPaginationStyles.paginationListItem
+                className: readerPaginationStyles.listItem
               },
               previousButton: {
                 className: readerPaginationStyles.previousButton,

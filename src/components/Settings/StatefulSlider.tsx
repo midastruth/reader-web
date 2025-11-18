@@ -50,34 +50,34 @@ export const StatefulSlider = ({
       { ...(standalone ? { label: label } : {"aria-label": label}) }
       placeholder={ placeholder }
       className={ classNames(
-        settingsStyles.readerSettingsSlider,
-        displayTicks && settingsStyles.readerSettingsSliderWithTicks
+        settingsStyles.slider,
+        displayTicks && settingsStyles.sliderWithTicks
       ) }
       style={ style }
       compounds={{
         wrapper: {
           className: classNames(
-            settingsStyles.readerSettingsSliderWrapper,
-            standalone && settingsStyles.readerSettingsGroup
+            settingsStyles.sliderWrapper,
+            standalone && settingsStyles.group
           )
         },
         label: {
-          className: classNames(settingsStyles.readerSettingsLabel, settingsStyles.readerSettingsSliderLabel)
+          className: classNames(settingsStyles.label, settingsStyles.sliderLabel)
         },
         output: {
-          className: settingsStyles.readerSettingsSliderOutput
+          className: settingsStyles.sliderOutput
         },
         placeholder: {
-          className: settingsStyles.readerSettingsSliderPlaceholder
+          className: settingsStyles.sliderPlaceholder
         },
         track: {
-          className: settingsStyles.readerSettingsSliderTrack
+          className: settingsStyles.sliderTrack
         },
         thumb: {
-          className: settingsStyles.readerSettingsSliderThumb
+          className: settingsStyles.sliderThumb
         },
         reset: {
-          className: classNames(readerSharedUI.icon, settingsStyles.readerSettingsResetButton),
+          className: classNames(readerSharedUI.icon, settingsStyles.resetButton),
           compounds: {
             tooltipTrigger: {
               delay: preferences.theming.arrow.tooltipDelay,

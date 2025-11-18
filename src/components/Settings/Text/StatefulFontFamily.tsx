@@ -66,12 +66,12 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       compounds={ {
         listbox: (
           <ListBox
-            className={ settingsStyles.readerSettingsDropdownListbox }
+            className={ settingsStyles.dropdownListbox }
             items={ fontFamilyOptions.current }
           >
             { (item) => (
               <ListBoxItem
-                className={ settingsStyles.readerSettingsDropdownListboxItem }
+                className={ settingsStyles.dropdownListboxItem }
                 id={ item.id }
                 key={ item.id }
                 textValue={ item.value || undefined }

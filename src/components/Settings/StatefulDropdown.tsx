@@ -25,25 +25,25 @@ export const StatefulDropdown = ({
       { ...props }
       { ...(standalone ? { label } : { "aria-label": label }) }
       className={ classNames(
-        settingsStyles.readerSettingsDropdown,
-        standalone && settingsStyles.readerSettingsGroup,
+        settingsStyles.dropdown,
+        standalone && settingsStyles.group,
         className
       ) }
         compounds={{
           label: {
-            className: settingsStyles.readerSettingsLabel,
+            className: settingsStyles.label,
             ...(compounds?.label || {})
           },
           ...(React.isValidElement(compounds?.button) 
             ? { button: compounds.button }
             : {
                 button: {
-                  className: settingsStyles.readerSettingsDropdownButton,
+                  className: settingsStyles.dropdownButton,
                   ...(compounds?.button || {})
                 }
               }),
           popover: {
-            className: settingsStyles.readerSettingsDropdownPopover,
+            className: settingsStyles.dropdownPopover,
             placement: "bottom",
             ...(compounds?.popover || {})
           },
@@ -51,11 +51,11 @@ export const StatefulDropdown = ({
             ? { listbox: compounds.listbox }
             : {
                 listbox: {
-                  className: settingsStyles.readerSettingsDropdownListbox,
+                  className: settingsStyles.dropdownListbox,
                   ...(compounds?.listbox || {})
                 },
                 listboxItem: {
-                  className: settingsStyles.readerSettingsDropdownListboxItem,
+                  className: settingsStyles.dropdownListboxItem,
                   ...(compounds?.listboxItem || {})
                 }
               })

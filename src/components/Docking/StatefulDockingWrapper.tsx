@@ -44,9 +44,9 @@ const DockHandle = ({
 
   const classFromFlow = useCallback(() => {
     if (flow === ThDockingKeys.start) {
-      return direction === ThLayoutDirection.ltr ? dockingStyles.dockResizeHandleGrabLeft : dockingStyles.dockResizeHandleGrabRight;
+      return direction === ThLayoutDirection.ltr ? dockingStyles.resizeHandleGrabLeft : dockingStyles.resizeHandleGrabRight;
     } else if (flow === ThDockingKeys.end) {
-      return direction === ThLayoutDirection.ltr ? dockingStyles.dockResizeHandleGrabRight : dockingStyles.dockResizeHandleGrabLeft;
+      return direction === ThLayoutDirection.ltr ? dockingStyles.resizeHandleGrabRight : dockingStyles.resizeHandleGrabLeft;
     }
   }, [flow, direction]);
 
@@ -54,12 +54,12 @@ const DockHandle = ({
     <>
     <PanelResizeHandle 
       id={ handleID } 
-      className={ dockingStyles.dockResizeHandle }
+      className={ dockingStyles.resizeHandle }
       disabled={ !isResizable }
       tabIndex={ isPopulated ? 0 : -1 }
     >
       { isResizable && hasDragIndicator && 
-        <div className={ classNames(dockingStyles.dockResizeHandleGrab, classFromFlow()) }></div> 
+        <div className={ classNames(dockingStyles.resizeHandleGrab, classFromFlow()) }></div> 
       }
     </PanelResizeHandle>
     </>
@@ -91,7 +91,7 @@ const DockPanel = ({
   const direction = useAppSelector(state => state.reader.direction);
   const dispatch = useAppDispatch();
 
-  const dockClassName = flow === ThDockingKeys.end && direction === ThLayoutDirection.ltr ? readerStyles.thoriumWebRightDock : readerStyles.thoriumWebLeftDock;
+  const dockClassName = flow === ThDockingKeys.end && direction === ThLayoutDirection.ltr ? readerStyles.rightDock : readerStyles.leftDock;
 
   const makeDockLabel = useCallback(() => {    
     let label = "";
@@ -170,7 +170,7 @@ const DockPanel = ({
       <div 
         id={ flow } 
         aria-label={ makeDockLabel() }
-        className={ classNames(dockingStyles.dockPanelContainer, dockClassName) }
+        className={ classNames(dockingStyles.panelContainer, dockClassName) }
       ></div>
     </Panel>
     { flow === ThDockingKeys.start && 

@@ -1,89 +1,89 @@
-.readerSettingsGroup {
+.group {
   margin: calc(var(--layout-spacing) * 2) 0; 
 }
 
-.readerSettingsAdvancedGroup {
+.advancedGroup {
   position: relative;
 }
 
-.readerSettingsAdvancedIcon {
+.advancedIcon {
   position: absolute;
   inset-inline-end: 0;
   inset-block-start: 0;
 }
 
-.readerSettingsLabel {
+.label {
   display: block;
   font-weight: bold;
   font-size: 1rem;
   margin: 0;
 }
 
-.readerSettingsGroupLabel {
+.groupLabel {
   padding-top: calc(var(--icon-size, 24px) * (1/3));
 }
 
-.readerSettingsRadioWrapper,
-.readerSettingsGroupWrapper {
+.radioWrapper,
+.groupWrapper {
   margin: var(--layout-spacing) 0;
   text-align: center;
   border-radius: var(--layout-radius);
 }
 
-.readerSettingsNumberField .readerSettingsGroupWrapper {
+.numberField .groupWrapper {
   margin-bottom: 0;
 }
 
-.readerSettingsRadioWrapper {
+.radioWrapper {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 100px), 1fr));
   gap: calc(var(--layout-spacing) / 4);
   width: 100%; 
 }
 
-.readerSettingsGroupWrapper {
+.groupWrapper {
   display: flex;
   width: fit-content;
   gap: var(--layout-spacing) calc(var(--layout-spacing) / 2);
 }
 
-.readerSettingsAdvancedGroup .readerSettingsRadioWrapper {
+.advancedGroup .radioWrapper {
   margin-bottom: 0;
 }
 
-.readerSettingsGroupWrapper[data-focus-within]:has(input[data-focus-visible]) {
+.groupWrapper[data-focus-within]:has(input[data-focus-visible]) {
   outline: 2px solid var(--theme-focus);
 }
 
-.readerSettingsNumberFieldWrapper,
-.readerSettingsSliderWrapper {
+.numberFieldWrapper,
+.sliderWrapper {
   display: flex;
   align-items: flex-start;
   max-width: 100%;
 }
 
-.readerSettingsNumberFieldWrapper .readerSettingsNumberField,
-.readerSettingsSliderWrapper .readerSettingsSlider {
+.numberFieldWrapper .numberField,
+.sliderWrapper .slider {
   flex: 1 0 auto;
 }
 
-.readerSettings .readerSettingsGroup:first-of-type {
+.readerSettings .group:first-of-type {
   margin-top: 0;
 }
 
-.readerSettings .readerSettingsGroup:last-of-type {
+.readerSettings .group:last-of-type {
   margin-bottom: 0;
 }
 
 /* Reset button */
 
-.readerSettingsResetButton {
+.resetButton {
   margin-inline-start: auto;
 }
 
 /* Number field */
 
-.readerSettingsNumberField .readerSettingsInput {
+.numberField .input {
   background-color: var(--theme-background);
   color: var(--theme-text);
   font-weight: bold;
@@ -91,18 +91,18 @@
   max-width: 20ch;
 }
 
-.readerSettingsGroupWrapper[data-disabled] .readerSettingsInput {
+.groupWrapper[data-disabled] .input {
   color: var(--theme-disable)
 }
 
-.readerSettingsRadio {
+.radio {
   padding: calc(var(--layout-spacing) / 2);
   border-radius: var(--layout-radius);
   box-sizing: border-box;
   border: 2px solid transparent;
 }
 
-.readerSettingsRadio:not(.readerSettingsThemeRadio) {
+.radio:not(.themeRadio) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -111,13 +111,13 @@
   width: 100%;
 }
 
-.readerSettingsRadio:not(.readerSettingsThemeRadio) > * {
+.radio:not(.themeRadio) > * {
   width: 100%;
   text-align: center;
 }
 
 /* Text truncation for non-theme radios */
-.readerSettingsRadio:not(.readerSettingsThemeRadio) span {
+.radio:not(.themeRadio) span {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -131,30 +131,30 @@
   white-space: normal;
 }
 
-.readerSettingsRadio:not(.readerSettingsThemeRadio)[data-selected] {
+.radio:not(.themeRadio)[data-selected] {
   border: 2px solid var(--theme-subdue);
 }
 
-.readerSettingsRadio[data-disabled] {
+.radio[data-disabled] {
   color: var(--theme-disable);
 }
 
-.readerSettingsRadio[data-hovered] {
+.radio[data-hovered] {
   background-color: var(--theme-hover);
 }
 
-.readerSettingsRadio[data-focus-visible] {
+.radio[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
 }
 
-.readerSettingsRadio svg {
+.radio svg {
   width: var(--icon-size, 32px);
   height: var(--icon-size, 32px);
   /* So that it’s the same color as text based on state */
   fill: currentColor;
 }
 
-.readerSettingsThemesWrapper {
+.themesWrapper {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-auto-flow: row;
@@ -162,7 +162,7 @@
   gap: calc(var(--layout-spacing) / 2);
 }
 
-.readerSettingsThemeRadio {
+.themeRadio {
   padding-block: calc(var(--layout-spacing) / 4);
   padding-inline: calc((var(--icon-size, 24px) * 5/6) + (var(--layout-spacing) / 4));
   position: relative;
@@ -171,7 +171,7 @@
   text-overflow: ellipsis;
 }
 
-.readerSettingsThemeRadio svg {
+.themeRadio svg {
   width: calc(var(--icon-size, 24px) * 5/6);
   height: calc(var(--icon-size, 24px) * 5/6);
   position: absolute;
@@ -181,14 +181,14 @@
   fill: currentColor;
 }
 
-.readerSettingsSeparator {
+.separator {
   border: none;
   border-top: 1px solid var(--theme-subdue);
 }
 
 /* Slider */
 
-.readerSettingsSlider {
+.slider {
   display: grid;
   grid-template-areas: "label output"
                        "track track";
@@ -199,7 +199,7 @@
   max-width: min(calc(100% - (var(--layout-spacing) / 2)), 80%);
 }
 
-.readerSettingsSliderLabel {
+.sliderLabel {
   grid-area: label;
   white-space: nowrap;
   overflow: hidden;
@@ -207,16 +207,16 @@
   max-width: 100%;
 }
 
-.readerSettingsSliderOutput {
+.sliderOutput {
   grid-area: output;
 }
 
-.readerSettingsSlider[data-disabled] .readerSettingsSliderLabel,
-.readerSettingsSlider[data-disabled] .readerSettingsSliderOutput {
+.slider[data-disabled] .sliderLabel,
+.slider[data-disabled] .sliderOutput {
   color: var(--theme-disable);
 }
 
-.readerSettingsSliderTrack {
+.sliderTrack {
   grid-area: track;
   position: relative;
   height: 30px;
@@ -225,7 +225,7 @@
   margin-inline: calc(var(--layout-spacing) / 2);
 }
 
-.readerSettingsSliderTrack::before {
+.sliderTrack::before {
   content: "";
   display: block;
   position: absolute;
@@ -236,7 +236,7 @@
   transform: translateY(-50%);
 }
 
-.readerSettingsSliderThumb {
+.sliderThumb {
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 50%;
@@ -245,27 +245,27 @@
   top: 50%;
 }
 
-.readerSettingsSlider[data-disabled] .readerSettingsSliderThumb {
+.slider[data-disabled] .sliderThumb {
   background: var(--theme-disable);
   border: 2px solid var(--theme-disable);
 }
 
-.readerSettingsSliderThumb[data-dragging] {
+.sliderThumb[data-dragging] {
   background: var(--theme-subdue);
 }
 
-.readerSettingsSliderThumb[data-focus-visible] {
+.sliderThumb[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
   border: 2px solid var(--theme-focus);
 }
 
-.readerSettingsSliderPlaceholder {
+.sliderPlaceholder {
   color: var(--theme-subdue);  
 }
 
 /* Slider with ticks */
 
-.readerSettingsSliderWithTicks .readerSettingsSliderTrack::before {
+.sliderWithTicks .sliderTrack::before {
   background: 
     /* Track line */
     linear-gradient(
@@ -289,7 +289,7 @@
 
 /* First and last tick */
 
-.readerSettingsSliderWithTicks .readerSettingsSliderTrack::after {
+.sliderWithTicks .sliderTrack::after {
   content: "";
   background: 
     /* First tick */
@@ -320,11 +320,11 @@
 
 /* Dropdown */
 
-.readerSettingsDropdown[data-disabled] {
+.dropdown[data-disabled] {
   color: var(--theme-disable);
 }
 
-.readerSettingsDropdownButton {
+.dropdownButton {
   margin-top: var(--layout-spacing);
   position: relative;
   padding-block: calc(var(--layout-spacing) / 2);
@@ -335,11 +335,11 @@
   max-width: 100%;
 }
 
-.readerSettingsDropdownButton[data-focus-visible] {
+.dropdownButton[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
 }
 
-.readerSettingsDropdownButton svg {
+.dropdownButton svg {
   width: calc(var(--icon-size, 24px) * 5/6);
   height: calc(var(--icon-size, 24px) * 5/6);
   position: absolute;
@@ -348,7 +348,7 @@
   fill: currentColor;
 }
 
-.readerSettingsDropdownPopover {
+.dropdownPopover {
   background-color: var(--theme-background);
   color: var(--theme-text);
   padding: calc(var(--layout-spacing) / 2);
@@ -361,31 +361,31 @@
   z-index: 1000000 !important;
 }
 
-.readerSettingsDropdownListbox {
+.dropdownListbox {
   display: flex;
   flex-direction: column;
   gap: calc(var(--layout-spacing) / 2);
 }
 
-.readerSettingsDropdownListboxItem {
+.dropdownListboxItem {
   padding: calc(var(--layout-spacing) / 4);
 }
 
-.readerSettingsDropdownListboxItem[data-selected] {
+.dropdownListboxItem[data-selected] {
   color: var(--theme-subdue);
 }
 
-.readerSettingsDropdownListboxItem[data-focus-visible] {
+.dropdownListboxItem[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
 }
 
-.readerSettingsDropdownListboxItem[data-disabled] {
+.dropdownListboxItem[data-disabled] {
   color: var(--theme-disable);
 }
 
 /* Switch */
 
-.readerSettingsSwitch {
+.switch {
   display: flex;
   align-items: center;
   gap: clamp(10px, calc(var(--layout-spacing) / 2), 20px);
@@ -393,7 +393,7 @@
   margin: var(--layout-spacing) 0;
 }
 
-.readerSettingsSwitchIndicator {
+.switchIndicator {
   width: 2rem;
   height: 1.143rem;
   border: 2px solid var(--theme-subdue);
@@ -403,7 +403,7 @@
   flex-shrink: 0;
 }
 
-.readerSettingsSwitchIndicator::before {
+.switchIndicator::before {
   content: "";
   display: block;
   margin: 0.143rem;
@@ -414,24 +414,24 @@
   transition: all 200ms;
 }
 
-.readerSettingsSwitch[data-selected] .readerSettingsSwitchIndicator::before {
+.switch[data-selected] .switchIndicator::before {
   background: var(--theme-text);
   transform: translateX(100%);
 }
 
-:dir(rtl) .readerSettingsSwitch[data-selected] .readerSettingsSwitchIndicator::before {
+:dir(rtl) .switch[data-selected] .switchIndicator::before {
   background: var(--theme-text);
   transform: translateX(-100%);
 }
 
-.readerSettingsSwitch[data-focus-visible] .readerSettingsSwitchIndicator {
+.switch[data-focus-visible] .switchIndicator {
   outline: 2px solid var(--theme-focus);
 }
 
-.readerSettingsSwitch[data-disabled] {
+.switch[data-disabled] {
   color: var(--theme-disable);
 }
 
-.readerSettingsSwitch[data-disabled] .readerSettingsSwitchIndicator::before {
+.switch[data-disabled] .switchIndicator::before {
   background: var(--theme-disable) !important;
 }

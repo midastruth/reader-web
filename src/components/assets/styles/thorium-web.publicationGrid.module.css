@@ -1,4 +1,4 @@
-.publicationGrid {
+.wrapper {
   --color-text: #333;
   --color-text-secondary: #666;
   --color-background: #fff;
@@ -8,7 +8,7 @@
   width: 100%;
 }
 
-.publicationCard {
+.card {
   display: flex;
   text-decoration: none;
   color: inherit;
@@ -19,45 +19,45 @@
   background: white;
 }
 
-.publicationCard:hover {
+.card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.publicationCover {
+.cover {
   width: 120px;
   height: 180px;
   flex-shrink: 0;
   margin: 0;
 }
 
-.publicationImage {
+.image {
   width: 120px;
   height: 180px;
   object-fit: cover;
 }
 
-.publicationInfo {
+.info {
   padding: 1rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
-.publicationTitle {
+.title {
   margin: 0 0 0.5rem;
   font-weight: 600;
   font-size: 1.25rem;
   color: var(--color-text);
 }
 
-.publicationAuthor {
+.author {
   margin: 0 0 0.75rem;
   color: var(--color-text-secondary);
   font-size: 1rem;
 }
 
-.publicationRendition {
+.rendition {
   background: var(--color-primary);
   color: var(--color-text);
   padding: 0.25rem 0.75rem;

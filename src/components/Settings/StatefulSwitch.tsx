@@ -20,16 +20,16 @@ export const StatefulSwitch = ({
       { ...props }
       { ...(standalone ? { heading: heading } : {}) }
       label={ label }
-      className={ settingsStyles.readerSettingsSwitch }
+      className={ settingsStyles.switch }
       compounds={{
         wrapper: {
-          className: settingsStyles.readerSettingsGroup
+          className: settingsStyles.group
         },
         heading: {
-          className: settingsStyles.readerSettingsLabel
+          className: settingsStyles.label
         },
         indicator: {
-          className: settingsStyles.readerSettingsSwitchIndicator
+          className: settingsStyles.switchIndicator
         }
       }}
     />

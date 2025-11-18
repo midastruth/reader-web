@@ -448,7 +448,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     <>
     <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider navigator={ webPubNavigator }>
-      <main className={ readerStyles.thoriumWebReaderMain }>
+      <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
           <div 
             className={ 
@@ -469,8 +469,8 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
               runningHeadFormatPref={ preferences.theming.header?.runningHead?.format?.webPub }
             />
 
-            <article className={ readerStyles.thoriumWebWrapper } aria-label={ t("reader.app.publicationWrapper") }>
-              <div id="thorium-web-container" className={ readerStyles.thoriumWebContainer } ref={ container }></div>
+            <article className={ readerStyles.wrapper } aria-label={ t("reader.app.publicationWrapper") }>
+              <div id="thorium-web-container" className={ readerStyles.iframeContainer } ref={ container }></div>
             </article>
 
           <StatefulReaderFooter 

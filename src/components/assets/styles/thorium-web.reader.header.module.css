@@ -6,7 +6,7 @@
   padding: 0.25rem 0.5rem 0;
 }
 
-.backLinkWrapper {
+.backlinkWrapper {
   grid-area: header-start;
   justify-self: start;
   align-self: center;

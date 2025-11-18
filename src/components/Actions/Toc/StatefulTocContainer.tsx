@@ -174,7 +174,7 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
         id: ThActionsKeys.toc,
         triggerRef: triggerRef, 
         heading: t("reader.toc.heading"),
-        className: tocStyles.toc,
+        className: tocStyles.wrapper,
         placement: "bottom",
         isOpen: actionState?.isOpen || false,
         onOpenChange: setOpen,
@@ -191,22 +191,22 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
           value={ filterValue }
           onChange={ setFilterValue }
           onClear={ () => setFilterValue("") }
-          className={ tocStyles.tocSearch }
+          className={ tocStyles.search }
           compounds={{
             label: {
-              className: tocStyles.tocSearchLabel
+              className: tocStyles.searchLabel
             },
             input: {
               ref: searchInputRef,
-              className: tocStyles.tocSearchInput,
+              className: tocStyles.searchInput,
               placeholder: t("reader.toc.search.placeholder")
             },
             searchIcon: {
-              className: tocStyles.tocSearchIcon,
+              className: tocStyles.searchIcon,
               hidden: !!filterValue
             },
             clearButton: {
-              className: tocStyles.tocClearButton,
+              className: tocStyles.clearButton,
               isDisabled: !filterValue
             }
           }}
@@ -216,7 +216,7 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
           aria-label={ t("reader.toc.entries") }
           selectionMode="single"
           items={ displayedTocTree }
-          className={ tocStyles.tocTree }
+          className={ tocStyles.tree }
           onSelectionChange={ handleAction }
           selectedKeys={ tocEntry ? [tocEntry] : [] }
           expandedKeys={ expandedKeys }
@@ -226,22 +226,22 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
             return (
               <TreeItem
                 data-href={ item.href }
-                className={ tocStyles.tocTreeItem }
+                className={ tocStyles.treeItem }
                 textValue={ item.title || "" }
               >
                 <TreeItemContent>
                   {item.children && (
                     <Button
                       slot="chevron"
-                      className={tocStyles.tocTreeItemButton}
+                      className={tocStyles.treeItemButton}
                       style={{ transform: isRTL ? "scaleX(-1)" : "none" } as CSSProperties}
                     >
                       <Chevron aria-hidden="true" focusable="false" />
                     </Button>
                   )}
-                  <div className={ tocStyles.tocTreeItemText }>
-                    <div className={ tocStyles.tocTreeItemTextTitle }>{ item.title }</div>
-                    { item.position && <div className={ tocStyles.tocTreeItemTextPosition }>{ item.position }</div> }
+                  <div className={ tocStyles.treeItemText }>
+                    <div className={ tocStyles.treeItemTextTitle }>{ item.title }</div>
+                    { item.position && <div className={ tocStyles.treeItemTextPosition }>{ item.position }</div> }
                   </div>
                 </TreeItemContent>
                 <Collection items={ item.children }>

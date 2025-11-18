@@ -40,7 +40,7 @@ export const StatefulOverflowMenuItem = ({
         { label }
       </Text>
       { shortcut && <StatefulShortcut
-        className={ overflowMenuStyles.menuItemKbdShortcut } 
+        className={ overflowMenuStyles.menuItemShortcut } 
         rawForm={ shortcut } 
       /> }
     </ThMenuItem>

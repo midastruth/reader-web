@@ -1,6 +1,6 @@
 /* Search */
 
-.tocSearch {
+.search {
   margin-bottom: var(--layout-spacing);
   display: grid;
   grid-template-areas: "label label"
@@ -10,12 +10,12 @@
   width: 100%;
 }
 
-.tocSearchLabel {
+.searchLabel {
   grid-area: label;
   margin-bottom: calc(var(--layout-spacing) / 2);
 }
 
-.tocSearchInput {
+.searchInput {
   grid-area: input;
   box-sizing: border-box;
   width: 100%;
@@ -26,17 +26,17 @@
   padding: calc(var(--icon-size, 24px) * (1/4)) calc(var(--layout-spacing) / 2);
 }
 
-.tocSearchInput::-webkit-search-cancel-button,
-.tocSearchInput::-webkit-search-decoration {
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
   -webkit-appearance: none;
 }
 
-.tocSearchInput[data-focus-visible] {
+.searchInput[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
 }
 
-.tocSearchIcon,
-.tocClearButton {
+.searchIcon,
+.clearButton {
   grid-area: button;
   margin-inline-start: calc(var(--icon-size, 24px) * -1.25);
   height: 100%;
@@ -44,24 +44,24 @@
   align-items: center;
 }
 
-.tocSearchIcon svg {
+.searchIcon svg {
   fill: var(--theme-subdue);
   width: var(--icon-size, 24px);
   height: var(--icon-size, 24px);
 }
 
-.tocClearButton svg {
+.clearButton svg {
   fill: var(--theme-text);
   width: var(--icon-size, 24px);
   height: var(--icon-size, 24px);
 }
 
-.tocSearchIcon[hidden],
-.tocClearButton[data-disabled]  {
+.searchIcon[hidden],
+.clearButton[data-disabled]  {
   display: none;
 }
 
-.tocTree {
+.tree {
   background: var(--theme-background);
   color: var(--theme-text);
   outline: none;
@@ -71,7 +71,7 @@
 }
 
 /* React Aria is providing a --tree-item-level as items are not nested */
-.tocTreeItem {
+.treeItem {
   display: flex;
   padding: calc(var(--layout-spacing) / 2);
   padding-inline-start: calc(((var(--tree-item-level) - 1) * var(--layout-spacing)) + (var(--layout-spacing) / 2));
@@ -80,31 +80,31 @@
   box-sizing: border-box;
 }
 
-.tocTree:has(.tocTreeItemButton) .tocTreeItem {
+.tree:has(.treeItemButton) .treeItem {
   padding-inline-start: calc((var(--tree-item-level) * var(--layout-spacing)) + (var(--layout-spacing) / 2));
 }
 
-.tocTree .tocTreeItem:has(.tocTreeItemButton) {
+.tree .treeItem:has(.treeItemButton) {
   padding-inline-start: calc(((var(--tree-item-level) - 1) * var(--layout-spacing)));
 }
 
-.tocTreeItemText {
+.treeItemText {
   display: flex;
   flex: 1 1 auto;
 }
 
-.tocTreeItemTextTitle {
+.treeItemTextTitle {
   text-wrap: balance;
 }
 
-.tocTreeItemTextPosition {
+.treeItemTextPosition {
   margin-inline-start: auto;
   padding-inline-start: calc(var(--layout-spacing) / 2);
   color: var(--theme-subdue);
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-.tocTreeItemButton {
+.treeItemButton {
   align-self: flex-start;
   width: calc(var(--icon-size, 24px) * 5/6);
   height: calc(var(--icon-size, 24px) * 5/6);
@@ -112,28 +112,28 @@
   flex-shrink: 0;
 }
 
-.tocTreeItem[data-href] {
+.treeItem[data-href] {
   cursor: pointer;
 }
 
 /* [data-hover] is only updated on tree items that can be expanded ATM… */
-.tocTreeItem:hover {
+.treeItem:hover {
   background-color: var(--theme-hover);
 }
 
-.tocTreeItem[data-focus-visible] {
+.treeItem[data-focus-visible] {
   outline: 2px solid var(--theme-focus);
 }
 
-.tocTreeItem[data-disabled] {
+.treeItem[data-disabled] {
   color: var(--theme-disable);
 }
 
-.tocTreeItem[data-selected] {
+.treeItem[data-selected] {
   border: 2px solid var(--theme-subdue);
 }
 
-.tocTreeItemButton svg {
+.treeItemButton svg {
   flex: none;
   rotate: 0deg;
   transition: rotate 200ms;
@@ -142,7 +142,7 @@
   fill: var(--theme-text);
 }
 
-.tocTreeItem[data-expanded] .tocTreeItemButton svg {
+.treeItem[data-expanded] .treeItemButton svg {
   rotate: 90deg;
 }
 

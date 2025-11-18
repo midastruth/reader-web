@@ -16,6 +16,8 @@ import { useAppSelector } from "@/lib/hooks";
 import { makeBreakpointsMap } from "@/core/Helpers/breakpointsMap";
 import { getBestMatchingProgressionFormat } from "@/core/Helpers/progressionFormat";
 
+import classNames from "classnames";
+
 export const StatefulReaderProgression = ({ 
   className,
   formatPref,
@@ -188,9 +190,9 @@ export const StatefulReaderProgression = ({
 
   return (
     <ThProgression 
-      id={progressionStyles.current} 
-      className={className}
-      aria-label={t("reader.app.progression.wrapper")}
+      id="current-progression" 
+      className={ classNames(progressionStyles.wrapper, className) }
+      aria-label={ t("reader.app.progression.wrapper") }
     >
       { displayText }
     </ThProgression>

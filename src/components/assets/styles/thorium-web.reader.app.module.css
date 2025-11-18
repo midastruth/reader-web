@@ -1,44 +1,44 @@
 /* For some classNames we need global, as they impact other modules */
 
-.thoriumWebWrapper {
+.wrapper {
   height: 100%;
   width: 100%;
   margin: 0;
 }
 
-.thoriumWebReaderMain {
+.main {
   width: 100%;
   height: 100%;
   margin: 0;
 }
 
-.thoriumWebReaderShell {
+.shell {
   width: 100%;
   height: 100%;
   margin: 0;
 }
 
-.thoriumWebLeftDock {
+.leftDock {
   height: 100vh;
   height: 100dvh;
 }
 
-.thoriumWebRightDock {
+.rightDock {
   height: 100vh;
   height: 100dvh;
 }
 
 /* Top and bottom bars */
 
-.thoriumWebBottomBar,
-.thoriumWebTopBar {
+.bottomBar,
+.topBar {
   box-sizing: border-box;
   gap: 2px;
   touch-action: manipulation;
   background-color: var(--theme-background);
 }
 
-.thoriumWebBottomBar {
+.bottomBar {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,7 +46,7 @@
 
 /* Stacked UI */
 
-.thoriumWebReaderMain :global(.thorium_web_stackedUI) {
+.main :global(.thorium_web_stackedUI) {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -56,20 +56,20 @@
   background-color: var(--theme-background);
 }
 
-:global(.thorium_web_stackedUI) .thoriumWebTopBar,
-:global(.thorium_web_stackedUI) .thoriumWebBottomBar {
+:global(.thorium_web_stackedUI) .topBar,
+:global(.thorium_web_stackedUI) .bottomBar {
   flex: 0 0 calc(var(--icon-size, 24px) * 2.5);
   height: calc(var(--icon-size, 24px) * 2.5);
 }
 
-:global(.thorium_web_stackedUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebTopBar,
-:global(.thorium_web_stackedUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebBottomBar {
+:global(.thorium_web_stackedUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .topBar,
+:global(.thorium_web_stackedUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .bottomBar {
   opacity: var(--theme-immerse);
 }
 
 /* Layered UI */
 
-.thoriumWebReaderMain :global(.thorium_web_layeredUI) {
+.main :global(.thorium_web_layeredUI) {
   position: relative;
   top: 0;
   bottom: 0;
@@ -80,8 +80,8 @@
   background-color: var(--theme-background);
 }
 
-:global(.thorium_web_layeredUI) .thoriumWebTopBar,
-:global(.thorium_web_layeredUI) .thoriumWebBottomBar {
+:global(.thorium_web_layeredUI) .topBar,
+:global(.thorium_web_layeredUI) .bottomBar {
   position: absolute;
   left: 0;
   right: 0;
@@ -95,26 +95,26 @@
   transform: translateY(0);
 }
 
-:global(.thorium_web_layeredUI) .thoriumWebTopBar {
+:global(.thorium_web_layeredUI) .topBar {
   top: 0;
 }
 
-:global(.thorium_web_layeredUI) .thoriumWebBottomBar {
+:global(.thorium_web_layeredUI) .bottomBar {
   bottom: 0;
 }
 
-:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebTopBar {
+:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .topBar {
   transform: translateY(calc(var(--icon-size, 24px) * -2.5));
   box-shadow: none;
   overflow: unset;
 }
 
-:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebBottomBar {
+:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .bottomBar {
   transform: translateY(calc(var(--icon-size, 24px) * 2.5));
   box-shadow: none;
 }
 
-.thoriumWebBarOverlay {
+.barOverlay {
   position: absolute;
   left: 0;
   right: 0;
@@ -124,7 +124,7 @@
   z-index: 1000;
 }
 
-.thoriumWebReaderHeaderOverlay {
+.headerOverlay {
   position: absolute;
   left: 0;
   right: 0;
@@ -135,7 +135,7 @@
   top: 0;
 }
 
-.thoriumWebReaderFooterOverlay {
+.footerOverlay {
   position: absolute;
   left: 0;
   right: 0;
@@ -148,14 +148,14 @@
 
 /* iFrame + its container */
 
-.thoriumWebContainer {
+.iframeContainer {
   contain: content;
   width: 100%;
   height: 100%;
   margin: 0 auto;
 }
 
-.thoriumWebContainer :global(.readium-navigator-iframe) {
+.iframeContainer :global(.readium-navigator-iframe) {
   width: 100%;
   height: 100%;
   border-width: 0;
@@ -171,7 +171,7 @@
   }
 }
 
-.thoriumWebContainer :global(div:has(> .readium-navigator-iframe.blank))::after {
+.iframeContainer :global(div:has(> .readium-navigator-iframe.blank))::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -188,7 +188,7 @@
 
 /* Utils */
 
-.thoriumWebSROnly {
+.srOnly {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
   height: 1px;

@@ -143,13 +143,13 @@ export const StatefulTheme = () => {
     >
       <div 
         ref={ radioGroupWrapperRef }
-        className={ classNames(settingsStyles.readerSettingsRadioWrapper, settingsStyles.readerSettingsThemesWrapper) 
+        className={ classNames(settingsStyles.radioWrapper, settingsStyles.themesWrapper) 
       }>
         { themeItems.current.map(( themeItem ) => 
           <Radio
             className={ classNames(
-              settingsStyles.readerSettingsRadio, 
-              settingsStyles.readerSettingsThemeRadio
+              settingsStyles.radio, 
+              settingsStyles.themeRadio
             ) }
             value={ themeItem }
             id={ themeItem }

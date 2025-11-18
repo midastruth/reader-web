@@ -33,7 +33,7 @@ export const StatefulBackLink = ({
   const href = preferences.theming.header?.backLink?.href;
   const content = preferences.theming.header?.backLink?.content;
   const visibility = preferences.theming.header?.backLink?.visibility || "partially";
-  const backLinkClassName = classNames(backLinkStyles.backLink, visibility === "always" ? readerSharedUI.alwaysVisible : readerSharedUI.partiallyVisible);
+  const backLinkClassName = classNames(backLinkStyles.link, visibility === "always" ? readerSharedUI.alwaysVisible : readerSharedUI.partiallyVisible);
 
   const compounds = {
     tooltipTrigger: {

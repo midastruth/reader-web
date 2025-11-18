@@ -27,7 +27,7 @@ export function getReaderClassNames(options: ReaderStyleOptions): string {
   } = options;
 
   return classNames(
-    readerStyles.thoriumWebReaderShell,
+    readerStyles.shell,
     isScroll ? "thorium_web_isScroll" : "thorium_web_isPaged",
     isImmersive && "thorium_web_isImmersive",
     isHovering && "thorium_web_isHovering",

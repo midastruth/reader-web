@@ -53,7 +53,7 @@ export const StatefulReaderArrowButton = ({
   const handleClassNameFromState = () => {
     let className = "";
     if (!isVisible) {
-      className = arrowStyles.readerArrowButtonVisuallyHidden;
+      className = arrowStyles.visuallyHidden;
     }
     return className;
   };
@@ -61,7 +61,7 @@ export const StatefulReaderArrowButton = ({
   const handleClassNameFromSpaceProp = () => {
     let className = "";
     if (occupySpace) {
-      className = arrowStyles.readerArrowButtonOccupiesSpace;
+      className = arrowStyles.occupiesSpace;
     }
     return className;
   };
@@ -87,7 +87,7 @@ export const StatefulReaderArrowButton = ({
       onPress={ onPress }
       onHoverChange={ (isHovering: boolean) => setIsHovering(isHovering) } 
       onKeyDown={ blurOnEsc }
-      className={ classNames(className, arrowStyles.readerArrowButton, handleClassNameFromSpaceProp(), handleClassNameFromState()) }
+      className={ classNames(className, handleClassNameFromSpaceProp(), handleClassNameFromState()) }
       isDisabled={ isDisabled }
       preventFocusOnPress={ true }
       { ...props }

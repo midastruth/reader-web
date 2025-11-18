@@ -1,7 +1,7 @@
 /* React Aria modal provides a visual viewport for mobile + keyboard: --visual-viewport-height 
    which should explain why it’s being used here while not mentioned anywhere else in the codebase */
 
-.fullScreenSheet {
+.fullscreen {
   position: fixed;
   top: 0;
   left: 0;
@@ -20,7 +20,7 @@
   align-items: center;
 }
 
-.popOverSheet {
+.popover {
   overflow-y: auto;
   scroll-padding-top: calc(var(--sheet-sticky-header, 80px) + var(--layout-spacing));
   scroll-padding-bottom: var(--layout-spacing);
@@ -38,7 +38,7 @@
 }
 
 /* React Modal Sheet handles scroll + sticky header so no need for scroll-padding here */
-.bottomSheetModal {
+.draggable {
   box-sizing: border-box;
   max-width: var(--constraints-bottomSheet, 600px);
   left: max(calc((100% - var(--constraints-bottomSheet, 600px)) / 2), 0px) !important;
@@ -54,7 +54,7 @@
   transition: border-radius 500ms;
 }
 
-.bottomSheetModal::after {
+.draggable::after {
   content: "";
   z-index: -1;
   position: absolute;
@@ -69,37 +69,37 @@
   border-top-right-radius: 28px;
 }
 
-.bottomSheetModalFullHeightDetent {
+.draggableFullHeightDetent {
   height: calc(100% - env(safe-area-inset-top)) !important;
 }
 
-.bottomSheetModalContentHeightDetent {
+.draggableContentHeightDetent {
   max-height: calc(100% - env(safe-area-inset-top)) !important;
 }
 
-.bottomSheetModal[data-full-height] {
+.draggable[data-full-height] {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   transition: border-radius 500ms;
 }
 
-.bottomSheetBackdrop {
+.draggableBackdrop {
   /* So that React Aria can use it to dismiss the sheet as it’s set to none by React Modal Sheet. */
   pointer-events: auto !important;
   background-color: transparent !important;
 }
 
-.bottomSheetScrim {
+.draggableScrim {
   background-color: var(--defaults-scrim) !important;
 }
 
-.bottomSheet {
+.draggableContainer {
   padding: 0;
   background-color: var(--theme-background);
   color: var(--theme-text);
 }
 
-.bottomSheetScroller {
+.draggableScroller {
   position: relative;
   scroll-padding-bottom: calc(var(--layout-spacing) * 4);
 }
@@ -123,7 +123,7 @@
   height: auto;
 }
 
-.dockedSheet {
+.docked {
   /* We need relative positioning so that RAC FocusScope scrolls properly on tabbing */
   position: relative;
   overflow-y: auto;
@@ -138,19 +138,19 @@
   color: var(--theme-text);
 }
 
-.dockedSheetLeftBorder {
+.dockedLeftBorder {
   border-right: 1px solid var(--theme-subdue);
 }
 
-.dockedSheetRightBorder {
+.dockedRightBorder {
   border-left: 1px solid var(--theme-subdue);
 }
 
-.sheetDialog {
+.dialog {
   outline: none;
 }
 
-.sheetHeader {
+.header {
   display: flex;
   align-items: center;
   position: sticky;
@@ -163,7 +163,7 @@
   border-bottom: 1px solid var(--theme-subdue);
 }
 
-.bottomSheetHeader {
+.draggableHeader {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -176,20 +176,20 @@
   transition: border-radius 500ms;
 }
 
-.bottomSheetModal[data-full-height] .bottomSheetHeader {
+.draggable[data-full-height] .draggableHeader {
   /* Otherwise covers the modal’s */
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   transition: border-radius 500ms;
 }
 
-.sheetHeading {
+.heading {
   font-size: 1.25rem;
   line-height: 1;
   margin: 0;
   padding: 0;
 }
 
-.sheetBody {
+.body {
   padding: var(--layout-spacing);
 }

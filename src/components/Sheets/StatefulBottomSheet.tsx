@@ -236,15 +236,15 @@ export const StatefulBottomSheet = ({
   const detentClassName = useMemo(() => {
     let className = "";
     if (detent.current === "content-height") {
-      className = sheetStyles.bottomSheetModalContentHeightDetent;
+      className = sheetStyles.draggableContentHeightDetent;
     } else {
-      className = sheetStyles.bottomSheetModalFullHeightDetent;
+      className = sheetStyles.draggableFullHeightDetent;
     }
     return className;
   }, [detent]);
 
   const scrimClassName = useMemo(() => {
-    return scrimPref.active ? sheetStyles.bottomSheetScrim : "";
+    return scrimPref.active ? sheetStyles.draggableScrim : "";
   }, [scrimPref]);
 
   const convertDetent = (detent: ThBottomSheetDetent): SheetDetent => {
@@ -264,7 +264,7 @@ export const StatefulBottomSheet = ({
       <ThBottomSheet
         id={ id }
         ref={ sheetRef }
-        className={ sheetStyles.bottomSheetRoot }
+        className={ sheetStyles.draggableRoot }
         isOpen={ isOpen }
         focusOptions={{
           withinRef: focusWithinRef ?? bottomSheetBodyRef,
@@ -296,7 +296,7 @@ export const StatefulBottomSheet = ({
         prefersReducedMotion={ prefersReducedMotion }
         compounds={ {
           container: {
-            className: classNames(sheetStyles.bottomSheetModal, detentClassName),
+            className: classNames(sheetStyles.draggable, detentClassName),
             ref: sheetContainerRef,
             style: {
               maxWidth: maxWidthPref 
@@ -308,24 +308,24 @@ export const StatefulBottomSheet = ({
             onKeyDown: onDragKeyCallback
           },
           content: {
-            className: classNames(sheetStyles.bottomSheet, className),
+            className: classNames(sheetStyles.draggableContent, className),
             disableDrag: true
           },
           scroller: {
-            className: sheetStyles.bottomSheetScroller
+            className: sheetStyles.draggableScroller
           },
           backdrop: {
-            className: classNames(sheetStyles.bottomSheetBackdrop, scrimClassName),
+            className: classNames(sheetStyles.draggableBackdrop, scrimClassName),
             style: { "--defaults-scrim": scrimPref.override }
           }
         } }
       >
         <ThContainerHeader
           label={ heading }
-          className={ sheetStyles.bottomSheetHeader }
+          className={ sheetStyles.draggableHeader }
           compounds={ {
             heading: {
-              className: sheetStyles.sheetHeading
+              className: sheetStyles.heading
             }
           }}
         >
@@ -348,7 +348,7 @@ export const StatefulBottomSheet = ({
         </ThContainerHeader>
         <ThContainerBody 
           ref={ bottomSheetBodyRef }
-          className={ sheetStyles.sheetBody }
+          className={ sheetStyles.body }
         >
           { children }
         </ThContainerBody>

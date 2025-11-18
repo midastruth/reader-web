@@ -41,7 +41,7 @@ export const StatefulReaderPagination = ({
   return (
     <ThPagination 
       ref={ ref } 
-      className={ readerPaginationStyles.pagination }
+      className={ readerPaginationStyles.wrapper }
       links={ links } 
       compounds={ updatedCompounds } 
       { ...props }

@@ -11,16 +11,16 @@
   gap: 2px;
 }
 
-.dockResizeHandle {
+.resizeHandle {
   position: relative;
   width: 0;
 }
 
-.dockResizeHandle:focus-visible {
+.resizeHandle:focus-visible {
   outline: 2px solid var(--theme-focus);
 }
 
-.dockResizeHandleGrab {
+.resizeHandleGrab {
   position: absolute;
   z-index: 1000;
   top: 50%;
@@ -31,10 +31,10 @@
   background-color: var(--theme-subdue);
 }
 
-.dockResizeHandleGrabLeft {
+.resizeHandleGrabLeft {
   left: 0;
 }
 
-.dockResizeHandleGrabRight {
+.resizeHandleGrabRight {
   left: -5px;
 }

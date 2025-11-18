@@ -112,7 +112,7 @@ export const StatefulReaderHeader = ({
   return (
     <>
     <ThInteractiveOverlay 
-      className={ classNames(readerStyles.thoriumWebBarOverlay, readerStyles.thoriumWebReaderHeaderOverlay) }
+      className={ classNames(readerStyles.barOverlay, readerStyles.headerOverlay) }
       isActive={ layout === ThLayoutUI.layered && isImmersive && !isHovering }
       onMouseEnter={ setHover }
       onMouseLeave={ removeHover }
@@ -120,13 +120,13 @@ export const StatefulReaderHeader = ({
 
     <ThHeader 
       ref={ headerRef }
-      className={ classNames(readerStyles.thoriumWebTopBar, readerHeaderStyles.header) } 
+      className={ classNames(readerStyles.topBar, readerHeaderStyles.header) } 
       aria-label={ t("reader.app.header.label") } 
       onMouseEnter={ setHover } 
       onMouseLeave={ removeHover }
       { ...focusWithinProps }
     >
-      { preferences.theming.header?.backLink && <StatefulBackLink className={ readerHeaderStyles.backLinkWrapper } /> }
+      { preferences.theming.header?.backLink && <StatefulBackLink className={ readerHeaderStyles.backlinkWrapper } /> }
       
       <StatefulReaderRunningHead formatPref={ runningHeadFormatPref } />
       
@@ -141,7 +141,7 @@ export const StatefulReaderHeader = ({
         aria-label={ t("reader.app.header.actions") } 
         overflowMenuClassName={ 
           (!isScroll || preferences.affordances.scroll.hintInImmersive) 
-            ? overflowMenuStyles.hintButton 
+            ? overflowMenuStyles.hint 
             : undefined 
         }
       />

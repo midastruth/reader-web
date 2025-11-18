@@ -67,13 +67,13 @@ export const StatefulFullScreenSheet = ({
         }}
         compounds={{
           dialog: {
-            className: sheetStyles.sheetDialog
+            className: sheetStyles.dialog
           }
         }}
         isOpen={ isOpen }
         onOpenChange={ onOpenChange }
         isDismissable={ true }
-        className={ classNames(sheetStyles.fullScreenSheet, className) }
+        className={ classNames(sheetStyles.fullscreen, className) }
         isKeyboardDismissDisabled={ dismissEscapeKeyClose }
         style={{
           "--sheet-sticky-header": fullScreenHeaderRef.current ? `${ fullScreenHeaderRef.current.clientHeight }px` : undefined
@@ -81,11 +81,11 @@ export const StatefulFullScreenSheet = ({
       >
         <ThContainerHeader 
           ref={ fullScreenHeaderRef }
-          className={ sheetStyles.sheetHeader }
+          className={ sheetStyles.header }
           label={ heading }
           compounds={{
             heading: {
-              className: sheetStyles.sheetHeading
+              className: sheetStyles.heading
             }
           }}
         >
@@ -108,7 +108,7 @@ export const StatefulFullScreenSheet = ({
         </ThContainerHeader>
         <ThContainerBody 
           ref={ fullScreenBodyRef }
-          className={ sheetStyles.sheetBody }
+          className={ sheetStyles.body }
         >
           { children }
         </ThContainerBody>
