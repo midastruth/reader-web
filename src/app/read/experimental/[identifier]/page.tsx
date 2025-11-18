@@ -7,9 +7,6 @@ import { usePublication } from "@/hooks/usePublication";
 import { useAppSelector } from "@/lib/hooks";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
 
-import "@/app/reset.css";
-import "@/app/app.css";
-
 const WEB_MANIFESTS = {
   "readium-css": "https://readium.org/css/docs/manifest.json",
   "moby-dick": "https://readium.org/webpub-manifest/examples/MobyDick/manifest.json",

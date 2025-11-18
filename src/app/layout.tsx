@@ -5,6 +5,8 @@ import { ThStoreProvider } from "@/lib/ThStoreProvider";
 import { ThPreferencesProvider } from "@/preferences/ThPreferencesProvider";
 import { ThI18nProvider } from "@/i18n/ThI18nProvider";
 
+import "./reset.css";
+
 export const runtime = "edge";
 
 const inter = Inter({ subsets: ["latin"] });
