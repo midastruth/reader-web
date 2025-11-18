@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 
-import settingsStyles from "./assets/styles/settings.module.css";
+import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
 import { ThActionsKeys, ThLayoutDirection, ThSettingsContainerKeys } from "@/preferences/models/enums";
 

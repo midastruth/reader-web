@@ -9,8 +9,8 @@ import {
   useTheming
 } from "../../preferences";
 
-import readerStyles from "../assets/styles/reader.module.css";
-import arrowStyles from "../assets/styles/readerArrowButton.module.css";
+import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
+import arrowStyles from "../assets/styles/thorium-web.reader.paginatedArrow.module.css";
 
 import { 
   ThActionsKeys,  

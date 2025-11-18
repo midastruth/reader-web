@@ -46,7 +46,7 @@
 
 /* Stacked UI */
 
-.thoriumWebReaderMain :global(.thoriumWebStackedUI) {
+.thoriumWebReaderMain :global(.thorium_web_stackedUI) {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -56,20 +56,20 @@
   background-color: var(--theme-background);
 }
 
-:global(.thoriumWebStackedUI) .thoriumWebTopBar,
-:global(.thoriumWebStackedUI) .thoriumWebBottomBar {
+:global(.thorium_web_stackedUI) .thoriumWebTopBar,
+:global(.thorium_web_stackedUI) .thoriumWebBottomBar {
   flex: 0 0 calc(var(--icon-size, 24px) * 2.5);
   height: calc(var(--icon-size, 24px) * 2.5);
 }
 
-:global(.thoriumWebStackedUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .thoriumWebTopBar,
-:global(.thoriumWebStackedUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .thoriumWebBottomBar {
+:global(.thorium_web_stackedUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebTopBar,
+:global(.thorium_web_stackedUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebBottomBar {
   opacity: var(--theme-immerse);
 }
 
 /* Layered UI */
 
-.thoriumWebReaderMain :global(.thoriumWebLayeredUI) {
+.thoriumWebReaderMain :global(.thorium_web_layeredUI) {
   position: relative;
   top: 0;
   bottom: 0;
@@ -80,8 +80,8 @@
   background-color: var(--theme-background);
 }
 
-:global(.thoriumWebLayeredUI) .thoriumWebTopBar,
-:global(.thoriumWebLayeredUI) .thoriumWebBottomBar {
+:global(.thorium_web_layeredUI) .thoriumWebTopBar,
+:global(.thorium_web_layeredUI) .thoriumWebBottomBar {
   position: absolute;
   left: 0;
   right: 0;
@@ -95,21 +95,21 @@
   transform: translateY(0);
 }
 
-:global(.thoriumWebLayeredUI) .thoriumWebTopBar {
+:global(.thorium_web_layeredUI) .thoriumWebTopBar {
   top: 0;
 }
 
-:global(.thoriumWebLayeredUI) .thoriumWebBottomBar {
+:global(.thorium_web_layeredUI) .thoriumWebBottomBar {
   bottom: 0;
 }
 
-:global(.thoriumWebLayeredUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .thoriumWebTopBar {
+:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebTopBar {
   transform: translateY(calc(var(--icon-size, 24px) * -2.5));
   box-shadow: none;
   overflow: unset;
 }
 
-:global(.thoriumWebLayeredUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .thoriumWebBottomBar {
+:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .thoriumWebBottomBar {
   transform: translateY(calc(var(--icon-size, 24px) * 2.5));
   box-shadow: none;
 }

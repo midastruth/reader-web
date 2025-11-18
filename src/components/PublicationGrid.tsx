@@ -2,7 +2,7 @@
 
 import React, { cloneElement, isValidElement } from "react";
 
-import publicationGridStyles from "./assets/styles/publicationGrid.module.css";
+import publicationGridStyles from "./assets/styles/thorium-web.publicationGrid.module.css";
 
 import { ThGrid } from "@/core/Components";
 import { Link } from "react-aria-components";

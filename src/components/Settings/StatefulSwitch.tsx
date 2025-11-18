@@ -1,6 +1,6 @@
 "use client";
 
-import settingsStyles from "./assets/styles/settings.module.css";
+import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
 import { ThSwitch, ThSwitchProps } from "@/core/Components/Settings/ThSwitch";
 

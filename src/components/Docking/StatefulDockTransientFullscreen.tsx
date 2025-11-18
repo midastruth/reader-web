@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 
 import { StatefulActionTriggerProps } from "@/components/Actions/models/actions";
 import { ThActionsTriggerVariant } from "@/core/Components/Actions/ThActionsBar";

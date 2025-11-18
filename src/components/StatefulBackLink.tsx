@@ -2,8 +2,8 @@
 
 import React from "react";
 
-import backLinkStyles from "./assets/styles/backLink.module.css";
-import readerSharedUI from "./assets/styles/readerSharedUI.module.css";
+import backLinkStyles from "./assets/styles/thorium-web.backlink.module.css";
+import readerSharedUI from "./assets/styles/thorium-web.button.module.css";
 
 import { ThBackLinkVariant, ThLayoutDirection } from "@/preferences/models/enums";
 

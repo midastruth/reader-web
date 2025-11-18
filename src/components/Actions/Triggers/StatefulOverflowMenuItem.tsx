@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import overflowMenuStyles from "../assets/styles/overflowMenu.module.css";
+import overflowMenuStyles from "../assets/styles/thorium-web.overflow.module.css";
 
 import { Text } from "react-aria-components";
 import { UnstableStatefulShortcut as StatefulShortcut } from "./UnstableStatefulShortcut";

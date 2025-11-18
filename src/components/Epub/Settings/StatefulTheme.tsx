@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 
 import { ThemeKeyType, usePreferenceKeys } from "@/preferences";
 
-import settingsStyles from "../../Settings/assets/styles/settings.module.css";
+import settingsStyles from "../../Settings/assets/styles/thorium-web.reader.settings.module.css";
 
 import CheckIcon from "./assets/icons/check.svg";
 

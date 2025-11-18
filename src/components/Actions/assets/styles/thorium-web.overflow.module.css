@@ -1,11 +1,11 @@
-:global(.thoriumWebLayeredUI.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .hintButton {
+:global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .hintButton {
   transform: translateY(calc(var(--icon-size, 24px) * 2.5));
   transition-property: transform;
   transition-duration: 200ms; 
   transition-timing-function: ease-in-out;
 }
 
-:global(.thoriumWebLayeredUI.thoriumWebIsReflow.thoriumWebIsScroll.thoriumWebIsImmersive:not(.thoriumWebIsHovering)) .hintButton {
+:global(.thorium_web_layeredUI.thorium_web_isReflow.thorium_web_isScroll.thorium_web_isImmersive:not(.thorium_web_isHovering)) .hintButton {
   outline: 1px solid var(--theme-subdue);
   background-color: var(--theme-background);
 }

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-import arrowStyles from "./assets/styles/readerArrowButton.module.css";
-import readerSharedUI from "./assets/styles/readerSharedUI.module.css";
+import arrowStyles from "./assets/styles/thorium-web.reader.paginatedArrow.module.css";
+import readerSharedUI from "./assets/styles/thorium-web.button.module.css";
 
 import { ThNavigationButton, ThNavigationButtonProps } from "@/core/Components/Buttons/ThNavigationButton";
 

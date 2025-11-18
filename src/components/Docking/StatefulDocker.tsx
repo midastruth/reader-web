@@ -2,8 +2,8 @@
 
 import React, { useCallback } from "react";
 
-import dockingStyles from "./assets/styles/docking.module.css";
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
+import dockingStyles from "./assets/styles/thorium-web.docking.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 
 import { ThDockingKeys } from "@/preferences/models/enums";
 

@@ -2,8 +2,8 @@
 
 import React, { useCallback, useEffect, useRef } from "react";
 
-import readerStyles from "./assets/styles/reader.module.css";
-import readerPaginationStyles from "./assets/styles/readerPagination.module.css";
+import readerStyles from "./assets/styles/thorium-web.reader.app.module.css";
+import readerPaginationStyles from "./assets/styles/thorium-web.reader.pagination.module.css";
 
 import { ThBreakpoints, ThLayoutUI } from "@/preferences/models/enums";
 import { ThFormatPref } from "@/preferences";

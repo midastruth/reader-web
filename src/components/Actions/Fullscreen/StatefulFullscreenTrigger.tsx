@@ -6,7 +6,7 @@ import { ThActionsKeys } from "@/preferences/models/enums";
 import { StatefulActionTriggerProps } from "../models/actions";
 import { ThActionsTriggerVariant } from "@/core/Components/Actions/ThActionsBar";
 
-import readerSharedUI from "../../assets/styles/readerSharedUI.module.css";
+import readerSharedUI from "../../assets/styles/thorium-web.button.module.css";
 
 import FullscreenCorners from "./assets/icons/fullscreen.svg";
 import FullscreenExit from "./assets/icons/fullscreen_exit.svg";

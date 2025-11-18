@@ -20,7 +20,7 @@ import {
 } from "@/preferences/models/enums";
 import { StatefulActionContainerProps } from "../models/actions";
 
-import settingsStyles from "../../Settings/assets/styles/settings.module.css";
+import settingsStyles from "../../Settings/assets/styles/thorium-web.reader.settings.module.css";
 
 import { StatefulSheetWrapper } from "../../Sheets/StatefulSheetWrapper";
 

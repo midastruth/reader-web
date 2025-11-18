@@ -6,8 +6,8 @@ import { ThBottomSheetDetent, ThSheetHeaderVariant } from "@/preferences";
 
 import { StatefulSheet } from "./models/sheets";
 
-import sheetStyles from "./assets/styles/sheets.module.css";
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
+import sheetStyles from "./assets/styles/thorium-web.sheets.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 
 import { SheetRef, SheetDetent } from "react-modal-sheet";
 

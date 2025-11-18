@@ -2,8 +2,8 @@
 
 import { ReactNode, useCallback, useEffect, useRef } from "react";
 
-import readerStyles from "../assets/styles/reader.module.css";
-import dockingStyles from "./assets/styles/docking.module.css";
+import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
+import dockingStyles from "./assets/styles/thorium-web.docking.module.css";
 
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 

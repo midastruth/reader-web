@@ -5,8 +5,8 @@ import React, { useRef } from "react";
 import { StatefulSheet } from "./models/sheets";
 import { ThSheetHeaderVariant } from "@/preferences/models/enums";
 
-import sheetStyles from "./assets/styles/sheets.module.css";
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
+import sheetStyles from "./assets/styles/thorium-web.sheets.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 
 import { PopoverProps } from "react-aria-components";
 

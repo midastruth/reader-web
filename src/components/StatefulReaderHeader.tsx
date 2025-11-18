@@ -8,9 +8,9 @@ import { ThFormatPref } from "@/preferences";
 
 import { ThLayoutUI } from "@/preferences/models/enums";
 
-import readerStyles from "./assets/styles/reader.module.css";
-import readerHeaderStyles from "./assets/styles/readerHeader.module.css";
-import overflowMenuStyles from "./Actions/assets/styles/overflowMenu.module.css";
+import readerStyles from "./assets/styles/thorium-web.reader.app.module.css";
+import readerHeaderStyles from "./assets/styles/thorium-web.reader.header.module.css";
+import overflowMenuStyles from "./Actions/assets/styles/thorium-web.overflow.module.css";
 
 import { ThActionEntry } from "@/core/Components/Actions/ThActionsBar";
 import { ThHeader } from "@/core/Components/Reader/ThHeader";

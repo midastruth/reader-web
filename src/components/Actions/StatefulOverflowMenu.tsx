@@ -2,7 +2,7 @@
 
 import React, { ReactNode, RefObject } from "react";
 
-import overflowMenuStyles from "./assets/styles/overflowMenu.module.css";
+import overflowMenuStyles from "./assets/styles/thorium-web.overflow.module.css";
 
 import MenuIcon from "./assets/icons/more_vert.svg";
 

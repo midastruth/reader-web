@@ -4,7 +4,7 @@ import { useRef, KeyboardEvent } from "react";
 
 import { ThPagination, ThPaginationProps } from "@/core/Components/Reader/ThPagination";
 
-import readerPaginationStyles from "./assets/styles/readerPagination.module.css";
+import readerPaginationStyles from "./assets/styles/thorium-web.reader.pagination.module.css";
   
 export const StatefulReaderPagination = ({
   ref,

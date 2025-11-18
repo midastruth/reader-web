@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 import { defaultFontFamilyOptions, ThemeKeyType, useTheming } from "../../preferences";
 
-import readerStyles from "../assets/styles/reader.module.css";
+import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
 import { StatefulReaderProps } from "../Epub/StatefulReader";
 

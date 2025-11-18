@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import settingsStyles from "./assets/styles/settings.module.css";
+import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
 import { ThDropdown, ThDropdownProps } from "@/core/Components/Settings/ThDropdown/ThDropdown";
 

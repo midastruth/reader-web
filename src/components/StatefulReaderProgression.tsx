@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 
-import progressionStyles from "./assets/styles/readerProgression.module.css";
+import progressionStyles from "./assets/styles/thorium-web.reader.progression.module.css";
 
 import { ThProgressionFormat } from "@/preferences/models/enums";
 import { ThFormatPref, ThFormatPrefValue } from "@/preferences";

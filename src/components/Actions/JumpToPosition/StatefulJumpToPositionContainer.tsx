@@ -5,7 +5,7 @@ import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { ThActionsKeys } from "@/preferences/models/enums";
 import { StatefulActionContainerProps } from "../models/actions";
 
-import jumpToPositionStyles from "./assets/styles/jumpToPosition.module.css";
+import jumpToPositionStyles from "./assets/styles/thorium-web.jumpToPosition.module.css";
 
 import { StatefulSheetWrapper } from "../../Sheets/StatefulSheetWrapper";
 import { ThForm } from "@/core/Components/Form/ThForm";

@@ -7,7 +7,7 @@ import { ThActionsKeys, ThDockingKeys, ThSheetTypes, ThLayoutDirection } from "@
 import { StatefulActionContainerProps } from "../models/actions";
 import { TocItem } from "@/core/Hooks/useTimeline";
 
-import tocStyles from "./assets/styles/toc.module.css";
+import tocStyles from "./assets/styles/thorium-web.toc.module.css";
 
 import Chevron from "./assets/icons/chevron_right.svg";
 
