@@ -26,7 +26,9 @@
     "./dist"
   ],
   "sideEffects": [
-    "**/locales/**/*.json"
+    "locales/**/*.json",
+    "components/Epub/index.css",
+    "components/WebPub/index.css"
   ],
   "exports": {
     "./core/components": "./dist/core/Components/index.mjs",
