@@ -16,6 +16,7 @@ This document outlines the available styling classes and custom properties for t
 ## Button Component
 
 ### Base Buttons
+
 - `.thorium_web_button_icon` - Base icon button
 - `.thorium_web_button_dockerButton` - Docker control button
 - `.thorium_web_button_closeButton` - Close button
@@ -23,17 +24,18 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_button_tooltip` - Tooltip container for buttons
 
 ### Button Modifiers
+
 - `.thorium_web_button_iconCompSm` - Compensates for compact icon button
 - `.thorium_web_button_iconCompLg` - Compensates for large icon button
 - `.thorium_web_button_iconApplyStroke` - Applies stroke to icon
 
 ### Button States
+
 - `.thorium_web_button_alwaysVisible` - Always visible button (derived from preferences)
 - `.thorium_web_button_partiallyVisible` - Partially visible button (derived from preferences)
 
 ## Overflow Menu
 
-### Menu Structure
 - `.thorium_web_overflow_menu` - Container for the entire menu
 - `.thorium_web_overflow_popover` - Container for overflow menu
 - `.thorium_web_overflow_menuItem` - Individual menu item
@@ -43,7 +45,7 @@ This document outlines the available styling classes and custom properties for t
 
 ## Jump to Position
 
-### Form Components
+- `.thorium_web_jumpToPosition_wrapper` - Form panel 
 - `.thorium_web_jumpToPosition_form` - Form container
 - `.thorium_web_jumpToPosition_label` - Form label
 - `.thorium_web_jumpToPosition_input` - Text input field
@@ -53,6 +55,7 @@ This document outlines the available styling classes and custom properties for t
 ## Sheets
 
 ### Sheet Types
+
 - `.thorium_web_sheets_fullscreen` - Fullscreen sheet
 - `.thorium_web_sheets_popover` - Popover-style sheet
 - `.thorium_web_sheets_draggable` - Draggable bottom sheet
@@ -61,12 +64,14 @@ This document outlines the available styling classes and custom properties for t
 ### Sheet Components
 
 #### Shared
+
 - `.thorium_web_sheets_dialog` - Inner dialog container of fullscreen and popover sheets
 - `.thorium_web_sheets_header` - Sheet header
 - `.thorium_web_sheets_heading` - Sheet title
 - `.thorium_web_sheets_body` - Main content area
 
-#### Draggable
+#### Draggable Sheet
+
 - `.thorium_web_sheets_draggableHeader` - Header for draggable sheets
 - `.thorium_web_sheets_dragIndicator` - Visual indicator for draggable sheets
 - `.thorium_web_sheets_draggableScrim` - Scrim behind draggable sheet
@@ -76,13 +81,13 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_sheets_draggableFullHeightDetent` - Full height draggable sheet
 - `.thorium_web_sheets_draggableContentHeightDetent` - Content-based height draggable sheet
 
-#### Docked Sheet States
+#### Docked Sheet
+
 - `.thorium_web_sheets_dockedLeftBorder` - Left border for docked sheet
 - `.thorium_web_sheets_dockedRightBorder` - Right border for docked sheet
 
 ## Docking
 
-### Docking Components
 - `.thorium_web_docking_dockerWrapper` - Wrapper for dock controls
 - `.thorium_web_docking_docker` - Docker container
 - `.thorium_web_docking_resizeHandle` - Resize handle for docked panels
@@ -93,6 +98,7 @@ This document outlines the available styling classes and custom properties for t
 ## Reader Components
 
 ### App Structure
+
 - `.thorium_web_reader_app_main` - Root container for the reader application. Applied to the `<main>` element
 - `.thorium_web_reader_app_shell` - Inner shell container, found within the docking wrapper
 - `.thorium_web_reader_app_wrapper` - Wrapper for reader content
@@ -101,26 +107,30 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_reader_app_rightDock` - Right docked panel
 
 ### Utilities
+
 - `.thorium_web_reader_app_srOnly` - Screen reader only text
 
 ### Header & Footer
+
 - `.thorium_web_reader_app_topBar` - Top navigation bar
 - `.thorium_web_reader_app_bottomBar` - Bottom navigation bar
-- `.thorium_web_reader_app_headerOverlay` - Header overlay
-- `.thorium_web_reader_app_footerOverlay` - Footer overlay
-- `.thorium_web_reader_app_barOverlay` - Common bar overlay
+- `.thorium_web_reader_app_headerOverlay` - Header overlay for layered-ui
+- `.thorium_web_reader_app_footerOverlay` - Footer overlay for layered-ui
+- `.thorium_web_reader_app_barOverlay` - Common bar overlay for layered-ui
 - `.thorium_web_reader_header_header` - Reader header
 - `.thorium_web_reader_header_actionsWrapper` - Header actions container
 - `.thorium_web_reader_header_backlinkWrapper` - Backlink container
 
 ### Navigation
+
 - `.thorium_web_reader_paginatedArrow_container` - Container for pagination arrows
 - `.thorium_web_reader_paginatedArrow_leftContainer` - Left arrow container
 - `.thorium_web_reader_paginatedArrow_rightContainer` - Right arrow container
-- `.thorium_web_reader_paginatedArrow_occupiesSpace` - Spacer for arrow
+- `.thorium_web_reader_paginatedArrow_occupiesSpace` - Style for stacked arrow
 - `.thorium_web_reader_paginatedArrow_visuallyHidden` - Visually hidden arrow
 
 ### Progression and Pagination
+
 - `.thorium_web_reader_pagination_wrapper` - Pagination container
 - `.thorium_web_reader_pagination_label` - Pagination label
 - `.thorium_web_reader_pagination_listItem` - Pagination list item
@@ -130,7 +140,8 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_reader_progression_wrapper` - Progress wrapper
 
 ### Settings
-- `.thorium_web_reader_settings` - Settings container
+
+- `.thorium_web_reader_settings_wrapper` - Settings panel
 - `.thorium_web_reader_settings_group` - Settings group
 - `.thorium_web_reader_settings_groupWrapper` - Wrapper for setting groups
 - `.thorium_web_reader_settings_groupLabel` - Group label
@@ -163,12 +174,15 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_reader_settings_resetButton` - Reset button
 
 ### Backlink
+
 - `.thorium_web_reader_backlink` - Backlink container
 - `.thorium_web_reader_backlink_link` - Backlink anchor
 
 ## Table of Contents
 
 ### TOC Components
+
+- `.thorium_web_toc_wrapper` – TOC panel
 - `.thorium_web_toc_tree` - TOC tree container
 - `.thorium_web_toc_treeItem` - TOC item
 - `.thorium_web_toc_treeItemButton` - TOC item button
@@ -185,6 +199,7 @@ This document outlines the available styling classes and custom properties for t
 ## Misc Components
 
 ### Publication Grid
+
 - `.thorium_web_publicationGrid_wrapper` - Main container for the publication grid
 - `.thorium_web_publicationGrid_card` - Individual publication card with hover effects
 - `.thorium_web_publicationGrid_cover` - Container for publication cover image
@@ -195,5 +210,6 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_publicationGrid_rendition` - Rendition information badge
 
 ### Loader
+
 - `.thorium_web_loader_wrapper` - Wrapper for the loading indicator
 - `.thorium_web_loader_loader` - Animated loading indicator with ellipsis animation

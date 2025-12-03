@@ -222,7 +222,7 @@ export const StatefulSettingsContainer = ({
         triggerRef: triggerRef,
         heading: getHeading(),
         headerVariant: getHeaderVariant(),
-        className: settingsStyles.readerSettings,
+        className: settingsStyles.wrapper,
         placement: "bottom", 
         isOpen: actionState?.isOpen || false,
         onOpenChange: setOpen, 
