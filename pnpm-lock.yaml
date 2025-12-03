@@ -9,16 +9,16 @@ importers:
   .:
     dependencies:
       '@readium/css':
-        specifier: 2.0.0-beta.22
-        version: 2.0.0-beta.22
+        specifier: 2.0.0-beta.24
+        version: 2.0.0-beta.24
       '@readium/navigator':
-        specifier: ^2.2.4
-        version: 2.2.4
+        specifier: 2.2.5
+        version: 2.2.5
       '@readium/navigator-html-injectables':
-        specifier: ^2.2.1
-        version: 2.2.1
+        specifier: 2.2.2
+        version: 2.2.2
       '@readium/shared':
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1
       '@reduxjs/toolkit':
         specifier: ^2.9.0
@@ -1814,15 +1814,15 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@readium/css@2.0.0-beta.22':
-    resolution: {integrity: sha512-mWQ5Rl7n74EofItTo+nKXHUjCMK57H+UYMtiuCX9PHED8wwaanmnQpNyWx9QL6a25iOMF4efg4+LKGrS8rIJjg==}
+  '@readium/css@2.0.0-beta.24':
+    resolution: {integrity: sha512-vBI5Sw6JwlbTuDBvcD/ahJZqw2NGe1CDGQ7msAByc/491Q8V76baCkYIMFWyj5gPS1GS9oltlmIAWZAzxx3djg==}
 
-  '@readium/navigator-html-injectables@2.2.1':
-    resolution: {integrity: sha512-U8tiz/45bqchqWsoy1+2rghuudDhI9aBa75cSRl7srT1uv4ukDKRHKLCjlblk6bRizoYMCO1t20mYKA9OVXpfw==}
+  '@readium/navigator-html-injectables@2.2.2':
+    resolution: {integrity: sha512-ukgUbCHvwbxPjtm7szJBYwo9L0psyZEI2Oww51rPWUrFZwQu/azmIspBQuqFBJ3oYJ0s9gaDx5LYJIMEhGboYw==}
     engines: {node: '>=18'}
 
-  '@readium/navigator@2.2.4':
-    resolution: {integrity: sha512-muShy4OP1nUFvvHx/j+ifrcQPBeSbsrz4aYPDQP6kcXxYaGZec1pLESC49LzLeLdDBvQa4LxMKUgF06pKImwVA==}
+  '@readium/navigator@2.2.5':
+    resolution: {integrity: sha512-Ewp1ucpYEtS4JJ+XDjbBxxb6GVcobkj9984I89xuZR0HuDSrXH9bbASt3F272zOvGImIdY6nhP2mEs39u2URNw==}
     engines: {node: '>=18'}
 
   '@readium/shared@2.1.1':
@@ -6225,11 +6225,11 @@ snapshots:
       '@react-types/shared': 3.32.1(react@19.2.0)
       react: 19.2.0
 
-  '@readium/css@2.0.0-beta.22': {}
+  '@readium/css@2.0.0-beta.24': {}
 
-  '@readium/navigator-html-injectables@2.2.1': {}
+  '@readium/navigator-html-injectables@2.2.2': {}
 
-  '@readium/navigator@2.2.4': {}
+  '@readium/navigator@2.2.5': {}
 
   '@readium/shared@2.1.1': {}
 

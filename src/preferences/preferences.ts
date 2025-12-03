@@ -24,6 +24,7 @@ import {
   ThSettingsRangePlaceholder,
   ThArrowVariant
 } from "./models/enums";
+import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
 export type I18nValue<T> = T | string | { key: string; fallback?: string };
@@ -225,6 +226,10 @@ export interface ThPaginatedAffordancePref {
 export interface ThPreferences<K extends CustomizableKeys = {}> {
   direction?: ThLayoutDirection;
   locale?: string;
+  experiments?: {
+    reflow?: Array<ExperimentKey>;
+    webPub?: Array<ExperimentKey>;
+  };
   metadata?: {
     documentTitle?: {
       // TODO – Templating of custom

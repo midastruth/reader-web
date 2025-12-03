@@ -817,7 +817,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             : (preferences.theming.icon.size || 24),
           scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
             ? (preferences.theming.icon.size || 24) * 5 
-            : (preferences.theming.icon.size || 24)
+            : (preferences.theming.icon.size || 24),
+          experiments: preferences.experiments?.reflow || null
         }
   
         EpubNavigatorLoad({
