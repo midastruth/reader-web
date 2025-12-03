@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PublicationGrid } from "@/components/PublicationGrid";
+import { PublicationGrid } from "@/components/Misc/PublicationGrid";
 import Image from "next/image";
 
 import { isManifestRouteEnabled } from "./ManifestRouteEnabled";

@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { StatefulReader } from "@/components/Epub";
-import { StatefulLoader } from "@/components/StatefulLoader";
+import { StatefulLoader } from "@/components/Misc/StatefulLoader";
 import { PUBLICATION_MANIFESTS } from "@/config/publications";
 import { usePublication } from "@/hooks/usePublication";
 import { useAppSelector } from "@/lib/hooks";

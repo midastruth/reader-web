@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import readerLoaderStyles from "./assets/styles/thorium-web.reader.loader.module.css";
+import readerLoaderStyles from "./assets/styles/thorium-web.loader.module.css";
 
 import { ThLoader } from "@/core/Components/Reader/ThLoader";
 

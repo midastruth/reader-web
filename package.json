@@ -37,6 +37,8 @@
     "./core/preferences": "./dist/preferences/index.mjs",
     "./epub": "./dist/components/Epub/index.mjs",
     "./epub/styles": "./dist/components/Epub/index.css",
+    "./misc": "./dist/components/Misc/index.mjs",
+    "./misc/styles": "./dist/components/Misc/index.css",
     "./next": "./dist/next-lib/index.mjs",
     "./webpub": "./dist/components/WebPub/index.mjs",
     "./webpub/styles": "./dist/components/WebPub/index.css"
