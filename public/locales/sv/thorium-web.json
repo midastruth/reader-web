@@ -126,7 +126,7 @@
             "reset": "Återställ"
         },
         "app": {
-            "loading": "Läser in",
+            "loading": "Laddar",
             "publicationWrapper": "Du befinner dig nu i publikationen.",
             "docking": {
                 "dockingLeft": "Dockad panel till vänster",
