@@ -2,6 +2,8 @@
 
 Thorium Web is a web-based reader for EPUB and other digital publications, built using Next.js and modern web technologies. It is designed to provide a fast, responsive, and accessible reading experience.
 
+![Thorium Web in a browser with settings and table of contents panels open. Default settings such as font-size, font-family, and themes are visible in the overflowing settings panel. In table of contents, the current entry is indicated, and its parent entry is expanded.](./thorium-web.png)
+
 ## Features
 
 - Supports EPUB
