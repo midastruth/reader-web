@@ -193,8 +193,8 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       reflowOrder: [
         "auto", 
         ThThemeKeys.light, 
+        ThThemeKeys.paper,
         ThThemeKeys.sepia, 
-        ThThemeKeys.paper, 
         ThThemeKeys.dark, 
         ThThemeKeys.contrast1, 
         ThThemeKeys.contrast2, 
@@ -225,21 +225,6 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
           elevate: "0px 0px 2px #808080", // drop shadow of containers
           immerse: "0.6"                  // opacity of immersive mode
         },
-        [ThThemeKeys.sepia]: {
-          background: "#faf4e8",
-          text: "#121212",
-          link: "#0000EE",
-          visited: "#551A8B",
-          subdue: "#8c8c8c",
-          disable: "#8c8c8c",
-          hover: "#edd7ab",
-          onHover: "#121212",
-          select: "#b4d8fe",
-          onSelect: "inherit",
-          focus: "#0067f4",
-          elevate: "0px 0px 2px #8c8c8c",
-          immerse: "0.5"
-        },
         [ThThemeKeys.dark]: {
           background: "#000000",
           text: "#FEFEFE",
@@ -256,6 +241,21 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
           immerse: "0.4"
         },
         [ThThemeKeys.paper]: {
+          background: "#faf4e8",
+          text: "#121212",
+          link: "#0000EE",
+          visited: "#551A8B",
+          subdue: "#8c8c8c",
+          disable: "#8c8c8c",
+          hover: "#edd7ab",
+          onHover: "#121212",
+          select: "#b4d8fe",
+          onSelect: "inherit",
+          focus: "#0067f4",
+          elevate: "0px 0px 2px #8c8c8c",
+          immerse: "0.5"
+        },
+        [ThThemeKeys.sepia]: {
           background: "#e9ddc8",
           text: "#000000",
           link: "#0000EE",
