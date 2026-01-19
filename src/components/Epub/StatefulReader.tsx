@@ -9,12 +9,11 @@ import {
   useTheming
 } from "../../preferences";
 
-import "../assets/styles/reader.css";
-import arrowStyles from "../assets/styles/readerArrowButton.module.css";
+import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
+import arrowStyles from "../assets/styles/thorium-web.reader.paginatedArrow.module.css";
 
 import { 
-  ThActionsKeys, 
-  ThBreakpoints, 
+  ThActionsKeys,  
   ThLineHeightOptions, 
   ThTextAlignOptions, 
   ThLayoutUI,
@@ -114,6 +113,8 @@ import Peripherals from "../../helpers/peripherals";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { deserializePositions } from "@/helpers/deserializePositions";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
+import { getReaderClassNames } from "../Helpers/getReaderClassNames";
+import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
@@ -242,9 +243,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
     initProps: {
-      ...propsToCSSVars(preferences.theming.arrow, "arrow"), 
-      ...propsToCSSVars(preferences.theming.icon, "icon"),
-      ...propsToCSSVars(preferences.theming.layout, "layout")
+      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
+      ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
+      ...propsToCSSVars(preferences.theming.layout, { 
+        prefix: prefixString("layout"),
+        exclude: ["ui"]
+      })
     },
     onBreakpointChange: (breakpoint) => dispatch(setBreakpoint(breakpoint)),
     onColorSchemeChange: (colorScheme) => dispatch(setColorScheme(colorScheme)),
@@ -852,19 +856,18 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     <>
     <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider navigator={ epubNavigator }>
-      <main id="reader-main">
+      <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
           <div 
-            id="reader-shell" 
             className={ 
-              classNames(
-                isFXL ? "isFXL" : "isReflow",
-                isImmersive ? "isImmersive" : "",
-                isHovering ? "isHovering" : "",
-                isScroll ? "isScroll" : "isPaged",
+              getReaderClassNames({
+                isScroll,
+                isImmersive,
+                isHovering,
+                isFXL,
                 layoutUI,
                 breakpoint
-              )
+              })
             }
           >
             <StatefulReaderHeader 
@@ -879,7 +882,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             />
 
           { !isScroll 
-            ? <nav className={ arrowStyles.container } id={ arrowStyles.left }>
+            ? <nav className={ classNames(arrowStyles.container, arrowStyles.leftContainer) }>
                 <StatefulReaderArrowButton 
                   direction="left" 
                   isDisabled={ atPublicationStart } 
@@ -894,12 +897,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             </nav> 
             : <></> }
 
-            <article id="wrapper" aria-label={ t("reader.app.publicationWrapper") }>
-              <div id="container" ref={ container }></div>
+            <article className={ readerStyles.wrapper } aria-label={ t("reader.app.publicationWrapper") }>
+              <div id="thorium-web-container" className={ readerStyles.iframeContainer } ref={ container }></div>
             </article>
 
           { !isScroll 
-            ? <nav className={ arrowStyles.container } id={ arrowStyles.right }>
+            ? <nav className={ classNames(arrowStyles.container, arrowStyles.rightContainer) }>
                 <StatefulReaderArrowButton 
                   direction="right" 
                   isDisabled={ atPublicationEnd } 

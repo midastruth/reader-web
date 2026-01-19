@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 
-import progressionStyles from "./assets/styles/readerProgression.module.css";
+import progressionStyles from "./assets/styles/thorium-web.reader.progression.module.css";
 
 import { ThProgressionFormat } from "@/preferences/models/enums";
 import { ThFormatPref, ThFormatPrefValue } from "@/preferences";
@@ -15,6 +15,8 @@ import { useAppSelector } from "@/lib/hooks";
 
 import { makeBreakpointsMap } from "@/core/Helpers/breakpointsMap";
 import { getBestMatchingProgressionFormat } from "@/core/Helpers/progressionFormat";
+
+import classNames from "classnames";
 
 export const StatefulReaderProgression = ({ 
   className,
@@ -188,9 +190,9 @@ export const StatefulReaderProgression = ({
 
   return (
     <ThProgression 
-      id={progressionStyles.current} 
-      className={className}
-      aria-label={t("reader.app.progression.wrapper")}
+      id="current-progression" 
+      className={ classNames(progressionStyles.wrapper, className) }
+      aria-label={ t("reader.app.progression.wrapper") }
     >
       { displayText }
     </ThProgression>

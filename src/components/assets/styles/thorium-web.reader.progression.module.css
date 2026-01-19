@@ -1,5 +1,5 @@
-#current {
-  color: var(--theme-text);
+.wrapper {
+  color: var(--th-theme-text);
   font-variant-numeric: lining-nums tabular-nums;
   text-align: center;
 }

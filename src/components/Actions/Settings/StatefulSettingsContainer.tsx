@@ -20,7 +20,7 @@ import {
 } from "@/preferences/models/enums";
 import { StatefulActionContainerProps } from "../models/actions";
 
-import settingsStyles from "../../Settings/assets/styles/settings.module.css";
+import settingsStyles from "../../Settings/assets/styles/thorium-web.reader.settings.module.css";
 
 import { StatefulSheetWrapper } from "../../Sheets/StatefulSheetWrapper";
 
@@ -222,7 +222,7 @@ export const StatefulSettingsContainer = ({
         triggerRef: triggerRef,
         heading: getHeading(),
         headerVariant: getHeaderVariant(),
-        className: settingsStyles.readerSettings,
+        className: settingsStyles.wrapper,
         placement: "bottom", 
         isOpen: actionState?.isOpen || false,
         onOpenChange: setOpen, 

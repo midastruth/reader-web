@@ -3,49 +3,54 @@
   z-index: 2;
 }
 
-#left {
+.leftContainer {
   top: 50vh;
   top: 50dvh;
   transform: translateY(-50%);
   left: 0;
 }
 
-#left button {
-  margin-left: var(--arrow-offset, 0);
+.leftContainer button {
+  margin-left: var(--th-arrow-offset, 0);
 }
 
-#right {
+.rightContainer {
   top: 50vh;
   top: 50dvh;
   transform: translateY(-50%);
   right: 0;
 }
 
-#right button {
-  margin-right: var(--arrow-offset, 0);
+.rightContainer button {
+  margin-right: var(--th-arrow-offset, 0);
 }
 
 .container button {
-  width: var(--arrow-size, 40px);
-  /* height: var(--arrow-size, 40px); */
+  width: var(--th-arrow-size, 40px);
+  /* height: var(--th-arrow-size, 40px); */
   height: 40vh;
   height: 40dvh;
-  border-radius: var(--layout-radius);
+  border-radius: var(--th-layout-radius);
   pointer-events: auto;
   box-sizing: border-box;
   padding: 5px;
 
-  background-color: var(--theme-background);
-  border: 1px solid var(--theme-text);
+  background-color: var(--th-theme-background);
+  border: 1px solid var(--th-theme-text);
 }
 
-.container .viewportLarge {
+.container .occupiesSpace {
   background-color: transparent;
   border: none;
 }
 
-.container button:disabled {
+.container button[data-disabled] {
   pointer-events: none;
+}
+
+.container button[data-hovered] {
+  opacity: 1;
+  transition: all 200ms;
 }
 
 .container .visuallyHidden {
@@ -53,7 +58,7 @@
 }
 
 .container button[data-focused] {
-  outline: 2px solid var(--theme-focus);
+  outline: 2px solid var(--th-theme-focus);
   opacity: 1;
 }
 
@@ -63,15 +68,15 @@
 
 /* Exclude taps as they will eventually apply hover state */
 @media (hover: hover) and (pointer: fine) {
-  .container button:not(:disabled):hover {
+  .container button:not([data-disabled])[data-hovered] {
     opacity: 1;
     transition: all 200ms;
   }
 }
 
 .container button svg {
-  fill: var(--theme-text);
-  stroke: var(--theme-text);
+  fill: var(--th-theme-text);
+  stroke: var(--th-theme-text);
   width: 100%;
   height: 100%;
 }

@@ -5,7 +5,7 @@ import React, { useRef } from "react";
 import { TooltipProps } from "react-aria-components";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
-import readerSharedUI from "../../assets/styles/readerSharedUI.module.css";
+import readerSharedUI from "../../assets/styles/thorium-web.button.module.css";
 
 import { ThActionButton, ThActionButtonProps } from "@/core/Components/Buttons/ThActionButton";
 

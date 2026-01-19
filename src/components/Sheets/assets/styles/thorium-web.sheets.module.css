@@ -1,7 +1,7 @@
 /* React Aria modal provides a visual viewport for mobile + keyboard: --visual-viewport-height 
    which should explain why it’s being used here while not mentioned anywhere else in the codebase */
 
-.fullScreenSheet {
+.fullscreen {
   position: fixed;
   top: 0;
   left: 0;
@@ -9,41 +9,41 @@
   bottom: 0;
   z-index: 10;
   overflow-y: auto;
-  scroll-padding-top: calc(var(--sheet-sticky-header, 80px) + var(--layout-spacing));
-  scroll-padding-bottom: var(--layout-spacing);
+  scroll-padding-top: calc(var(--th-sheet-sticky-header, 80px) + var(--th-layout-spacing));
+  scroll-padding-bottom: var(--th-layout-spacing);
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   max-height: var(--visual-viewport-height, 100dvh);
-  background-color: var(--theme-background);
-  color: var(--theme-text);
+  background-color: var(--th-theme-background);
+  color: var(--th-theme-text);
   align-items: center;
 }
 
-.popOverSheet {
+.popover {
   overflow-y: auto;
-  scroll-padding-top: calc(var(--sheet-sticky-header, 80px) + var(--layout-spacing));
-  scroll-padding-bottom: var(--layout-spacing);
+  scroll-padding-top: calc(var(--th-sheet-sticky-header, 80px) + var(--th-layout-spacing));
+  scroll-padding-bottom: var(--th-layout-spacing);
   box-sizing: border-box;
-  width: calc(340px + (2 * var(--layout-spacing)));
-  max-width: var(--constraints-popover, 500px);
+  width: calc(340px + (2 * var(--th-layout-spacing)));
+  max-width: var(--th-layout-constraints-popover, 500px);
   max-height: 100%;
   max-height: var(--visual-viewport-height, 100dvh);
   padding: 0;
-  background-color: var(--theme-background);
-  color: var(--theme-text);
-  border-radius: var(--layout-radius);
-  border: 1px solid var(--theme-subdue);
-  filter: drop-shadow(var(--theme-elevate));
+  background-color: var(--th-theme-background);
+  color: var(--th-theme-text);
+  border-radius: var(--th-layout-radius);
+  border: 1px solid var(--th-theme-subdue);
+  filter: drop-shadow(var(--th-theme-elevate));
 }
 
 /* React Modal Sheet handles scroll + sticky header so no need for scroll-padding here */
-.bottomSheetModal {
+.draggable {
   box-sizing: border-box;
-  max-width: var(--constraints-bottomSheet, 600px);
-  left: max(calc((100% - var(--constraints-bottomSheet, 600px)) / 2), 0px) !important;
-  background-color: var(--theme-background) !important;
-  color: var(--theme-text) !important;
+  max-width: var(--th-layout-constraints-bottomSheet, 600px);
+  left: max(calc((100% - var(--th-layout-constraints-bottomSheet, 600px)) / 2), 0px) !important;
+  background-color: var(--th-theme-background) !important;
+  color: var(--th-theme-text) !important;
   border: none;
   /* Animating drop-shadow pretty much kills performance, hence why we use a pseudo-element */
   filter: none !important;
@@ -54,7 +54,7 @@
   transition: border-radius 500ms;
 }
 
-.bottomSheetModal::after {
+.draggable::after {
   content: "";
   z-index: -1;
   position: absolute;
@@ -64,48 +64,48 @@
   bottom: 0;
   /* important for performance */
   transform: translateZ(0);
-  box-shadow: var(--theme-elevate);
+  box-shadow: var(--th-theme-elevate);
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
 }
 
-.bottomSheetModalFullHeightDetent {
+.draggableFullHeightDetent {
   height: calc(100% - env(safe-area-inset-top)) !important;
 }
 
-.bottomSheetModalContentHeightDetent {
+.draggableContentHeightDetent {
   max-height: calc(100% - env(safe-area-inset-top)) !important;
 }
 
-.bottomSheetModal[data-full-height] {
+.draggable[data-full-height] {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   transition: border-radius 500ms;
 }
 
-.bottomSheetBackdrop {
+.draggableBackdrop {
   /* So that React Aria can use it to dismiss the sheet as it’s set to none by React Modal Sheet. */
   pointer-events: auto !important;
   background-color: transparent !important;
 }
 
-.bottomSheetScrim {
-  background-color: var(--defaults-scrim) !important;
+.draggableScrim {
+  background-color: var(--th-layout-defaults-scrim) !important;
 }
 
-.bottomSheet {
+.draggableContainer {
   padding: 0;
-  background-color: var(--theme-background);
-  color: var(--theme-text);
+  background-color: var(--th-theme-background);
+  color: var(--th-theme-text);
 }
 
-.bottomSheetScroller {
+.draggableScroller {
   position: relative;
-  scroll-padding-bottom: calc(var(--layout-spacing) * 4);
+  scroll-padding-bottom: calc(var(--th-layout-spacing) * 4);
 }
 
 .dragIndicator {
-  width: calc(var(--icon-size, 40px) * 1.5);
+  width: calc(var(--th-icon-size, 40px) * 1.5);
   position: absolute;
   top: 0;
   left: 50%;
@@ -113,44 +113,44 @@
 }
 
 .dragIndicator[data-focus-visible] {
-  border-radius: var(--layout-radius);
-  outline: 2px solid var(--theme-focus);
+  border-radius: var(--th-layout-radius);
+  outline: 2px solid var(--th-theme-focus);
 }
 
 .dragIndicator svg {
-  fill: var(--theme-subdue);
+  fill: var(--th-theme-subdue);
   width: 100%;
   height: auto;
 }
 
-.dockedSheet {
+.docked {
   /* We need relative positioning so that RAC FocusScope scrolls properly on tabbing */
   position: relative;
   overflow-y: auto;
-  scroll-padding-top: calc(var(--sheet-sticky-header, 80px) + var(--layout-spacing));
-  scroll-padding-bottom: var(--layout-spacing);
+  scroll-padding-top: calc(var(--th-sheet-sticky-header, 80px) + var(--th-layout-spacing));
+  scroll-padding-bottom: var(--th-layout-spacing);
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
   height: 100vh;
   height: 100dvh;
-  background-color: var(--theme-background);
-  color: var(--theme-text);
+  background-color: var(--th-theme-background);
+  color: var(--th-theme-text);
 }
 
-.dockedSheetLeftBorder {
-  border-right: 1px solid var(--theme-subdue);
+.dockedLeftBorder {
+  border-right: 1px solid var(--th-theme-subdue);
 }
 
-.dockedSheetRightBorder {
-  border-left: 1px solid var(--theme-subdue);
+.dockedRightBorder {
+  border-left: 1px solid var(--th-theme-subdue);
 }
 
-.sheetDialog {
+.dialog {
   outline: none;
 }
 
-.sheetHeader {
+.header {
   display: flex;
   align-items: center;
   position: sticky;
@@ -158,38 +158,38 @@
   left: 0;
   right: 0;
   z-index: 10;
-  padding: calc(var(--layout-spacing) / 2) var(--layout-spacing);
-  background-color: var(--theme-background);
-  border-bottom: 1px solid var(--theme-subdue);
+  padding: calc(var(--th-layout-spacing) / 2) var(--th-layout-spacing);
+  background-color: var(--th-theme-background);
+  border-bottom: 1px solid var(--th-theme-subdue);
 }
 
-.bottomSheetHeader {
+.draggableHeader {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  background-color: var(--theme-background);
-  border-bottom: 1px solid var(--theme-subdue);
-  padding: var(--layout-spacing) var(--layout-spacing) calc(var(--layout-spacing) / 2) var(--layout-spacing);
+  background-color: var(--th-theme-background);
+  border-bottom: 1px solid var(--th-theme-subdue);
+  padding: var(--th-layout-spacing) var(--th-layout-spacing) calc(var(--th-layout-spacing) / 2) var(--th-layout-spacing);
   /* Otherwise covers the modal’s */
   border-top-left-radius: 28px !important;
   border-top-right-radius: 28px !important;
   transition: border-radius 500ms;
 }
 
-.bottomSheetModal[data-full-height] .bottomSheetHeader {
+.draggable[data-full-height] .draggableHeader {
   /* Otherwise covers the modal’s */
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   transition: border-radius 500ms;
 }
 
-.sheetHeading {
+.heading {
   font-size: 1.25rem;
   line-height: 1;
   margin: 0;
   padding: 0;
 }
 
-.sheetBody {
-  padding: var(--layout-spacing);
+.body {
+  padding: var(--th-layout-spacing);
 }

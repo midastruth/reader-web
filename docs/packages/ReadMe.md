@@ -18,6 +18,10 @@ Components are relying on peer dependencies to work. You must install them manua
 
 Note that these components do not require Next.js, you should be able to use them in any React application or React framework of your choice.
 
+## Styling
+
+Styles are exported as CSS stylesheets with `thorium_web_` scoped classnames. You can find detailed documentation about available classes in the [Styling docs](./Styling/ReadMe.md).
+
 ## Contributing
 
 If you want to contribute to the Thorium Web package, here are the steps to bundle them and test locally.

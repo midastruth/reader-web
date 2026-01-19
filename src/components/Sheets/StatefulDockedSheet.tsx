@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
 
 import { StatefulSheet } from "./models/sheets";
 import { ThDockingKeys, ThSheetHeaderVariant, ThLayoutDirection } from "@/preferences/models/enums";
 
-import sheetStyles from "./assets/styles/sheets.module.css";
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
+import sheetStyles from "./assets/styles/thorium-web.sheets.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 
 import { ThDockedPanel } from "@/core/Components/Containers/ThDockedPanel";
 import { ThContainerHeader } from "@/core/Components/Containers/ThContainerHeader";
@@ -19,6 +19,7 @@ import { useI18n } from "@/i18n";
 import { useAppSelector } from "@/lib/hooks";
 
 import classNames from "classnames";
+import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface StatefulDockedSheetProps extends StatefulSheet {
   flow: ThDockingKeys.start | ThDockingKeys.end | null;
@@ -41,17 +42,28 @@ export const StatefulDockedSheet = ({
   }: StatefulDockedSheetProps) => {
   const { t } = useI18n()
   const dockPortal = flow && document.getElementById(flow);
+  const dockedSheetRef = useRef<HTMLDivElement | null>(null);
   const dockedSheetHeaderRef = useRef<HTMLDivElement | null>(null);
   const dockedSheetBodyRef = useRef<HTMLDivElement | null>(null);
   const dockedSheetCloseRef = useRef<HTMLButtonElement | null>(null);
 
   const direction = useAppSelector(state => state.reader.direction);
 
+  // Update the CSS variable when the sheet is open and header ref is available
+  useEffect(() => {
+    if (isOpen && dockedSheetRef.current && dockedSheetHeaderRef.current) {
+      dockedSheetRef.current.style.setProperty(
+        `--${ prefixString("sheet-sticky-header") }`,
+        `${ dockedSheetHeaderRef.current.clientHeight }px`
+      );
+    }
+  }, [isOpen]);
+
   const classFromFlow = useCallback(() => {
     if (flow === ThDockingKeys.start) {
-      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedSheetLeftBorder : sheetStyles.dockedSheetRightBorder;
+      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedLeftBorder : sheetStyles.dockedRightBorder;
     } else if (flow === ThDockingKeys.end) {
-      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedSheetRightBorder : sheetStyles.dockedSheetLeftBorder;
+      return direction === ThLayoutDirection.ltr ? sheetStyles.dockedRightBorder : sheetStyles.dockedLeftBorder;
     }
   }, [flow, direction]);
 
@@ -59,6 +71,7 @@ export const StatefulDockedSheet = ({
     return(
       <>
       <ThDockedPanel
+        ref={ dockedSheetRef }
         isOpen={ isOpen }
         portal={ dockPortal }
         focusOptions={{
@@ -76,18 +89,15 @@ export const StatefulDockedSheet = ({
           },
           updateState: resetFocus
         }}
-        className={ classNames(sheetStyles.dockedSheet, className, classFromFlow()) }
-        style={{
-          "--sheet-sticky-header": dockedSheetHeaderRef.current ? `${ dockedSheetHeaderRef.current.clientHeight }px` : undefined
-        }}
+        className={ classNames(sheetStyles.docked, className, classFromFlow()) }
       >
         <ThContainerHeader 
           ref={ dockedSheetHeaderRef }
-          className={ sheetStyles.sheetHeader }
+          className={ sheetStyles.header }
           label={ heading }
           compounds={{
             heading: {
-              className: sheetStyles.sheetHeading
+              className: sheetStyles.heading
             }
           }}
         >
@@ -110,7 +120,7 @@ export const StatefulDockedSheet = ({
         </ThContainerHeader>
         <ThContainerBody 
           ref={ dockedSheetBodyRef }
-          className={ sheetStyles.sheetBody }
+          className={ sheetStyles.body }
         >
           { children }
         </ThContainerBody>

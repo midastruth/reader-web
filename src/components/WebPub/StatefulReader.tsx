@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 import { defaultFontFamilyOptions, ThemeKeyType, useTheming } from "../../preferences";
 
-import "../assets/styles/reader.css";
+import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
 import { StatefulReaderProps } from "../Epub/StatefulReader";
 
@@ -87,6 +87,8 @@ import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import Peripherals from "../../helpers/peripherals";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
+import { getReaderClassNames } from "../Helpers/getReaderClassNames";
+import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface WebPubCSSSettings {
   fontFamily: keyof typeof defaultFontFamilyOptions | null;
@@ -174,9 +176,12 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
     initProps: {
-      ...propsToCSSVars(preferences.theming.arrow, "arrow"), 
-      ...propsToCSSVars(preferences.theming.icon, "icon"),
-      ...propsToCSSVars(preferences.theming.layout, "layout")
+      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
+      ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
+      ...propsToCSSVars(preferences.theming.layout, { 
+        prefix: prefixString("layout"),
+        exclude: ["ui"]
+      })
     },
     onBreakpointChange: (breakpoint) => dispatch(setBreakpoint(breakpoint)),
     onColorSchemeChange: (colorScheme) => dispatch(setColorScheme(colorScheme)),
@@ -450,16 +455,17 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     <>
     <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider navigator={ webPubNavigator }>
-      <main id="reader-main">
+      <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
           <div 
-            id="reader-shell" 
             className={ 
               classNames(
-                "isScroll",
-                isImmersive ? "isImmersive" : "",
-                isHovering ? "isHovering" : "",
-                layoutUI
+                getReaderClassNames({
+                  isScroll: true,
+                  isImmersive,
+                  isHovering,
+                  layoutUI
+                })
               )
             }
           >
@@ -470,8 +476,8 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
               runningHeadFormatPref={ preferences.theming.header?.runningHead?.format?.webPub }
             />
 
-            <article id="wrapper" aria-label={ t("reader.app.publicationWrapper") }>
-              <div id="container" ref={ container }></div>
+            <article className={ readerStyles.wrapper } aria-label={ t("reader.app.publicationWrapper") }>
+              <div id="thorium-web-container" className={ readerStyles.iframeContainer } ref={ container }></div>
             </article>
 
           <StatefulReaderFooter 

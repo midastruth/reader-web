@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 
-import settingsStyles from "./assets/styles/settings.module.css";
+import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
 import { ThActionsKeys, ThLayoutDirection, ThSettingsContainerKeys } from "@/preferences/models/enums";
 
@@ -74,7 +74,7 @@ return (
   <>
   <ThRadioGroup 
     ref={ ref }
-    className={ standalone ? settingsStyles.readerSettingsGroup : "" }
+    className={ standalone ? settingsStyles.group : "" }
     { ...props }
     { ...(standalone ? { label: label } : { "aria-label": label }) }
     value={ value }
@@ -82,14 +82,14 @@ return (
     items={ useGraphicalNavigation !== false ? items : [] }
     compounds={{
       wrapper: {
-        className: settingsStyles.readerSettingsRadioWrapper,
+        className: settingsStyles.radioWrapper,
         ref: wrapperRef
       },
       label: {
-        className: settingsStyles.readerSettingsLabel
+        className: settingsStyles.label
       },
       radio: {
-        className: settingsStyles.readerSettingsRadio,
+        className: settingsStyles.radio,
         onKeyDown: useGraphicalNavigation !== false ? onKeyDown : undefined
       }
     }}

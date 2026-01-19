@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import readerLoaderStyles from "./assets/styles/readerLoader.module.css";
+import readerLoaderStyles from "./assets/styles/thorium-web.loader.module.css";
 
 import { ThLoader } from "@/core/Components/Reader/ThLoader";
 
@@ -13,8 +13,8 @@ export const StatefulLoader = ({ isLoading, children }: { isLoading: boolean, ch
     <>
     <ThLoader 
       isLoading={ isLoading } 
-      loader={ <div className={ readerLoaderStyles.readerLoader }>{ t("reader.app.loading") }</div> } 
-      className={ readerLoaderStyles.readerLoaderWrapper } 
+      loader={ <div className={ readerLoaderStyles.loader }>{ t("reader.app.loading") }</div> } 
+      className={ readerLoaderStyles.wrapper } 
     >
       { children }
     </ThLoader>

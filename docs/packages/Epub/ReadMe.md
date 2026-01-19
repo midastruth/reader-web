@@ -17,7 +17,7 @@ npm install @edrlab/thorium-web @readium/css @readium/navigator @readium/navigat
 
 ## Reader Component
 
-The Reader Component is the main component of this package. It is a React component that can be used to render an EPUB file, has state management built-in through Redux, and is already styled.
+The Reader Component is the main component of this package. It is a React component that can be used to render an EPUB file, has state management built-in through Redux, and prefixed `thorium_web` classNames that you can target to style it.
 
 You can use it like this:
 
@@ -81,6 +81,16 @@ This can come in handy if you want to update the preferences through UI Componen
 The `<ThI18nProvider>` is a context provider used to configure the i18next instance.
 
 It accepts the same props as `InitOptions` from `i18next`.
+
+### Styling
+
+The component includes an optional default stylesheet that you can import:
+
+```typescript
+import "@edrlab/thorium-web/epub/styles";
+```
+
+If you need to customize the styling, you can provide your own CSS instead.
 
 ## Customizing the Reader
 

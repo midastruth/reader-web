@@ -1,7 +1,7 @@
 "use client";
 
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
-import settingsStyles from "./assets/styles/settings.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
+import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
 import { ThNumberField, ThNumberFieldProps } from "@/core/Components/Settings/ThNumberField";
 
@@ -34,28 +34,28 @@ export const StatefulNumberField = ({
       { ...props }
       { ...(standalone ? { label: label } : { "aria-label": label }) }
       placeholder={ placeholder }
-      className={ settingsStyles.readerSettingsNumberField }
+      className={ settingsStyles.numberField }
       compounds={{
         wrapper: {
           className: classNames(
-            settingsStyles.readerSettingsNumberFieldWrapper,
-            standalone && settingsStyles.readerSettingsGroup
+            settingsStyles.numberFieldWrapper,
+            standalone && settingsStyles.group
           )
         },
         group: {
-          className: settingsStyles.readerSettingsGroupWrapper
+          className: settingsStyles.groupWrapper
         },
         label: {
-          className: settingsStyles.readerSettingsLabel
+          className: settingsStyles.label
         },
         stepper: {
           className: readerSharedUI.icon
         },
         input: {
-          className: settingsStyles.readerSettingsInput,
+          className: settingsStyles.input,
         },
         reset: {
-          className: classNames(readerSharedUI.icon, settingsStyles.readerSettingsResetButton),
+          className: classNames(readerSharedUI.icon, settingsStyles.resetButton),
           compounds: {
             tooltipTrigger: {
               delay: preferences.theming.arrow.tooltipDelay,

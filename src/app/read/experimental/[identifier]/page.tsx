@@ -2,12 +2,10 @@
 
 import { use, useEffect, useState } from "react";
 import { ExperimentalWebPubStatefulReader } from "@/components/WebPub";
-import { StatefulLoader } from "@/components/StatefulLoader";
+import { StatefulLoader } from "@/components/Misc/StatefulLoader";
 import { usePublication } from "@/hooks/usePublication";
 import { useAppSelector } from "@/lib/hooks";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
-
-import "@/app/app.css";
 
 const WEB_MANIFESTS = {
   "readium-css": "https://readium.org/css/docs/manifest.json",

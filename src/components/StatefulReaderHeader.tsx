@@ -2,14 +2,15 @@
 
 import React, { useCallback, useEffect, useRef } from "react";
 
-import { ActionKeyType, usePreferenceKeys } from "@/preferences";
+import { ActionKeyType } from "@/preferences";
 import { ThRunningHeadFormat } from "@/preferences/models/enums";
 import { ThFormatPref } from "@/preferences";
 
 import { ThLayoutUI } from "@/preferences/models/enums";
 
-import readerHeaderStyles from "./assets/styles/readerHeader.module.css";
-import overflowMenuStyles from "./Actions/assets/styles/overflowMenu.module.css";
+import readerStyles from "./assets/styles/thorium-web.reader.app.module.css";
+import readerHeaderStyles from "./assets/styles/thorium-web.reader.header.module.css";
+import overflowMenuStyles from "./Actions/assets/styles/thorium-web.overflow.module.css";
 
 import { ThActionEntry } from "@/core/Components/Actions/ThActionsBar";
 import { ThHeader } from "@/core/Components/Reader/ThHeader";
@@ -26,6 +27,8 @@ import { useFocusWithin } from "react-aria";
 
 import { setHovering } from "@/lib/readerReducer";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+
+import classNames from "classnames";
 
 export const StatefulReaderHeader = ({
   actionKeys,
@@ -109,8 +112,7 @@ export const StatefulReaderHeader = ({
   return (
     <>
     <ThInteractiveOverlay 
-      id="reader-header-overlay"
-      className="bar-overlay"
+      className={ classNames(readerStyles.barOverlay, readerStyles.headerOverlay) }
       isActive={ layout === ThLayoutUI.layered && isImmersive && !isHovering }
       onMouseEnter={ setHover }
       onMouseLeave={ removeHover }
@@ -118,14 +120,13 @@ export const StatefulReaderHeader = ({
 
     <ThHeader 
       ref={ headerRef }
-      className={ readerHeaderStyles.header } 
-      id="top-bar" 
+      className={ classNames(readerStyles.topBar, readerHeaderStyles.header) } 
       aria-label={ t("reader.app.header.label") } 
       onMouseEnter={ setHover } 
       onMouseLeave={ removeHover }
       { ...focusWithinProps }
     >
-      { preferences.theming.header?.backLink && <StatefulBackLink className={ readerHeaderStyles.backLinkWrapper } /> }
+      { preferences.theming.header?.backLink && <StatefulBackLink className={ readerHeaderStyles.backlinkWrapper } /> }
       
       <StatefulReaderRunningHead formatPref={ runningHeadFormatPref } />
       
@@ -140,7 +141,7 @@ export const StatefulReaderHeader = ({
         aria-label={ t("reader.app.header.actions") } 
         overflowMenuClassName={ 
           (!isScroll || preferences.affordances.scroll.hintInImmersive) 
-            ? overflowMenuStyles.hintButton 
+            ? overflowMenuStyles.hint 
             : undefined 
         }
       />

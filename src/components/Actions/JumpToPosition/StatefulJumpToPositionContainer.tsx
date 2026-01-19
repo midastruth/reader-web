@@ -5,7 +5,7 @@ import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { ThActionsKeys } from "@/preferences/models/enums";
 import { StatefulActionContainerProps } from "../models/actions";
 
-import jumpToPositionStyles from "./assets/styles/jumpToPosition.module.css";
+import jumpToPositionStyles from "./assets/styles/thorium-web.jumpToPosition.module.css";
 
 import { StatefulSheetWrapper } from "../../Sheets/StatefulSheetWrapper";
 import { ThForm } from "@/core/Components/Form/ThForm";
@@ -102,7 +102,7 @@ export const StatefulJumpToPositionContainer = ({
           id: ThActionsKeys.jumpToPosition,
           triggerRef: triggerRef,
           heading: t("reader.jumpToPosition.heading"),
-          className: jumpToPositionStyles.jumpToPosition,
+          className: jumpToPositionStyles.wrapper,
           placement: "bottom",
           isOpen: actionState?.isOpen || false,
           onOpenChange: setOpen,
@@ -112,11 +112,11 @@ export const StatefulJumpToPositionContainer = ({
       >
         <ThForm
           label={ t("reader.jumpToPosition.go") }
-          className={ jumpToPositionStyles.jumpToPositionForm }
+          className={ jumpToPositionStyles.form }
           onSubmit={ handleAction }
           compounds={{
             button: {
-              className: jumpToPositionStyles.jumpToPositionButton,
+              className: jumpToPositionStyles.button,
               isDisabled: !position || positionInRange()
             }
           }}
@@ -124,7 +124,7 @@ export const StatefulJumpToPositionContainer = ({
           <ThFormNumberField
             label={ label }
             name="jumpToPosition"
-            className={ jumpToPositionStyles.jumpToPositionNumberField }
+            className={ jumpToPositionStyles.numberField }
             onChange={ setPosition }
             onInput={ handleInput }
             value={ position }
@@ -135,10 +135,10 @@ export const StatefulJumpToPositionContainer = ({
             isWheelDisabled={ true }
             compounds={{
               label: {
-                className: jumpToPositionStyles.jumpToPositionLabel
+                className: jumpToPositionStyles.label
               },
               input: {
-                className: jumpToPositionStyles.jumpToPositionInput,
+                className: jumpToPositionStyles.input,
                 inputMode: "numeric"
               }
             }}

@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 
 import { StatefulSheet } from "./models/sheets";
 import { ThSheetHeaderVariant } from "@/preferences/models/enums";
 
-import sheetStyles from "./assets/styles/sheets.module.css";
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
+import sheetStyles from "./assets/styles/thorium-web.sheets.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 
 import { ThModal } from "@/core/Components/Containers/ThModal";
 import { ThContainerHeader } from "@/core/Components/Containers/ThContainerHeader";
@@ -20,6 +20,7 @@ import { useWebkitPatch } from "./hooks/useWebkitPatch";
 import { useAppSelector } from "@/lib/hooks";
 
 import classNames from "classnames";
+import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface StatefulFullScreenSheetProps extends StatefulSheet {};
 
@@ -39,9 +40,20 @@ export const StatefulFullScreenSheet = ({
   }: StatefulFullScreenSheetProps) => {
   const { t } = useI18n()
   const direction = useAppSelector(state => state.reader.direction);
+  const fullScreenRef = useRef<HTMLDivElement | null>(null);
   const fullScreenHeaderRef = useRef<HTMLDivElement | null>(null);
   const fullScreenBodyRef = useRef<HTMLDivElement | null>(null);
   const fullScreenCloseRef = useRef<HTMLButtonElement | null>(null);
+
+  // Update the CSS variable when the sheet is open and header ref is available
+  useEffect(() => {
+    if (isOpen && fullScreenRef.current && fullScreenHeaderRef.current) {
+      fullScreenRef.current.style.setProperty(
+        `--${ prefixString("sheet-sticky-header") }`,
+        `${ fullScreenHeaderRef.current.clientHeight }px`
+      );
+    }
+  }, [isOpen]);
 
   // Warning: This is a temporary fix for a bug in React Aria Components.
   useWebkitPatch(!!isOpen);
@@ -50,7 +62,7 @@ export const StatefulFullScreenSheet = ({
     return(
       <>
       <ThModal 
-        ref={ fullScreenBodyRef }
+        ref={ fullScreenRef }
         focusOptions={{
           withinRef: focusWithinRef ?? fullScreenBodyRef,
           trackedState: isOpen,
@@ -67,25 +79,22 @@ export const StatefulFullScreenSheet = ({
         }}
         compounds={{
           dialog: {
-            className: sheetStyles.sheetDialog
+            className: sheetStyles.dialog
           }
         }}
         isOpen={ isOpen }
         onOpenChange={ onOpenChange }
         isDismissable={ true }
-        className={ classNames(sheetStyles.fullScreenSheet, className) }
+        className={ classNames(sheetStyles.fullscreen, className) }
         isKeyboardDismissDisabled={ dismissEscapeKeyClose }
-        style={{
-          "--sheet-sticky-header": fullScreenHeaderRef.current ? `${ fullScreenHeaderRef.current.clientHeight }px` : undefined
-        }}
       >
         <ThContainerHeader 
           ref={ fullScreenHeaderRef }
-          className={ sheetStyles.sheetHeader }
+          className={ sheetStyles.header }
           label={ heading }
           compounds={{
             heading: {
-              className: sheetStyles.sheetHeading
+              className: sheetStyles.heading
             }
           }}
         >
@@ -108,7 +117,7 @@ export const StatefulFullScreenSheet = ({
         </ThContainerHeader>
         <ThContainerBody 
           ref={ fullScreenBodyRef }
-          className={ sheetStyles.sheetBody }
+          className={ sheetStyles.body }
         >
           { children }
         </ThContainerBody>

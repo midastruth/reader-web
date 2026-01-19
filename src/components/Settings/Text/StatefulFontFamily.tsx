@@ -5,7 +5,7 @@ import { CSSProperties, Key, useCallback, useRef } from "react";
 import { StatefulSettingsItemProps } from "../models/settings";
 import { defaultFontFamilyOptions } from "@/preferences/models/const";
 
-import settingsStyles from "../assets/styles/settings.module.css";
+import settingsStyles from "../assets/styles/thorium-web.reader.settings.module.css";
 
 import { StatefulDropdown } from "../StatefulDropdown";
 import { ListBox, ListBoxItem } from "react-aria-components";
@@ -66,12 +66,12 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       compounds={ {
         listbox: (
           <ListBox
-            className={ settingsStyles.readerSettingsDropdownListbox }
+            className={ settingsStyles.dropdownListbox }
             items={ fontFamilyOptions.current }
           >
             { (item) => (
               <ListBoxItem
-                className={ settingsStyles.readerSettingsDropdownListboxItem }
+                className={ settingsStyles.dropdownListboxItem }
                 id={ item.id }
                 key={ item.id }
                 textValue={ item.value || undefined }

@@ -2,7 +2,7 @@
 
 import React, { ReactNode, RefObject } from "react";
 
-import overflowMenuStyles from "./assets/styles/overflowMenu.module.css";
+import overflowMenuStyles from "./assets/styles/thorium-web.overflow.module.css";
 
 import MenuIcon from "./assets/icons/more_vert.svg";
 
@@ -48,7 +48,7 @@ export const StatefulOverflowMenu = ({
         id={ id }
         triggerRef={ triggerRef }
         selectionMode="none" 
-        className={ overflowMenuStyles.overflowMenu }
+        className={ overflowMenuStyles.menu }
         dependencies={ ["Trigger"] }
         items={ items }
         compounds={{
@@ -57,11 +57,11 @@ export const StatefulOverflowMenu = ({
           },
           popover: {
             placement: "bottom",
-            className: overflowMenuStyles.overflowPopover
+            className: overflowMenuStyles.popover
           },
           button: (
             <StatefulActionIcon
-              className={ className ? className : overflowMenuStyles.activeButton }
+              className={ className ? className : overflowMenuStyles.button }
               aria-label={ t("reader.overflowMenu.active.trigger") }
               placement="bottom"
               tooltipLabel={ t("reader.overflowMenu.active.tooltip") }

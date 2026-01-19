@@ -2,10 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-import arrowStyles from "./assets/styles/readerArrowButton.module.css";
-import readerSharedUI from "./assets/styles/readerSharedUI.module.css";
-
-import { PressEvent } from "react-aria";
+import arrowStyles from "./assets/styles/thorium-web.reader.paginatedArrow.module.css";
+import readerSharedUI from "./assets/styles/thorium-web.button.module.css";
 
 import { ThNavigationButton, ThNavigationButtonProps } from "@/core/Components/Buttons/ThNavigationButton";
 
@@ -13,8 +11,7 @@ import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useI18n } from "@/i18n/useI18n";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { setUserNavigated } from "@/lib/readerReducer";
+import { useAppSelector } from "@/lib/hooks";
 
 import { isActiveElement } from "@/core/Helpers/focusUtilities";
 
@@ -41,13 +38,9 @@ export const StatefulReaderArrowButton = ({
 
   const { 
     isVisible, 
-    occupySpace, 
-    shouldTrackNavigation 
+    occupySpace 
   } = usePaginatedArrows();
   
-
-  const dispatch = useAppDispatch();
-
   const [isHovering, setIsHovering] = useState(false);
 
   const label = (
@@ -68,7 +61,7 @@ export const StatefulReaderArrowButton = ({
   const handleClassNameFromSpaceProp = () => {
     let className = "";
     if (occupySpace) {
-      className = arrowStyles.viewportLarge;
+      className = arrowStyles.occupiesSpace;
     }
     return className;
   };

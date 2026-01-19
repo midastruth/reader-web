@@ -1,7 +1,7 @@
 "use client";
 
-import readerSharedUI from "../assets/styles/readerSharedUI.module.css";
-import settingsStyles from "./assets/styles/settings.module.css";
+import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
+import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
 import { WithRef } from "@/core/Components/customTypes";
 
@@ -64,7 +64,7 @@ export const StatefulGroupWrapper = <T extends string = ThTextSettingsKeys | ThS
   return(
     <>
     <ThSettingsWrapper
-      className={ classNames(settingsStyles.readerSettingsGroup, settingsStyles.readerSettingsAdvancedGroup) }
+      className={ classNames(settingsStyles.group, settingsStyles.advancedGroup) }
       label={ label }
       items={ componentsMap }
       prefs={ resolvedPrefs }
@@ -73,11 +73,11 @@ export const StatefulGroupWrapper = <T extends string = ThTextSettingsKeys | ThS
           ? { heading: compounds.heading }
           : {
               heading: {
-                className: classNames(settingsStyles.readerSettingsLabel, settingsStyles.readerSettingsGroupLabel)
+                className: classNames(settingsStyles.label, settingsStyles.groupLabel)
               }
             }),
         button: { 
-          className: classNames(readerSharedUI.icon, settingsStyles.readerSettingsAdvancedIcon), 
+          className: classNames(readerSharedUI.icon, settingsStyles.advancedIcon), 
           "aria-label": moreLabel, 
           isDisabled: isDisabled, 
           compounds: { 

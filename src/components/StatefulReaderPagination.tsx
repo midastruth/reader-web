@@ -4,7 +4,7 @@ import { useRef, KeyboardEvent } from "react";
 
 import { ThPagination, ThPaginationProps } from "@/core/Components/Reader/ThPagination";
 
-import readerPaginationStyles from "./assets/styles/readerPagination.module.css";
+import readerPaginationStyles from "./assets/styles/thorium-web.reader.pagination.module.css";
   
 export const StatefulReaderPagination = ({
   ref,
@@ -41,7 +41,7 @@ export const StatefulReaderPagination = ({
   return (
     <ThPagination 
       ref={ ref } 
-      className={ readerPaginationStyles.pagination }
+      className={ readerPaginationStyles.wrapper }
       links={ links } 
       compounds={ updatedCompounds } 
       { ...props }

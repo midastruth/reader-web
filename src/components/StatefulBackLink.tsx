@@ -2,8 +2,8 @@
 
 import React from "react";
 
-import backLinkStyles from "./assets/styles/backLink.module.css";
-import readerSharedUI from "./assets/styles/readerSharedUI.module.css";
+import backLinkStyles from "./assets/styles/thorium-web.backlink.module.css";
+import readerSharedUI from "./assets/styles/thorium-web.button.module.css";
 
 import { ThBackLinkVariant, ThLayoutDirection } from "@/preferences/models/enums";
 
@@ -33,7 +33,7 @@ export const StatefulBackLink = ({
   const href = preferences.theming.header?.backLink?.href;
   const content = preferences.theming.header?.backLink?.content;
   const visibility = preferences.theming.header?.backLink?.visibility || "partially";
-  const backLinkClassName = classNames(backLinkStyles.backLink, visibility === "always" ? readerSharedUI.alwaysVisible : readerSharedUI.partiallyVisible);
+  const backLinkClassName = classNames(backLinkStyles.link, visibility === "always" ? readerSharedUI.alwaysVisible : readerSharedUI.partiallyVisible);
 
   const compounds = {
     tooltipTrigger: {

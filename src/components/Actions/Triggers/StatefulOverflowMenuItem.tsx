@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import overflowMenuStyles from "../assets/styles/overflowMenu.module.css";
+import overflowMenuStyles from "../assets/styles/thorium-web.overflow.module.css";
 
 import { Text } from "react-aria-components";
 import { UnstableStatefulShortcut as StatefulShortcut } from "./UnstableStatefulShortcut";
@@ -40,7 +40,7 @@ export const StatefulOverflowMenuItem = ({
         { label }
       </Text>
       { shortcut && <StatefulShortcut
-        className={ overflowMenuStyles.menuItemKbdShortcut } 
+        className={ overflowMenuStyles.menuItemShortcut } 
         rawForm={ shortcut } 
       /> }
     </ThMenuItem>
