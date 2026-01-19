@@ -8,6 +8,7 @@ export const DEFAULT_CONFIG: InitOptions = {
   fallbackLng: "en",
   load: "all",
   nonExplicitSupportedLngs: true,
+  supportedLngs: ["da", "en", "fi", "fr", "lt", "pl", "pt-BR", "pt-PT", "sv", "ta"],
   detection: {
     order: ["navigator"],
     caches: []
