@@ -143,7 +143,9 @@
             "fontWeight": {
                 "title": "Peso da fonte",
                 "increase": "Aumentar o peso da fonte",
-                "decrease": "Diminuir o peso da fonte"
+                "decrease": "Diminuir o peso da fonte",
+                "default": "Normal",
+                "bolder": "mais Negrito"
             },
             "normalizeText": {
                 "title": "Normalização do texto",
@@ -202,6 +204,15 @@
                 "advanced": {
                     "tooltip": "Mais opções",
                     "trigger": "Mais opções de espaçamento"
+                },
+                "presets": {
+                    "title": "Predefinições",
+                    "publisher": "Padrão",
+                    "tight": "Apertado",
+                    "balanced": "Equilibrado",
+                    "loose": "Solto",
+                    "accessible": "Acessível",
+                    "custom": "Personalizado"
                 }
             },
             "layout": {
@@ -211,10 +222,11 @@
             },
             "column": {
                 "title": "Colunas",
-                "auto": "Automático",
-                "one": "1 col.",
-                "two": "2 cols."
-            }
+                "auto": "Auto",
+                "one": "1 coluna",
+                "two": "2 colunas"
+            },
+            "reset": "Redefinir"
         }
     }
 }
