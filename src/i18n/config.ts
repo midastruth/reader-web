@@ -19,7 +19,7 @@ export const DEFAULT_CONFIG: InitOptions = {
   backend: {
     loadPath: "/locales/{{lng}}/{{ns}}.json"
   },
-  ns: ["thorium-web"],
+  ns: ["thorium-web", "thorium-shared"],
   defaultNS: "thorium-web"
 };
 

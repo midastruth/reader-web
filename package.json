@@ -45,13 +45,14 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm extract-locales && next build",
     "start": "next start",
     "lint": "eslint .",
     "deploy": "npx @cloudflare/next-on-pages && npx wrangler pages deploy",
     "preinstall": "npx only-allow pnpm",
     "copy-locales": "cpx \"public/locales/**/*\" dist/locales",
-    "bundle": "tsup --config tsup.config.ts && pnpm copy-locales"
+    "extract-locales": "node scripts/extract-locales.mjs",
+    "bundle": "pnpm extract-locales && tsup --config tsup.config.ts && pnpm copy-locales"
   },
   "peerDependencies": {
     "@readium/css": "2.0.0-beta.24",
@@ -74,6 +75,7 @@
     "react-stately": "^3.43.0"
   },
   "dependencies": {
+    "@edrlab/thorium-locales": "https://github.com/edrlab/thorium-locales.git#packaging",
     "@readium/css": "2.0.0-beta.24",
     "@readium/navigator": "2.2.5",
     "@readium/navigator-html-injectables": "2.2.2",
