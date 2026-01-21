@@ -32,9 +32,9 @@ export const StatefulSpacingGroup = () => {
   return (
     <>
     <StatefulGroupWrapper<ThSpacingSettingsKeys> 
-      label={ t("reader.settings.spacing.title") }
-      moreLabel={ t("reader.settings.spacing.advanced.trigger") }
-      moreTooltip={ t("reader.settings.spacing.advanced.tooltip") }
+      label={ t("reader.preferences.spacing.title") }
+      moreLabel={ t("common.actions.showAll") }
+      moreTooltip={ t("common.actions.showAll") }
       onPressMore={ setSpacingContainer }
       componentsMap={ spacingSettingsComponentsMap }
       prefs={ preferences.settings.spacing }

@@ -17,8 +17,29 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setFontFamily } from "@/lib/settingsReducer";
 import { setWebPubFontFamily } from "@/lib/webPubSettingsReducer";
 
+// Map of which properties have direct strings vs descriptive labels
+const fontFamilyLabelMap = {
+  publisher: "direct",
+  oldStyle: "descriptive",
+  modern: "descriptive", 
+  sans: "direct",
+  humanist: "descriptive",
+  monospace: "direct"
+} as const;
+
 export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemProps) => {
   const { t } = useI18n();
+
+  const getFontFamilyLabel = useCallback((property: keyof typeof defaultFontFamilyOptions) => {
+    const config = fontFamilyLabelMap[property];
+    const labelPath = `reader.preferences.fontFamily.${ property }`;
+    
+    if (config === "direct") {
+      return t(labelPath);
+    } else {
+      return t(`${ labelPath }.${ config }`);
+    }
+  }, [t]);
 
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
@@ -26,7 +47,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
   const fontFamily = useAppSelector(state => isWebPub ? state.webPubSettings.fontFamily : state.settings.fontFamily) ?? "publisher";
   const fontFamilyOptions = useRef(Object.entries(defaultFontFamilyOptions).map(([property, stack]) => ({
       id: property,
-      label: t(`reader.settings.fontFamily.labels.${ property }`),
+      label: getFontFamilyLabel(property as keyof typeof defaultFontFamilyOptions),
       value: stack
     }))
   );
@@ -60,7 +81,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
   return (
     <StatefulDropdown
       standalone={ standalone }
-      label={ t("reader.settings.fontFamily.title") }
+      label={ t("reader.preferences.fontFamily.title") }
       selectedKey={ fontFamily }
       onSelectionChange={ async (key) => await updatePreference(key) }
       compounds={ {
