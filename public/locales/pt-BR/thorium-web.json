@@ -1,60 +1,19 @@
 {
-    "reader": {
-        "app": {
-            "loading": "Carregando",
-            "publicationWrapper": "Você está na publicação.",
-            "docking": {
-                "dockingLeft": "Painel ancorado à esquerda",
-                "dockingRight": "Painel ancorado à direita",
-                "dockingEmpty": "Atualmente vazio",
-                "dockingClosed": "Está fechado, contém {{ action }}",
-                "dockingCollapsed": "Está recolhido, contém {{ action }}"
-            },
-            "header": {
-                "backLink": {
-                    "trigger": "Voltar à biblioteca",
-                    "tooltip": "Biblioteca"
-                },
-                "label": "Barra superior",
-                "runningHead": "Cabeçalho",
-                "actions": "Ações"
-            },
-            "footer": {
-                "label": "Barra inferior"
-            },
-            "progression": {
-                "wrapper": "Progresso atual",
-                "of": "{{ current }} de {{ reference }}",
-                "referenceFallback": "capítulo atual",
-                "pubFallback": "a publicação",
-                "positionsLeft": "{{ count }} restantes em {{ reference }}"
-            },
-            "docker": {
-                "wrapper": "Opções de ancoragem",
-                "dockToLeft": {
-                    "trigger": "Ancorar à esquerda",
-                    "tooltip": "Ancorar à esquerda"
-                },
-                "dockToRight": {
-                    "trigger": "Ancorar à direita",
-                    "tooltip": "Ancorar à direita"
-                },
-                "popover": {
-                    "trigger": "Exibir em uma janela",
-                    "tooltip": "Pop-over"
-                },
-                "fullscreen": {
-                    "trigger": "Exibir sobre o conteúdo",
-                    "tooltip": "Sobreposição"
-                },
-                "close": {
-                    "trigger": "Fechar",
-                    "tooltip": "Fechar"
-                }
-            },
-            "back": {
-                "trigger": "Voltar"
-            }
+  "reader": {
+    "app": {
+      "loading": "Carregando",
+      "publicationWrapper": "Você está na publicação.",
+      "docking": {
+        "dockingLeft": "Painel ancorado à esquerda",
+        "dockingRight": "Painel ancorado à direita",
+        "dockingEmpty": "Atualmente vazio",
+        "dockingClosed": "Está fechado, contém {{ action }}",
+        "dockingCollapsed": "Está recolhido, contém {{ action }}"
+      },
+      "header": {
+        "backLink": {
+          "trigger": "Voltar à biblioteca",
+          "tooltip": "Biblioteca"
         },
         "label": "Barra superior",
         "runningHead": "Cabeçalho",
@@ -118,4 +77,5 @@
         "trigger": "Exibir ações"
       }
     }
+  }
 }
