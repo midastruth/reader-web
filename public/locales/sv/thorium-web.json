@@ -76,6 +76,20 @@
                 "tooltip": "Växla åtgärder",
                 "trigger": "Visa åtgärder"
             }
+        },
+        "settings": {
+            "text": {
+                "advanced": {
+                    "tooltip": "Fler alternativ",
+                    "trigger": "Fler formateringsalternativ"
+                }
+            },
+            "spacing": {
+                "advanced": {
+                    "tooltip": "Fler alternativ",
+                    "trigger": "Fler avståndsalternativ"
+                }
+            }
         }
     }
 }

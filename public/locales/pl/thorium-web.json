@@ -76,6 +76,20 @@
                 "tooltip": "Przełącz akcje",
                 "trigger": "Wyświetl akcje"
             }
+        },
+        "settings": {
+            "text": {
+                "advanced": {
+                    "tooltip": "Więcej opcji",
+                    "trigger": "Więcej opcji formatowania"
+                }
+            },
+            "spacing": {
+                "advanced": {
+                    "tooltip": "Więcej opcji",
+                    "trigger": "Więcej opcji odstępów"
+                }
+            }
         }
     }
 }

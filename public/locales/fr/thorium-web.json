@@ -76,6 +76,20 @@
         "tooltip": "Basculer les actions",
         "trigger": "Afficher les actions"
       }
+    },
+    "settings": {
+      "text": {
+        "advanced": {
+          "tooltip": "Options supplémentaires",
+          "trigger": "Options de formatage supplémentaires"
+        }
+      },
+      "spacing": {
+        "advanced": {
+          "tooltip": "Options supplémentaires",
+          "trigger": "Options d’espacement supplémentaires"
+        }
+      }
     }
   }
 }

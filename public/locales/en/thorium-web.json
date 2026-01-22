@@ -76,6 +76,20 @@
         "tooltip": "Toggle actions",
         "trigger": "Display actions"
       }
+    },
+    "settings": {
+      "text": {
+        "advanced": {
+          "tooltip": "More options",
+          "trigger": "More formatting options"
+        }
+      },
+      "spacing": {
+        "advanced": {
+          "tooltip": "More options",
+          "trigger": "More spacing options"
+        }
+      }
     }
   }
 }

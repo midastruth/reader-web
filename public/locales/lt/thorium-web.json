@@ -76,6 +76,20 @@
                 "tooltip": "Perjungti veiksmus",
                 "trigger": "Atvaizduoti veiksmus"
             }
+        },
+        "settings": {
+            "text": {
+                "advanced": {
+                    "tooltip": "Daugiau parinkčių",
+                    "trigger": "Daugiau formatavimo parinkčių"
+                }
+            },
+            "spacing": {
+                "advanced": {
+                    "tooltip": "Daugiau parinkčių",
+                    "trigger": "Daugiau išretinimo parinkčių"
+                }
+            }
         }
     }
 }

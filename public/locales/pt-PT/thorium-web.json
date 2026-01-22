@@ -76,6 +76,20 @@
                 "tooltip": "Alternar ações",
                 "trigger": "Exibir ações"
             }
+        },
+        "settings": {
+            "text": {
+                "advanced": {
+                    "tooltip": "Mais opções",
+                    "trigger": "Mais opções de formatação"
+                }
+            },
+            "spacing": {
+                "advanced": {
+                    "tooltip": "Mais opções",
+                    "trigger": "Mais opções de espaçamento"
+                }
+            }
         }
     }
 }

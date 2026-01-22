@@ -76,6 +76,20 @@
                 "tooltip": "Vis flere handlinger",
                 "trigger": "Vis handlinger"
             }
+        },
+        "settings": {
+            "text": {
+                "advanced": {
+                    "tooltip": "Flere indstillinger",
+                    "trigger": "Flere formaterings-indstillinger"
+                }
+            },
+            "spacing": {
+                "advanced": {
+                    "tooltip": "Flere indstillinger",
+                    "trigger": "Flere afstands-indstillinger"
+                }
+            }
         }
     }
 }

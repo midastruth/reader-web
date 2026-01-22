@@ -76,6 +76,20 @@
                 "tooltip": "Toiminnot",
                 "trigger": "Näytä toiminnot"
             }
+        },
+        "settings": {
+            "text": {
+                "advanced": {
+                    "tooltip": "Lisää vaihtoehtoja",
+                    "trigger": "Lisää muotoiluasetuksia"
+                }
+            },
+            "spacing": {
+                "advanced": {
+                    "tooltip": "Lisää vaihtoehtoja",
+                    "trigger": "Lisää välistysasetuksia"
+                }
+            }
         }
     }
 }
