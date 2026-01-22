@@ -36,7 +36,7 @@ import {
 
 export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<DefaultKeys>({
 //  direction: ThLayoutDirection.ltr,
-  locale: "ta",
+//  locale: "en",
   experiments: {
     reflow: ["experimentalHeaderFiltering", "experimentalZoom"],
     webPub: ["experimentalHeaderFiltering", "experimentalZoom"]
