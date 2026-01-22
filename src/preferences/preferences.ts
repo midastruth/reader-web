@@ -26,6 +26,7 @@ import {
 } from "./models/enums";
 import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
+import { supportedLocales } from "./models/const";
 
 export type I18nValue<T> = T | string | { key: string; fallback?: string };
 
@@ -334,6 +335,16 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
 export const createPreferences = <K extends CustomizableKeys = {}>(
   params: ThPreferences<K>
 ): ThPreferences<K> => {
+  // Validate locale preference
+  if (params.locale) {
+    // Extract language code from BCP-47 locale (e.g., "en-US" -> "en")
+    const languageCode = params.locale.split("-")[0];
+    if (!supportedLocales.some((locale: string) => locale === languageCode)) {
+      console.warn(`Locale "${ params.locale }" is not supported. Supported locales: ${ supportedLocales.join(", ") }. Falling back to English (en).`);
+      params.locale = "en";
+    }
+  }
+
   // Helper function to validate keys against the provided order arrays
   const validateObjectKeys = <K extends string, V>(
     orderArrays: K[][],

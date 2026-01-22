@@ -3,12 +3,13 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import Backend from "i18next-http-backend";
 import { InitOptions } from "i18next";
+import { supportedLocales } from "@/preferences/models/const";
 
 export const DEFAULT_CONFIG: InitOptions = {
   fallbackLng: "en",
   load: "all",
   nonExplicitSupportedLngs: true,
-  supportedLngs: ["da", "en", "fi", "fr", "lt", "pl", "pt", "sv", "ta"],
+  supportedLngs: supportedLocales,
   detection: {
     order: ["navigator"],
     caches: []
