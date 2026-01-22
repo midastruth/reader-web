@@ -113,7 +113,7 @@ export const StatefulReaderFooter = ({
     }
 
     return links;
-  }, [go, previousLocator, nextLocator, t, timeline, breakpoint, reducedMotion]);
+  }, [go, previousLocator, nextLocator, t, timeline, breakpoint, reducedMotion, isFXL]);
 
   useEffect(() => {
     updateLinks();
