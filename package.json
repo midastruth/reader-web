@@ -52,6 +52,7 @@
     "preinstall": "npx only-allow pnpm",
     "copy-locales": "cpx \"public/locales/**/*\" dist/locales",
     "extract-locales": "node scripts/extract-locales.mjs",
+    "update-locales": "pnpm add @edrlab/thorium-locales && pnpm extract-locales",
     "bundle": "pnpm extract-locales && tsup --config tsup.config.ts && pnpm copy-locales"
   },
   "peerDependencies": {
