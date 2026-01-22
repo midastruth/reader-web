@@ -122,8 +122,8 @@ export const StatefulReaderProgression = ({
       case ThProgressionFormat.positionsOfTotal:
         if (currentPositions.length > 0 && totalPositions) {
           text = t("reader.progression.xOfY.compact", { 
-            p1: formatPositions(currentPositions),
-            p2: totalPositions
+            x: formatPositions(currentPositions),
+            y: totalPositions
           });
         }
         break;
@@ -132,9 +132,9 @@ export const StatefulReaderProgression = ({
         if (currentPositions.length > 0 && totalPositions) {
           const percentage = Math.round((totalProgression || 0) * 100);
           text = t("reader.progression.xOfY.descriptive", { 
-            p1: formatPositions(currentPositions),
-            p2: totalPositions,
-            p3: `${ percentage }%`
+            x: formatPositions(currentPositions),
+            y: totalPositions,
+            z: `${ percentage }%`
           });
         }
         break;
@@ -166,8 +166,8 @@ export const StatefulReaderProgression = ({
         if (relativeProgression !== undefined) {
           const percentage = Math.round(relativeProgression * 100);
           text = t("reader.progression.xOfY.compact", {
-            p1: `${ percentage }%`,
-            p2: currentChapter || t("reader.app.progression.referenceFallback")
+            x: `${ percentage }%`,
+            y: currentChapter || t("reader.app.progression.referenceFallback")
           });
         }
         break;
@@ -175,8 +175,8 @@ export const StatefulReaderProgression = ({
       case ThProgressionFormat.readingOrderIndex:
         if (currentIndex !== undefined && totalItems !== undefined) {
           text = t("reader.progression.xOfY.compact", {
-            p1: currentIndex,
-            p2: totalItems
+            x: currentIndex,
+            y: totalItems
           });
         }
         break;
