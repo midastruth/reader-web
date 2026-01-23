@@ -585,7 +585,25 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       }
       return false;
     },
-    textSelected: function (_selection: BasicTextSelection): void {},
+    textSelected: function (selection: BasicTextSelection): void {
+      // Convert BasicTextSelection to TextSelection format for highlight system
+      if (!selection || !selection.range) return;
+
+      const textSelection: TextSelection = {
+        range: selection.range,
+        text: selection.cleanText || selection.rawText || '',
+        href: selection.locator?.href || '',
+        position: selection.locator?.locations?.position,
+        cleanText: selection.cleanText,
+        rawText: selection.rawText,
+        boundingClientRect: selection.rect,
+      };
+
+      // Trigger highlight toolbar via HighlightManager
+      if (highlightManagerRef.current?.handleTextSelected) {
+        highlightManagerRef.current.handleTextSelected(textSelection);
+      }
+    },
   };
 
   const applyConstraint = useCallback(async (value: number) => {

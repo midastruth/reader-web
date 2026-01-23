@@ -9,6 +9,7 @@ import actionsReducer, { ActionsReducerState } from "@/lib/actionsReducer";
 import publicationReducer, { PublicationReducerState } from "./publicationReducer";
 import preferencesReducer, { PreferencesReducerState } from "./preferencesReducer";
 import webPubSettingsReducer, { WebPubSettingsReducerState } from "./webPubSettingsReducer";
+import highlightsReducer, { HighlightsState } from "./highlightsReducer";
 
 import debounce from "debounce";
 
@@ -26,6 +27,7 @@ export type RootState = {
   publication: PublicationReducerState;
   preferences: PreferencesReducerState;
   webPubSettings: WebPubSettingsReducerState;
+  highlights: HighlightsState;
   [key: string]: any; // For external reducers
 };
 
@@ -70,12 +72,13 @@ const loadState = (storageKey?: string) => {
     const resolvedKey = storageKey || DEFAULT_STORAGE_KEY;
     const serializedState = localStorage.getItem(resolvedKey);
     if (serializedState === null) {
-      return { 
-        actions: undefined, 
-        settings: undefined, 
+      return {
+        actions: undefined,
+        settings: undefined,
         theming: undefined,
         preferences: undefined,
-        webPubSettings: undefined
+        webPubSettings: undefined,
+        highlights: undefined
       };
     }
     const deserializedState = JSON.parse(serializedState);
@@ -87,12 +90,13 @@ const loadState = (storageKey?: string) => {
 
     return deserializedState;
   } catch (err) {
-    return { 
-      actions: undefined, 
-      settings: undefined, 
+    return {
+      actions: undefined,
+      settings: undefined,
       theming: undefined,
       preferences: undefined,
-      webPubSettings: undefined
+      webPubSettings: undefined,
+      highlights: undefined
     };
   }
 };
@@ -110,6 +114,7 @@ const saveState = (state: any, storageKey?: string, externalReducers: Record<str
     if (state.theming) stateToPersist.theming = state.theming;
     if (state.preferences) stateToPersist.preferences = state.preferences;
     if (state.webPubSettings) stateToPersist.webPubSettings = state.webPubSettings;
+    if (state.highlights) stateToPersist.highlights = state.highlights;
     
     // External reducers to persist
     Object.entries(externalReducers).forEach(([key, config]) => {
@@ -135,6 +140,7 @@ export const makeStore = (storageKey?: string, externalReducers: Record<string, 
     publication: publicationReducer,
     preferences: preferencesReducer,
     webPubSettings: webPubSettingsReducer,
+    highlights: highlightsReducer,
     ...Object.entries(externalReducers).reduce((acc, [key, config]) => ({
       ...acc,
       [key]: config.reducer
@@ -151,6 +157,7 @@ export const makeStore = (storageKey?: string, externalReducers: Record<string, 
     theming: persistedState.theming,
     preferences: persistedState.preferences,
     webPubSettings: persistedState.webPubSettings,
+    highlights: persistedState.highlights,
     // Include persisted state for external reducers that have it
     ...Object.entries(externalReducers).reduce((acc, [key, config]) => {
       if (config.persist && persistedState[key] !== undefined) {

@@ -102,7 +102,12 @@ const initialState: ActionsReducerState = {
       collapsed: false
     }
   },
-  keys: {},
+  keys: {
+    highlights: {
+      isOpen: false,
+      docking: ThDockingKeys.end,
+    }
+  },
   overflow: {}
 }
 
