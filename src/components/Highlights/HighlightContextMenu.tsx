@@ -6,7 +6,7 @@
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import type { Highlight, HighlightColor } from '@/lib/types/highlights';
+import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import { updateHighlight, deleteHighlight, openNoteEditor } from '@/lib/highlightsReducer';
 import HighlightsDB from '@/core/Storage/HighlightsDB';
 
@@ -23,13 +23,13 @@ const COLOR_OPTIONS: Array<{
   label: string;
   bg: string;
 }> = [
-  { color: HighlightColor.YELLOW, label: 'Yellow', bg: '#fff59d' },
-  { color: HighlightColor.GREEN, label: 'Green', bg: '#a5d6a7' },
-  { color: HighlightColor.BLUE, label: 'Blue', bg: '#90caf9' },
-  { color: HighlightColor.PINK, label: 'Pink', bg: '#f48fb1' },
-  { color: HighlightColor.ORANGE, label: 'Orange', bg: '#ffcc80' },
-  { color: HighlightColor.PURPLE, label: 'Purple', bg: '#ce93d8' },
-];
+    { color: HighlightColor.YELLOW, label: 'Yellow', bg: '#fff59d' },
+    { color: HighlightColor.GREEN, label: 'Green', bg: '#a5d6a7' },
+    { color: HighlightColor.BLUE, label: 'Blue', bg: '#90caf9' },
+    { color: HighlightColor.PINK, label: 'Pink', bg: '#f48fb1' },
+    { color: HighlightColor.ORANGE, label: 'Orange', bg: '#ffcc80' },
+    { color: HighlightColor.PURPLE, label: 'Purple', bg: '#ce93d8' },
+  ];
 
 export function HighlightContextMenu({
   highlight,

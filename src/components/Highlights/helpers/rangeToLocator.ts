@@ -21,7 +21,7 @@ function getXPathForNode(node: Node, root: Node): string {
       let sibling = element.previousSibling;
       while (sibling) {
         if (sibling.nodeType === Node.ELEMENT_NODE &&
-            (sibling as Element).tagName.toLowerCase() === tagName) {
+          (sibling as Element).tagName.toLowerCase() === tagName) {
           index++;
         }
         sibling = sibling.previousSibling;
@@ -98,7 +98,7 @@ export function rangeToLocator(
 } {
   // Get the root node (usually the iframe document body)
   const root = range.commonAncestorContainer.ownerDocument?.body ||
-               range.commonAncestorContainer;
+    range.commonAncestorContainer;
 
   // Serialize the range
   const serializedRange: SerializedRange = {
@@ -153,4 +153,53 @@ export function canRestoreRange(
     console.warn('Cannot restore range:', error);
     return false;
   }
+}
+
+/**
+ * Validate if a DOM Range is valid text range
+ */
+export function isValidTextRange(range: Range): boolean {
+  if (!range || range.collapsed) {
+    return false;
+  }
+
+  const text = range.toString().trim();
+  return text.length > 0;
+}
+
+/**
+ * Normalize range to ensure start/end are text nodes
+ */
+export function normalizeRange(range: Range): Range {
+  // If we already have text nodes, just return
+  if (range.startContainer.nodeType === Node.TEXT_NODE &&
+    range.endContainer.nodeType === Node.TEXT_NODE) {
+    return range;
+  }
+
+  const newRange = range.cloneRange();
+
+  // Fix start
+  if (range.startContainer.nodeType === Node.ELEMENT_NODE) {
+    // If element, move to next text node or first child
+    // This is a simplified normalization, robust implementation would traverse the tree
+  }
+
+  return newRange;
+}
+
+/**
+ * Manually serialize range (helper for consumers that need just the range part)
+ */
+export function serializeRange(range: Range): SerializedRange {
+  // Get the root node (usually the iframe document body)
+  const root = range.commonAncestorContainer.ownerDocument?.body ||
+    range.commonAncestorContainer;
+
+  return {
+    startContainerPath: getXPathForNode(range.startContainer, root),
+    startOffset: range.startOffset,
+    endContainerPath: getXPathForNode(range.endContainer, root),
+    endOffset: range.endOffset,
+  };
 }

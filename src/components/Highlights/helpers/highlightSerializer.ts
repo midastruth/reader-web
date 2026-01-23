@@ -235,3 +235,47 @@ export function injectHighlightStyles(doc: Document): void {
 
   doc.head.appendChild(style);
 }
+
+/**
+ * Remove highlight mark (alias for unwrapHighlight)
+ */
+export const removeHighlightMark = unwrapHighlight;
+
+/**
+ * Toggle highlight note indicator (alias for updateHighlightNoteIndicator)
+ */
+export const toggleHighlightNoteIndicator = updateHighlightNoteIndicator;
+
+/**
+ * Select a highlight mark
+ */
+export function selectHighlightMark(highlightId: string, doc: Document): void {
+  // First deselect all
+  deselectAllHighlights(doc);
+
+  const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+  marks.forEach(mark => {
+    (mark as HTMLElement).classList.add('selected');
+  });
+}
+
+/**
+ * Deselect all highlight marks
+ */
+export function deselectAllHighlights(doc: Document): void {
+  const selectedMarks = doc.querySelectorAll('.thorium-highlight.selected');
+  selectedMarks.forEach(mark => {
+    (mark as HTMLElement).classList.remove('selected');
+  });
+}
+
+/**
+ * Get highlight ID from an element (if it is part of a highlight)
+ */
+export function getHighlightIdFromElement(element: Element): string | null {
+  const mark = element.closest('.thorium-highlight');
+  if (mark) {
+    return mark.getAttribute('data-highlight-id');
+  }
+  return null;
+}

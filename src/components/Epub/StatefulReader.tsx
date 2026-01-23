@@ -2,20 +2,20 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { 
-  defaultFontFamilyOptions, 
-  ThemeKeyType, 
-  usePreferenceKeys, 
+import {
+  defaultFontFamilyOptions,
+  ThemeKeyType,
+  usePreferenceKeys,
   useTheming
 } from "../../preferences";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 import arrowStyles from "../assets/styles/thorium-web.reader.paginatedArrow.module.css";
 
-import { 
-  ThActionsKeys,  
-  ThLineHeightOptions, 
-  ThTextAlignOptions, 
+import {
+  ThActionsKeys,
+  ThLineHeightOptions,
+  ThTextAlignOptions,
   ThLayoutUI,
   ThDocumentTitleFormat,
   ThSpacingSettingsKeys,
@@ -33,21 +33,21 @@ import {
   BasicTextSelection,
   FrameClickEvent,
 } from "@readium/navigator-html-injectables";
-import { 
-  EpubNavigatorListeners, 
-  FrameManager, 
-  FXLFrameManager, 
-  IEpubDefaults, 
-  IEpubPreferences,  
+import {
+  EpubNavigatorListeners,
+  FrameManager,
+  FXLFrameManager,
+  IEpubDefaults,
+  IEpubPreferences,
   TextAlignment
 } from "@readium/navigator";
-import { 
-  Locator, 
-  Manifest, 
-  Publication, 
-  Fetcher, 
-  HttpFetcher, 
-  Layout, 
+import {
+  Locator,
+  Manifest,
+  Publication,
+  Fetcher,
+  HttpFetcher,
+  Layout,
   ReadingProgression,
   Feature
 } from "@readium/shared";
@@ -56,6 +56,8 @@ import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderArrowButton } from "../StatefulReaderArrowButton";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
+import { HighlightManager } from "../Highlights/HighlightManager";
+import type { TextSelection } from "../Highlights/hooks/useHighlightSelection";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useEpubNavigator } from "@/core/Hooks/Epub/useEpubNavigator";
@@ -72,31 +74,31 @@ import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
 import { AppDispatch } from "@/lib/store";
-import { 
-  setBreakpoint, 
-  setColorScheme, 
-  setContrast, 
-  setForcedColors, 
-  setMonochrome, 
-  setReducedMotion, 
-  setReducedTransparency, 
-  setTheme 
+import {
+  setBreakpoint,
+  setColorScheme,
+  setContrast,
+  setForcedColors,
+  setMonochrome,
+  setReducedMotion,
+  setReducedTransparency,
+  setTheme
 } from "@/lib/themeReducer";
-import { 
-  setImmersive, 
+import {
+  setImmersive,
   setLoading,
-  setHovering, 
-  toggleImmersive, 
-  setPlatformModifier, 
-  setDirection, 
+  setHovering,
+  toggleImmersive,
+  setPlatformModifier,
+  setDirection,
   setFullscreen,
   setScrollAffordance,
   setUserNavigated,
   setReaderProfile
 } from "@/lib/readerReducer";
-import { 
-  setFXL, 
-  setRTL, 
+import {
+  setFXL,
+  setRTL,
   setPositionsList,
   setTimeline,
   setPublicationStart,
@@ -181,7 +183,7 @@ export const StatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner rawManifest={ rawManifest } selfHref={ selfHref } />
+        <StatefulReaderInner rawManifest={rawManifest} selfHref={selfHref} />
       </ThPluginProvider>
     </>
   );
@@ -193,10 +195,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
-  
+
   const [publication, setPublication] = useState<Publication | null>(null);
 
   const container = useRef<HTMLDivElement>(null);
+  const highlightManagerRef = useRef<{ handleTextSelected: (selection: TextSelection) => void } | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const localDataKey = useRef(`${selfHref}-current-location`);
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
@@ -226,26 +230,26 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const reducedMotion = useAppSelector(state => state.theming.prefersReducedMotion);
 
   const breakpoint = useAppSelector(state => state.theming.breakpoint);
-  
+
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
 
-  const layoutUI = isFXL 
-    ? preferences.theming.layout.ui?.fxl || ThLayoutUI.layered 
-    : isScroll 
+  const layoutUI = isFXL
+    ? preferences.theming.layout.ui?.fxl || ThLayoutUI.layered
+    : isScroll
       ? preferences.theming.layout.ui?.reflow || ThLayoutUI.layered
       : ThLayoutUI.stacked;
 
   // Init theming (breakpoints, theme, media queries…)
-  useTheming<ThemeKeyType>({ 
+  useTheming<ThemeKeyType>({
     theme: theme,
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
     initProps: {
-      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
+      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }),
       ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
-      ...propsToCSSVars(preferences.theming.layout, { 
+      ...propsToCSSVars(preferences.theming.layout, {
         prefix: prefixString("layout"),
         exclude: ["ui"]
       })
@@ -265,18 +269,18 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const dispatch = useAppDispatch();
 
   const onFsChange = useCallback((isFullscreen: boolean) => {
-      dispatch(setFullscreen(isFullscreen));
-    }, [dispatch]);
+    dispatch(setFullscreen(isFullscreen));
+  }, [dispatch]);
   const fs = useFullscreen(onFsChange);
 
   const epubNavigator = useEpubNavigator();
-  const { 
-    EpubNavigatorLoad, 
-    EpubNavigatorDestroy, 
-    goLeft, 
-    goRight, 
-    goBackward, 
-    goForward,  
+  const {
+    EpubNavigatorLoad,
+    EpubNavigatorDestroy,
+    goLeft,
+    goRight,
+    goBackward,
+    goForward,
     navLayout,
     currentLocator,
     currentPositions,
@@ -304,14 +308,14 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const lineHeightOptions = useLineHeight();
 
   const documentTitleFormat = preferences.metadata?.documentTitle?.format;
-  
+
   let documentTitle: string | undefined;
-  
+
   if (documentTitleFormat) {
     if (typeof documentTitleFormat === "object" && "key" in documentTitleFormat) {
       const translatedTitle = t(documentTitleFormat.key);
-      documentTitle = translatedTitle !== documentTitleFormat.key 
-        ? translatedTitle 
+      documentTitle = translatedTitle !== documentTitleFormat.key
+        ? translatedTitle
         : documentTitleFormat.fallback;
     } else {
       switch (documentTitleFormat) {
@@ -323,13 +327,13 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           break;
         case ThDocumentTitleFormat.titleAndChapter:
           if (timeline?.title && timeline?.progression?.currentChapter) {
-            documentTitle = `${ timeline.title } – ${ timeline.progression.currentChapter }`;
+            documentTitle = `${timeline.title} – ${timeline.progression.currentChapter}`;
           }
           break;
         case ThDocumentTitleFormat.none:
           documentTitle = undefined;
           break;
-        default: 
+        default:
           documentTitle = documentTitleFormat;
           break;
       }
@@ -385,15 +389,15 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     if (_cframes) {
       if (!cache.current.settings.scroll) {
         const oneQuarter = ((_cframes.length === 2 ? _cframes[0]!.window.innerWidth + _cframes[1]!.window.innerWidth : _cframes![0]!.window.innerWidth) * window.devicePixelRatio) / 4;
-        
+
         const navigationCallback = () => {
           dispatch(setUserNavigated(true));
           activateImmersiveOnAction();
         };
-    
+
         if (event.x < oneQuarter) {
           goLeft(!cache.current.reducedMotion, navigationCallback);
-        } 
+        }
         else if (event.x > oneQuarter * 3) {
           goRight(!cache.current.reducedMotion, navigationCallback);
         } else if (oneQuarter <= event.x && event.x <= oneQuarter * 3) {
@@ -410,11 +414,11 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const handleClick = (event: FrameClickEvent) => {
     if (
       cache.current.layoutUI === ThLayoutUI.layered &&
-      ( !cache.current.settings.scroll ||
-        preferences.affordances.scroll.toggleOnMiddlePointer.includes("click") )
-      ) {
-        toggleIsImmersive();
-      }
+      (!cache.current.settings.scroll ||
+        preferences.affordances.scroll.toggleOnMiddlePointer.includes("click"))
+    ) {
+      toggleIsImmersive();
+    }
   };
 
   // We need this as a workaround due to positionChanged being unreliable
@@ -444,7 +448,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         activateImmersiveOnAction();
       };
 
-      switch(direction) {
+      switch (direction) {
         case "right":
           if (!cache.current.settings.scroll) {
             goRight(!cache.current.reducedMotion, navigationCallback);
@@ -473,7 +477,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           dispatch(setUserNavigated(true));
           activateImmersiveOnAction();
         };
-        shiftKey 
+        shiftKey
           ? goBackward(!cache.current.reducedMotion, callback)
           : goForward(!cache.current.reducedMotion, callback);
       }
@@ -489,7 +493,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             key: actionKey
           }))
           break;
-      //  case ThActionsKeys.jumpToPosition:
+        //  case ThActionsKeys.jumpToPosition:
         default:
           break
       }
@@ -525,7 +529,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       } else {
         dispatch(setPublicationStart(true));
       }
-      
+
       if (canGoForward()) {
         dispatch(setPublicationEnd(false));
       } else {
@@ -540,13 +544,13 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       handleClick(_e);
       return true;
     },
-    zoom: function (_scale: number): void {},
-    miscPointer: function (_amount: number): void {},
+    zoom: function (_scale: number): void { },
+    miscPointer: function (_amount: number): void { },
     scroll: function (_delta: number): void {
       if (
-        cache.current.settings.scroll && 
+        cache.current.settings.scroll &&
         navLayout() !== Layout.fixed
-      ) {        
+      ) {
         if (isScrollStart() || isScrollEnd()) {
           if (
             // Keep consistent with pagination behavior
@@ -561,7 +565,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         } else if (cache.current.isImmersive && _delta < -20) {
           if (
             // Keep consistent with pagination behavior
-            cache.current.layoutUI === ThLayoutUI.layered && 
+            cache.current.layoutUI === ThLayoutUI.layered &&
             preferences.affordances.scroll.showOnBackwardScroll
           ) {
             dispatch(setImmersive(false));
@@ -569,7 +573,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         }
       }
     },
-    customEvent: function (_key: string, _data: unknown): void {},
+    customEvent: function (_key: string, _data: unknown): void { },
     handleLocator: function (locator: Locator): boolean {
       const href = locator.href;
 
@@ -587,21 +591,46 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     },
     textSelected: function (selection: BasicTextSelection): void {
       // Convert BasicTextSelection to TextSelection format for highlight system
-      if (!selection || !selection.range) return;
+      if (!selection) return;
 
-      const textSelection: TextSelection = {
-        range: selection.range,
-        text: selection.cleanText || selection.rawText || '',
-        href: selection.locator?.href || '',
-        position: selection.locator?.locations?.position,
-        cleanText: selection.cleanText,
-        rawText: selection.rawText,
-        boundingClientRect: selection.rect,
-      };
+      // Note: BasicTextSelection from Readium doesn't have the Range object
+      // But we can approximate the data needed or rely on valid selection in the DOM
+      // However, since we are in the parent window, we might not have direct access 
+      // to the Range object inside the iframe easily from this event data alone
+      // if it's not passed. 
+      // LUCKILY, HighlightManager.handleTextSelected will check window.getSelection() 
+      // or similar if we pass a dummy object, OR we should pass what we have.
+      //
+      // Wait, HighlightManager's handleTextSelected expects a TextSelection with a Range.
+      // The `selection` from Readium `textSelected` is `BasicTextSelection`.
+      // The actual Range is inside the iframe.
+      // The `HighlightManager` hooks (useHighlightSelection) likely need the actual DOM Range.
 
-      // Trigger highlight toolbar via HighlightManager
-      if (highlightManagerRef.current?.handleTextSelected) {
-        highlightManagerRef.current.handleTextSelected(textSelection);
+      // If we look at `useHighlightSelection.ts`:
+      // const isValidSelection = useCallback((selection: TextSelection): boolean => {
+      //   if (!selection || !selection.range) { return false; } ...
+
+      // So we MUST provide a Range.
+      // The `textSelected` event from Readium navigator might be insufficient if it doesn't pass the Range.
+      // However, if the user just selected text, the DOM selection should still be active in the iframe.
+
+      if (iframeRef.current && highlightManagerRef.current) {
+        const doc = iframeRef.current.contentDocument;
+        const win = iframeRef.current.contentWindow;
+        if (doc && win) {
+          const domSelection = win.getSelection();
+          if (domSelection && domSelection.rangeCount > 0) {
+            const range = domSelection.getRangeAt(0);
+            const textSelection: TextSelection = {
+              range: range,
+              text: domSelection.toString(),
+              href: selection.targetFrameSrc || selfHref, // Fallback to selfRef
+              boundingClientRect: range.getBoundingClientRect()
+            };
+
+            highlightManagerRef.current.handleTextSelected(textSelection);
+          }
+        }
       }
     },
   };
@@ -707,6 +736,26 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     cache.current.reducedMotion = reducedMotion;
   }, [reducedMotion]);
 
+  // Track iframe reference for highlight integration
+  useEffect(() => {
+    if (!container.current) return;
+
+    // Navigator injects iframe into container, we need to wait for it
+    const observer = new MutationObserver(() => {
+      const iframe = container.current?.querySelector('iframe');
+      if (iframe) {
+        iframeRef.current = iframe;
+      }
+    });
+
+    observer.observe(container.current, {
+      childList: true,
+      subtree: true
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   // Theme can also change on colorScheme change so
   // we have to handle this side-effect but we can’t
   // from the ReadingDisplayTheme component since it
@@ -731,9 +780,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         colorScheme
       });
       await submitPreferences(themeProps);
-      dispatch(setTheme({ 
-        key: isFXL ? "fxl" : "reflow", 
-        value: themeKey 
+      dispatch(setTheme({
+        key: isFXL ? "fxl" : "reflow",
+        value: themeKey
       }));
     };
 
@@ -764,8 +813,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
     dispatch(setRTL(publication.metadata.effectiveReadingProgression === ReadingProgression.rtl));
     dispatch(setFXL(publication.metadata.effectiveLayout === Layout.fixed));
-    
-    const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
+
+    const displayTransformability = publication.metadata.accessibility?.feature?.some(feature => feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
     dispatch(setHasDisplayTransformability(displayTransformability));
 
     let positionsList: Locator[] | undefined;
@@ -784,7 +833,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         const initialPosition: Locator | null = getLocalData();
 
         const initialConstraint = cache.current.arrowsOccupySpace ? arrowsWidth.current : 0;
-        
+
         const themeKeys = isFXL ? fxlThemeKeys : reflowThemeKeys;
         const theme = themeKeys.includes(cache.current.settings.theme as any) ? cache.current.settings.theme : "auto";
         const themeProps = buildThemeObject<ThemeKeyType>({
@@ -802,23 +851,23 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           fontWeight: cache.current.settings.fontWeight,
           hyphens: cache.current.settings.hyphens,
           letterSpacing: cache.current.settings.publisherStyles ? undefined : cache.current.settings.letterSpacing,
-          lineHeight: cache.current.settings.publisherStyles 
-            ? undefined 
-            : cache.current.settings.lineHeight === null 
-              ? null 
+          lineHeight: cache.current.settings.publisherStyles
+            ? undefined
+            : cache.current.settings.lineHeight === null
+              ? null
               : lineHeightOptions[cache.current.settings.lineHeight],
-          optimalLineLength: cache.current.settings.lineLength?.optimal != null 
-            ? cache.current.settings.lineLength.optimal 
+          optimalLineLength: cache.current.settings.lineLength?.optimal != null
+            ? cache.current.settings.lineLength.optimal
             : undefined,
-          maximalLineLength: cache.current.settings.lineLength?.max?.isDisabled 
-            ? null 
-            : (cache.current.settings.lineLength?.max?.chars != null) 
-              ? cache.current.settings.lineLength.max.chars 
+          maximalLineLength: cache.current.settings.lineLength?.max?.isDisabled
+            ? null
+            : (cache.current.settings.lineLength?.max?.chars != null)
+              ? cache.current.settings.lineLength.max.chars
               : undefined,
-          minimalLineLength: cache.current.settings.lineLength?.min?.isDisabled 
-            ? null 
-            : (cache.current.settings.lineLength?.min?.chars != null) 
-              ? cache.current.settings.lineLength.min.chars 
+          minimalLineLength: cache.current.settings.lineLength?.min?.isDisabled
+            ? null
+            : (cache.current.settings.lineLength?.min?.chars != null)
+              ? cache.current.settings.lineLength.min.chars
               : undefined,
           paragraphIndent: cache.current.settings.publisherStyles ? undefined : cache.current.settings.paragraphIndent,
           paragraphSpacing: cache.current.settings.publisherStyles ? undefined : cache.current.settings.paragraphSpacing,
@@ -834,19 +883,19 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           minimalLineLength: preferences.typography.minimalLineLength,
           optimalLineLength: preferences.typography.optimalLineLength,
           pageGutter: preferences.typography.pageGutter,
-          scrollPaddingTop: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
-            ? (preferences.theming.icon.size || 24) * 3 
+          scrollPaddingTop: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered
+            ? (preferences.theming.icon.size || 24) * 3
             : (preferences.theming.icon.size || 24),
-          scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
-            ? (preferences.theming.icon.size || 24) * 5 
+          scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered
+            ? (preferences.theming.icon.size || 24) * 5
             : (preferences.theming.icon.size || 24),
           experiments: preferences.experiments?.reflow || null
         }
-  
+
         EpubNavigatorLoad({
-          container: container.current, 
+          container: container.current,
           publication: publication,
-          listeners: listeners, 
+          listeners: listeners,
           positionsList: positionsList,
           initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
           preferences: epubPreferences,
@@ -872,86 +921,97 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
   return (
     <>
-    <I18nProvider locale={ preferences.locale }>
-    <NavigatorProvider navigator={ epubNavigator }>
-      <main className={ readerStyles.main }>
-        <StatefulDockingWrapper>
-          <div 
-            className={ 
-              getReaderClassNames({
-                isScroll,
-                isImmersive,
-                isHovering,
-                isFXL,
-                layoutUI,
-                breakpoint
-              })
-            }
-          >
-            <StatefulReaderHeader 
-              actionKeys={ isFXL ? fxlActionKeys : reflowActionKeys }
-              actionsOrder={ isFXL ? preferences.actions.fxlOrder : preferences.actions.reflowOrder }
-              layout={ layoutUI }
-              runningHeadFormatPref={
-                isFXL 
-                  ? preferences.theming.header?.runningHead?.format?.fxl 
-                  : preferences.theming.header?.runningHead?.format?.reflow
-              } 
-            />
-
-          { !isScroll 
-            ? <nav className={ classNames(arrowStyles.container, arrowStyles.leftContainer) }>
-                <StatefulReaderArrowButton 
-                  direction="left" 
-                  isDisabled={ atPublicationStart } 
-                  onPress={ () => {
-                    const navigationCallback = () => {
-                      dispatch(setUserNavigated(true));
-                      activateImmersiveOnAction();
-                    };
-                    goLeft(!reducedMotion, navigationCallback);
-                  }}
+      <I18nProvider locale={preferences.locale}>
+        <NavigatorProvider navigator={epubNavigator}>
+          <main className={readerStyles.main}>
+            <StatefulDockingWrapper>
+              <div
+                className={
+                  getReaderClassNames({
+                    isScroll,
+                    isImmersive,
+                    isHovering,
+                    isFXL,
+                    layoutUI,
+                    breakpoint
+                  })
+                }
+              >
+                <StatefulReaderHeader
+                  actionKeys={isFXL ? fxlActionKeys : reflowActionKeys}
+                  actionsOrder={isFXL ? preferences.actions.fxlOrder : preferences.actions.reflowOrder}
+                  layout={layoutUI}
+                  runningHeadFormatPref={
+                    isFXL
+                      ? preferences.theming.header?.runningHead?.format?.fxl
+                      : preferences.theming.header?.runningHead?.format?.reflow
+                  }
                 />
-            </nav> 
-            : <></> }
 
-            <article className={ readerStyles.wrapper } aria-label={ t("reader.app.publicationWrapper") }>
-              <div id="thorium-web-container" className={ readerStyles.iframeContainer } ref={ container }></div>
-            </article>
+                {!isScroll
+                  ? <nav className={classNames(arrowStyles.container, arrowStyles.leftContainer)}>
+                    <StatefulReaderArrowButton
+                      direction="left"
+                      isDisabled={atPublicationStart}
+                      onPress={() => {
+                        const navigationCallback = () => {
+                          dispatch(setUserNavigated(true));
+                          activateImmersiveOnAction();
+                        };
+                        goLeft(!reducedMotion, navigationCallback);
+                      }}
+                    />
+                  </nav>
+                  : <></>}
 
-          { !isScroll 
-            ? <nav className={ classNames(arrowStyles.container, arrowStyles.rightContainer) }>
-                <StatefulReaderArrowButton 
-                  direction="right" 
-                  isDisabled={ atPublicationEnd } 
-                  onPress={ () => {
-                    const navigationCallback = () => {
-                      dispatch(setUserNavigated(true));
-                      activateImmersiveOnAction();
-                    };
-                    goRight(!reducedMotion, navigationCallback);
-                  }}
+                <article className={readerStyles.wrapper} aria-label={t("reader.app.publicationWrapper")}>
+                  <div id="thorium-web-container" className={readerStyles.iframeContainer} ref={container}></div>
+                </article>
+
+                {!isScroll
+                  ? <nav className={classNames(arrowStyles.container, arrowStyles.rightContainer)}>
+                    <StatefulReaderArrowButton
+                      direction="right"
+                      isDisabled={atPublicationEnd}
+                      onPress={() => {
+                        const navigationCallback = () => {
+                          dispatch(setUserNavigated(true));
+                          activateImmersiveOnAction();
+                        };
+                        goRight(!reducedMotion, navigationCallback);
+                      }}
+                    />
+                  </nav>
+                  : <></>}
+
+                <StatefulReaderFooter
+                  layout={layoutUI}
+                  progressionFormatPref={
+                    isFXL
+                      ? preferences.theming.progression?.format?.fxl
+                      : preferences.theming.progression?.format?.reflow
+                  }
+                  progressionFormatFallback={
+                    isFXL
+                      ? ThProgressionFormat.readingOrderIndex
+                      : ThProgressionFormat.resourceProgression
+                  }
                 />
-              </nav> 
-            : <></> }
+              </div>
+            </StatefulDockingWrapper>
+          </main>
+        </NavigatorProvider>
+      </I18nProvider>
 
-          <StatefulReaderFooter 
-            layout={ layoutUI } 
-            progressionFormatPref={
-              isFXL 
-                ? preferences.theming.progression?.format?.fxl 
-                : preferences.theming.progression?.format?.reflow
-            }
-            progressionFormatFallback={
-              isFXL 
-                ? ThProgressionFormat.readingOrderIndex
-                : ThProgressionFormat.resourceProgression
-            }
-          />
-        </div>
-      </StatefulDockingWrapper>
-    </main>
-  </NavigatorProvider>
-  </I18nProvider>
-  </>
-)};
+      {/* Highlight Manager - handles all highlight functionality */}
+      {publication && (
+        <HighlightManager
+          ref={highlightManagerRef}
+          bookId={selfHref}
+          bookTitle={typeof publication.metadata.title === 'string' ? publication.metadata.title : publication.metadata.title?.toString()}
+          iframeRef={iframeRef}
+        />
+      )}
+    </>
+  )
+};

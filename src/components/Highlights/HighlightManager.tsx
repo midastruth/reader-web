@@ -6,7 +6,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
-import type { Highlight, HighlightColor } from '@/lib/types/highlights';
+import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import { loadHighlights, setCurrentBook } from '@/lib/highlightsReducer';
 import HighlightsDB from '@/core/Storage/HighlightsDB';
 import { useHighlightSelection, type TextSelection } from './hooks/useHighlightSelection';
@@ -21,10 +21,14 @@ export interface HighlightManagerProps {
   /** Book title (optional, for display) */
   bookTitle?: string;
   /** Reference to the reader iframe */
-  iframeRef?: React.RefObject<HTMLIFrameElement>;
+  iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 }
 
-export function HighlightManager({ bookId, bookTitle, iframeRef }: HighlightManagerProps) {
+export interface HighlightManagerHandle {
+  handleTextSelected: (selection: TextSelection) => void;
+}
+
+export const HighlightManager = React.forwardRef<HighlightManagerHandle, HighlightManagerProps>(({ bookId, bookTitle, iframeRef }, ref) => {
   const dispatch = useDispatch();
 
   // Hooks
@@ -104,6 +108,11 @@ export function HighlightManager({ bookId, bookTitle, iframeRef }: HighlightMana
       selection,
     });
   }, [isValidSelection]);
+
+  // Expose methods to parent
+  React.useImperativeHandle(ref, () => ({
+    handleTextSelected
+  }));
 
   /**
    * Handle color selection from toolbar
@@ -251,7 +260,7 @@ export function HighlightManager({ bookId, bookTitle, iframeRef }: HighlightMana
       <HighlightNote />
     </>
   );
-}
+});
 
 // Export the handler for use in StatefulReader
 export type TextSelectedHandler = (selection: TextSelection) => void;
