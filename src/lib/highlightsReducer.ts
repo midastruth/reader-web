@@ -4,7 +4,8 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { Highlight, HighlightColor } from './types/highlights';
+import type { Highlight } from './types/highlights';
+import { HighlightColor } from './types/highlights';
 
 /**
  * Highlights state interface
