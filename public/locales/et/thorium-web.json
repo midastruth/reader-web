@@ -1,1 +1,21 @@
-{}
+{
+    "reader": {
+        "app": {
+            "loading": "Laadin andmeid",
+            "publicationWrapper": "Oled nüüd avaldatud sisu juures.",
+            "docking": {
+                "dockingLeft": "Tegevuste ja sisu paan vasakul",
+                "dockingRight": "Tegevuste ja sisu paan paremal",
+                "dockingEmpty": "Hetkel tühi",
+                "dockingClosed": "On suletud, kuid sisaldab tegevust „{{ action }}“",
+                "dockingCollapsed": "On ahendatudud, kuid sisaldab tegevust „{{ action }}“"
+            },
+            "header": {
+                "backLink": {
+                    "trigger": "Tagasi raamatukogusse",
+                    "tooltip": "Raamatukogu"
+                }
+            }
+        }
+    }
+}
