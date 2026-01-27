@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync, statSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -8,7 +8,129 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const LOCALES_DIR = join(__dirname, "../public/locales");
+const SOURCE_DIR = join(__dirname, "../src");
 const REFERENCE_LANG = "en";
+
+/**
+ * Extract all translation keys from source code
+ */
+function extractUsedKeys() {
+  const usedKeys = new Set();
+  
+  function processFile(filePath) {
+    try {
+      const content = readFileSync(filePath, "utf8");
+      
+      // Match t("key") patterns - more precise regex for useI18n hook
+      // Only match strings that look like translation keys (contain dots and are reasonable length)
+      const tMatches = content.matchAll(/t\(\s*['"`]([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+)['"`]\s*[,\)]/g);
+      for (const match of tMatches) {
+        // Remove plural suffixes for counting purposes
+        const baseKey = match[1].replace(/_(zero|one|two|few|many|other)$/, "");
+        usedKeys.add(baseKey);
+      }
+      
+      // Match dynamic key patterns like t(`${prefix}.trigger`) - extract static parts
+      const dynamicMatches = content.matchAll(/t\(\s*`([^`]+)`\s*[,\)]/g);
+      for (const match of dynamicMatches) {
+        const template = match[1];
+        // Extract static parts from template literals
+        const staticParts = template.split("${").map(part => part.split("}")[0]).filter(Boolean);
+        staticParts.forEach(part => {
+          if (part.includes(".") && /^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+\.?$/.test(part)) {
+            // Remove plural suffixes for counting purposes
+            const baseKey = part.replace(/\.$/, "").replace(/_(zero|one|two|few|many|other)$/, "");
+            usedKeys.add(baseKey);
+          }
+        });
+      }
+    } catch (error) {
+      // Silently ignore files that can't be processed
+    }
+  }
+  
+  function processDirectory(dir) {
+    const items = readdirSync(dir);
+    
+    for (const item of items) {
+      const fullPath = join(dir, item);
+      const stat = statSync(fullPath);
+      
+      if (stat.isDirectory() && !item.startsWith(".") && item !== "node_modules") {
+        processDirectory(fullPath);
+      } else if (stat.isFile() && (item.endsWith(".tsx") || item.endsWith(".ts"))) {
+        processFile(fullPath);
+      }
+    }
+  }
+  
+  processDirectory(SOURCE_DIR);
+  return Array.from(usedKeys);
+}
+
+/**
+ * Check if a key is defined in reference locale files
+ * @returns {Object} { exists: boolean, sourceFile?: string }
+ */
+function isKeyDefinedInReference(key, refFiles) {
+  for (const file of refFiles) {
+    const refPath = join(LOCALES_DIR, REFERENCE_LANG, file);
+    try {
+      const content = readFileSync(refPath, "utf8");
+      const data = JSON.parse(content);
+      
+      // Check if the base key exists
+      if (keyExists(data, key)) {
+        return { exists: true, sourceFile: file };
+      }
+      
+      // For plural forms, check if there are _one, _other, etc. variants
+      const pluralVariants = ["_zero", "_one", "_two", "_few", "_many", "_other"];
+      for (const variant of pluralVariants) {
+        if (keyExists(data, key + variant)) {
+          return { exists: true, sourceFile: file };
+        }
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+  return { exists: false };
+}
+
+/**
+ * Extract all translation keys from locale files
+ */
+function extractDefinedKeys() {
+  const definedKeys = [];
+  const refFiles = readdirSync(join(LOCALES_DIR, REFERENCE_LANG))
+    .filter(file => file.endsWith(".json"));
+  
+  for (const file of refFiles) {
+    const filePath = join(LOCALES_DIR, REFERENCE_LANG, file);
+    try {
+      const content = readFileSync(filePath, "utf8");
+      const data = JSON.parse(content);
+      
+      function traverse(obj, prefix = "") {
+        for (const key in obj) {
+          const fullKey = prefix ? `${ prefix }.${ key }` : key;
+          if (typeof obj[key] === "object" && obj[key] !== null) {
+            traverse(obj[key], fullKey);
+          } else {
+            definedKeys.push(fullKey);
+          }
+        }
+      }
+      
+      traverse(data);
+    } catch (error) {
+      console.warn(`Warning: Could not read ${ file }: ${ error.message }`);
+    }
+  }
+  
+  return definedKeys;
+}
 
 /**
  * Counts all properties in an object recursively
@@ -83,7 +205,7 @@ function processLocaleFile(locale, file, refContent) {
 /**
  * Processes all locales and returns the results
  */
-function processLocales(locales, refFiles) {
+function processLocales(locales, refFiles, usedKeys = [], showMissingKeys = false) {
   return locales.map(locale => {
     const files = [];
     let totalMissing = 0;
@@ -99,14 +221,161 @@ function processLocales(locales, refFiles) {
       totalKeys += result.total;
     }
 
+    const totalTranslated = totalKeys - totalMissing;
+    const overallPercentage = totalKeys > 0 ? Math.round((totalTranslated / totalKeys) * 100) : 0;
+    
+    // Calculate actual usage percentage
+    // Track which keys are used and their source files
+    const actuallyUsed = [];
+    const keySourceMap = new Map();
+    
+    usedKeys.forEach(key => {
+      const { exists, sourceFile } = isKeyDefinedInReference(key, refFiles);
+      if (exists) {
+        actuallyUsed.push(key);
+        keySourceMap.set(key, sourceFile);
+      }
+    });
+    
+    // For actual usage, we need to check which of the used keys are actually translated in this locale
+    const actuallyUsedAndTranslated = [];
+    const missingInLocale = [];
+    
+    actuallyUsed.forEach(key => {
+      if (isKeyTranslatedInLocale(key, locale, refFiles)) {
+        actuallyUsedAndTranslated.push(key);
+      } else if (showMissingKeys && locale !== REFERENCE_LANG) {
+        missingInLocale.push({
+          key,
+          sourceFile: keySourceMap.get(key) || "unknown"
+        });
+      }
+    });
+    
+    const actualUsagePercentage = actuallyUsed.length > 0 ? Math.round((actuallyUsedAndTranslated.length / actuallyUsed.length) * 100) : 0;
+
     return {
       locale,
       files,
       totalMissing,
       totalKeys,
-      overallPercentage: totalKeys > 0 ? Math.round(((totalKeys - totalMissing) / totalKeys) * 100) : 0
+      overallPercentage,
+      actualUsagePercentage,
+      actuallyUsedCount: actuallyUsed.length,
+      actuallyUsedAndTranslatedCount: actuallyUsedAndTranslated.length,
+      missingKeys: showMissingKeys ? missingInLocale : undefined
     };
   }).sort((a, b) => b.overallPercentage - a.overallPercentage);
+}
+
+
+/**
+ * Check if a key is translated in a specific locale
+ */
+function isKeyTranslatedInLocale(key, locale, refFiles) {
+  for (const file of refFiles) {
+    const refPath = join(LOCALES_DIR, REFERENCE_LANG, file);
+    const targetPath = join(LOCALES_DIR, locale, file);
+    
+    try {
+      const refContent = readFileSync(refPath, "utf8");
+      const refData = JSON.parse(refContent);
+      
+      // Check if key exists in reference (including plural variants)
+      let keyExistsInRef = keyExists(refData, key);
+      const pluralVariants = ["_zero", "_one", "_two", "_few", "_many", "_other"];
+      
+      if (!keyExistsInRef) {
+        for (const variant of pluralVariants) {
+          if (keyExists(refData, key + variant)) {
+            keyExistsInRef = true;
+            break;
+          }
+        }
+      }
+      
+      if (!keyExistsInRef) {
+        continue;
+      }
+      
+      // For reference language, if it exists in ref, it's translated
+      if (locale === REFERENCE_LANG) {
+        return true;
+      }
+      
+      // Check if target file exists and has the key translated
+      const targetContent = readFileSync(targetPath, "utf8");
+      const targetData = JSON.parse(targetContent);
+      
+      // Check if the base key exists in target
+      let keyExistsInTarget = keyExists(targetData, key);
+      let targetValue = null;
+      let refValue = null;
+      
+      if (keyExistsInTarget) {
+        targetValue = getKeyValue(targetData, key);
+        refValue = getKeyValue(refData, key);
+      } else {
+        // Check plural variants
+        for (const variant of pluralVariants) {
+          const fullKey = key + variant;
+          if (keyExists(targetData, fullKey) && keyExists(refData, fullKey)) {
+            targetValue = getKeyValue(targetData, fullKey);
+            refValue = getKeyValue(refData, fullKey);
+            keyExistsInTarget = true;
+            break;
+          }
+        }
+      }
+      
+      if (keyExistsInTarget && targetValue && targetValue.trim() !== "") {
+        // Consider it translated if the target has a non-empty value
+        // Don't compare with reference value as translations might be the same
+        return true;
+      }
+    } catch (error) {
+      continue;
+    }
+  }
+  return false;
+}
+
+/**
+ * Get the value of a key from nested object
+ */
+function getKeyValue(obj, keyPath) {
+  const keys = keyPath.split(".");
+  let current = obj;
+  
+  for (const key of keys) {
+    if (current && typeof current === "object" && key in current) {
+      current = current[key];
+    } else {
+      return null;
+    }
+  }
+  
+  return current;
+}
+
+/**
+ * Check if a key exists in nested object
+ */
+function keyExists(obj, keyPath) {
+  if (!obj) return false;
+  
+  const keys = keyPath.split(".");
+  let current = obj;
+  
+  for (const key of keys) {
+    if (current && typeof current === "object" && key in current) {
+      current = current[key];
+    } else {
+      return false;
+    }
+  }
+  
+  return current !== undefined;
 }
 
 /**
@@ -117,8 +386,18 @@ function generateDetailedBreakdown(results, maxFileNameLength) {
   
   output.push("Locale Breakdown:", "-".repeat(40));
   
-  results.forEach(({ locale, files, totalMissing, totalKeys, overallPercentage }) => {
-    output.push(`\n${ locale.toUpperCase() } (${ overallPercentage }% complete)`);
+  results.forEach(({ 
+    locale, 
+    files, 
+    totalMissing, 
+    totalKeys, 
+    overallPercentage, 
+    actualUsagePercentage, 
+    actuallyUsedCount, 
+    actuallyUsedAndTranslatedCount,
+    missingKeys = []
+  }) => {
+    output.push(`\n${ locale.toUpperCase() } (${ overallPercentage }% complete, ${ actualUsagePercentage }% of usage)`);
     
     files.forEach(({ file, missing, total, percentage }) => {
       const translated = total - missing;
@@ -130,7 +409,55 @@ function generateDetailedBreakdown(results, maxFileNameLength) {
       const totalTranslated = totalKeys - totalMissing;
       const totalBar = generateProgressBar(overallPercentage, 10);
       output.push(`   ${ "TOTAL".padEnd(maxFileNameLength + 2) } ${ totalBar } ${ overallPercentage.toString().padStart(3) }%  (${ totalTranslated }/${ totalKeys })`);
+      
+      const usageBar = generateProgressBar(actualUsagePercentage, 10);
+      output.push(`   ${ "USED".padEnd(maxFileNameLength + 2) } ${ usageBar } ${ actualUsagePercentage.toString().padStart(3) }%  (${ actuallyUsedAndTranslatedCount }/${ actuallyUsedCount })`);
     }
+    
+    // Group and show missing keys by source file if there are any
+    if (missingKeys && missingKeys.length > 0) {
+      const grouped = missingKeys.reduce((acc, { key, sourceFile }) => {
+        const source = sourceFile.includes("web") ? "web" : "shared";
+        if (!acc[source]) acc[source] = [];
+        acc[source].push(key);
+        return acc;
+      }, {});
+      
+      output.push("\n   ----------------------------------------");
+      output.push("   Missing Keys:\n");
+      
+      // Always show web first, then shared
+      ["web", "shared"].forEach((source, index) => {
+        const keys = grouped[source];
+        if (keys && keys.length > 0) {
+          if (index > 0) output.push("");
+          output.push(`   ${source.toUpperCase()} (${keys.length} keys):`);
+          keys.forEach(key => {
+            output.push(`   • ${key}`);
+          });
+        }
+      });
+      
+      output.push("");
+    }
+  });
+  
+  return output;
+}
+
+/**
+ * Generates the usage summary section of the report
+ */
+function generateUsageSummary(results) {
+  const output = [];
+  
+  output.push("\nActual Usage Summary:", "-".repeat(40));
+  
+  [...results]
+    .sort((a, b) => b.actualUsagePercentage - a.actualUsagePercentage)
+    .forEach(({ locale, actualUsagePercentage }) => {
+    const bar = generateProgressBar(actualUsagePercentage, 20);
+    output.push(`${ locale.toUpperCase().padEnd(6) } [${ bar }] ${ actualUsagePercentage.toString().padStart(3) }%`);
   });
   
   return output;
@@ -165,10 +492,11 @@ function generateOutputText(results, refLang, maxFileNameLength, reverseOrder = 
   
   const detailedBreakdown = generateDetailedBreakdown(results, maxFileNameLength);
   const summary = generateSummarySection(results);
+  const usageSummary = generateUsageSummary(results);
   
   const sections = reverseOrder 
-    ? [...header, ...summary, "", ...detailedBreakdown]
-    : [...header, ...detailedBreakdown, "", ...summary];
+    ? [...header, ...summary, "", ...usageSummary, "", ...detailedBreakdown]
+    : [...header, ...detailedBreakdown, "", ...summary, "", ...usageSummary];
     
   return sections.join("\n");
 }
@@ -176,6 +504,7 @@ function generateOutputText(results, refLang, maxFileNameLength, reverseOrder = 
 async function main() {
   const args = process.argv.slice(2);
   const generateSummaryFile = args.includes("--summary");
+  const showMissingKeys = args.includes("--show-missing");
   
   try {
     // Get all locale directories
@@ -191,8 +520,11 @@ async function main() {
     const refFiles = readdirSync(join(LOCALES_DIR, REFERENCE_LANG))
       .filter(file => file.endsWith(".json"));
 
-    // Process all locales
-    const results = processLocales(locales, refFiles);
+    // Extract used keys from source code
+    const usedKeys = extractUsedKeys();
+
+    // Process all locales with usage data
+    const results = processLocales(locales, refFiles, usedKeys, showMissingKeys);
 
     // Find max filename length for alignment
     const maxFileNameLength = results.reduce(
@@ -203,6 +535,16 @@ async function main() {
     // Generate and display console output (detailed breakdown first)
     const consoleOutput = generateOutputText(results, REFERENCE_LANG, maxFileNameLength, false);
     console.log(consoleOutput);
+
+    // Show missing keys from reference language
+    const missingFromReference = usedKeys.filter(key => !isKeyDefinedInReference(key, refFiles));
+    if (missingFromReference.length > 0) {
+      console.log("\n" + "=".repeat(50));
+      console.log("MISSING KEYS FROM REFERENCE LANGUAGE (EN)");
+      console.log("=".repeat(50));
+      console.log(`\n❌ ${ missingFromReference.length } keys used in code but missing from English locale files:`);
+      missingFromReference.sort().forEach(key => console.log(`   - ${ key }`));
+    }
 
     // Save summary if requested (with reversed order)
     if (generateSummaryFile) {
