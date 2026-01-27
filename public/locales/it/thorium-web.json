@@ -8,7 +8,7 @@
                 "dockingRight": "Riquadro dello schermo a destra",
                 "dockingEmpty": "Attualmente vuoto",
                 "dockingClosed": "Attualmente chiuso, contiene {{ action }}",
-                "dockingCollapsed": "Attualmente chiuso. Contiene {{ action }}"
+                "dockingCollapsed": "Attualmente ridotto. Contiene {{ action }}"
             },
             "header": {
                 "backLink": {
@@ -24,7 +24,7 @@
             },
             "progression": {
                 "wrapper": "Progressione nella pubblicazione",
-                "referenceFallback": "Capitolo in lettura",
+                "referenceFallback": "capitolo in lettura",
                 "pubFallback": "la pubblicazione"
             },
             "docker": {
@@ -38,7 +38,8 @@
                     "tooltip": "Visualizzare a destra"
                 },
                 "popover": {
-                    "trigger": "Visualizzare in una finestra"
+                    "trigger": "Visualizzare in una finestra",
+                    "tooltip": "Pop over"
                 },
                 "fullscreen": {
                     "trigger": "Visualizza sopra il contenuto",
