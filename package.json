@@ -53,6 +53,7 @@
     "copy-locales": "cpx \"public/locales/**/*\" dist/locales",
     "extract-locales": "node scripts/extract-locales.mjs",
     "update-locales": "pnpm remove @edrlab/thorium-locales && pnpm add @edrlab/thorium-locales@github:edrlab/thorium-locales && pnpm extract-locales",
+    "check-locales": "node scripts/check-locales.mjs",
     "bundle": "pnpm extract-locales && tsup --config tsup.config.ts && pnpm copy-locales"
   },
   "peerDependencies": {
