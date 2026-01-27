@@ -16,6 +16,7 @@ const REFERENCE_LANG = "en";
  */
 function extractUsedKeys() {
   const usedKeys = new Set();
+  const dynamicMatches = []; // Track dynamic matches for reporting
   
   function processFile(filePath) {
     try {
@@ -23,29 +24,44 @@ function extractUsedKeys() {
       
       // Match t("key") patterns - more precise regex for useI18n hook
       // Only match strings that look like translation keys (contain dots and are reasonable length)
-      const tMatches = content.matchAll(/t\(\s*['"`]([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+)['"`]\s*[,\)]/g);
+      // Note: We exclude backticks here to avoid matching template literals
+      const tMatches = content.matchAll(/t\(\s*['"]([a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+)['"]\s*[,\)]/g);
       for (const match of tMatches) {
         // Remove plural suffixes for counting purposes
         const baseKey = match[1].replace(/_(zero|one|two|few|many|other)$/, "");
         usedKeys.add(baseKey);
       }
       
-      // Match dynamic key patterns like t(`${prefix}.trigger`) - extract static parts
-      const dynamicMatches = content.matchAll(/t\(\s*`([^`]+)`\s*[,\)]/g);
-      for (const match of dynamicMatches) {
+      // Detect dynamic template literals for manual checking
+      const templateMatches = content.matchAll(/t\(\s*`([^`]+)`\s*[,\)]/g);
+      for (const match of templateMatches) {
         const template = match[1];
-        // Extract static parts from template literals
-        const staticParts = template.split("${").map(part => part.split("}")[0]).filter(Boolean);
-        staticParts.forEach(part => {
-          if (part.includes(".") && /^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)+\.?$/.test(part)) {
-            // Remove plural suffixes for counting purposes
-            const baseKey = part.replace(/\.$/, "").replace(/_(zero|one|two|few|many|other)$/, "");
-            usedKeys.add(baseKey);
+        if (template.includes("${")) {
+          // Extract line number for better reporting
+          const lines = content.split('\n');
+          let lineNumber = 1;
+          let charCount = 0;
+          for (let i = 0; i < lines.length; i++) {
+            if (charCount + lines[i].length >= match.index) {
+              lineNumber = i + 1;
+              break;
+            }
+            charCount += lines[i].length + 1; // +1 for newline
           }
-        });
+          
+          dynamicMatches.push({
+            file: filePath.replace(SOURCE_DIR + "/", ""),
+            line: lineNumber,
+            template: template
+          });
+        }
       }
+      
+      // Note: We don't process dynamic template literals like t(`${prefix}.key`) automatically
+      // because their values depend on runtime context and cannot be statically analyzed.
+      // These need to be checked manually by developers.
     } catch (error) {
-      // Silently ignore files that can't be processed
+      console.warn(`Warning: Could not process file ${ filePath }: ${ error.message }`);
     }
   }
   
@@ -65,7 +81,7 @@ function extractUsedKeys() {
   }
   
   processDirectory(SOURCE_DIR);
-  return Array.from(usedKeys);
+  return { usedKeys: Array.from(usedKeys), dynamicMatches };
 }
 
 /**
@@ -96,40 +112,6 @@ function isKeyDefinedInReference(key, refFiles) {
     }
   }
   return { exists: false };
-}
-
-/**
- * Extract all translation keys from locale files
- */
-function extractDefinedKeys() {
-  const definedKeys = [];
-  const refFiles = readdirSync(join(LOCALES_DIR, REFERENCE_LANG))
-    .filter(file => file.endsWith(".json"));
-  
-  for (const file of refFiles) {
-    const filePath = join(LOCALES_DIR, REFERENCE_LANG, file);
-    try {
-      const content = readFileSync(filePath, "utf8");
-      const data = JSON.parse(content);
-      
-      function traverse(obj, prefix = "") {
-        for (const key in obj) {
-          const fullKey = prefix ? `${ prefix }.${ key }` : key;
-          if (typeof obj[key] === "object" && obj[key] !== null) {
-            traverse(obj[key], fullKey);
-          } else {
-            definedKeys.push(fullKey);
-          }
-        }
-      }
-      
-      traverse(data);
-    } catch (error) {
-      console.warn(`Warning: Could not read ${ file }: ${ error.message }`);
-    }
-  }
-  
-  return definedKeys;
 }
 
 /**
@@ -397,7 +379,7 @@ function generateDetailedBreakdown(results, maxFileNameLength) {
     actuallyUsedAndTranslatedCount,
     missingKeys = []
   }) => {
-    output.push(`\n${ locale.toUpperCase() } (${ overallPercentage }% complete, ${ actualUsagePercentage }% of usage)`);
+    output.push(`\n${ locale.toUpperCase() } (${ overallPercentage }% complete, ${ actualUsagePercentage }% of inferred usage)`);
     
     files.forEach(({ file, missing, total, percentage }) => {
       const translated = total - missing;
@@ -451,7 +433,7 @@ function generateDetailedBreakdown(results, maxFileNameLength) {
 function generateUsageSummary(results) {
   const output = [];
   
-  output.push("\nActual Usage Summary:", "-".repeat(40));
+  output.push("\nInferred Usage Summary:", "-".repeat(40));
   
   [...results]
     .sort((a, b) => b.actualUsagePercentage - a.actualUsagePercentage)
@@ -480,9 +462,34 @@ function generateSummarySection(results) {
 }
 
 /**
+ * Generates the dynamic template literals warning section
+ */
+function generateDynamicWarning(dynamicMatches) {
+  const output = [];
+  
+  output.push("\n" + "=".repeat(50));
+  output.push("DYNAMIC TEMPLATE LITERALS WARNING");
+  output.push("=".repeat(50));
+  
+  if (dynamicMatches.length > 0) {
+    output.push(`\n⚠️  Found ${ dynamicMatches.length } dynamic template literal(s) that need manual checking:`);
+    dynamicMatches.forEach(({ file, line, template }) => {
+      output.push(`   📄 ${ file }:${ line }`);
+      output.push(`      t(\`${ template }\`)`);
+    });
+    output.push("\n   These patterns depend on runtime values and cannot be automatically validated.");
+    output.push("   Please verify the corresponding translation keys exist in all locale files.");
+  } else {
+    output.push("\n✅ No dynamic template literals found in the codebase.");
+  }
+  
+  return output;
+}
+
+/**
  * Generates the output text for the translation report
  */
-function generateOutputText(results, refLang, maxFileNameLength, reverseOrder = false) {
+function generateOutputText(results, refLang, maxFileNameLength, reverseOrder = false, dynamicMatches = []) {
   const now = new Date();
   const header = [
     "Locale Completion Status",
@@ -493,10 +500,11 @@ function generateOutputText(results, refLang, maxFileNameLength, reverseOrder = 
   const detailedBreakdown = generateDetailedBreakdown(results, maxFileNameLength);
   const summary = generateSummarySection(results);
   const usageSummary = generateUsageSummary(results);
+  const dynamicWarning = generateDynamicWarning(dynamicMatches);
   
   const sections = reverseOrder 
-    ? [...header, ...summary, "", ...usageSummary, "", ...detailedBreakdown]
-    : [...header, ...detailedBreakdown, "", ...summary, "", ...usageSummary];
+    ? [...header, ...summary, "", ...usageSummary, "", ...detailedBreakdown, "", ...dynamicWarning]
+    : [...header, ...detailedBreakdown, "", ...summary, "", ...usageSummary, "", ...dynamicWarning];
     
   return sections.join("\n");
 }
@@ -521,7 +529,7 @@ async function main() {
       .filter(file => file.endsWith(".json"));
 
     // Extract used keys from source code
-    const usedKeys = extractUsedKeys();
+    const { usedKeys, dynamicMatches } = extractUsedKeys();
 
     // Process all locales with usage data
     const results = processLocales(locales, refFiles, usedKeys, showMissingKeys);
@@ -533,7 +541,7 @@ async function main() {
     );
 
     // Generate and display console output (detailed breakdown first)
-    const consoleOutput = generateOutputText(results, REFERENCE_LANG, maxFileNameLength, false);
+    const consoleOutput = generateOutputText(results, REFERENCE_LANG, maxFileNameLength, false, dynamicMatches);
     console.log(consoleOutput);
 
     // Show missing keys from reference language
@@ -549,7 +557,7 @@ async function main() {
     // Save summary if requested (with reversed order)
     if (generateSummaryFile) {
       const summaryPath = join(process.cwd(), "locale-summary.txt");
-      const fileOutput = generateOutputText(results, REFERENCE_LANG, maxFileNameLength, true);
+      const fileOutput = generateOutputText(results, REFERENCE_LANG, maxFileNameLength, true, dynamicMatches);
       writeFileSync(summaryPath, fileOutput);
       console.log(`\nSummary saved to ${ summaryPath }`);
     }

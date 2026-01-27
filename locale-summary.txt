@@ -1,6 +1,6 @@
 Locale Completion Status
 Reference language: en
-Generated: 2026-01-27T14:24:36.191Z
+Generated: 2026-01-27T16:09:57.487Z
 
 
 Locale Completion Summary:
@@ -22,20 +22,20 @@ AR     [□□□□□□□□□□□□□□□□□□□□]   3%
 UK     [□□□□□□□□□□□□□□□□□□□□]   0%
 
 
-Actual Usage Summary:
+Inferred Usage Summary:
 ----------------------------------------
 EN     [■■■■■■■■■■■■■■■■■■■■] 100%
-FI     [■■■■■■■■■■■■■■■■■■■□]  98%
-LT     [■■■■■■■■■■■■■■■■■■■□]  98%
-PT-BR  [■■■■■■■■■■■■■■■■■■■□]  98%
-PT-PT  [■■■■■■■■■■■■■■■■■■■□]  98%
-SV     [■■■■■■■■■■■■■■■■■■■□]  98%
-FR     [■■■■■■■■■■■■■■■■■■■□]  98%
-DA     [■■■■■■■■■■■■■■■■■■■□]  95%
-PL     [■■■■■■■■■■■■■■■■■■□□]  94%
-TA     [■■■■■■■■■■■■■■■■■■□□]  90%
-IT     [■■■■■■■■■■■□□□□□□□□□]  59%
-TR     [■■■□□□□□□□□□□□□□□□□□]  16%
+FI     [■■■■■■■■■■■■■■■■■■■■] 100%
+LT     [■■■■■■■■■■■■■■■■■■■■] 100%
+PT-BR  [■■■■■■■■■■■■■■■■■■■■] 100%
+PT-PT  [■■■■■■■■■■■■■■■■■■■■] 100%
+SV     [■■■■■■■■■■■■■■■■■■■■] 100%
+FR     [■■■■■■■■■■■■■■■■■■■■] 100%
+DA     [■■■■■■■■■■■■■■■■■■■□]  98%
+PL     [■■■■■■■■■■■■■■■■■■■□]  98%
+TA     [■■■■■■■■■■■■■■■■■■□□]  93%
+IT     [■■■■■■■■■■■■□□□□□□□□]  60%
+TR     [■■■□□□□□□□□□□□□□□□□□]  15%
 AR     [■□□□□□□□□□□□□□□□□□□□]   7%
 ET     [■□□□□□□□□□□□□□□□□□□□]   5%
 UK     [□□□□□□□□□□□□□□□□□□□□]   0%
@@ -43,124 +43,68 @@ UK     [□□□□□□□□□□□□□□□□□□□□]   0%
 Locale Breakdown:
 ----------------------------------------
 
-EN (100% complete, 100% of usage)
+EN (100% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■■■■■ 100%  (138/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■■■■ 100%  (179/179)
-   USED                  ■■■■■■■■■■ 100%  (88/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-FI (91% complete, 98% of usage)
+FI (91% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■■■□□  88%  (121/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■■■□  91%  (162/179)
-   USED                  ■■■■■■■■■□  98%  (86/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-   ----------------------------------------
-   Missing Keys:
-
-
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
-
-
-LT (88% complete, 98% of usage)
+LT (88% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■■■□□  84%  (116/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■■□□  88%  (157/179)
-   USED                  ■■■■■■■■■□  98%  (86/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-   ----------------------------------------
-   Missing Keys:
-
-
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
-
-
-PT-BR (88% complete, 98% of usage)
+PT-BR (88% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■■■□□  84%  (116/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■■□□  88%  (157/179)
-   USED                  ■■■■■■■■■□  98%  (86/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-   ----------------------------------------
-   Missing Keys:
-
-
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
-
-
-PT-PT (88% complete, 98% of usage)
+PT-PT (88% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■■■□□  84%  (116/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■■□□  88%  (157/179)
-   USED                  ■■■■■■■■■□  98%  (86/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-   ----------------------------------------
-   Missing Keys:
-
-
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
-
-
-SV (87% complete, 98% of usage)
+SV (87% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■■■□□  83%  (114/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■■□□  87%  (155/179)
-   USED                  ■■■■■■■■■□  98%  (86/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-   ----------------------------------------
-   Missing Keys:
-
-
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
-
-
-FR (76% complete, 98% of usage)
+FR (76% complete, 100% of inferred usage)
    thorium-shared.json   ■■■■■■□□□□  69%  (95/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■■□□□  76%  (136/179)
-   USED                  ■■■■■■■■■□  98%  (86/88)
+   USED                  ■■■■■■■■■■ 100%  (85/85)
 
-   ----------------------------------------
-   Missing Keys:
-
-
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
-
-
-DA (69% complete, 95% of usage)
+DA (69% complete, 98% of inferred usage)
    thorium-shared.json   ■■■■■□□□□□  59%  (82/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■□□□□  69%  (123/179)
-   USED                  ■■■■■■■■■□  95%  (84/88)
+   USED                  ■■■■■■■■■□  98%  (83/85)
 
    ----------------------------------------
    Missing Keys:
 
 
-   SHARED (4 keys):
+   SHARED (2 keys):
    • reader.preferences.columns.single.compact
    • reader.preferences.columns.dual.compact
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
 
 
-IT (65% complete, 59% of usage)
+IT (65% complete, 60% of inferred usage)
    thorium-shared.json   ■■■■■■■■□□  84%  (116/138)
    thorium-web.json      □□□□□□□□□□   0%  (0/41)
    TOTAL                 ■■■■■■□□□□  65%  (116/179)
-   USED                  ■■■■■□□□□□  59%  (52/88)
+   USED                  ■■■■■■□□□□  60%  (51/85)
 
    ----------------------------------------
    Missing Keys:
@@ -201,56 +145,46 @@ IT (65% complete, 59% of usage)
    • reader.app.progression.wrapper
    • reader.app.header.runningHead
 
-   SHARED (2 keys):
-   • reader.preferences.themes
-   • reader.preferences.spacing.presets
 
-
-PL (61% complete, 94% of usage)
+PL (61% complete, 98% of inferred usage)
    thorium-shared.json   ■■■■□□□□□□  49%  (68/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■□□□□  61%  (109/179)
-   USED                  ■■■■■■■■■□  94%  (83/88)
+   USED                  ■■■■■■■■■□  98%  (83/85)
 
    ----------------------------------------
    Missing Keys:
 
 
-   SHARED (5 keys):
-   • reader.preferences.themes
+   SHARED (2 keys):
    • reader.preferences.spacing.presets.title
-   • reader.preferences.spacing.presets
    • common.actions.reset
-   • reader.progression.positionsLeftInChapter
 
 
-TA (60% complete, 90% of usage)
+TA (60% complete, 93% of inferred usage)
    thorium-shared.json   ■■■■□□□□□□  48%  (66/138)
    thorium-web.json      ■■■■■■■■■■ 100%  (41/41)
    TOTAL                 ■■■■■■□□□□  60%  (107/179)
-   USED                  ■■■■■■■■■□  90%  (79/88)
+   USED                  ■■■■■■■■■□  93%  (79/85)
 
    ----------------------------------------
    Missing Keys:
 
 
-   SHARED (9 keys):
+   SHARED (6 keys):
    • reader.preferences.columns.single.compact
    • reader.preferences.columns.dual.compact
-   • reader.preferences.themes
    • reader.preferences.spacing.presets.title
-   • reader.preferences.spacing.presets
    • common.actions.reset
    • reader.preferences.fontWeight.normal
    • reader.preferences.fontWeight.bold
-   • reader.progression.positionsLeftInChapter
 
 
-TR (22% complete, 16% of usage)
+TR (22% complete, 15% of inferred usage)
    thorium-shared.json   ■■□□□□□□□□  28%  (39/138)
    thorium-web.json      □□□□□□□□□□   0%  (0/41)
    TOTAL                 ■■□□□□□□□□  22%  (39/179)
-   USED                  ■□□□□□□□□□  16%  (14/88)
+   USED                  ■□□□□□□□□□  15%  (13/85)
 
    ----------------------------------------
    Missing Keys:
@@ -291,7 +225,7 @@ TR (22% complete, 16% of usage)
    • reader.app.progression.wrapper
    • reader.app.header.runningHead
 
-   SHARED (40 keys):
+   SHARED (38 keys):
    • reader.preferences.text
    • reader.preferences.spacing.title
    • reader.tableOfContents.title
@@ -303,7 +237,6 @@ TR (22% complete, 16% of usage)
    • reader.preferences.layout.scrolled
    • reader.preferences.layout.title
    • reader.preferences.themes.title
-   • reader.preferences.themes
    • reader.preferences.letterSpacing
    • common.actions.decrease
    • common.actions.increase
@@ -315,7 +248,6 @@ TR (22% complete, 16% of usage)
    • reader.preferences.paragraphIndent
    • reader.preferences.paragraphSpacing
    • reader.preferences.spacing.presets.title
-   • reader.preferences.spacing.presets
    • reader.preferences.wordSpacing
    • common.actions.reset
    • reader.preferences.publisherStyles.label
@@ -334,11 +266,11 @@ TR (22% complete, 16% of usage)
    • reader.preferences.textNormalization.label
 
 
-ET (11% complete, 5% of usage)
+ET (11% complete, 5% of inferred usage)
    thorium-shared.json   ■□□□□□□□□□  14%  (20/138)
    thorium-web.json      □□□□□□□□□□   0%  (0/41)
    TOTAL                 ■□□□□□□□□□  11%  (20/179)
-   USED                  □□□□□□□□□□   5%  (4/88)
+   USED                  □□□□□□□□□□   5%  (4/85)
 
    ----------------------------------------
    Missing Keys:
@@ -379,7 +311,7 @@ ET (11% complete, 5% of usage)
    • reader.app.progression.wrapper
    • reader.app.header.runningHead
 
-   SHARED (50 keys):
+   SHARED (47 keys):
    • reader.actions.goToPosition.descriptive
    • reader.actions.goToPosition.compact
    • reader.preferences.text
@@ -396,7 +328,6 @@ ET (11% complete, 5% of usage)
    • reader.preferences.layout.scrolled
    • reader.preferences.layout.title
    • reader.preferences.themes.title
-   • reader.preferences.themes
    • reader.preferences.letterSpacing
    • common.actions.decrease
    • common.actions.increase
@@ -408,7 +339,6 @@ ET (11% complete, 5% of usage)
    • reader.preferences.paragraphIndent
    • reader.preferences.paragraphSpacing
    • reader.preferences.spacing.presets.title
-   • reader.preferences.spacing.presets
    • reader.preferences.wordSpacing
    • common.actions.reset
    • reader.preferences.publisherStyles.label
@@ -429,14 +359,13 @@ ET (11% complete, 5% of usage)
    • reader.preferences.textNormalization.label
    • reader.progression.xOfY.compact
    • reader.progression.xOfY.descriptive
-   • reader.progression.positionsLeftInChapter
 
 
-AR (3% complete, 7% of usage)
+AR (3% complete, 7% of inferred usage)
    thorium-shared.json   □□□□□□□□□□   1%  (2/138)
    thorium-web.json      ■□□□□□□□□□  10%  (4/41)
    TOTAL                 □□□□□□□□□□   3%  (6/179)
-   USED                  □□□□□□□□□□   7%  (6/88)
+   USED                  □□□□□□□□□□   7%  (6/85)
 
    ----------------------------------------
    Missing Keys:
@@ -473,7 +402,7 @@ AR (3% complete, 7% of usage)
    • reader.app.progression.wrapper
    • reader.app.header.runningHead
 
-   SHARED (52 keys):
+   SHARED (49 keys):
    • reader.actions.goToPosition.descriptive
    • reader.actions.goToPosition.compact
    • reader.preferences.text
@@ -492,7 +421,6 @@ AR (3% complete, 7% of usage)
    • reader.preferences.layout.scrolled
    • reader.preferences.layout.title
    • reader.preferences.themes.title
-   • reader.preferences.themes
    • reader.preferences.letterSpacing
    • common.actions.decrease
    • common.actions.increase
@@ -502,7 +430,6 @@ AR (3% complete, 7% of usage)
    • reader.preferences.lineHeight.title
    • reader.preferences.paragraphIndent
    • reader.preferences.spacing.presets.title
-   • reader.preferences.spacing.presets
    • reader.preferences.wordSpacing
    • common.actions.reset
    • reader.preferences.publisherStyles.label
@@ -525,14 +452,13 @@ AR (3% complete, 7% of usage)
    • reader.actions.goBackward
    • reader.progression.xOfY.compact
    • reader.progression.xOfY.descriptive
-   • reader.progression.positionsLeftInChapter
 
 
-UK (0% complete, 0% of usage)
+UK (0% complete, 0% of inferred usage)
    thorium-shared.json   □□□□□□□□□□   0%  (0/138)
    thorium-web.json      □□□□□□□□□□   0%  (0/41)
    TOTAL                 □□□□□□□□□□   0%  (0/179)
-   USED                  □□□□□□□□□□   0%  (0/88)
+   USED                  □□□□□□□□□□   0%  (0/85)
 
    ----------------------------------------
    Missing Keys:
@@ -573,7 +499,7 @@ UK (0% complete, 0% of usage)
    • reader.app.progression.wrapper
    • reader.app.header.runningHead
 
-   SHARED (54 keys):
+   SHARED (51 keys):
    • reader.actions.goToPosition.descriptive
    • reader.actions.goToPosition.compact
    • reader.preferences.text
@@ -592,7 +518,6 @@ UK (0% complete, 0% of usage)
    • reader.preferences.layout.scrolled
    • reader.preferences.layout.title
    • reader.preferences.themes.title
-   • reader.preferences.themes
    • reader.preferences.letterSpacing
    • common.actions.decrease
    • common.actions.increase
@@ -604,7 +529,6 @@ UK (0% complete, 0% of usage)
    • reader.preferences.paragraphIndent
    • reader.preferences.paragraphSpacing
    • reader.preferences.spacing.presets.title
-   • reader.preferences.spacing.presets
    • reader.preferences.wordSpacing
    • common.actions.reset
    • reader.preferences.publisherStyles.label
@@ -627,4 +551,32 @@ UK (0% complete, 0% of usage)
    • reader.actions.goBackward
    • reader.progression.xOfY.compact
    • reader.progression.xOfY.descriptive
-   • reader.progression.positionsLeftInChapter
+
+
+
+==================================================
+DYNAMIC TEMPLATE LITERALS WARNING
+==================================================
+
+⚠️  Found 9 dynamic template literal(s) that need manual checking:
+   📄 components/Docking/StatefulDockEnd.tsx:34
+      t(`${ translationKey }.trigger`)
+   📄 components/Docking/StatefulDockEnd.tsx:35
+      t(`${ translationKey }.tooltip`)
+   📄 components/Docking/StatefulDockStart.tsx:34
+      t(`${ translationKey }.trigger`)
+   📄 components/Docking/StatefulDockStart.tsx:35
+      t(`${ translationKey }.tooltip`)
+   📄 components/Docking/StatefulDockingWrapper.tsx:106
+      t(`reader.${ actionKey }.heading`)
+   📄 components/Docking/StatefulDockingWrapper.tsx:108
+      t(`reader.${ actionKey }.heading`)
+   📄 components/Epub/Settings/StatefulTheme.tsx:161
+      t(`reader.preferences.themes.${ themeItem }`)
+   📄 components/Settings/Spacing/StatefulSpacingPresets.tsx:128
+      t(`reader.preferences.spacing.presets.${ key === ThSpacingPresetKeys.publisher ? "default" : key }`)
+   📄 components/Settings/Text/StatefulFontFamily.tsx:40
+      t(`${ labelPath }.${ config }`)
+
+   These patterns depend on runtime values and cannot be automatically validated.
+   Please verify the corresponding translation keys exist in all locale files.
