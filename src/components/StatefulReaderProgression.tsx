@@ -141,8 +141,7 @@ export const StatefulReaderProgression = ({
         
       case ThProgressionFormat.positionsLeft:
         if (positionsLeft !== undefined) {
-          const pluralKey = positionsLeft <= 1 ? "one" : "other";
-          text = t(`reader.progression.positionsLeft.${ pluralKey }`, { 
+          text = t(`reader.progression.positionsLeftInChapter`, { 
             count: positionsLeft
           });
         }

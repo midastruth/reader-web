@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/edrlab/thorium-web/issues"
   },
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": false,
   "files": [
     "./dist"
@@ -52,7 +52,7 @@
     "preinstall": "npx only-allow pnpm",
     "copy-locales": "cpx \"public/locales/**/*\" dist/locales",
     "extract-locales": "node scripts/extract-locales.mjs",
-    "update-locales": "pnpm add @edrlab/thorium-locales && pnpm extract-locales",
+    "update-locales": "pnpm remove @edrlab/thorium-locales && pnpm add @edrlab/thorium-locales@github:edrlab/thorium-locales && pnpm extract-locales",
     "bundle": "pnpm extract-locales && tsup --config tsup.config.ts && pnpm copy-locales"
   },
   "peerDependencies": {
