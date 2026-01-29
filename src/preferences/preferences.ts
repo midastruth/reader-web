@@ -26,7 +26,7 @@ import {
 } from "./models/enums";
 import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
-import { supportedLocales } from "./models/const";
+import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
 
 export type I18nValue<T> = T | string | { key: string; fallback?: string };
 
@@ -339,9 +339,9 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
   if (params.locale) {
     // Extract language code from BCP-47 locale (e.g., "en-US" -> "en")
     const languageCode = params.locale.split("-")[0];
-    if (!supportedLocales.some((locale: string) => locale === languageCode)) {
-      console.warn(`Locale "${ params.locale }" is not supported. Supported locales: ${ supportedLocales.join(", ") }. Falling back to English (en).`);
-      params.locale = "en";
+    if (!isSupportedLocale(languageCode)) {
+      console.warn(`Locale "${params.locale}" is not supported. Supported locales: ${supportedLocales.join(", ")}. Falling back to browser/OS language settings.`);
+      params.locale = undefined; // Let i18n fall back to browser/OS language settings
     }
   }
 
