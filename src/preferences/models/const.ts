@@ -13,7 +13,7 @@ import {
 import { ThActionsTokens, ThSettingsRangePref } from "../preferences";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
-export const supportedLocales = ["da", "en", "fi", "fr", "lt", "pl", "pt", "sv", "ta"];
+export const supportedLocales = ["da", "en", "fi", "fr", "it", "lt", "pl", "pt", "sv", "ta"];
 
 export const defaultActionKeysObject: ThActionsTokens = {
   visibility: ThCollapsibilityVisibility.partially,
