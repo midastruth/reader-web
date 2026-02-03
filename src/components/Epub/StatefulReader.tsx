@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { 
-  defaultFontFamilyOptions, 
   ThemeKeyType, 
   usePreferenceKeys, 
   useTheming
@@ -68,6 +67,7 @@ import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
+import { useFontMetadata } from "@/preferences/hooks/useFontMetadata";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
@@ -118,7 +118,7 @@ import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
-  fontFamily: keyof typeof defaultFontFamilyOptions | null;
+  fontFamily: string | null; // Font ID (e.g., 'sans', 'serif')
   fontSize: number;
   fontWeight: number;
   hyphens: boolean | null;
@@ -193,6 +193,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
+  const getFontMetadata = useFontMetadata();
   
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -779,7 +780,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         const epubPreferences: IEpubPreferences = isFXL ? {} : {
           columnCount: cache.current.settings.columnCount === "auto" ? null : Number(cache.current.settings.columnCount),
           constraint: initialConstraint,
-          fontFamily: cache.current.settings.fontFamily && defaultFontFamilyOptions[cache.current.settings.fontFamily],
+          fontFamily: getFontMetadata(cache.current.settings.fontFamily || "")?.fontStack || null,
           fontSize: cache.current.settings.fontSize,
           fontWeight: cache.current.settings.fontWeight,
           hyphens: cache.current.settings.hyphens,

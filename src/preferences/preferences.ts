@@ -28,6 +28,58 @@ import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
 
+// ============================================================================
+// FONT FAMILY TYPES
+// ============================================================================
+
+export interface SystemFontSource {
+  type: "system";
+}
+
+export interface GoogleFontSource {
+  type: "custom";
+  provider: "google";
+}
+
+export interface LocalFontSource {
+  type: "custom";
+  provider: "local";
+  paths: string[];
+}
+
+export type FontSource = SystemFontSource | GoogleFontSource | LocalFontSource;
+
+export type WeightConfig =
+  | {
+      type: "values";
+      weights: number[];
+    }
+  | {
+      type: "range";
+      min: number;
+      max: number;
+      step: number;
+    };
+
+export interface FontSpec {
+  family: string;
+  weights: WeightConfig;
+  fallbacks: string[];
+  styles?: ("normal" | "italic")[];
+  display?: "swap" | "block" | "fallback" | "optional";
+}
+
+export interface FontOption {
+  id: string;
+  name: string;
+  source: FontSource;
+  spec: FontSpec;
+}
+
+export interface ThFontFamilyPref {
+  fonts: Record<string, FontOption>;
+}
+
 export type I18nValue<T> = T | string | { key: string; fallback?: string };
 
 export type ThBackLinkContent = 
@@ -324,6 +376,7 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     keys: ThSettingsKeyTypes<K>;
     text?: ThSettingsGroupPref<TextSettingsKey<K>>;
     spacing?: ThSettingsGroupPref<SpacingSettingsKey<K>> & { presets?: ThSettingsSpacingPresets<K> };
+    fontFamily: ThFontFamilyPref;
   };
 }
 

@@ -6,11 +6,10 @@ import {
   ThSpacingSettingsKeys, 
   ThTextAlignOptions 
 } from "@/preferences/models/enums";
-import { defaultFontFamilyOptions } from "@/preferences/models/const";
 import { handleSpacingSetting, SetSpacingPresetPayload, SpacingStateObject } from "./settingsReducer";
 
 export interface WebPubSettingsReducerState {
-  fontFamily: keyof typeof defaultFontFamilyOptions;
+  fontFamily: string;
   fontWeight: number;
   hyphens: boolean | null;
   letterSpacing: number | null;

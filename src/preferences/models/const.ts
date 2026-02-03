@@ -10,7 +10,7 @@ import {
   ThSpacingSettingsKeys, 
   ThTextSettingsKeys 
 } from "./enums";
-import { ThActionsTokens, ThSettingsRangePref } from "../preferences";
+import { ThActionsTokens, ThSettingsRangePref, ThFontFamilyPref } from "../preferences";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
 export const defaultActionKeysObject: ThActionsTokens = {
@@ -50,14 +50,60 @@ export const defaultSpacingPresetsOrder = [
   ThSpacingPresetKeys.loose
 ]
 
-export const defaultFontFamilyOptions = {
-  publisher: null,
-  oldStyle: fontStacks.RS__oldStyleTf,
-  modern: fontStacks.RS__modernTf,
-  sans: fontStacks.RS__sansTf,
-  humanist: fontStacks.RS__humanistTf,
-  monospace: fontStacks.RS__monospaceTf
-}
+export const defaultFontFamilyPref: ThFontFamilyPref = {
+  fonts: {
+    oldStyle: {
+      id: "oldStyle",
+      name: "Old Style",
+      source: { type: "system" },
+      spec: {
+        family: fontStacks.RS__oldStyleTf,
+        weights: { type: "values", weights: [400, 700] },
+        fallbacks: ["serif"]
+      }
+    },
+    modern: {
+      id: "modern",
+      name: "Modern",
+      source: { type: "system" },
+      spec: {
+        family: fontStacks.RS__modernTf,
+        weights: { type: "values", weights: [400, 700] },
+        fallbacks: ["serif"]
+      }
+    },
+    sans: {
+      id: "sans",
+      name: "Sans",
+      source: { type: "system" },
+      spec: {
+        family: fontStacks.RS__sansTf,
+        weights: { type: "values", weights: [400, 700] },
+        fallbacks: ["sans-serif"]
+      }
+    },
+    humanist: {
+      id: "humanist",
+      name: "Humanist",
+      source: { type: "system" },
+      spec: {
+        family: fontStacks.RS__humanistTf,
+        weights: { type: "values", weights: [400, 700] },
+        fallbacks: ["sans-serif"]
+      }
+    },
+    monospace: {
+      id: "monospace",
+      name: "Monospace",
+      source: { type: "system" },
+      spec: {
+        family: fontStacks.RS__monospaceTf,
+        weights: { type: "values", weights: [400, 700] },
+        fallbacks: ["monospace"]
+      }
+    }
+  }
+};
 
 export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {
   variant: ThSettingsRangeVariant.numberField,

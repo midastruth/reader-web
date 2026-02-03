@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-import { defaultFontFamilyOptions, ThemeKeyType, useTheming } from "../../preferences";
+import { ThemeKeyType, useTheming } from "../../preferences";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
@@ -53,6 +53,7 @@ import { useLocalStorage } from "@/core/Hooks/useLocalStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
+import { useFontMetadata } from "@/preferences/hooks/useFontMetadata";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
@@ -91,7 +92,7 @@ import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface WebPubCSSSettings {
-  fontFamily: keyof typeof defaultFontFamilyOptions | null;
+  fontFamily: string | null; // Font ID (e.g., 'sans', 'serif')
   fontWeight: number;
   hyphens: boolean | null;
   letterSpacing: number | null;
@@ -141,10 +142,10 @@ export const ExperimentalWebPubStatefulReader = ({
 };
 
 const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
-
   const { preferences } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
+  const getFontMetadata = useFontMetadata();
 
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -415,7 +416,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     };
 
     if (displayTransformability) {
-      webPubPreferences.fontFamily = cache.current.settings.fontFamily && defaultFontFamilyOptions[cache.current.settings.fontFamily];
+      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily || "")?.fontStack || null;
       webPubPreferences.fontWeight = cache.current.settings.fontWeight;
       webPubPreferences.hyphens = cache.current.settings.hyphens;
       webPubPreferences.letterSpacing = cache.current.settings.letterSpacing;

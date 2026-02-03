@@ -24,6 +24,7 @@ import { createPreferences, ThPreferences, DefaultKeys } from "./preferences";
 
 import ReadiumCSSColors from "@readium/css/css/vars/colors.json";
 import { 
+  defaultFontFamilyPref,
   defaultLetterSpacing, 
   defaultLineHeights, 
   defaultParagraphIndent, 
@@ -474,6 +475,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     }
   },
   settings: {
+    fontFamily: defaultFontFamilyPref,
     reflowOrder: [
       ThSettingsKeys.zoom,
       ThSettingsKeys.textGroup,

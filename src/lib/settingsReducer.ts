@@ -6,7 +6,6 @@ import {
   ThSpacingSettingsKeys, 
   ThTextAlignOptions 
 } from "@/preferences/models/enums";
-import { defaultFontFamilyOptions } from "@/preferences/models/const";
 
 export interface LineLengthStateObject {
   optimal?: number | null;
@@ -55,7 +54,7 @@ export interface SpacingStateObject {
 
 export interface SettingsReducerState {
   columnCount: string;
-  fontFamily: keyof typeof defaultFontFamilyOptions;
+  fontFamily: string;
   fontSize: number;
   fontWeight: number;
   hyphens: boolean | null;
