@@ -43,6 +43,13 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
 
   const fontFamily = useAppSelector(state => isWebPub ? state.webPubSettings.fontFamily : state.settings.fontFamily) ?? "publisher";
   
+  // Check if current font exists in available options, fallback to publisher if not
+  const availableFontIds = new Set([
+    "publisher",
+    ...Object.keys(getFontPreferences())
+  ]);
+  const currentFontFamily = availableFontIds.has(fontFamily) ? fontFamily : "publisher";
+
   const fontFamilyOptions = useRef([
     {
       id: "publisher",
@@ -58,7 +65,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       };
     })
   ]);
-  
+
   const dispatch = useAppDispatch();
 
   const { getSetting, submitPreferences } = useNavigator();
@@ -110,7 +117,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     <StatefulDropdown
       standalone={ standalone }
       label={ t("reader.preferences.fontFamily.title") }
-      selectedKey={ fontFamily }
+      selectedKey={ currentFontFamily }
       onSelectionChange={ async (key) => await updatePreference(key) }
       compounds={ {
         listbox: (
