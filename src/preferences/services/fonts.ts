@@ -1,4 +1,4 @@
-import type { FontOption, FontSpec, WeightConfig } from "../preferences";
+import type { FontDefinition, FontSpec, WeightConfig } from "../preferences";
 import type { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
 
 type FontResource = (ILinkInjectable & IUrlInjectable) | (ILinkInjectable & IBlobInjectable);
@@ -19,10 +19,10 @@ export interface FontService {
   getFontMetadata: (currentFont: string) => FontMetadata;
 }
 
-export const createFontService = (fonts: Record<string, FontOption>): FontService => {
+export const createFontService = (fonts: Record<string, FontDefinition>): FontService => {
   const parsedFonts = new Map<string, FontMetadata>();
-  const googleFonts: FontOption[] = [];
-  const localFonts: FontOption[] = [];
+  const googleFonts: FontDefinition[] = [];
+  const localFonts: FontDefinition[] = [];
   
   /**
    * Determines the font format from a file path
@@ -89,7 +89,7 @@ export const createFontService = (fonts: Record<string, FontOption>): FontServic
   /**
    * Creates Google Font resources for injection
    */
-  const createGoogleFontResources = (font: FontOption, text?: string): FontResource | null => {
+  const createGoogleFontResources = (font: FontDefinition, text?: string): FontResource | null => {
     if (font.source.type !== "custom" || font.source.provider !== "google") {
       return null;
     }
@@ -114,7 +114,7 @@ export const createFontService = (fonts: Record<string, FontOption>): FontServic
   /**
    * Creates local font resources for injection
    */
-  const createLocalFontResources = (font: FontOption): FontResource | null => {
+  const createLocalFontResources = (font: FontDefinition): FontResource | null => {
     if (font.source.type !== "custom" || font.source.provider !== "local") {
       return null;
     }

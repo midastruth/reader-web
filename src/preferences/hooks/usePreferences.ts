@@ -11,16 +11,17 @@ export function usePreferences<K extends CustomizableKeys = DefaultKeys>() {
   if (!context) {
     throw new Error("usePreferences must be used within a ThPreferencesProvider");
   }
-  
-  const fontService = createFontService(context.preferences.settings.fontFamily.fonts);
+
+  const fontPreferences = context.preferences.settings.fontFamily.default;
+  const fontService = createFontService(fontPreferences);
   
   return {
     preferences: context.preferences as ThPreferences<K>,
     updatePreferences: context.updatePreferences as (prefs: ThPreferences<K>) => void,
     
     getFontInjectables: fontService.getInjectables,
-    
-    // Get metadata for a specific font
+    getFontPreferences: () => fontPreferences,
     getFontMetadata: fontService.getFontMetadata
+
   };
 }

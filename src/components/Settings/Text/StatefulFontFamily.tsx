@@ -12,34 +12,30 @@ import { ListBox, ListBoxItem } from "react-aria-components";
 import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 import { usePreferences } from "@/preferences/hooks/usePreferences";
+import type { FontDefinition } from "@/preferences/preferences";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setFontFamily } from "@/lib/settingsReducer";
 import { setWebPubFontFamily } from "@/lib/webPubSettingsReducer";
 
-// Map of which properties have direct strings vs descriptive labels
-const fontFamilyLabelMap = {
-  publisher: "direct",
-  oldStyle: "descriptive",
-  modern: "descriptive", 
-  sans: "direct",
-  humanist: "descriptive",
-  monospace: "direct"
-} as const;
-
 export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemProps) => {
-  const { preferences, getFontMetadata } = usePreferences();
+  const { preferences, getFontMetadata, getFontPreferences } = usePreferences();
   const { t } = useI18n();
 
-  const getFontFamilyLabel = useCallback((property: keyof typeof fontFamilyLabelMap) => {
-    const config = fontFamilyLabelMap[property];
-    const labelPath = `reader.preferences.fontFamily.${ property }`;
-    
-    if (config === "direct") {
-      return t(labelPath);
-    } else {
-      return t(`${ labelPath }.${ config }`);
+  const getFontFamilyLabel = useCallback((font: FontDefinition): string => {
+    // Handle i18n label if present
+    if (font.label) {
+      if (typeof font.label === "string") {
+        return t(font.label, { defaultValue: font.name });
+      } else if (typeof font.label === "object" && "key" in font.label) {
+        return t(font.label.key, { 
+          defaultValue: font.label.fallback || font.name 
+        });
+      }
     }
+
+    // Fall back to the font's name
+    return font.name;
   }, [t]);
 
   const profile = useAppSelector(state => state.reader.profile);
@@ -50,14 +46,14 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
   const fontFamilyOptions = useRef([
     {
       id: "publisher",
-      label: getFontFamilyLabel("publisher" as keyof typeof fontFamilyLabelMap),
+      label: t("reader.preferences.fontFamily.publisher"),
       value: null
     },
-    ...Object.entries(preferences.settings.fontFamily.fonts).map(([id, font]) => {
+    ...Object.entries(getFontPreferences()).map(([id, font]) => {
       const metadata = getFontMetadata(id);
       return {
         id,
-        label: getFontFamilyLabel(id as keyof typeof fontFamilyLabelMap),
+        label: getFontFamilyLabel(font),
         value: metadata.fontStack || metadata.fontFamily
       };
     })

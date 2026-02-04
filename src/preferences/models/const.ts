@@ -2,15 +2,15 @@
 
 import fontStacks from "@readium/css/css/vars/fontStacks.json";
 
-import { 
-  ThLineHeightOptions, 
-  ThSettingsRangePlaceholder, 
-  ThSettingsRangeVariant, 
-  ThSpacingPresetKeys, 
-  ThSpacingSettingsKeys, 
-  ThTextSettingsKeys 
+import {
+  ThLineHeightOptions,
+  ThSettingsRangePlaceholder,
+  ThSettingsRangeVariant,
+  ThSpacingPresetKeys,
+  ThSpacingSettingsKeys,
+  ThTextSettingsKeys
 } from "./enums";
-import { ThActionsTokens, ThSettingsRangePref, ThFontFamilyPref } from "../preferences";
+import { ThActionsTokens, ThSettingsRangePref, FontCollection } from "../preferences";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
 export const defaultActionKeysObject: ThActionsTokens = {
@@ -50,81 +50,88 @@ export const defaultSpacingPresetsOrder = [
   ThSpacingPresetKeys.loose
 ]
 
-export const defaultFontFamilyPref: ThFontFamilyPref = {
-  fonts: {
-    literata: {
-      id: "literata",
-      name: "Literata",
-      source: { type: "custom", provider: "google" },
-      spec: {
-        family: "Literata",
-        styles: ["normal", "italic"],
-        weights: { type: "range", min: 200, max: 900, step: 20 },
-        fallbacks: ["serif"]
-      }
-    },
-    atkinson: {
-      id: "atkinson",
-      name: "Atkinson Hyperlegible Next",
-      source: { type: "custom", provider: "google" },
-      spec: {
-        family: "Atkinson Hyperlegible Next",
-        styles: ["normal", "italic"],
-        weights: { type: "range", min: 200, max: 800, step: 20 },
-        fallbacks: ["sans-serif"]
-      }
-    },
-    oldStyle: {
-      id: "oldStyle",
-      name: "Old Style",
-      source: { type: "system" },
-      spec: {
-        family: fontStacks.RS__oldStyleTf,
-        weights: { type: "values", weights: [400, 700] },
-        fallbacks: ["serif"]
-      }
-    },
-    modern: {
-      id: "modern",
-      name: "Modern",
-      source: { type: "system" },
-      spec: {
-        family: fontStacks.RS__modernTf,
-        weights: { type: "values", weights: [400, 700] },
-        fallbacks: ["serif"]
-      }
-    },
-    sans: {
-      id: "sans",
-      name: "Sans",
-      source: { type: "system" },
-      spec: {
-        family: fontStacks.RS__sansTf,
-        weights: { type: "values", weights: [400, 700] },
-        fallbacks: ["sans-serif"]
-      }
-    },
-    humanist: {
-      id: "humanist",
-      name: "Humanist",
-      source: { type: "system" },
-      spec: {
-        family: fontStacks.RS__humanistTf,
-        weights: { type: "values", weights: [400, 700] },
-        fallbacks: ["sans-serif"]
-      }
-    },
-    monospace: {
-      id: "monospace",
-      name: "Monospace",
-      source: { type: "system" },
-      spec: {
-        family: fontStacks.RS__monospaceTf,
-        weights: { type: "values", weights: [400, 700] },
-        fallbacks: ["monospace"]
-      }
+export const readiumCSSFontCollection: FontCollection = {
+  oldStyle: {
+    id: "oldStyle",
+    name: "Old Style",
+    label: "reader.preferences.fontFamily.oldStyle.descriptive",
+    source: { type: "system" },
+    spec: {
+      family: fontStacks.RS__oldStyleTf,
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: []
+    }
+  },
+  modern: {
+    id: "modern",
+    name: "Modern",
+    label: "reader.preferences.fontFamily.modern.descriptive",
+    source: { type: "system" },
+    spec: {
+      family: fontStacks.RS__modernTf,
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: []
+    }
+  },
+  sans: {
+    id: "sans",
+    name: "Sans",
+    label: "reader.preferences.fontFamily.sans",
+    source: { type: "system" },
+    spec: {
+      family: fontStacks.RS__sansTf,
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: []
+    }
+  },
+  humanist: {
+    id: "humanist",
+    name: "Humanist",
+    label: "reader.preferences.fontFamily.humanist.descriptive",
+    source: { type: "system" },
+    spec: {
+      family: fontStacks.RS__humanistTf,
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: []
+    }
+  },
+  monospace: {
+    id: "monospace",
+    name: "Monospace",
+    label: "reader.preferences.fontFamily.monospace",
+    source: { type: "system" },
+    spec: {
+      family: fontStacks.RS__monospaceTf,
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: []
     }
   }
+};
+
+export const defaultFontCollection: FontCollection = {
+  literata: {
+    id: "literata",
+    name: "Literata",
+    source: { type: "custom", provider: "google" },
+    spec: {
+      family: "Literata",
+      styles: ["normal", "italic"],
+      weights: { type: "range", min: 200, max: 900, step: 20 },
+      fallbacks: ["serif"]
+    }
+  },
+  atkinson: {
+    id: "atkinson",
+    name: "Atkinson Hyperlegible Next",
+    source: { type: "custom", provider: "google" },
+    spec: {
+      family: "Atkinson Hyperlegible Next",
+      styles: ["normal", "italic"],
+      weights: { type: "range", min: 200, max: 800, step: 20 },
+      fallbacks: ["sans-serif"]
+    }
+  },
+  ...readiumCSSFontCollection
 };
 
 export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {

@@ -28,9 +28,7 @@ import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
 
-// ============================================================================
-// FONT FAMILY TYPES
-// ============================================================================
+export type I18nValue<T> = T | string | { key: string; fallback?: string };
 
 export interface SystemFontSource {
   type: "system";
@@ -49,6 +47,12 @@ export interface LocalFontSource {
 
 export type FontSource = SystemFontSource | GoogleFontSource | LocalFontSource;
 
+export type VariableFontRangeConfig = {
+  min: number;
+  max: number;
+  step?: number;
+};
+
 export type WeightConfig =
   | {
       type: "values";
@@ -56,31 +60,31 @@ export type WeightConfig =
     }
   | {
       type: "range";
-      min: number;
-      max: number;
-      step: number;
-    };
+    } & VariableFontRangeConfig;
 
 export interface FontSpec {
   family: string;
-  weights: WeightConfig;
   fallbacks: string[];
+  weights: WeightConfig;
   styles?: ("normal" | "italic")[];
+  widths?: VariableFontRangeConfig;
   display?: "swap" | "block" | "fallback" | "optional";
 }
 
-export interface FontOption {
+export interface FontDefinition {
   id: string;
   name: string;
+  label?: I18nValue<string>;
   source: FontSource;
   spec: FontSpec;
 }
 
-export interface ThFontFamilyPref {
-  fonts: Record<string, FontOption>;
-}
+export type FontCollection = Record<string, FontDefinition>;
 
-export type I18nValue<T> = T | string | { key: string; fallback?: string };
+export interface ThFontFamilyPref {
+  default: FontCollection;
+  [bcp47: string]: FontCollection;
+}
 
 export type ThBackLinkContent = 
   | { 
