@@ -19,7 +19,7 @@ import { setFontFamily } from "@/lib/settingsReducer";
 import { setWebPubFontFamily } from "@/lib/webPubSettingsReducer";
 
 export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemProps) => {
-  const { preferences, getFontMetadata, getFontPreferences } = usePreferences();
+  const { getFontMetadata, getFontPreferences } = usePreferences();
   const { t } = useI18n();
 
   const getFontFamilyLabel = useCallback((font: FontDefinition): string => {
@@ -76,6 +76,18 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       await submitPreferences({ fontFamily: selectedOption.value });
       
       const currentSetting = getSetting("fontFamily");
+      
+      // Handle publisher font case (when currentSetting is null)
+      if (currentSetting === null) {
+        if (isWebPub) {
+          dispatch(setWebPubFontFamily("publisher"));
+        } else {
+          dispatch(setFontFamily("publisher"));
+        }
+        return;
+      }
+      
+      // Handle other font cases
       const fontPreferences = getFontPreferences();
       const entry = Object.entries(fontPreferences).find(([id]) => {
         const metadata = getFontMetadata(id);
