@@ -17,34 +17,25 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
 
   const createLinkElement = useCallback((resource: FontResource): HTMLLinkElement => {
     const link = document.createElement("link");
-    link.rel = resource.rel;
-    link.as = resource.as;
     
-    if ("url" in resource) {
-      link.href = resource.url;
-    }
-    
+    // Set all custom attributes first to make sure they are
+    // overridden by the core attributes
     if ("attributes" in resource && resource.attributes) {
       Object.entries(resource.attributes).forEach(([key, value]) => {
         link.setAttribute(key, value as string);
       });
     }
     
-    return link;
-  }, []);
-
-  const createStyleElement = useCallback((resource: FontResource): HTMLStyleElement => {
-    const style = document.createElement("style");
+    link.rel = resource.rel;
+    link.as = resource.as;
     
-    if ("blob" in resource && resource.blob) {
-      resource.blob.text().then(text => {
-        style.textContent = text;
-      }).catch(error => {
-        console.error("Error reading blob content:", error);
-      });
+    if ("url" in resource) {
+      link.href = resource.url;
+    } else if ("blob" in resource && resource.blob) {
+      link.href = URL.createObjectURL(resource.blob);
     }
     
-    return style;
+    return link;
   }, []);
 
   const removeInjectedElements = useCallback(() => {
@@ -53,6 +44,10 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
     [...prepend, ...append].forEach(element => {
       if (element.parentNode) {
         element.parentNode.removeChild(element);
+      }
+      // Revoke blob URLs to prevent memory leaks
+      if (element instanceof HTMLLinkElement && element.href.startsWith('blob:')) {
+        URL.revokeObjectURL(element.href);
       }
     });
     
@@ -73,23 +68,17 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
     const injectedElements = injectedElementsRef.current;
     
     prepend.forEach(resource => {
-      const element = "blob" in resource 
-        ? createStyleElement(resource)
-        : createLinkElement(resource);
-      
+      const element = createLinkElement(resource);
       document.head.insertBefore(element, document.head.firstChild);
       injectedElements.prepend.push(element);
     });
     
     append.forEach(resource => {
-      const element = "blob" in resource 
-        ? createStyleElement(resource)
-        : createLinkElement(resource);
-      
+      const element = createLinkElement(resource);
       document.head.appendChild(element);
       injectedElements.append.push(element);
     });
-  }, [createLinkElement, createStyleElement, removeInjectedElements]);
+  }, [createLinkElement, removeInjectedElements]);
 
   useEffect(() => {
     injectFontResources(fontResources || null);
