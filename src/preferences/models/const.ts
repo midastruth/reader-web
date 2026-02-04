@@ -131,7 +131,83 @@ export const defaultFontCollection: FontCollection = {
       fallbacks: ["sans-serif"]
     }
   },
-  ...readiumCSSFontCollection
+  luciole: {
+    id: "luciole",
+    name: "Luciole",
+    source: { 
+      type: "custom", 
+      provider: "local", 
+      files: [
+        { path: "/fonts/Luciole/Luciole-Regular.woff2", weight: 400, style: "normal" },
+        { path: "/fonts/Luciole/Luciole-Italic.woff2", weight: 400, style: "italic" },
+        { path: "/fonts/Luciole/Luciole-Bold.woff2", weight: 700, style: "normal" },
+        { path: "/fonts/Luciole/Luciole-BoldItalic.woff2", weight: 700, style: "italic" }
+      ]
+    },
+    spec: {
+      family: "Luciole",
+      styles: ["normal", "italic"],
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: ["sans-serif"]
+    }
+  },
+  ...readiumCSSFontCollection,
+  iaWriterDuospace: {
+    id: "iaWriterDuospace",
+    name: "IA Writer Duospace",
+    source: { 
+      type: "custom", 
+      provider: "local", 
+      files: [
+        { path: "/fonts/iAWriterDuospace/IAWriterDuospace-Regular.ttf", weight: 400, style: "normal" }
+      ]
+    },
+    spec: {
+      family: "IA Writer Duospace",
+      styles: ["normal"],
+      weights: { type: "values", weights: [400] },
+      fallbacks: ["monospace"]
+    }
+  },
+  openDyslexic: {
+    id: "openDyslexic",
+    name: "Open Dyslexic",
+    source: { 
+      type: "custom", 
+      provider: "local", 
+      files: [
+        { path: "/fonts/OpenDyslexic/OpenDyslexic-Regular.otf", weight: 400, style: "normal" },
+        { path: "/fonts/OpenDyslexic/OpenDyslexic-Italic.otf", weight: 400, style: "italic" },
+        { path: "/fonts/OpenDyslexic/OpenDyslexic-Bold.otf", weight: 700, style: "normal" },
+        { path: "/fonts/OpenDyslexic/OpenDyslexic-BoldItalic.otf", weight: 700, style: "italic" }
+      ]
+    },
+    spec: {
+      family: "OpenDyslexic",
+      styles: ["normal", "italic"],
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: ["sans-serif"]
+    }
+  },
+  accessibleDfA: {
+    id: "accessibleDfA",
+    name: "Accessible DfA",
+    source: { 
+      type: "custom", 
+      provider: "local", 
+      files: [
+        { path: "/fonts/AccessibleDfA/AccessibleDfA-Regular.woff2", weight: 400, style: "normal" },
+        { path: "/fonts/AccessibleDfA/AccessibleDfA-Italic.woff2", weight: 400, style: "italic" },
+        { path: "/fonts/AccessibleDfA/AccessibleDfA-Bold.woff2", weight: 700, style: "normal" }
+      ]
+    },
+    spec: {
+      family: "Accessible DfA",
+      styles: ["normal", "italic"],
+      weights: { type: "values", weights: [400, 700] },
+      fallbacks: ["sans-serif"]
+    }
+  }
 };
 
 export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {

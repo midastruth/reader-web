@@ -120,20 +120,23 @@ export const createFontService = (fonts: Record<string, FontDefinition>): FontSe
     }
 
     const { family } = font.spec;
-    const fontPaths = font.source.paths;
+    const fontFiles = font.source.files || [];
     const display = font.spec.display;
     
     // Group all @font-face rules into a single CSS string
-    const cssContent = fontPaths.map(fontPath => {
-      const format = getFontFormat(fontPath);
+    const cssContent = fontFiles.map(fontFile => {
+      const format = getFontFormat(fontFile.path);
+      const fontUrl = new URL(fontFile.path, window.location.origin).toString();
       
       let css = `@font-face {
   font-family: "${ family }";
-  src: url("${ fontPath }") format("${ format }")`;
+  src: url("${ fontUrl }") format("${ format }");
+  font-weight: ${ fontFile.weight };
+  font-style: ${ fontFile.style };`;
       
       if (display !== undefined) {
-        css += `;
-  font-display: ${ display }`;
+        css += `
+  font-display: ${ display };`;
       }
       
       return css + '\n}';

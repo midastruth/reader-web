@@ -39,10 +39,16 @@ export interface GoogleFontSource {
   provider: "google";
 }
 
+export interface LocalFontFile {
+  path: string;
+  weight: number;
+  style: "normal" | "italic";
+}
+
 export interface LocalFontSource {
   type: "custom";
   provider: "local";
-  paths: string[];
+  files: LocalFontFile[];
 }
 
 export type FontSource = SystemFontSource | GoogleFontSource | LocalFontSource;
