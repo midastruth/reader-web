@@ -169,16 +169,34 @@ export const createFontService = (fonts: Record<string, FontDefinition>): FontSe
       }
     }
 
+    const wrapIfNeeded = (name: string): string => {
+      const trimmed = name.trim();
+      if (!trimmed) return "";
+      
+      // If the name has spaces and isn't already wrapped in quotes
+      if (trimmed.includes(" ") && !/^['"].*['"]$/.test(trimmed)) {
+        return `"${ trimmed }"`;
+      }
+      return trimmed;
+    };
+
+    const wrappedFontFamily = wrapIfNeeded(fontFamily);
+    
     if (font.spec.fallbacks?.length) {
       const uniqueFallbacks = [...new Set(
-        font.spec.fallbacks.filter(fallback => fallback.toLowerCase() !== fontFamily.toLowerCase())
+        font.spec.fallbacks
+          .filter(fallback => fallback.toLowerCase() !== fontFamily.toLowerCase())
+          .map(wrapIfNeeded)
       )];
       if (uniqueFallbacks.length > 0) {
-        fontStack = `${ fontFamily }, ${ uniqueFallbacks.join(", ") }`;
+        fontStack = [wrappedFontFamily, ...uniqueFallbacks].join(", ");
       }
     }
 
-    parsedFonts.set(id, { fontStack, fontFamily });
+    parsedFonts.set(id, { 
+      fontStack: fontStack || wrappedFontFamily, 
+      fontFamily: wrappedFontFamily 
+    });
   });
 
   return {
