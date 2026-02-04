@@ -137,6 +137,7 @@ export const defaultFontCollection: FontCollection = {
     source: { 
       type: "custom", 
       provider: "local", 
+      variant: "static",
       files: [
         { path: "/fonts/Luciole/Luciole-Regular.woff2", weight: 400, style: "normal" },
         { path: "/fonts/Luciole/Luciole-Italic.woff2", weight: 400, style: "italic" },
@@ -158,6 +159,7 @@ export const defaultFontCollection: FontCollection = {
     source: { 
       type: "custom", 
       provider: "local", 
+      variant: "static",
       files: [
         { path: "/fonts/iAWriterDuo/IAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
         { path: "/fonts/iAWriterDuo/IAWriterDuoS-Bold.woff2", weight: 700, style: "normal" },
@@ -178,6 +180,7 @@ export const defaultFontCollection: FontCollection = {
     source: { 
       type: "custom", 
       provider: "local", 
+      variant: "static",
       files: [
         { path: "/fonts/OpenDyslexic/OpenDyslexic-Regular.otf", weight: 400, style: "normal" },
         { path: "/fonts/OpenDyslexic/OpenDyslexic-Italic.otf", weight: 400, style: "italic" },
@@ -198,6 +201,7 @@ export const defaultFontCollection: FontCollection = {
     source: { 
       type: "custom", 
       provider: "local", 
+      variant: "static",
       files: [
         { path: "/fonts/AccessibleDfA/AccessibleDfA-Regular.woff2", weight: 400, style: "normal" },
         { path: "/fonts/AccessibleDfA/AccessibleDfA-Italic.woff2", weight: 400, style: "italic" },

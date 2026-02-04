@@ -119,28 +119,44 @@ export const createFontService = (fonts: Record<string, FontDefinition>): FontSe
       return null;
     }
 
-    const { family } = font.spec;
+    const { family, weights, display } = font.spec;
     const fontFiles = font.source.files || [];
-    const display = font.spec.display;
     
-    // Group all @font-face rules into a single CSS string
+    // Generate CSS for each font file
     const cssContent = fontFiles.map(fontFile => {
       const format = getFontFormat(fontFile.path);
       const fontUrl = new URL(fontFile.path, window.location.origin).toString();
+
+      // Check if this is a variable font
+      const isVariable = font.source.type === "custom" && 
+                         font.source.provider === "local" && 
+                         "variant" in font.source && 
+                         font.source.variant === "variable";
       
-      let css = `@font-face {
-  font-family: "${ family }";
-  src: url("${ fontUrl }") format("${ format }");
-  font-weight: ${ fontFile.weight };
-  font-style: ${ fontFile.style };`;
-      
-      if (display !== undefined) {
-        css += `
-  font-display: ${ display };`;
+      const rules = [
+        `@font-face {`,
+        `  font-family: "${ family }";`,
+        `  src: url("${ fontUrl }") format("${ format }");`
+      ];
+
+      // Handle font weight
+      if (isVariable && weights.type === "range") {
+        rules.push(`  font-weight: ${ weights.min } ${ weights.max };`);
+      } else if ("weight" in fontFile) {
+        rules.push(`  font-weight: ${ fontFile.weight };`);
+      }
+
+      // Handle font style
+      if ("style" in fontFile) {
+        rules.push(`  font-style: ${ fontFile.style };`);
       }
       
-      return css + '\n}';
-    }).join('\n');
+      if (display) {
+        rules.push(`  font-display: ${ display };`);
+      }
+      
+      return rules.join("\n") + "\n}";
+    }).join("\n\n");
     
     const blob = new Blob([cssContent], { type: "text/css" });
     
