@@ -81,6 +81,7 @@ import {
   setPublicationEnd,
   setHasDisplayTransformability
 } from "@/lib/publicationReducer";
+import { FontFamilyStateObject } from "@/lib/settingsReducer";
 
 import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
@@ -91,7 +92,7 @@ import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface WebPubCSSSettings {
-  fontFamily: string | null; // Font ID (e.g., 'sans', 'serif')
+  fontFamily: FontFamilyStateObject;
   fontWeight: number;
   hyphens: boolean | null;
   letterSpacing: number | null;
@@ -174,7 +175,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
-    fontResources: getFontInjectables(true),
+    fontResources: getFontInjectables(undefined, true),
     initProps: {
       ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
       ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
@@ -417,7 +418,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     let injectables: IInjectablesConfig | undefined = undefined;
 
     if (displayTransformability) {
-      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily || "")?.fontStack || null;
+      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily.default || "")?.fontStack || null;
       webPubPreferences.fontWeight = cache.current.settings.fontWeight;
       webPubPreferences.hyphens = cache.current.settings.hyphens;
       webPubPreferences.letterSpacing = cache.current.settings.letterSpacing;

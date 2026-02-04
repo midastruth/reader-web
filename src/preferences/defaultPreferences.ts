@@ -20,7 +20,7 @@ import {
   ThDocumentTitleFormat,
   ThArrowVariant,
 } from "./models/enums";
-import { createPreferences, ThPreferences, DefaultKeys } from "./preferences";
+import { createPreferences, ThPreferences, DefaultKeys, ValidatedLanguageCollection } from "./preferences";
 
 import ReadiumCSSColors from "@readium/css/css/vars/colors.json";
 import { 

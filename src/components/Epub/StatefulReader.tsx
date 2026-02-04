@@ -103,7 +103,7 @@ import {
   setPublicationEnd,
   setHasDisplayTransformability
 } from "@/lib/publicationReducer";
-import { LineLengthStateObject } from "@/lib/settingsReducer";
+import { LineLengthStateObject, FontFamilyStateObject } from "@/lib/settingsReducer";
 
 import classNames from "classnames";
 import debounce from "debounce";
@@ -118,7 +118,7 @@ import { prefixString } from "@/core/Helpers/prefixString";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
-  fontFamily: string | null; // Font ID (e.g., 'sans', 'serif')
+  fontFamily: FontFamilyStateObject;
   fontSize: number;
   fontWeight: number;
   hyphens: boolean | null;
@@ -242,7 +242,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
-    fontResources: getFontInjectables(true),
+    fontResources: getFontInjectables(undefined, true),
     initProps: {
       ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
       ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
@@ -780,7 +780,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         const epubPreferences: IEpubPreferences = isFXL ? {} : {
           columnCount: cache.current.settings.columnCount === "auto" ? null : Number(cache.current.settings.columnCount),
           constraint: initialConstraint,
-          fontFamily: getFontMetadata(cache.current.settings.fontFamily || "")?.fontStack || null,
+          fontFamily: getFontMetadata(cache.current.settings.fontFamily.default || "")?.fontStack || null,
           fontSize: cache.current.settings.fontSize,
           fontWeight: cache.current.settings.fontWeight,
           hyphens: cache.current.settings.hyphens,

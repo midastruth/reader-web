@@ -7,6 +7,19 @@ import {
   ThTextAlignOptions 
 } from "@/preferences/models/enums";
 
+export interface FontFamilyStateObject {
+  default: string;
+  [language: string]: string;
+}
+
+export interface SetFontFamilyPayload {
+  type: string;
+  payload: {
+    key: "default" | string;
+    value: string;
+  }
+}
+
 export interface LineLengthStateObject {
   optimal?: number | null;
   min?: {
@@ -54,7 +67,7 @@ export interface SpacingStateObject {
 
 export interface SettingsReducerState {
   columnCount: string;
-  fontFamily: string;
+  fontFamily: FontFamilyStateObject;
   fontSize: number;
   fontWeight: number;
   hyphens: boolean | null;
@@ -73,7 +86,7 @@ export interface SettingsReducerState {
 
 const initialState: SettingsReducerState = {
   columnCount: "auto",
-  fontFamily: "publisher",
+  fontFamily: { default: "publisher" },
   fontSize: 1,
   fontWeight: 400,
   hyphens: null,
@@ -153,8 +166,9 @@ export const settingsSlice = createSlice({
     setColumnCount: (state, action) => {
       state.columnCount = action.payload
     },
-    setFontFamily: (state, action) => {
-      state.fontFamily = action.payload
+    setFontFamily: (state, action: SetFontFamilyPayload) => {
+      const { key, value } = action.payload;
+      state.fontFamily[key] = value;
     },
     setFontSize: (state, action) => {
       state.fontSize = action.payload

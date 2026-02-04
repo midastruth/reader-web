@@ -18,8 +18,8 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setFontFamily } from "@/lib/settingsReducer";
 import { setWebPubFontFamily } from "@/lib/webPubSettingsReducer";
 
-export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemProps) => {
-  const { getFontMetadata, getFontPreferences } = usePreferences();
+export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemProps & { publicationLanguage?: string }) => {
+  const { getFontMetadata, getFontsList } = usePreferences();
   const { t } = useI18n();
 
   const getFontFamilyLabel = useCallback((font: FontDefinition): string => {
@@ -38,15 +38,18 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     return font.name;
   }, [t]);
 
+  // Get language-specific font preferences
+  const fontPreferences = getFontsList();
+
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
 
-  const fontFamily = useAppSelector(state => isWebPub ? state.webPubSettings.fontFamily : state.settings.fontFamily) ?? "publisher";
+  const fontFamily = useAppSelector(state => isWebPub ? state.webPubSettings.fontFamily.default : state.settings.fontFamily.default) ?? "publisher";
   
   // Check if current font exists in available options, fallback to publisher if not
   const availableFontIds = new Set([
     "publisher",
-    ...Object.keys(getFontPreferences())
+    ...Object.keys(fontPreferences)
   ]);
   const currentFontFamily = availableFontIds.has(fontFamily) ? fontFamily : "publisher";
 
@@ -56,7 +59,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       label: t("reader.preferences.fontFamily.publisher"),
       value: null
     },
-    ...Object.entries(getFontPreferences()).map(([id, font]) => {
+    ...Object.entries(fontPreferences).map(([id, font]) => {
       const metadata = getFontMetadata(id);
       return {
         id,
@@ -74,7 +77,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     if (!key || key === fontFamily) return;
 
     const selectedOption = fontFamilyOptions.current.find((option) => option.id === key) as {
-      id: keyof ReturnType<typeof getFontPreferences> | "publisher";
+      id: keyof ReturnType<typeof getFontsList> | "publisher";
       label: string;
       value: string | null;
     };
@@ -87,15 +90,14 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       // Handle publisher font case (when currentSetting is null)
       if (currentSetting === null) {
         if (isWebPub) {
-          dispatch(setWebPubFontFamily("publisher"));
+          dispatch(setWebPubFontFamily({ key: "default", value: "publisher" }));
         } else {
-          dispatch(setFontFamily("publisher"));
+          dispatch(setFontFamily({ key: "default", value: "publisher" }));
         }
         return;
       }
       
       // Handle other font cases
-      const fontPreferences = getFontPreferences();
       const entry = Object.entries(fontPreferences).find(([id]) => {
         const metadata = getFontMetadata(id);
         return metadata.fontStack === currentSetting || 
@@ -105,13 +107,13 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       if (entry) {
         const [selectedOptionId] = entry;
         if (isWebPub) {
-          dispatch(setWebPubFontFamily(selectedOptionId));
+          dispatch(setWebPubFontFamily({ key: "default", value: selectedOptionId }));
         } else {
-          dispatch(setFontFamily(selectedOptionId));
+          dispatch(setFontFamily({ key: "default", value: selectedOptionId }));
         }
       }
     }
-  }, [isWebPub, fontFamily, submitPreferences, getSetting, getFontPreferences, getFontMetadata, dispatch]);
+  }, [isWebPub, fontFamily, submitPreferences, getSetting, fontPreferences, getFontMetadata, dispatch]);
 
   return (
     <StatefulDropdown

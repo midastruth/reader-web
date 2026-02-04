@@ -102,10 +102,16 @@ export interface FontDefinition {
 
 export type FontCollection = Record<string, FontDefinition>;
 
-export interface ThFontFamilyPref {
+export type ValidatedLanguageCollection = {
+  fonts: FontCollection; 
+  supportedLanguages: string[] 
+};
+
+export type ThFontFamilyPref = {
   default: FontCollection;
-  [bcp47: string]: FontCollection;
-}
+} | {
+  [K in Exclude<string, "default">]: ValidatedLanguageCollection;
+};
 
 export type ThBackLinkContent = 
   | { 
@@ -583,6 +589,37 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
     }
   }
   
+  // Validate font family preferences for language conflicts
+  if (params.settings?.fontFamily) {
+    const fontFamilyPref = params.settings.fontFamily;
+    const languageMap = new Map<string, string[]>();
+    
+    // Build a map of languages to the collections that support them
+    Object.entries(fontFamilyPref).forEach(([collectionName, collectionData]) => {
+      if (collectionName === "default") return;
+      
+      // Check if this collection has supportedLanguages (it's a ValidatedLanguageCollection)
+      const supportedLangs = "supportedLanguages" in collectionData ? 
+        collectionData.supportedLanguages : null;
+        
+      if (supportedLangs && Array.isArray(supportedLangs)) {
+        supportedLangs.forEach((lang: string) => {
+          if (!languageMap.has(lang)) {
+            languageMap.set(lang, []);
+          }
+          languageMap.get(lang)!.push(collectionName);
+        });
+      }
+    });
+    
+    // Check for conflicts and warn about them
+    languageMap.forEach((collections, language) => {
+      if (collections.length > 1) {
+        console.warn(`Language "${ language }" is supported by multiple font collections: ${ collections.join(", ") }. This may cause ambiguous font selection. Consider consolidating to a single collection per language.`);
+      }
+    });
+  }
+
   return params;
 };
 

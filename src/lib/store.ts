@@ -31,7 +31,7 @@ export type RootState = {
 
 const DEFAULT_STORAGE_KEY = "thorium-web-state";
 
-// TMP Migration
+// TMP Migration for theme state
 // TODO: Remove this in the next minor version
 const migrateThemeState = (state: ThemeReducerState) => {
   if (typeof state.theme === "string") {
@@ -43,6 +43,40 @@ const migrateThemeState = (state: ThemeReducerState) => {
       }
     };
   }
+  return state;
+};
+
+// TMP Migration for font family state
+// TODO: Remove this in the next minor version
+const migrateFontFamily = (state: any) => {
+  if (!state) return state;
+  
+  // Migrate settings.fontFamily
+  if (state.settings?.fontFamily && typeof state.settings.fontFamily === 'string') {
+    state = {
+      ...state,
+      settings: {
+        ...state.settings,
+        fontFamily: {
+          default: state.settings.fontFamily
+        }
+      }
+    };
+  }
+
+  // Migrate webPubSettings.fontFamily if it exists
+  if (state.webPubSettings?.fontFamily && typeof state.webPubSettings.fontFamily === 'string') {
+    state = {
+      ...state,
+      webPubSettings: {
+        ...state.webPubSettings,
+        fontFamily: {
+          default: state.webPubSettings.fontFamily
+        }
+      }
+    };
+  }
+
   return state;
 };
 
@@ -65,7 +99,7 @@ const updateActionsState = (state: ActionsReducerState) => {
   };
 };
 
-const loadState = (storageKey?: string) => {
+const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
   try {
     const resolvedKey = storageKey || DEFAULT_STORAGE_KEY;
     const serializedState = localStorage.getItem(resolvedKey);
@@ -78,14 +112,26 @@ const loadState = (storageKey?: string) => {
         webPubSettings: undefined
       };
     }
-    const deserializedState = JSON.parse(serializedState);
-    deserializedState.actions = updateActionsState(deserializedState.actions);
     
-    // TMP Migration
-    // TODO: Remove this in the next minor version
-    deserializedState.theming = migrateThemeState(deserializedState.theming);
-
-    return deserializedState;
+    // Parse the state
+    let state = JSON.parse(serializedState);
+    
+    // Apply migrations
+    if (state) {
+      // Migrate theme state
+      if (state.theming) {
+        state.theming = migrateThemeState(state.theming);
+      }
+      
+      // Migrate font family state
+      state = migrateFontFamily(state);
+    }
+    
+    if (state.actions) {
+      state.actions = updateActionsState(state.actions);
+    }
+    
+    return state;
   } catch (err) {
     return { 
       actions: undefined, 

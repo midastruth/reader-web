@@ -1,4 +1,4 @@
-import type { FontDefinition, FontSpec, VariableFontRangeConfig, WeightConfig } from "../preferences";
+import type { FontDefinition, FontSpec, VariableFontRangeConfig, WeightConfig, ThFontFamilyPref, FontCollection, ValidatedLanguageCollection } from "../preferences";
 import type { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
 
 type FontResource = (ILinkInjectable & IUrlInjectable) | (ILinkInjectable & IBlobInjectable);
@@ -12,19 +12,20 @@ export interface InjectableFontResources {
 export interface FontMetadata {
   fontStack: string | null;
   fontFamily: string | null;
-  weights?: WeightConfig;
-  widths?: VariableFontRangeConfig;
+  weights: WeightConfig | null;
+  widths: VariableFontRangeConfig | null;
 }
 
 export interface FontService {
-  getInjectables: (optimize?: boolean) => InjectableFontResources | null;
-  getFontMetadata: (currentFont: string) => FontMetadata;
+  getInjectables: (options?: { language?: string } | { key?: string }, optimize?: boolean) => InjectableFontResources | null;
+  getFontMetadata: (fontId: string) => FontMetadata;
+  getFontCollection: (options?: { language?: string } | { key?: string }) => FontCollection;
 }
 
-export const createFontService = (fonts: Record<string, FontDefinition>): FontService => {
+export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService => {
   const parsedFonts = new Map<string, FontMetadata>();
-  const googleFonts: FontDefinition[] = [];
-  const localFonts: FontDefinition[] = [];
+  const googleFonts = new Map<string, FontDefinition[]>();
+  const localFonts = new Map<string, FontDefinition[]>();
   
   /**
    * Determines the font format from a file path
@@ -178,7 +179,7 @@ export const createFontService = (fonts: Record<string, FontDefinition>): FontSe
       }
       
       return rules.join("\n") + "\n}";
-    }).join("\n\n");
+    }).filter(Boolean).join("\n\n");
     
     const blob = new Blob([cssContent], { type: "text/css" });
     
@@ -190,109 +191,197 @@ export const createFontService = (fonts: Record<string, FontDefinition>): FontSe
     };
   };
 
-  // Parse fonts for metadata and sort during parsing
-  
-  Object.entries(fonts).forEach(([id, font]) => {
-    const fontFamily = font.spec.family;
-    let fontStack = fontFamily;
-
-    if (font.source.type === "custom") {
-      switch (font.source.provider) {
-        case "google":
-          googleFonts.push(font);
-          break;
-        case "local":
-          localFonts.push(font);
-          break;
-      }
-    }
-
-    const wrapIfNeeded = (name: string): string => {
-      const trimmed = name.trim();
-      if (!trimmed) return "";
-      
-      // If the name has spaces and isn't already wrapped in quotes
-      if (trimmed.includes(" ") && !/^['"].*['"]$/.test(trimmed)) {
-        return `"${ trimmed }"`;
-      }
-      return trimmed;
-    };
-
-    const wrappedFontFamily = wrapIfNeeded(fontFamily);
+  // Parse ALL fonts upfront - index by collection
+  Object.entries(fontFamilyPref).forEach(([collectionName, collectionData]) => {
+    // Handle both FontCollection and ValidatedLanguageCollection
+    const fontCollection = "fonts" in collectionData ? 
+      (collectionData as ValidatedLanguageCollection).fonts : 
+      collectionData as FontCollection;
     
-    if (font.spec.fallbacks?.length) {
-      const uniqueFallbacks = [...new Set(
-        font.spec.fallbacks
-          .filter(fallback => fallback.toLowerCase() !== fontFamily.toLowerCase())
-          .map(wrapIfNeeded)
-      )];
-      if (uniqueFallbacks.length > 0) {
-        fontStack = [wrappedFontFamily, ...uniqueFallbacks].join(", ");
-      }
-    }
+    // Initialize arrays for this collection
+    googleFonts.set(collectionName, []);
+    localFonts.set(collectionName, []);
+    
+    const collectionGoogleFonts = googleFonts.get(collectionName)!;
+    const collectionLocalFonts = localFonts.get(collectionName)!;
+    
+    // Process each font in the collection
+    Object.entries<FontDefinition>(fontCollection as Record<string, FontDefinition>).forEach(([id, font]) => {
+      const fontFamily = font.spec.family;
+      let fontStack = fontFamily;
 
-    parsedFonts.set(id, { 
-      fontStack: fontStack || wrappedFontFamily, 
-      fontFamily: wrappedFontFamily,
-      weights: font.spec.weights,
-      widths: font.spec.widths
+      if (font.source.type === "custom") {
+        switch (font.source.provider) {
+          case "google":
+            collectionGoogleFonts.push(font);
+            break;
+          case "local":
+            collectionLocalFonts.push(font);
+            break;
+        }
+      }
+
+      const wrapIfNeeded = (name: string): string => {
+        const trimmed = name.trim();
+        if (!trimmed) return "";
+        
+        // If the name has spaces and isn't already wrapped in quotes
+        if (trimmed.includes(" ") && !/^['"].*['"]$/.test(trimmed)) {
+          return `"${ trimmed }"`;
+        }
+        return trimmed;
+      };
+
+      const wrappedFontFamily = wrapIfNeeded(fontFamily);
+      
+      if (font.spec.fallbacks?.length) {
+        const uniqueFallbacks = [...new Set(
+          font.spec.fallbacks
+            .filter((fallback: string) => fallback.toLowerCase() !== fontFamily.toLowerCase())
+            .map(wrapIfNeeded)
+        )];
+        if (uniqueFallbacks.length > 0) {
+          fontStack = [wrappedFontFamily, ...uniqueFallbacks].join(", ");
+        }
+      }
+
+      parsedFonts.set(id, { 
+        fontStack: fontStack || wrappedFontFamily, 
+        fontFamily: wrappedFontFamily,
+        weights: font.spec.weights || null,
+        widths: font.spec.widths || null
+      });
     });
   });
 
+  // Get default collection for fallback
+  const defaultGoogleFonts = googleFonts.get("default") || [];
+  const defaultLocalFonts = localFonts.get("default") || [];
+  
+  // Helper function to process fonts into injectable resources
+  const processFonts = (googleFontsList: FontDefinition[], localFontsList: FontDefinition[], optimize: boolean = false): InjectableFontResources | null => {
+    const result: InjectableFontResources = {
+      allowedDomains: [],
+      prepend: [],
+      append: []
+    };
+
+    // Process Google Fonts
+    const googleResources = googleFontsList
+      .map(font => createGoogleFontResources(font, optimize ? font.name : undefined))
+      .filter((resource): resource is FontResource => resource !== null);
+
+    if (googleResources.length > 0) {
+      result.allowedDomains.push(
+        "https://fonts.googleapis.com",
+        "https://fonts.gstatic.com"
+      );
+      
+      result.prepend.push(
+        { 
+          as: "link",
+          rel: "preconnect",
+          url: "https://fonts.googleapis.com"
+        },
+        { 
+          as: "link",
+          rel: "preconnect",
+          url: "https://fonts.gstatic.com",
+          attributes: { crossOrigin: "anonymous" }
+        }
+      );
+      
+      result.append.push(...googleResources);
+    }
+
+    // Process Local Fonts
+    const localResources = localFontsList
+      .map(createLocalFontResources)
+      .filter((resource): resource is FontResource => resource !== null);
+
+    if (localResources.length > 0) {
+      result.allowedDomains.push(window.location.origin);
+      result.append.push(...localResources);
+    }
+
+    return result.append.length > 0 ? result : null;
+  };
+
   return {
-    getInjectables: (optimize?: boolean) => {
-      const result: InjectableFontResources = {
-        allowedDomains: [],
-        prepend: [],
-        append: []
-      };
-
-      // Process Google Fonts
-      const googleResources = googleFonts
-        .map(font => createGoogleFontResources(font, optimize ? font.name : undefined))
-        .filter((resource): resource is FontResource => resource !== null);
-
-      if (googleResources.length > 0) {
-        result.allowedDomains.push(
-          "https://fonts.googleapis.com",
-          "https://fonts.gstatic.com"
-        );
+    getInjectables: (options, optimize = false) => {
+      // Handle key-based selection
+      if (options && "key" in options) {
+        const { key } = options;
         
-        result.prepend.push(
-          { 
-            as: "link",
-            rel: "preconnect",
-            url: "https://fonts.googleapis.com"
-          },
-          { 
-            as: "link",
-            rel: "preconnect",
-            url: "https://fonts.gstatic.com",
-            attributes: { crossOrigin: "anonymous" }
+        if (!key || !(key in fontFamilyPref)) {
+          return null;
+        }
+        
+        return processFonts(googleFonts.get(key) || [], localFonts.get(key) || [], optimize);
+      }
+      
+      // Handle language-based selection
+      if (options && "language" in options) {
+        const { language: publicationLanguage } = options;
+        
+        // Find the collection for this language (validation already done in createPreferences)
+        for (const [collectionName, collectionData] of Object.entries(fontFamilyPref)) {
+          if (collectionName === "default") continue;
+          
+          const supportedLangs = "supportedLanguages" in collectionData ? 
+            collectionData.supportedLanguages : null;
+            
+          if (supportedLangs && Array.isArray(supportedLangs) && publicationLanguage && supportedLangs.includes(publicationLanguage)) {
+            return processFonts(googleFonts.get(collectionName) || [], localFonts.get(collectionName) || [], optimize);
           }
-        );
-        
-        result.append.push(...googleResources);
+        }
       }
-
-      // Process Local Fonts
-      const localResources = localFonts
-        .map(createLocalFontResources)
-        .filter((resource): resource is FontResource => resource !== null);
-
-      if (localResources.length > 0) {
-        result.allowedDomains.push(window.location.origin);
-        result.append.push(...localResources);
-      }
-
-      // Only return the result if we have resources
-      return result.append.length > 0 ? result : null;
+      
+      // Default behavior - return default collection
+      return processFonts(defaultGoogleFonts, defaultLocalFonts, optimize);
     },
     
     getFontMetadata: (fontId: string) => {
       const parsed = parsedFonts.get(fontId);
-      return parsed ? { fontStack: parsed.fontStack, fontFamily: parsed.fontFamily } 
-                    : { fontStack: null, fontFamily: null };
+      return parsed || { fontStack: null, fontFamily: null, weights: null, widths: null };
+    },
+    
+    getFontCollection: (options) => {
+      // Handle key-based selection
+      if (options && "key" in options) {
+        const { key } = options;
+        
+        if (!key || !(key in fontFamilyPref)) {
+          return { ...fontFamilyPref.default };
+        }
+        
+        const collection = fontFamilyPref[key as keyof typeof fontFamilyPref];
+        return "fonts" in collection ? { ...collection.fonts } : { ...collection };
+      }
+      
+      // Handle language-based selection
+      if (options && "language" in options) {
+        const { language: publicationLanguage } = options;
+        
+        // Find the collection for this language (validation already done in createPreferences)
+        for (const [collectionName, collectionData] of Object.entries(fontFamilyPref)) {
+          if (collectionName === "default") continue;
+          
+          const collection = "fonts" in collectionData ? collectionData : { fonts: collectionData };
+          const supportedLangs = "supportedLanguages" in collection ? 
+            collection.supportedLanguages : null;
+            
+          if (supportedLangs?.includes(publicationLanguage!)) {
+            return { ...collection.fonts };
+          }
+        }
+
+        // Fall back to default if no collection supports this language
+        return { ...fontFamilyPref.default };
+      }
+      
+      // Default behavior - return default collection
+      return { ...fontFamilyPref.default };
     }
   };
 };

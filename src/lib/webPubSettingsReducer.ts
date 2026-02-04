@@ -6,10 +6,10 @@ import {
   ThSpacingSettingsKeys, 
   ThTextAlignOptions 
 } from "@/preferences/models/enums";
-import { handleSpacingSetting, SetSpacingPresetPayload, SpacingStateObject } from "./settingsReducer";
+import { FontFamilyStateObject, SetFontFamilyPayload, handleSpacingSetting, SetSpacingPresetPayload, SpacingStateObject } from "./settingsReducer";
 
 export interface WebPubSettingsReducerState {
-  fontFamily: string;
+  fontFamily: FontFamilyStateObject;
   fontWeight: number;
   hyphens: boolean | null;
   letterSpacing: number | null;
@@ -25,7 +25,7 @@ export interface WebPubSettingsReducerState {
 }
 
 const initialState: WebPubSettingsReducerState = {
-  fontFamily: "publisher",
+  fontFamily: { default: "publisher" },
   fontWeight: 400,
   hyphens: null,
   letterSpacing: null,
@@ -48,8 +48,9 @@ export const webPubSettingsSlice = createSlice({
   name: "webPubSettings",
   initialState,
   reducers: {
-    setWebPubFontFamily: (state, action) => {
-      state.fontFamily = action.payload
+    setWebPubFontFamily: (state, action: SetFontFamilyPayload) => {
+      const { key, value } = action.payload;
+      state.fontFamily[key] = value;
     },
     setWebPubFontWeight: (state, action) => {
       state.fontWeight = action.payload
