@@ -152,20 +152,23 @@ export const defaultFontCollection: FontCollection = {
     }
   },
   ...readiumCSSFontCollection,
-  iaWriterDuospace: {
-    id: "iaWriterDuospace",
-    name: "IA Writer Duospace",
+  iAWriterDuo: {
+    id: "iAWriterDuo",
+    name: "IA Writer Duo",
     source: { 
       type: "custom", 
       provider: "local", 
       files: [
-        { path: "/fonts/iAWriterDuospace/IAWriterDuospace-Regular.ttf", weight: 400, style: "normal" }
+        { path: "/fonts/iAWriterDuo/IAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
+        { path: "/fonts/iAWriterDuo/IAWriterDuoS-Bold.woff2", weight: 700, style: "normal" },
+        { path: "/fonts/iAWriterDuo/IAWriterDuoS-Italic.woff2", weight: 400, style: "italic" },
+        { path: "/fonts/iAWriterDuo/IAWriterDuoS-BoldItalic.woff2", weight: 700, style: "italic" }
       ]
     },
     spec: {
-      family: "IA Writer Duospace",
-      styles: ["normal"],
-      weights: { type: "values", weights: [400] },
+      family: "IA Writer Duo",
+      styles: ["normal", "italic"],
+      weights: { type: "values", weights: [400, 700] },
       fallbacks: ["monospace"]
     }
   },
