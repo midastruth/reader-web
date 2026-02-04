@@ -52,6 +52,28 @@ export const defaultSpacingPresetsOrder = [
 
 export const defaultFontFamilyPref: ThFontFamilyPref = {
   fonts: {
+    literata: {
+      id: "literata",
+      name: "Literata",
+      source: { type: "custom", provider: "google" },
+      spec: {
+        family: "Literata",
+        styles: ["normal", "italic"],
+        weights: { type: "range", min: 200, max: 900, step: 20 },
+        fallbacks: ["serif"]
+      }
+    },
+    atkinson: {
+      id: "atkinson",
+      name: "Atkinson Hyperlegible Next",
+      source: { type: "custom", provider: "google" },
+      spec: {
+        family: "Atkinson Hyperlegible Next",
+        styles: ["normal", "italic"],
+        weights: { type: "range", min: 200, max: 800, step: 20 },
+        fallbacks: ["sans-serif"]
+      }
+    },
     oldStyle: {
       id: "oldStyle",
       name: "Old Style",

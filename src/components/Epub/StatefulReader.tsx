@@ -38,6 +38,7 @@ import {
   FXLFrameManager, 
   IEpubDefaults, 
   IEpubPreferences,  
+  IInjectablesConfig,  
   TextAlignment
 } from "@readium/navigator";
 import { 
@@ -67,7 +68,6 @@ import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
-import { useFontMetadata } from "@/preferences/hooks/useFontMetadata";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
@@ -189,11 +189,10 @@ export const StatefulReader = ({
 
 const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = usePreferenceKeys();
-  const { preferences } = usePreferences();
+  const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
-  const getFontMetadata = useFontMetadata();
   
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -243,6 +242,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
+    fontResources: getFontInjectables(true),
     initProps: {
       ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
       ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
@@ -825,6 +825,20 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             : (preferences.theming.icon.size || 24),
           experiments: preferences.experiments?.reflow || null
         }
+
+        const injectables = isFXL ? undefined : (() => {
+          const fontResources = getFontInjectables();
+          if (!fontResources) return undefined;
+          
+          return {
+            allowedDomains: fontResources.allowedDomains,
+            rules: [{
+              resources: [/\.xhtml$/, /\.html$/],
+              prepend: fontResources.prepend,
+              append: fontResources.append
+            }]
+          };
+        })()
   
         EpubNavigatorLoad({
           container: container.current, 
@@ -833,7 +847,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           positionsList: positionsList,
           initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
           preferences: epubPreferences,
-          defaults: defaults
+          defaults: defaults,
+          injectables: injectables
         }, () => p.observe(window));
       })
       .finally(() => {

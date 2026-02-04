@@ -16,7 +16,6 @@ import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setFontFamily } from "@/lib/settingsReducer";
 import { setWebPubFontFamily } from "@/lib/webPubSettingsReducer";
-import { useFontMetadata } from "@/preferences/hooks/useFontMetadata";
 
 // Map of which properties have direct strings vs descriptive labels
 const fontFamilyLabelMap = {
@@ -29,9 +28,8 @@ const fontFamilyLabelMap = {
 } as const;
 
 export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemProps) => {
-  const { preferences } = usePreferences();
+  const { preferences, getFontMetadata } = usePreferences();
   const { t } = useI18n();
-  const getFontMetadata = useFontMetadata();
 
   const getFontFamilyLabel = useCallback((property: keyof typeof fontFamilyLabelMap) => {
     const config = fontFamilyLabelMap[property];
@@ -73,7 +71,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     if (!key || key === fontFamily) return;
 
     const selectedOption = fontFamilyOptions.current.find((option) => option.id === key) as {
-      id: keyof typeof preferences.settings.fontFamily.fonts | "publisher";
+      id: keyof ReturnType<typeof getFontPreferences> | "publisher";
       label: string;
       value: string | null;
     };
@@ -81,15 +79,24 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     if (selectedOption) {
       await submitPreferences({ fontFamily: selectedOption.value });
       
-      const selectedOptionId = selectedOption.id === "publisher" ? "publisher" : selectedOption.id as keyof typeof preferences.settings.fontFamily.fonts;
+      const currentSetting = getSetting("fontFamily");
+      const fontPreferences = getFontPreferences();
+      const entry = Object.entries(fontPreferences).find(([id]) => {
+        const metadata = getFontMetadata(id);
+        return metadata.fontStack === currentSetting || 
+               metadata.fontFamily === currentSetting;
+      });
       
-      if (isWebPub) {
-        dispatch(setWebPubFontFamily(selectedOptionId));
-      } else {
-        dispatch(setFontFamily(selectedOptionId));
+      if (entry) {
+        const [selectedOptionId] = entry;
+        if (isWebPub) {
+          dispatch(setWebPubFontFamily(selectedOptionId));
+        } else {
+          dispatch(setFontFamily(selectedOptionId));
+        }
       }
     }
-  }, [isWebPub, fontFamily, submitPreferences, getSetting, dispatch]);
+  }, [isWebPub, fontFamily, submitPreferences, getSetting, getFontPreferences, getFontMetadata, dispatch]);
 
   return (
     <StatefulDropdown

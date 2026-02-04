@@ -12,9 +12,11 @@ import { ThColorScheme, useColorScheme } from "@/core/Hooks/useColorScheme";
 import { ThContrast, useContrast } from "@/core/Hooks/useContrast";
 import { useForcedColors } from "@/core/Hooks/useForcedColors";
 import { useMonochrome } from "@/core/Hooks/useMonochrome";
+import { useFonts } from "@/core/Hooks/useFonts";
 
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { prefixString } from "@/core/Helpers/prefixString";
+import type { InjectableFontResources } from "../services/fonts";
 
 export interface ThemeTokens {
   background: CSSColor;
@@ -41,6 +43,7 @@ export interface useThemingProps<T extends string> {
   };
   breakpointsMap: BreakpointsMap<number | null>;
   initProps?: Record<string, any>;
+  fontResources?: InjectableFontResources | null;
   onBreakpointChange?: (breakpoint: ThBreakpoints | null) => void;
   onColorSchemeChange?: (colorScheme: ThColorScheme) => void;
   onContrastChange?: (contrast: ThContrast) => void;
@@ -58,6 +61,7 @@ export const useTheming = <T extends string>({
   themeKeys,
   breakpointsMap,
   initProps,
+  fontResources,
   onBreakpointChange,
   onColorSchemeChange,
   onContrastChange,
@@ -74,6 +78,8 @@ export const useTheming = <T extends string>({
   const monochrome = useMonochrome(onMonochromeChange);
   const reducedMotion = useReducedMotion(onReducedMotionChange);
   const reducedTransparency = useReducedTransparency(onReducedTransparencyChange);
+  
+  useFonts(fontResources);
 
   const updateThemeColorMetaTag = useCallback((color: string): void => {
     if (typeof document === "undefined") return;
