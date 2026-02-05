@@ -763,13 +763,13 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     fetchPositions()
       .catch(console.error)
       .then(() => {
-        const isFXL = publication.metadata.effectiveLayout === Layout.fixed;
+        const isFXLPublication = publication.metadata.effectiveLayout === Layout.fixed;
 
         const initialPosition: Locator | null = getLocalData();
 
         const initialConstraint = cache.current.arrowsOccupySpace ? arrowsWidth.current : 0;
         
-        const themeKeys = isFXL ? fxlThemeKeys : reflowThemeKeys;
+        const themeKeys = isFXLPublication ? fxlThemeKeys : reflowThemeKeys;
         const theme = themeKeys.includes(cache.current.settings.theme as any) ? cache.current.settings.theme : "auto";
         const themeProps = buildThemeObject<ThemeKeyType>({
           theme: theme,
@@ -778,7 +778,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           colorScheme: cache.current.colorScheme
         });
 
-        const epubPreferences: IEpubPreferences = isFXL ? {} : {
+        const epubPreferences: IEpubPreferences = isFXLPublication ? {} : {
           columnCount: cache.current.settings.columnCount === "auto" ? null : Number(cache.current.settings.columnCount),
           constraint: initialConstraint,
           fontFamily: getFontMetadata(cache.current.settings.fontFamily.default || "")?.fontStack || null,
@@ -813,7 +813,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           ...themeProps
         };
 
-        const defaults: IEpubDefaults = isFXL ? {} : {
+        const defaults: IEpubDefaults = isFXLPublication ? {} : {
           maximalLineLength: preferences.typography.maximalLineLength,
           minimalLineLength: preferences.typography.minimalLineLength,
           optimalLineLength: preferences.typography.optimalLineLength,
@@ -829,7 +829,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
         let injectables: IInjectablesConfig | undefined;
         
-        if (!isFXL) {
+        if (!isFXLPublication) {
           const fontResources = getFontInjectables();
           if (fontResources) {
             injectFontResources(getFontInjectables(undefined, true));
