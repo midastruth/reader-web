@@ -69,8 +69,8 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
 
     const hasItalic = styles.includes("italic");
     const hasWidth = !!widths;
-    const weightValues = weights.type === "values" 
-      ? weights.weights.join(",") 
+    const weightValues = weights.type === "static" 
+      ? weights.values.join(",") 
       : `${ weights.min }..${ weights.max }`;
     const widthValues = hasWidth && widths ? `${ widths.min }..${ widths.max }` : undefined;
 

@@ -76,8 +76,8 @@ export type VariableFontRangeConfig = {
 
 export type WeightConfig =
   | {
-      type: "values";
-      weights: number[];
+      type: "static";
+      values: number[];
     }
   | {
       type: "range";

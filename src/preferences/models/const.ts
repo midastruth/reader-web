@@ -58,7 +58,7 @@ export const readiumCSSFontCollection: FontCollection = {
     source: { type: "system" },
     spec: {
       family: fontStacks.RS__oldStyleTf,
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: []
     }
   },
@@ -69,7 +69,7 @@ export const readiumCSSFontCollection: FontCollection = {
     source: { type: "system" },
     spec: {
       family: fontStacks.RS__modernTf,
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: []
     }
   },
@@ -80,7 +80,7 @@ export const readiumCSSFontCollection: FontCollection = {
     source: { type: "system" },
     spec: {
       family: fontStacks.RS__sansTf,
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: []
     }
   },
@@ -91,7 +91,7 @@ export const readiumCSSFontCollection: FontCollection = {
     source: { type: "system" },
     spec: {
       family: fontStacks.RS__humanistTf,
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: []
     }
   },
@@ -102,7 +102,7 @@ export const readiumCSSFontCollection: FontCollection = {
     source: { type: "system" },
     spec: {
       family: fontStacks.RS__monospaceTf,
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: []
     }
   }
@@ -148,7 +148,7 @@ export const defaultFontCollection: FontCollection = {
     spec: {
       family: "Luciole",
       styles: ["normal", "italic"],
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: ["sans-serif"]
     }
   },
@@ -170,7 +170,7 @@ export const defaultFontCollection: FontCollection = {
     spec: {
       family: "IA Writer Duo",
       styles: ["normal", "italic"],
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: ["monospace"]
     }
   },
@@ -191,7 +191,7 @@ export const defaultFontCollection: FontCollection = {
     spec: {
       family: "OpenDyslexic",
       styles: ["normal", "italic"],
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: ["sans-serif"]
     }
   },
@@ -211,7 +211,7 @@ export const defaultFontCollection: FontCollection = {
     spec: {
       family: "Accessible DfA",
       styles: ["normal", "italic"],
-      weights: { type: "values", weights: [400, 700] },
+      weights: { type: "static", values: [400, 700] },
       fallbacks: ["sans-serif"]
     }
   }
