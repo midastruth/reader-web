@@ -90,6 +90,6 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
 
   return {
     injectFontResources,
-    removeInjectedElements
+    removeFontResources: removeInjectedElements
   };
 };

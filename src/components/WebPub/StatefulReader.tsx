@@ -53,6 +53,7 @@ import { useLocalStorage } from "@/core/Hooks/useLocalStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
+import { useFonts } from "@/core/Hooks/useFonts";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
@@ -145,6 +146,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
+  const { injectFontResources, removeFontResources } = useFonts();
 
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -175,7 +177,6 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
-    fontResources: getFontInjectables(undefined, true),
     initProps: {
       ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
       ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
@@ -430,20 +431,19 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       webPubPreferences.textAlign = cache.current.settings.textAlign as TextAlignment | null | undefined;
       webPubPreferences.textNormalization = cache.current.settings.textNormalization;
       webPubPreferences.wordSpacing = cache.current.settings.wordSpacing;
-
-      injectables = (() => {
-          const fontResources = getFontInjectables();
-          if (!fontResources) return undefined;
-          
-          return {
-            allowedDomains: fontResources.allowedDomains,
-            rules: [{
-              resources: [/\.xhtml$/, /\.html$/],
-              prepend: fontResources.prepend,
-              append: fontResources.append
-            }]
-          };
-        })()
+        
+      const fontResources = getFontInjectables();
+      if (fontResources) {
+        injectFontResources(getFontInjectables(undefined, true));
+        injectables = {
+          allowedDomains: fontResources.allowedDomains,
+          rules: [{
+            resources: [/\.xhtml$/, /\.html$/],
+            prepend: fontResources.prepend,
+            append: fontResources.append
+          }]
+        };
+      }
     }
     
     WebPubNavigatorLoad({
@@ -463,11 +463,10 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     dispatch(setLoading(false));
 
     return () => {
-      WebPubNavigatorDestroy(() => {
-        p.destroy();
-      });
+      WebPubNavigatorDestroy(() => p.destroy());
+      removeFontResources();
     };
-  }, [publication, preferences]);
+  }, [publication, preferences, injectFontResources, removeFontResources]);
 
   return (
     <>
