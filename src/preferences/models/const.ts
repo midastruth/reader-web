@@ -11,6 +11,7 @@ import {
   ThTextSettingsKeys
 } from "./enums";
 import { ThActionsTokens, ThSettingsRangePref, FontCollection } from "../preferences";
+import { createDefinitionFromStaticFonts } from "../helpers";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
 export const defaultActionKeysObject: ThActionsTokens = {
@@ -131,90 +132,47 @@ export const defaultFontCollection: FontCollection = {
       fallbacks: ["sans-serif"]
     }
   },
-  luciole: {
+  luciole: createDefinitionFromStaticFonts({
     id: "luciole",
     name: "Luciole",
-    source: { 
-      type: "custom", 
-      provider: "local", 
-      variant: "static",
-      files: [
-        { path: "/fonts/Luciole/Luciole-Regular.woff2", weight: 400, style: "normal" },
-        { path: "/fonts/Luciole/Luciole-Italic.woff2", weight: 400, style: "italic" },
-        { path: "/fonts/Luciole/Luciole-Bold.woff2", weight: 700, style: "normal" },
-        { path: "/fonts/Luciole/Luciole-BoldItalic.woff2", weight: 700, style: "italic" }
-      ]
-    },
-    spec: {
-      family: "Luciole",
-      styles: ["normal", "italic"],
-      weights: { type: "static", values: [400, 700] },
-      fallbacks: ["sans-serif"]
-    }
-  },
+    files: [
+      { path: "/fonts/Luciole/Luciole-Regular.woff2", weight: 400, style: "normal" },
+      { path: "/fonts/Luciole/Luciole-Italic.woff2", weight: 400, style: "italic" },
+      { path: "/fonts/Luciole/Luciole-Bold.woff2", weight: 700, style: "normal" },
+      { path: "/fonts/Luciole/Luciole-BoldItalic.woff2", weight: 700, style: "italic" }
+    ]
+  }),
   ...readiumCSSFontCollection,
-  iAWriterDuo: {
+  iAWriterDuo: createDefinitionFromStaticFonts({
     id: "iAWriterDuo",
     name: "IA Writer Duo",
-    source: { 
-      type: "custom", 
-      provider: "local", 
-      variant: "static",
-      files: [
-        { path: "/fonts/iAWriterDuo/IAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
-        { path: "/fonts/iAWriterDuo/IAWriterDuoS-Bold.woff2", weight: 700, style: "normal" },
-        { path: "/fonts/iAWriterDuo/IAWriterDuoS-Italic.woff2", weight: 400, style: "italic" },
-        { path: "/fonts/iAWriterDuo/IAWriterDuoS-BoldItalic.woff2", weight: 700, style: "italic" }
-      ]
-    },
-    spec: {
-      family: "IA Writer Duo",
-      styles: ["normal", "italic"],
-      weights: { type: "static", values: [400, 700] },
-      fallbacks: ["monospace"]
-    }
-  },
-  openDyslexic: {
+    fallbacks: ["monospace"],
+    files: [
+      { path: "/fonts/iAWriterDuo/IAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
+      { path: "/fonts/iAWriterDuo/IAWriterDuoS-Bold.woff2", weight: 700, style: "normal" },
+      { path: "/fonts/iAWriterDuo/IAWriterDuoS-Italic.woff2", weight: 400, style: "italic" },
+      { path: "/fonts/iAWriterDuo/IAWriterDuoS-BoldItalic.woff2", weight: 700, style: "italic" }
+    ]
+  }),
+  openDyslexic: createDefinitionFromStaticFonts({
     id: "openDyslexic",
     name: "Open Dyslexic",
-    source: { 
-      type: "custom", 
-      provider: "local", 
-      variant: "static",
-      files: [
-        { path: "/fonts/OpenDyslexic/OpenDyslexic-Regular.otf", weight: 400, style: "normal" },
-        { path: "/fonts/OpenDyslexic/OpenDyslexic-Italic.otf", weight: 400, style: "italic" },
-        { path: "/fonts/OpenDyslexic/OpenDyslexic-Bold.otf", weight: 700, style: "normal" },
-        { path: "/fonts/OpenDyslexic/OpenDyslexic-BoldItalic.otf", weight: 700, style: "italic" }
-      ]
-    },
-    spec: {
-      family: "OpenDyslexic",
-      styles: ["normal", "italic"],
-      weights: { type: "static", values: [400, 700] },
-      fallbacks: ["sans-serif"]
-    }
-  },
-  accessibleDfA: {
+    files: [
+      { path: "/fonts/OpenDyslexic/OpenDyslexic-Regular.otf", weight: 400, style: "normal" },
+      { path: "/fonts/OpenDyslexic/OpenDyslexic-Italic.otf", weight: 400, style: "italic" },
+      { path: "/fonts/OpenDyslexic/OpenDyslexic-Bold.otf", weight: 700, style: "normal" },
+      { path: "/fonts/OpenDyslexic/OpenDyslexic-BoldItalic.otf", weight: 700, style: "italic" }
+    ]
+  }),
+  accessibleDfA: createDefinitionFromStaticFonts({
     id: "accessibleDfA",
     name: "Accessible DfA",
-    source: { 
-      type: "custom", 
-      provider: "local", 
-      variant: "static",
-      files: [
-        { path: "/fonts/AccessibleDfA/AccessibleDfA-Regular.woff2", weight: 400, style: "normal" },
-        { path: "/fonts/AccessibleDfA/AccessibleDfA-Italic.woff2", weight: 400, style: "italic" },
-        { path: "/fonts/AccessibleDfA/AccessibleDfA-Bold.woff2", weight: 700, style: "normal" }
-      ]
-    },
-    spec: {
-      family: "Accessible DfA",
-      styles: ["normal", "italic"],
-      weights: { type: "static", values: [400, 700] },
-      fallbacks: ["sans-serif"]
-    }
-  }
+    files: [
+      { path: "/fonts/AccessibleDfA/AccessibleDfA-Regular.woff2", weight: 400, style: "normal" },
+      { path: "/fonts/AccessibleDfA/AccessibleDfA-Italic.woff2", weight: 400, style: "italic" },
+      { path: "/fonts/AccessibleDfA/AccessibleDfA-Bold.woff2", weight: 700, style: "normal" }
+    ]
+  })
 };
 
 export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {
