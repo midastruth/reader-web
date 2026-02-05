@@ -13,7 +13,7 @@ export function usePreferences<K extends CustomizableKeys = DefaultKeys>() {
   }
 
   // Create font service that handles the entire ThFontFamilyPref object
-  const fontService = createFontService(context.preferences.settings.fontFamily);
+  const fontService = createFontService(context.preferences.settings.keys.fontFamily);
   
   return {
     preferences: context.preferences as ThPreferences<K>,

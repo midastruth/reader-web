@@ -264,6 +264,7 @@ export interface ThSettingsRadioPref<T extends string> {
 }
 
 export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
+  [ThSettingsKeys.fontFamily]: ThFontFamilyPref;
   [ThSettingsKeys.letterSpacing]: ThSettingsRangePref;
   [ThSettingsKeys.lineHeight]: ThSettingsRadioPref<Exclude<ThLineHeightOptions, ThLineHeightOptions.publisher>>;
   [ThSettingsKeys.paragraphIndent]: ThSettingsRangePref;
@@ -407,7 +408,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     keys: ThSettingsKeyTypes<K>;
     text?: ThSettingsGroupPref<TextSettingsKey<K>>;
     spacing?: ThSettingsGroupPref<SpacingSettingsKey<K>> & { presets?: ThSettingsSpacingPresets<K> };
-    fontFamily: ThFontFamilyPref;
   };
 }
 
@@ -590,8 +590,8 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
   }
   
   // Validate font family preferences for language conflicts
-  if (params.settings?.fontFamily) {
-    const fontFamilyPref = params.settings.fontFamily;
+  if (params.settings?.keys?.fontFamily) {
+    const fontFamilyPref = params.settings.keys.fontFamily;
     const languageMap = new Map<string, string[]>();
     
     // Build a map of languages to the collections that support them
@@ -600,7 +600,7 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
       
       // Check if this collection has supportedLanguages (it's a ValidatedLanguageCollection)
       const supportedLangs = "supportedLanguages" in collectionData ? 
-        collectionData.supportedLanguages : null;
+        (collectionData as ValidatedLanguageCollection).supportedLanguages : null;
         
       if (supportedLangs && Array.isArray(supportedLangs)) {
         supportedLangs.forEach((lang: string) => {

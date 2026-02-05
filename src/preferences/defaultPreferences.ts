@@ -475,9 +475,6 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     }
   },
   settings: {
-    fontFamily: {
-      default: defaultFontCollection
-    },
     reflowOrder: [
       ThSettingsKeys.zoom,
       ThSettingsKeys.textGroup,
@@ -496,6 +493,9 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       ThSettingsKeys.spacingGroup
     ],
     keys: {
+      [ThSettingsKeys.fontFamily]: {
+        default: defaultFontCollection
+      },
       [ThSettingsKeys.letterSpacing]: defaultLetterSpacing,
       [ThSettingsKeys.lineHeight]: {
         allowUnset: false,
