@@ -111,8 +111,9 @@ export const readiumCSSFontCollection: FontCollection = {
 
 export const defaultFontCollection: FontCollection = {
   ...createDefinitionsFromGoogleFonts({
-    cssUrl: "https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800",
+    cssUrl: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900",
     options: {
+      order: ["literata", "atkinson-hyperlegible-next"],
       fallbacks: {
         "literata": ["serif"],
         "atkinson-hyperlegible-next": ["sans-serif"]

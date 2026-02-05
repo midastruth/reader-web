@@ -74,6 +74,7 @@ export interface GoogleFontDefinitionParams {
     weightStep?: number;
     display?: "swap" | "block" | "fallback" | "optional";
     fallbacks?: Record<string, string[]>; // derived fontId -> fallback array
+    order?: string[]; // array of font IDs in desired order
   }
 }
 
@@ -85,7 +86,7 @@ export interface GoogleFontDefinitionParams {
  */
 export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionParams): FontCollection => {
   const { cssUrl, options } = params;
-  const { widthStep = DEFAULT_WIDTH_STEP, weightStep = DEFAULT_WEIGHT_STEP, display, fallbacks } = options || {};
+  const { widthStep = DEFAULT_WIDTH_STEP, weightStep = DEFAULT_WEIGHT_STEP, display, fallbacks, order } = options || {};
   
   // Extract href from link tag if needed, otherwise use as-is
   const processedUrl = cssUrl.includes("href=") 
@@ -192,25 +193,48 @@ export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionPar
   });
 
   // Convert families to FontCollection object
-  return Object.fromEntries(
-    families.map(family => {
-      const fontId = family.name.toLowerCase().replace(/\s+/g, "-");
-      return [
-        fontId,
-        {
-          id: fontId,
-          name: family.name,
-          source: { type: "custom", provider: "google" } as GoogleFontSource,
-          spec: {
-            family: family.name,
-            fallbacks: fallbacks?.[fontId] || [DEFAULT_FALLBACK],
-            weights: family.weights,
-            styles: family.styles,
-            ...(family.widths && { widths: family.widths }),
-            ...(display && { display })
-          }
+  const fontEntries: [string, any][] = families.map(family => {
+    const fontId = family.name.toLowerCase().replace(/\s+/g, "-");
+    return [
+      fontId,
+      {
+        id: fontId,
+        name: family.name,
+        source: { type: "custom", provider: "google" } as GoogleFontSource,
+        spec: {
+          family: family.name,
+          fallbacks: fallbacks?.[fontId] || [DEFAULT_FALLBACK],
+          weights: family.weights,
+          styles: family.styles,
+          ...(family.widths && { widths: family.widths }),
+          ...(display && { display })
         }
-      ];
-    })
-  ); 
+      }
+    ];
+  });
+
+  // If order is specified, sort the entries according to the order
+  if (order && order.length > 0) {
+    const orderedEntries: [string, any][] = [];
+    const fontMap = new Map<string, any>(fontEntries);
+    
+    // Add fonts in the specified order (using font IDs directly)
+    for (const fontId of order) {
+      const fontEntry = fontMap.get(fontId);
+      if (fontEntry) {
+        orderedEntries.push([fontId, fontEntry]);
+        fontMap.delete(fontId);
+      }
+    }
+    
+    // Add any remaining fonts that weren't in the order list
+    for (const [fontId, fontEntry] of fontMap.entries()) {
+      orderedEntries.push([fontId, fontEntry]);
+    }
+    
+    return Object.fromEntries(orderedEntries);
+  }
+
+  // Default behavior - use original order from URL
+  return Object.fromEntries(fontEntries); 
 } 
