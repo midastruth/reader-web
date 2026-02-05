@@ -73,6 +73,7 @@ export interface GoogleFontDefinitionParams {
     widthStep?: number;
     weightStep?: number;
     display?: "swap" | "block" | "fallback" | "optional";
+    fallbacks?: Record<string, string[]>; // derived fontId -> fallback array
   }
 }
 
@@ -84,7 +85,7 @@ export interface GoogleFontDefinitionParams {
  */
 export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionParams): FontCollection => {
   const { cssUrl, options } = params;
-  const { widthStep = DEFAULT_WIDTH_STEP, weightStep = DEFAULT_WEIGHT_STEP, display } = options || {};
+  const { widthStep = DEFAULT_WIDTH_STEP, weightStep = DEFAULT_WEIGHT_STEP, display, fallbacks } = options || {};
   
   // Extract href from link tag if needed, otherwise use as-is
   const processedUrl = cssUrl.includes("href=") 
@@ -192,21 +193,24 @@ export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionPar
 
   // Convert families to FontCollection object
   return Object.fromEntries(
-    families.map(family => [
-      family.name.toLowerCase().replace(/\s+/g, "-"),
-      {
-        id: family.name.toLowerCase().replace(/\s+/g, "-"),
-        name: family.name,
-        source: { type: "custom", provider: "google" } as GoogleFontSource,
-        spec: {
-          family: family.name,
-          fallbacks: [DEFAULT_FALLBACK],
-          weights: family.weights,
-          styles: family.styles,
-          ...(family.widths && { widths: family.widths }),
-          ...(display && { display })
+    families.map(family => {
+      const fontId = family.name.toLowerCase().replace(/\s+/g, "-");
+      return [
+        fontId,
+        {
+          id: fontId,
+          name: family.name,
+          source: { type: "custom", provider: "google" } as GoogleFontSource,
+          spec: {
+            family: family.name,
+            fallbacks: fallbacks?.[fontId] || [DEFAULT_FALLBACK],
+            weights: family.weights,
+            styles: family.styles,
+            ...(family.widths && { widths: family.widths }),
+            ...(display && { display })
+          }
         }
-      }
-    ])
+      ];
+    })
   ); 
 } 

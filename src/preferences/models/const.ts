@@ -11,7 +11,7 @@ import {
   ThTextSettingsKeys
 } from "./enums";
 import { ThActionsTokens, ThSettingsRangePref, FontCollection } from "../preferences";
-import { createDefinitionFromStaticFonts } from "../helpers";
+import { createDefinitionFromStaticFonts, createDefinitionsFromGoogleFonts } from "../helpers";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 
 export const defaultActionKeysObject: ThActionsTokens = {
@@ -110,28 +110,15 @@ export const readiumCSSFontCollection: FontCollection = {
 };
 
 export const defaultFontCollection: FontCollection = {
-  literata: {
-    id: "literata",
-    name: "Literata",
-    source: { type: "custom", provider: "google" },
-    spec: {
-      family: "Literata",
-      styles: ["normal", "italic"],
-      weights: { type: "range", min: 200, max: 900, step: 20 },
-      fallbacks: ["serif"]
+  ...createDefinitionsFromGoogleFonts({
+    cssUrl: "https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800",
+    options: {
+      fallbacks: {
+        "literata": ["serif"],
+        "atkinson-hyperlegible-next": ["sans-serif"]
+      }
     }
-  },
-  atkinson: {
-    id: "atkinson",
-    name: "Atkinson Hyperlegible Next",
-    source: { type: "custom", provider: "google" },
-    spec: {
-      family: "Atkinson Hyperlegible Next",
-      styles: ["normal", "italic"],
-      weights: { type: "range", min: 200, max: 800, step: 20 },
-      fallbacks: ["sans-serif"]
-    }
-  },
+  }),
   luciole: createDefinitionFromStaticFonts({
     id: "luciole",
     name: "Luciole",
