@@ -9,6 +9,7 @@ import actionsReducer, { ActionsReducerState } from "@/lib/actionsReducer";
 import publicationReducer, { PublicationReducerState } from "./publicationReducer";
 import preferencesReducer, { PreferencesReducerState } from "./preferencesReducer";
 import webPubSettingsReducer, { WebPubSettingsReducerState } from "./webPubSettingsReducer";
+import { FontFamilyStateObject } from "./settingsReducer";
 
 import debounce from "debounce";
 
@@ -31,53 +32,17 @@ export type RootState = {
 
 const DEFAULT_STORAGE_KEY = "thorium-web-state";
 
-// TMP Migration for theme state
-// TODO: Remove this in the next minor version
-const migrateThemeState = (state: ThemeReducerState) => {
-  if (typeof state.theme === "string") {
+// Migrate font family state
+const migrateFontFamily = (stateSlice: SettingsReducerState | WebPubSettingsReducerState) => {
+  if (stateSlice?.fontFamily && typeof stateSlice.fontFamily === "string") {
     return {
-      ...state,
-      theme: {
-        reflow: state.theme,
-        fxl: state.theme
+      ...stateSlice,
+      fontFamily: {
+        default: stateSlice.fontFamily
       }
     };
   }
-  return state;
-};
-
-// TMP Migration for font family state
-// TODO: Remove this in the next minor version
-const migrateFontFamily = (state: any) => {
-  if (!state) return state;
-  
-  // Migrate settings.fontFamily
-  if (state.settings?.fontFamily && typeof state.settings.fontFamily === 'string') {
-    state = {
-      ...state,
-      settings: {
-        ...state.settings,
-        fontFamily: {
-          default: state.settings.fontFamily
-        }
-      }
-    };
-  }
-
-  // Migrate webPubSettings.fontFamily if it exists
-  if (state.webPubSettings?.fontFamily && typeof state.webPubSettings.fontFamily === 'string') {
-    state = {
-      ...state,
-      webPubSettings: {
-        ...state.webPubSettings,
-        fontFamily: {
-          default: state.webPubSettings.fontFamily
-        }
-      }
-    };
-  }
-
-  return state;
+  return stateSlice;
 };
 
 
@@ -118,17 +83,17 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
     
     // Apply migrations
     if (state) {
-      // Migrate theme state
-      if (state.theming) {
-        state.theming = migrateThemeState(state.theming);
+      // Migrate font family state
+      if (state.settings) {
+        state.settings = migrateFontFamily(state.settings);
+      }
+      if (state.webPubSettings) {
+        state.webPubSettings = migrateFontFamily(state.webPubSettings);
       }
       
-      // Migrate font family state
-      state = migrateFontFamily(state);
-    }
-    
-    if (state.actions) {
-      state.actions = updateActionsState(state.actions);
+      if (state.actions) {
+        state.actions = updateActionsState(state.actions);
+      }
     }
     
     return state;
