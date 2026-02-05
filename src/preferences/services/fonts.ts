@@ -176,6 +176,8 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
       
       if (display) {
         rules.push(`  font-display: ${ display };`);
+      } else {
+        rules.push(`  font-display: block;`);
       }
       
       return rules.join("\n") + "\n}";
