@@ -7,25 +7,6 @@ const nextConfig = {
   // Configure asset prefix for CDN or subdirectory support
   assetPrefix: process.env.ASSET_PREFIX || undefined,
   
-  // Experimental optimizations
-  experimental: {
-    optimizePackageImports: [
-      "@readium/css",
-      "@readium/navigator", 
-      "@readium/shared",
-      "@readium/navigator-html-injectables",
-      "react-aria",
-      "react-aria-components",
-      "react-stately",
-      "motion",
-      "i18next",
-      "react-i18next"
-    ]
-  },
-  
-  // Keep heavy packages out of client bundle
-  serverExternalPackages: ["@edrlab/thorium-locales"],
-  
   // Turbopack configuration
   turbopack: {
     rules: {
