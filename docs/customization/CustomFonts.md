@@ -21,7 +21,7 @@ The `fontFamily` key accepts a `ThFontFamilyPref` object which can be one of two
 2. A font collection for specific languages:
    ```typescript
    {
-     [languageKey: string]: {
+     [collectionKey: string]: {
        fonts: FontCollection;
        supportedLanguages: string[];
      }
@@ -109,10 +109,11 @@ A language resolver is used internally to set the “font language” based on t
 - If you only have a default collection, the language resolver will always return `default`.
 - If you have an additional collection that matches the publication’s language, the language resolver use the best matching bcp47 language code:
   - if it finds a direct match, it will use it;
-  - if will then handle the best matching language code e.g. `en` for `en-US` or `en-GB`.
+  - if will then handle the best matching language code e.g. `en` for `en-US` or `en-GB`;
+  - if it cannot find a match, it will return `default`.
 
 > [!IMPORTANT]
-> For Japanese, the language resolver will use `ja` for horizontal scripts and `ja-v` for vertical scripts so that it is possible to provide different collections for horizontal and vertical scripts. It will not fallback to `ja` for vertical scripts.
+> For Japanese, the language resolver will use `ja` for horizontal scripts and `ja-v` for vertical scripts so that it is possible to provide different collections for horizontal and vertical scripts. It will not fallback to `ja` for vertical scripts, that is to say when the direction is right-to-left.
 
 The user setting will then be stored for the language the resolver resolved to, and will be used for all publications resolved to that language.
 
@@ -193,7 +194,7 @@ const bunnyFonts = createDefinitionsFromBunnyFonts({
 1. Visit [Bunny Fonts](https://fonts.bunny.net/)
 2. Search for the font you want to use
 3. Select the weights and styles you need
-4. Copy the CSS URL or `@import` statement
+4. Copy the CSS URL, `link`, or `@import` statement from their website
 5. Use it with the helper function as shown above
 
 ### Using Google Fonts
@@ -292,7 +293,7 @@ const googleFonts = createDefinitionsFromGoogleFonts({
 1. Visit [Google Fonts](https://fonts.google.com/)
 2. Search for the font you want to use
 3. Select the weights and styles you need
-4. Copy the CSS URL or `link` you copy from their page
+4. Copy the CSS URL, `link` or `@import` statement from their website
 5. Use it with the helper function as shown above
 
 ### Using Local Fonts
