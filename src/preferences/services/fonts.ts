@@ -20,12 +20,79 @@ export interface FontService {
   getInjectables: (options?: { language?: string } | { key?: string }, optimize?: boolean) => InjectableFontResources | null;
   getFontMetadata: (fontId: string) => FontMetadata;
   getFontCollection: (options?: { language?: string } | { key?: string }) => FontCollection;
+  resolveFontLanguage: (bcp47Tag: string | undefined, direction: "ltr" | "rtl") => string;
 }
 
 export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService => {
   const parsedFonts = new Map<string, FontMetadata>();
   const googleFonts = new Map<string, FontDefinition[]>();
   const localFonts = new Map<string, FontDefinition[]>();
+  const allSupportedLanguages: string[] = [];
+  
+  /**
+   * Resolves a BCP47 language tag to a supported language format based on specific rules and available font collections.
+   * 
+   * Rules:
+   * - First checks if the full BCP47 tag exists in supportedLanguages
+   * - If not found, checks for { language }-{ scriptOrRegion } format
+   * - Special case for Japanese (ja):
+   *   - For RTL direction, checks if "ja-v" is supported
+   *   - Otherwise falls back to "ja" if supported
+   * - Filters out specific language-script combinations:
+   *   - Mongolian: "mn-mong" and "mn-cyrl"
+   *   - Chinese: "zh-hant", "zh-tw", "zh-hk"
+   * - If not filtered, falls back to { language } if supported
+   * - Returns "default" if no match is found
+   * 
+   * @param bcp47Tag - The BCP47 language tag to resolve
+   * @param direction - Text direction ("ltr" or "rtl")
+   * @returns The resolved language tag or "default" if no match found
+   */
+  const resolveFontLanguage = (
+    bcp47Tag: string | undefined, 
+    direction: "ltr" | "rtl" = "ltr"
+  ): string => {
+    if (!bcp47Tag) return "default";
+    
+    // Check direct match of full BCP47 tag
+    if (allSupportedLanguages.includes(bcp47Tag)) {
+      return bcp47Tag;
+    }
+    
+    const parts = bcp47Tag.split(/[-_]/);
+    const language = parts[0].toLowerCase();
+    const scriptOrRegion = parts[1]?.toLowerCase();
+    
+    // Check { language }-{ scriptOrRegion } format
+    if (scriptOrRegion) {
+      const langScriptOrRegion = `${ language }-${ scriptOrRegion }`;
+      if (allSupportedLanguages.includes(langScriptOrRegion)) {
+        return langScriptOrRegion;
+      }
+    }
+    
+    // Special case for Japanese
+    if (language === "ja" && !scriptOrRegion) {
+      if (direction === "rtl" && allSupportedLanguages.includes("ja-v")) {
+        return "ja-v";
+      }
+      if (allSupportedLanguages.includes("ja")) {
+        return "ja";
+      }
+    }
+    
+    // Special cases that should be filtered out
+    const shouldFilter = 
+      (language === "mn" && (scriptOrRegion === "mong" || scriptOrRegion === "cyrl")) ||
+      (language === "zh" && (scriptOrRegion === "hant" || scriptOrRegion === "tw" || scriptOrRegion === "hk"));
+    
+    // If not filtered, check if just the language is supported
+    if (!shouldFilter && allSupportedLanguages.includes(language)) {
+      return language;
+    }
+    
+    return "default";
+  };
   
   /**
    * Determines the font format from a file path
@@ -200,6 +267,17 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
       (collectionData as ValidatedLanguageCollection).fonts : 
       collectionData as FontCollection;
     
+    // Collect supported languages if this is a ValidatedLanguageCollection
+    if ("supportedLanguages" in collectionData) {
+      const reducedLanguages = collectionData.supportedLanguages.map((lang: string) => {
+        const parts = lang.split(/[-_]/);
+        const language = parts[0].toLowerCase();
+        const scriptOrRegion = parts[1]?.toLowerCase();
+        return scriptOrRegion ? `${ language }-${ scriptOrRegion }` : language;
+      });
+      allSupportedLanguages.push(...reducedLanguages);
+    }
+    
     // Initialize arrays for this collection
     googleFonts.set(collectionName, []);
     localFonts.set(collectionName, []);
@@ -309,8 +387,14 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
     return result.append.length > 0 ? result : null;
   };
 
-  return {
-    getInjectables: (options, optimize = false) => {
+  /**
+   * Returns injectable font resources based on the provided options.
+   * 
+   * @param options - The options object containing either a language or a key.
+   * @param optimize - Whether to optimize the font resources. This will use the font label/name to determine the letters to request from Google Fonts.
+   * @returns The injectable font resources or null if no valid collection is found.
+   */
+  const getInjectables = (options?: { language?: string } | { key?: string }, optimize = false): InjectableFontResources | null => {
       // Handle key-based selection
       if (options && "key" in options) {
         const { key } = options;
@@ -341,24 +425,48 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
       
       // Default behavior - return default collection
       return processFonts(defaultGoogleFonts, defaultLocalFonts, optimize);
-    },
+    };
     
-    getFontMetadata: (fontId: string) => {
+    /**
+     * Returns metadata for a specific font.
+     * 
+     * @param fontId - The ID of the font.
+     * @returns The metadata for the font or null if the font is not found.
+     */
+    const getFontMetadata = (fontId: string) => {
       const parsed = parsedFonts.get(fontId);
       return parsed || { fontStack: null, fontFamily: null, weights: null, widths: null };
-    },
-    
-    getFontCollection: (options) => {
+    };
+
+    /**
+     * Returns the font collection based on the provided options.
+     * 
+     * @param options - The options object containing either a language or a key.
+     * @returns The font collection or the default collection if no valid collection is found.
+     */
+    const getFontCollection = (options?: { language?: string } | { key?: string }): FontCollection => {
       // Handle key-based selection
       if (options && "key" in options) {
         const { key } = options;
         
         if (!key || !(key in fontFamilyPref)) {
-          return { ...fontFamilyPref.default };
+          return fontFamilyPref.default as FontCollection;
         }
         
-        const collection = fontFamilyPref[key as keyof typeof fontFamilyPref];
-        return "fonts" in collection ? { ...collection.fonts } : { ...collection };
+        // Check if we're accessing the default collection
+        if (key === "default") {
+          return fontFamilyPref.default as FontCollection;
+        }
+        
+        // For non-default keys, we expect ValidatedLanguageCollection
+        const prefRecord = fontFamilyPref as Record<string, FontCollection | ValidatedLanguageCollection>;
+        const collection = prefRecord[key] as ValidatedLanguageCollection;
+        if (collection && "fonts" in collection) {
+          return collection.fonts;
+        }
+        
+        // Fallback to default
+        return fontFamilyPref.default as FontCollection;
       }
       
       // Handle language-based selection
@@ -374,16 +482,22 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
             collection.supportedLanguages : null;
             
           if (supportedLangs?.includes(publicationLanguage!)) {
-            return { ...collection.fonts };
+            return collection.fonts;
           }
         }
 
         // Fall back to default if no collection supports this language
-        return { ...fontFamilyPref.default };
+        return fontFamilyPref.default as FontCollection;
       }
       
       // Default behavior - return default collection
-      return { ...fontFamilyPref.default };
-    }
+      return fontFamilyPref.default as FontCollection;
+    };
+
+  return {
+    getInjectables,
+    getFontMetadata,
+    getFontCollection,
+    resolveFontLanguage
   };
 };

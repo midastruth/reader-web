@@ -244,8 +244,8 @@ export interface ThDockingPref<T extends string> {
 };
 
 export interface ThSettingsGroupPref<T> {
-  main?: T[];
-  subPanel?: T[] | null;
+  main: T[];
+  subPanel: T[] | null;
   header?: ThSheetHeaderVariant;
 }
 
@@ -406,8 +406,8 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     fxlOrder: Array<SettingsKey<K>>;
     webPubOrder: Array<SettingsKey<K>>;
     keys: ThSettingsKeyTypes<K>;
-    text?: ThSettingsGroupPref<TextSettingsKey<K>>;
-    spacing?: ThSettingsGroupPref<SpacingSettingsKey<K>> & { presets?: ThSettingsSpacingPresets<K> };
+    text: ThSettingsGroupPref<TextSettingsKey<K>>;
+    spacing: ThSettingsGroupPref<SpacingSettingsKey<K>> & { presets?: ThSettingsSpacingPresets<K> };
   };
 }
 

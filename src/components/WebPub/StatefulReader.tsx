@@ -16,7 +16,8 @@ import {
   ThThemeKeys,
   ThLineHeightOptions,
   ThTextAlignOptions,
-  ThSpacingSettingsKeys
+  ThSpacingSettingsKeys,
+  ThSettingsKeys
 } from "@/preferences/models/enums";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
@@ -45,6 +46,8 @@ import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
+import { defaultTextSettingsMain, defaultTextSettingsSubpanel } from "@/preferences/models/const";
 import { useWebPubNavigator } from "@/core/Hooks/WebPub";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useI18n } from "@/i18n/useI18n";
@@ -80,7 +83,8 @@ import {
   setTimeline,
   setPublicationStart,
   setPublicationEnd,
-  setHasDisplayTransformability
+  setHasDisplayTransformability,
+  setFontLanguage
 } from "@/lib/publicationReducer";
 import { FontFamilyStateObject } from "@/lib/settingsReducer";
 
@@ -143,10 +147,17 @@ export const ExperimentalWebPubStatefulReader = ({
 };
 
 const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
-  const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
+  const { preferences, resolveFontLanguage, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { injectFontResources, removeFontResources } = useFonts();
+
+  // Check if font family component is being used
+  const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.fontFamily,
+    publicationType: "webpub",
+    componentType: "text"
+  });
 
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -406,6 +417,8 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     if (!publication) return;
 
     dispatch(setRTL(publication.metadata.effectiveReadingProgression === ReadingProgression.rtl));
+    const resolvedMainLanguage = resolveFontLanguage(publication.metadata.languages?.[0], publication.metadata.effectiveReadingProgression);
+    dispatch(setFontLanguage(resolvedMainLanguage));
 
     const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
     dispatch(setHasDisplayTransformability(displayTransformability));
@@ -419,7 +432,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     let injectables: IInjectablesConfig | undefined = undefined;
 
     if (displayTransformability) {
-      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily.default || "")?.fontStack || null;
+      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily[resolvedMainLanguage] ?? "")?.fontStack || null;
       webPubPreferences.fontWeight = cache.current.settings.fontWeight;
       webPubPreferences.hyphens = cache.current.settings.hyphens;
       webPubPreferences.letterSpacing = cache.current.settings.letterSpacing;
@@ -432,17 +445,20 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       webPubPreferences.textNormalization = cache.current.settings.textNormalization;
       webPubPreferences.wordSpacing = cache.current.settings.wordSpacing;
         
-      const fontResources = getFontInjectables();
-      if (fontResources) {
-        injectFontResources(getFontInjectables(undefined, true));
-        injectables = {
-          allowedDomains: fontResources.allowedDomains,
-          rules: [{
-            resources: [/\.xhtml$/, /\.html$/],
-            prepend: fontResources.prepend,
-            append: fontResources.append
-          }]
-        };
+      // Only inject font resources if font family component is being used
+      if (isFontFamilyUsed) {
+        const fontResources = getFontInjectables();
+        if (fontResources) {
+          injectFontResources(getFontInjectables(undefined, true));
+          injectables = {
+            allowedDomains: fontResources.allowedDomains,
+            rules: [{
+              resources: [/\.xhtml$/, /\.html$/],
+              prepend: fontResources.prepend,
+              append: fontResources.append
+            }]
+          };
+        }
       }
     }
     
@@ -466,7 +482,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       WebPubNavigatorDestroy(() => p.destroy());
       removeFontResources();
     };
-  }, [publication, preferences, injectFontResources, removeFontResources]);
+  }, [publication, preferences, isFontFamilyUsed, resolveFontLanguage, injectFontResources, removeFontResources]);
 
   return (
     <>

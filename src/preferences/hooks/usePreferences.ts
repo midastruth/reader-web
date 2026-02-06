@@ -29,6 +29,10 @@ export function usePreferences<K extends CustomizableKeys = DefaultKeys>() {
     
     getFontMetadata: (fontId: string) => {
       return fontService.getFontMetadata(fontId);
+    },
+    
+    resolveFontLanguage: (bcp47Tag: string | undefined, direction: "ltr" | "rtl") => {
+      return fontService.resolveFontLanguage(bcp47Tag, direction);
     }
   };
 }

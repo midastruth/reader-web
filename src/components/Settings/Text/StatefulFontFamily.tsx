@@ -44,7 +44,12 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
 
-  const fontFamily = useAppSelector(state => isWebPub ? state.webPubSettings.fontFamily.default : state.settings.fontFamily.default) ?? "publisher";
+  const fontLanguage = useAppSelector(state => state.publication.fontLanguage) || "default";
+
+  const fontFamily = useAppSelector(state => {
+    const fontSettings = isWebPub ? state.webPubSettings.fontFamily : state.settings.fontFamily;
+    return fontSettings[fontLanguage] ?? "publisher";
+  });
   
   // Check if current font exists in available options, fallback to publisher if not
   const availableFontIds = new Set([
@@ -90,9 +95,9 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       // Handle publisher font case (when currentSetting is null)
       if (currentSetting === null) {
         if (isWebPub) {
-          dispatch(setWebPubFontFamily({ key: "default", value: "publisher" }));
+          dispatch(setWebPubFontFamily({ key: fontLanguage, value: "publisher" }));
         } else {
-          dispatch(setFontFamily({ key: "default", value: "publisher" }));
+          dispatch(setFontFamily({ key: fontLanguage, value: "publisher" }));
         }
         return;
       }
@@ -107,13 +112,13 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       if (entry) {
         const [selectedOptionId] = entry;
         if (isWebPub) {
-          dispatch(setWebPubFontFamily({ key: "default", value: selectedOptionId }));
+          dispatch(setWebPubFontFamily({ key: fontLanguage, value: selectedOptionId }));
         } else {
-          dispatch(setFontFamily({ key: "default", value: selectedOptionId }));
+          dispatch(setFontFamily({ key: fontLanguage, value: selectedOptionId }));
         }
       }
     }
-  }, [isWebPub, fontFamily, submitPreferences, getSetting, fontPreferences, getFontMetadata, dispatch]);
+  }, [isWebPub, fontLanguage, fontFamily, submitPreferences, getSetting, fontPreferences, getFontMetadata, dispatch]);
 
   return (
     <StatefulDropdown

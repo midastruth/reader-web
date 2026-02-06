@@ -31,6 +31,10 @@ import {
   defaultParagraphSpacing, 
   defaultSpacingPresets, 
   defaultSpacingPresetsOrder, 
+  defaultSpacingSettingsMain, 
+  defaultSpacingSettingsSubpanel, 
+  defaultTextSettingsMain, 
+  defaultTextSettingsSubpanel, 
   defaultWordSpacing, 
   defaultZoom
 } from "./models/const";
@@ -507,10 +511,14 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       [ThSettingsKeys.zoom]: defaultZoom
     },
     text: {
-      header: ThSheetHeaderVariant.previous
+      header: ThSheetHeaderVariant.previous,
+      main: defaultTextSettingsMain,
+      subPanel: defaultTextSettingsSubpanel
     },
     spacing: {
       header: ThSheetHeaderVariant.previous,
+      main: defaultSpacingSettingsMain,
+      subPanel: defaultSpacingSettingsSubpanel,
       presets: {
         reflowOrder: defaultSpacingPresetsOrder,
         webPubOrder: defaultSpacingPresetsOrder,

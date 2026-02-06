@@ -18,7 +18,8 @@ import {
   ThLayoutUI,
   ThDocumentTitleFormat,
   ThSpacingSettingsKeys,
-  ThProgressionFormat
+  ThProgressionFormat,
+  ThSettingsKeys
 } from "../../preferences/models/enums";
 import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 
@@ -58,6 +59,8 @@ import { StatefulReaderArrowButton } from "../StatefulReaderArrowButton";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
+import { defaultTextSettingsMain, defaultTextSettingsSubpanel } from "@/preferences/models/const";
 import { useEpubNavigator } from "@/core/Hooks/Epub/useEpubNavigator";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { usePrevious } from "@/core/Hooks/usePrevious";
@@ -102,7 +105,8 @@ import {
   setTimeline,
   setPublicationStart,
   setPublicationEnd,
-  setHasDisplayTransformability
+  setHasDisplayTransformability,
+  setFontLanguage
 } from "@/lib/publicationReducer";
 import { LineLengthStateObject, FontFamilyStateObject } from "@/lib/settingsReducer";
 
@@ -190,7 +194,7 @@ export const StatefulReader = ({
 
 const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = usePreferenceKeys();
-  const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
+  const { preferences, resolveFontLanguage, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
@@ -204,6 +208,13 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const positionsList = useAppSelector(state => state.publication.positionsList);
+
+  // Check if font family component is being used
+  const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.fontFamily,
+    publicationType: isFXL ? "fxl" : "reflow",
+    componentType: "text"
+  });
 
   const textAlign = useAppSelector(state => state.settings.textAlign);
   const columnCount = useAppSelector(state => state.settings.columnCount);
@@ -747,7 +758,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     if (!publication) return;
 
     dispatch(setRTL(publication.metadata.effectiveReadingProgression === ReadingProgression.rtl));
-    dispatch(setFXL(publication.metadata.effectiveLayout === Layout.fixed));
+
+    const isFXLPublication = publication.metadata.effectiveLayout === Layout.fixed;
+    dispatch(setFXL(isFXLPublication));
+
+    const resolvedFontLanguage = resolveFontLanguage(publication.metadata.languages?.[0], publication.metadata.effectiveReadingProgression);
+    dispatch(setFontLanguage(resolvedFontLanguage));
     
     const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
     dispatch(setHasDisplayTransformability(displayTransformability));
@@ -763,8 +779,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     fetchPositions()
       .catch(console.error)
       .then(() => {
-        const isFXLPublication = publication.metadata.effectiveLayout === Layout.fixed;
-
         const initialPosition: Locator | null = getLocalData();
 
         const initialConstraint = cache.current.arrowsOccupySpace ? arrowsWidth.current : 0;
@@ -781,7 +795,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         const epubPreferences: IEpubPreferences = isFXLPublication ? {} : {
           columnCount: cache.current.settings.columnCount === "auto" ? null : Number(cache.current.settings.columnCount),
           constraint: initialConstraint,
-          fontFamily: getFontMetadata(cache.current.settings.fontFamily.default || "")?.fontStack || null,
+          fontFamily: getFontMetadata(cache.current.settings.fontFamily[resolvedFontLanguage] ?? "")?.fontStack || null,
           fontSize: cache.current.settings.fontSize,
           fontWeight: cache.current.settings.fontWeight,
           hyphens: cache.current.settings.hyphens,
@@ -829,7 +843,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
         let injectables: IInjectablesConfig | undefined;
         
-        if (!isFXLPublication) {
+        if (!isFXLPublication && isFontFamilyUsed) {
           const fontResources = getFontInjectables();
           if (fontResources) {
             injectFontResources(getFontInjectables(undefined, true));
@@ -866,7 +880,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       EpubNavigatorDestroy(() => p.destroy());
       if (!isFXL) removeFontResources();
     };
-  }, [publication, preferences, fxlThemeKeys, reflowThemeKeys, injectFontResources, removeFontResources]);
+  }, [publication, preferences, fxlThemeKeys, reflowThemeKeys, isFontFamilyUsed, injectFontResources, removeFontResources]);
 
   // If breakpoint is not defined, we are not ready to render
   // since useDocking needs it to derive the sheet type
