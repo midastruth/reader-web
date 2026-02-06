@@ -161,7 +161,7 @@ const settings = {
 
 For convenience, you can use the `createDefinitionsFromBunnyFonts` helper function:
 
-- `cssUrl` (string, required): The Bunny Fonts CSS URL or the entire `link` or `@import` statement from their website
+- `cssUrl` (string, required): The Bunny Fonts CSS URL, the entire `link` or `@import` statement from their website
 - `options` (object, optional): Configuration options
   - `order` (string[]): Controls the display order of fonts in the UI, requires using Bunny’s `id` from the URL
   - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires using Bunny’s `id` from the URL
@@ -259,7 +259,7 @@ const settings = {
 
 For convenience, you can use the `createDefinitionsFromGoogleFonts` helper.
 
-- `cssUrl` (string, required): The Google Fonts CSS URL or the entire `link` you copy from their page
+- `cssUrl` (string, required): The Google Fonts CSS URL, the entire `link` or `@import` statement you copy from their page
 - `options` (object, optional): Configuration options
   - `order` (string[]): Controls the display order of fonts in the UI, requires derived `id`
   - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires derived `id`
