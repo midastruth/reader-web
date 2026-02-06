@@ -46,6 +46,7 @@ Example:
     "variable-system-font": {
       id: "variable-system-font",
       name: "Variable System Font",
+      label: "key.to.internationalized.label",
       source: { type: "system" },
       spec: {
         family: "Variable System Font",
