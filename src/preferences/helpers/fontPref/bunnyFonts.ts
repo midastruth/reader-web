@@ -20,10 +20,12 @@ export const createDefinitionsFromBunnyFonts = (params: BunnyFontDefinitionParam
   const { cssUrl, options } = params;
   const { fallbacks, order } = options || {};
   
-  // Extract href from link tag if needed, otherwise use as-is
-  const processedUrl = cssUrl.includes("href=") 
-    ? cssUrl.match(/href=["']([^"']+)["']/)?.[1] || cssUrl
-    : cssUrl;
+  // Extract URL from @import url() or href="", otherwise use as-is
+  const processedUrl = cssUrl.includes("@import") 
+    ? cssUrl.match(/@import\s+url\(['"]?([^'")]+)['"]?\)/i)?.[1] || cssUrl
+    : cssUrl.includes("href=")
+      ? cssUrl.match(/href=["']([^"']+)["']/)?.[1] || cssUrl
+      : cssUrl;
   
   // Parse the URL
   const url = new URL(processedUrl);
