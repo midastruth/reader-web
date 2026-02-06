@@ -34,6 +34,11 @@ export interface SystemFontSource {
   type: "system";
 }
 
+export interface BunnyFontSource {
+  type: "custom";
+  provider: "bunny";
+}
+
 export interface GoogleFontSource {
   type: "custom";
   provider: "google";
@@ -66,7 +71,7 @@ export interface LocalVariableFontSource {
 
 export type LocalFontSource = LocalStaticFontSource | LocalVariableFontSource;
 
-export type FontSource = SystemFontSource | GoogleFontSource | LocalFontSource;
+export type FontSource = SystemFontSource | BunnyFontSource | GoogleFontSource | LocalFontSource;
 
 export type VariableFontRangeConfig = {
   min: number;

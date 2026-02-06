@@ -1,7 +1,12 @@
-import type { FontDefinition, FontSpec, VariableFontRangeConfig, WeightConfig, ThFontFamilyPref, FontCollection, ValidatedLanguageCollection } from "../preferences";
+import type { FontDefinition, VariableFontRangeConfig, WeightConfig, ThFontFamilyPref, FontCollection, ValidatedLanguageCollection } from "../preferences";
+
 import type { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
 
-type FontResource = (ILinkInjectable & IUrlInjectable) | (ILinkInjectable & IBlobInjectable);
+import { createBunnyFontResources } from "./createBunnyFontResources";
+import { createGoogleFontResources } from "./createGoogleFontResources";
+import { createLocalFontResources } from "./createLocalFontResources";
+
+export type FontResource = (ILinkInjectable & IUrlInjectable) | (ILinkInjectable & IBlobInjectable);
 
 export interface InjectableFontResources {
   allowedDomains: string[];
@@ -24,10 +29,12 @@ export interface FontService {
 }
 
 export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService => {
+  const allSupportedLanguages: string[] = [];
   const parsedFonts = new Map<string, FontMetadata>();
+  
+  const bunnyFonts = new Map<string, FontDefinition[]>();
   const googleFonts = new Map<string, FontDefinition[]>();
   const localFonts = new Map<string, FontDefinition[]>();
-  const allSupportedLanguages: string[] = [];
   
   /**
    * Resolves a BCP47 language tag to a supported language format based on specific rules and available font collections.
@@ -93,172 +100,6 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
     
     return "default";
   };
-  
-  /**
-   * Determines the font format from a file path
-   */
-  const getFontFormat = (path: string): string => {
-    const ext = path.split(".").pop()?.toLowerCase();
-    switch (ext) {
-      case "woff": return "woff";
-      case "woff2": return "woff2";
-      case "ttf": return "truetype";
-      case "otf": return "opentype";
-      case "eot": return "embedded-opentype";
-      case "svg": return "svg";
-      default: return "woff2"; // default to woff2 if unknown
-    }
-  };
-
-  /**
-   * Builds a Google Fonts API v2 URL according to the specification.
-   * @see https://developers.google.com/fonts/docs/css2
-   */
-  const buildGoogleFontsV2Url = ({
-    family,
-    weights,
-    styles = ["normal"],
-    widths,
-    display = "block",
-    text
-  }: {
-    family: string;
-    weights: WeightConfig;
-    styles?: FontSpec["styles"];
-    widths?: VariableFontRangeConfig;
-    display?: FontSpec["display"];
-    text?: string;
-  }): string => {
-    // If optimizing with text, just load the font family with the text parameter
-    if (text) {
-      return `https://fonts.googleapis.com/css2?family=${ family.replace(/ /g, "+") }&text=${ encodeURIComponent(text) }`;
-    }
-
-    const hasItalic = styles.includes("italic");
-    const hasWidth = !!widths;
-    const weightValues = weights.type === "static" 
-      ? weights.values.join(",") 
-      : `${ weights.min }..${ weights.max }`;
-    const widthValues = hasWidth && widths ? `${ widths.min }..${ widths.max }` : undefined;
-
-    const familyParam = family.replace(/ /g, "+");
-    let axesParam: string;
-    
-    if (hasItalic && hasWidth) {
-      // With italic and width: ital,wdth,wght@0,widthValues,weightValues;1,widthValues,weightValues
-      const variants = [
-        `0,${ widthValues },${ weightValues }`,  // normal
-        `1,${ widthValues },${ weightValues }`   // italic
-      ];
-      axesParam = `:ital,wdth,wght@${ variants.join(";") }`;
-    } else if (hasItalic) {
-      // With italic only: ital,wght@0,weightValues;1,weightValues
-      const variants = [
-        `0,${ weightValues }`,  // normal
-        `1,${ weightValues }`   // italic
-      ];
-      axesParam = `:ital,wght@${ variants.join(";") }`;
-    } else if (hasWidth) {
-      // With width only: wdth,wght@widthValues,weightValues
-      axesParam = `:wdth,wght@${ widthValues },${ weightValues }`;
-    } else {
-      // Without italic or width: wght@weightValues
-      axesParam = `:wght@${ weightValues }`;
-    }
-    const displayParam = display ? `&display=${ display }` : "";
-    
-    return `https://fonts.googleapis.com/css2?family=${ familyParam }${ axesParam }${ displayParam }`;
-  };
-
-  /**
-   * Creates Google Font resources for injection
-   */
-  const createGoogleFontResources = (font: FontDefinition, text?: string): FontResource | null => {
-    if (font.source.type !== "custom" || font.source.provider !== "google") {
-      return null;
-    }
-
-    const { family, weights, display, styles, widths } = font.spec;
-    
-    const url = buildGoogleFontsV2Url({
-      family,
-      weights,
-      display,
-      styles,
-      widths,
-      text
-    });
-
-    return { 
-      as: "link",
-      rel: "stylesheet",
-      url
-    };
-  };
-
-  /**
-   * Creates local font resources for injection
-   */
-  const createLocalFontResources = (font: FontDefinition): FontResource | null => {
-    if (font.source.type !== "custom" || font.source.provider !== "local") {
-      return null;
-    }
-
-    const { family, weights, display, widths } = font.spec;
-    const fontFiles = font.source.files || [];
-    
-    // Generate CSS for each font file
-    const cssContent = fontFiles.map(fontFile => {
-      const format = getFontFormat(fontFile.path);
-      const fontUrl = new URL(fontFile.path, window.location.origin).toString();
-
-      // Check if this is a variable font
-      const isVariable = font.source.type === "custom" && 
-                         font.source.provider === "local" && 
-                         "variant" in font.source && 
-                         font.source.variant === "variable";
-      
-      const rules = [
-        `@font-face {`,
-        `  font-family: "${ family }";`,
-        `  src: url("${ fontUrl }") format("${ format }");`
-      ];
-
-      // Handle font weight
-      if (isVariable && weights.type === "range") {
-        rules.push(`  font-weight: ${ weights.min } ${ weights.max };`);
-      } else if ("weight" in fontFile) {
-        rules.push(`  font-weight: ${ fontFile.weight };`);
-      }
-
-      // Handle font style
-      if ("style" in fontFile) {
-        rules.push(`  font-style: ${ fontFile.style };`);
-      }
-
-      // Handle font width for variable fonts
-      if (isVariable && widths) {
-        rules.push(`  font-stretch: ${ widths.min }% ${ widths.max }%;`);
-      }
-      
-      if (display) {
-        rules.push(`  font-display: ${ display };`);
-      } else {
-        rules.push(`  font-display: block;`);
-      }
-      
-      return rules.join("\n") + "\n}";
-    }).filter(Boolean).join("\n\n");
-    
-    const blob = new Blob([cssContent], { type: "text/css" });
-    
-    // Return the font face as a stylesheet resource
-    return {
-      as: "link",
-      rel: "stylesheet",
-      blob: blob
-    };
-  };
 
   // Parse ALL fonts upfront - index by collection
   Object.entries(fontFamilyPref).forEach(([collectionName, collectionData]) => {
@@ -279,9 +120,11 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
     }
     
     // Initialize arrays for this collection
+    bunnyFonts.set(collectionName, []);
     googleFonts.set(collectionName, []);
     localFonts.set(collectionName, []);
     
+    const collectionBunnyFonts = bunnyFonts.get(collectionName)!;
     const collectionGoogleFonts = googleFonts.get(collectionName)!;
     const collectionLocalFonts = localFonts.get(collectionName)!;
     
@@ -292,6 +135,9 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
 
       if (font.source.type === "custom") {
         switch (font.source.provider) {
+          case "bunny":
+            collectionBunnyFonts.push(font);
+            break;
           case "google":
             collectionGoogleFonts.push(font);
             break;
@@ -335,16 +181,38 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
   });
 
   // Get default collection for fallback
+  const defaultBunnyFonts = bunnyFonts.get("default") || [];
   const defaultGoogleFonts = googleFonts.get("default") || [];
   const defaultLocalFonts = localFonts.get("default") || [];
   
   // Helper function to process fonts into injectable resources
-  const processFonts = (googleFontsList: FontDefinition[], localFontsList: FontDefinition[], optimize: boolean = false): InjectableFontResources | null => {
+  const processFonts = (bunnyFontsList: FontDefinition[], googleFontsList: FontDefinition[], localFontsList: FontDefinition[], optimize: boolean = false): InjectableFontResources | null => {
     const result: InjectableFontResources = {
       allowedDomains: [],
       prepend: [],
       append: []
     };
+
+    // Process Bunny Fonts
+    const bunnyResources = bunnyFontsList
+      .map(font => createBunnyFontResources(font))
+      .filter((resource): resource is FontResource => resource !== null);
+
+    if (bunnyResources.length > 0) {
+      result.allowedDomains.push(
+        "https://fonts.bunny.net"
+      );
+
+      result.prepend.push(
+        { 
+          as: "link",
+          rel: "preconnect",
+          url: "https://fonts.bunny.net"
+        }
+      );
+
+      result.append.push(...bunnyResources);
+    }
 
     // Process Google Fonts
     const googleResources = googleFontsList
@@ -403,7 +271,7 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
           return null;
         }
         
-        return processFonts(googleFonts.get(key) || [], localFonts.get(key) || [], optimize);
+        return processFonts(bunnyFonts.get(key) || [], googleFonts.get(key) || [], localFonts.get(key) || [], optimize);
       }
       
       // Handle language-based selection
@@ -418,13 +286,13 @@ export const createFontService = (fontFamilyPref: ThFontFamilyPref): FontService
             collectionData.supportedLanguages : null;
             
           if (supportedLangs && Array.isArray(supportedLangs) && publicationLanguage && supportedLangs.includes(publicationLanguage)) {
-            return processFonts(googleFonts.get(collectionName) || [], localFonts.get(collectionName) || [], optimize);
+            return processFonts(bunnyFonts.get(collectionName) || [], googleFonts.get(collectionName) || [], localFonts.get(collectionName) || [], optimize);
           }
         }
       }
       
       // Default behavior - return default collection
-      return processFonts(defaultGoogleFonts, defaultLocalFonts, optimize);
+      return processFonts(defaultBunnyFonts, defaultGoogleFonts, defaultLocalFonts, optimize);
     };
     
     /**
