@@ -80,10 +80,6 @@ export function useSettingsComponentStatus(options: UseSettingsComponentStatusOp
     // 5. Component is used if it's both registered AND displayed
     const isComponentUsed = isComponentRegistered && isDisplayed;
 
-    console.log("isComponentRegistered", isComponentRegistered);
-    console.log("isDisplayed", isDisplayed);
-    console.log("isComponentUsed", isComponentUsed);
-
     return {
       isComponentRegistered,
       isInMainPanel,
