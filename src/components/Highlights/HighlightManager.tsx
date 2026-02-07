@@ -10,7 +10,7 @@ import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import { loadHighlights, setCurrentBook } from '@/lib/highlightsReducer';
 import HighlightsDB from '@/core/Storage/HighlightsDB';
 import { useHighlightSelection, type TextSelection } from './hooks/useHighlightSelection';
-import { useHighlightRenderer } from './hooks/useHighlightRenderer';
+import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHighlightRenderer';
 import { HighlightToolbar } from './HighlightToolbar';
 import { HighlightContextMenu } from './HighlightContextMenu';
 import { HighlightNote } from './HighlightNote';
@@ -36,20 +36,12 @@ export interface HighlightManagerHandle {
 export const HighlightManager = React.forwardRef<HighlightManagerHandle, HighlightManagerProps>(({ bookId, bookTitle, iframeRef }, ref) => {
   const dispatch = useDispatch();
 
-  // Hooks
-  const { createHighlight, isValidSelection } = useHighlightSelection(bookId);
-  const {
-    restoreHighlights,
-    renderHighlight,
-    removeHighlight,
-    updateHighlight: updateHighlightInDOM,
-  } = useHighlightRenderer(bookId);
-
-  // State
+  // Redux state
   const highlights = useSelector((state: RootState) => state.highlights.currentBookHighlights);
   const selectedHighlightId = useSelector((state: RootState) => state.highlights.selectedHighlightId);
   const activeColor = useSelector((state: RootState) => state.highlights.activeColor);
 
+  // Local state
   const [toolbarState, setToolbarState] = useState<{
     visible: boolean;
     position: { x: number; y: number };
@@ -72,6 +64,55 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
   const pendingSelectionRef = useRef<TextSelection | null>(null);
 
+  // Keep track of the last iframe the user interacted with.
+  // (Important when FXL spreads have multiple iframes.)
+  const activeIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  /**
+   * Hide toolbars/menus
+   */
+  const hideToolbar = useCallback(() => {
+    setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
+    pendingSelectionRef.current = null;
+  }, []);
+
+  const hideContextMenu = useCallback(() => {
+    setContextMenuState({ visible: false, position: { x: 0, y: 0 }, highlight: null });
+  }, []);
+
+  /**
+   * Show context menu when highlight is clicked
+   */
+  const showContextMenu = useCallback((highlightId: string, position: { x: number; y: number }) => {
+    const highlight = highlights.find(h => h.id === highlightId);
+    if (!highlight) return;
+
+    // Avoid overlapping UI
+    hideToolbar();
+
+    setContextMenuState({
+      visible: true,
+      position,
+      highlight,
+    });
+  }, [highlights, hideToolbar]);
+
+  const handleHighlightClick = useCallback(({ highlightId, position, iframe }: HighlightClickPayload) => {
+    activeIframeRef.current = iframe;
+    showContextMenu(highlightId, position);
+  }, [showContextMenu]);
+
+  // Hooks
+  const { createHighlight, isValidSelection } = useHighlightSelection(bookId);
+  const {
+    restoreHighlights,
+    renderHighlight,
+    removeHighlight,
+    updateHighlight: updateHighlightInDOM,
+  } = useHighlightRenderer(bookId, {
+    onHighlightClick: handleHighlightClick,
+  });
+
   /**
    * Load highlights from database when book changes
    */
@@ -93,8 +134,10 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
    * Show highlight toolbar when text is selected
    */
   const handleTextSelected = useCallback((selection: TextSelection) => {
+    hideContextMenu();
+
     if (!isValidSelection(selection)) {
-      setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
+      hideToolbar();
       return;
     }
 
@@ -113,7 +156,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       position,
       selection,
     });
-  }, [isValidSelection]);
+  }, [hideContextMenu, hideToolbar, isValidSelection]);
 
   const restoreForIframe = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
 
@@ -143,7 +186,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     const highlight = await createHighlight(selection, color);
 
-    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
+    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
 
     const targetIframe = iframeFromSelection || iframeRef?.current || null;
 
@@ -151,15 +194,16 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     if (highlight && targetIframe) {
 
+      activeIframeRef.current = targetIframe;
+
       renderHighlight(highlight, targetIframe);
 
     }
 
 
     // Hide toolbar
-    setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
-    pendingSelectionRef.current = null;
-  }, [createHighlight, iframeRef, renderHighlight]);
+    hideToolbar();
+  }, [createHighlight, iframeRef, renderHighlight, hideToolbar]);
 
   /**
    * Handle "Add Note" from toolbar
@@ -171,13 +215,15 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     // Create highlight with default color first
     const highlight = await createHighlight(selection, activeColor);
 
-    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
+    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
 
     const targetIframe = iframeFromSelection || iframeRef?.current || null;
 
 
 
     if (highlight && targetIframe) {
+
+      activeIframeRef.current = targetIframe;
 
       renderHighlight(highlight, targetIframe);
 
@@ -187,58 +233,39 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
 
     // Hide toolbar
-    setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
-    pendingSelectionRef.current = null;
-  }, [createHighlight, activeColor, iframeRef, renderHighlight, dispatch]);
-
-  /**
-   * Show context menu when highlight is clicked
-   */
-  const showContextMenu = useCallback((highlightId: string, position: { x: number; y: number }) => {
-    const highlight = highlights.find(h => h.id === highlightId);
-    if (!highlight) return;
-
-    setContextMenuState({
-      visible: true,
-      position,
-      highlight,
-    });
-  }, [highlights]);
+    hideToolbar();
+  }, [createHighlight, activeColor, iframeRef, renderHighlight, dispatch, hideToolbar]);
 
   /**
    * Handle color change from context menu
    */
   const handleColorChangeFromMenu = useCallback((color: HighlightColor) => {
-    if (!contextMenuState.highlight || !iframeRef?.current) return;
+    if (!contextMenuState.highlight) return;
+
+    const targetIframe = activeIframeRef.current || iframeRef?.current || null;
+
+    if (!targetIframe) return;
 
     const updatedHighlight = {
       ...contextMenuState.highlight,
       color,
     };
 
-    updateHighlightInDOM(updatedHighlight, iframeRef.current);
+    updateHighlightInDOM(updatedHighlight, targetIframe);
   }, [contextMenuState.highlight, iframeRef, updateHighlightInDOM]);
 
   /**
    * Handle highlight deletion from context menu
    */
   const handleDeleteFromMenu = useCallback(() => {
-    if (!contextMenuState.highlight || !iframeRef?.current) return;
+    if (!contextMenuState.highlight) return;
 
-    removeHighlight(contextMenuState.highlight.id, iframeRef.current);
+    const targetIframe = activeIframeRef.current || iframeRef?.current || null;
+
+    if (!targetIframe) return;
+
+    removeHighlight(contextMenuState.highlight.id, targetIframe);
   }, [contextMenuState.highlight, iframeRef, removeHighlight]);
-
-  /**
-   * Hide toolbars/menus
-   */
-  const hideToolbar = useCallback(() => {
-    setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
-    pendingSelectionRef.current = null;
-  }, []);
-
-  const hideContextMenu = useCallback(() => {
-    setContextMenuState({ visible: false, position: { x: 0, y: 0 }, highlight: null });
-  }, []);
 
   // Highlight restoration is triggered by the reader when frames are loaded.
 

@@ -21,6 +21,17 @@ import {
   getHighlightIdFromElement,
 } from '../helpers/highlightSerializer';
 
+export interface HighlightClickPayload {
+  highlightId: string;
+  element: Element;
+  iframe: HTMLIFrameElement;
+  position: { x: number; y: number };
+}
+
+export interface UseHighlightRendererOptions {
+  onHighlightClick?: (payload: HighlightClickPayload) => void;
+}
+
 /**
  * Hook return type
  */
@@ -36,11 +47,20 @@ export interface UseHighlightRendererReturn {
 /**
  * Hook for rendering and managing highlights in the reader
  */
-export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn {
+export function useHighlightRenderer(
+  bookId: string,
+  options: UseHighlightRendererOptions = {}
+): UseHighlightRendererReturn {
   const dispatch = useDispatch();
   const highlights = useSelector((state: RootState) => state.highlights.currentBookHighlights);
   const selectedHighlightId = useSelector((state: RootState) => state.highlights.selectedHighlightId);
   const renderedHighlightsRef = useRef<Set<string>>(new Set());
+
+  const onHighlightClickRef = useRef<UseHighlightRendererOptions['onHighlightClick']>(options.onHighlightClick);
+
+  useEffect(() => {
+    onHighlightClickRef.current = options.onHighlightClick;
+  }, [options.onHighlightClick]);
 
   /**
    * Inject styles and setup click handlers for an iframe
@@ -55,39 +75,40 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     const existingHandler = (doc as any).__thoriumHighlightClickHandler as ((event: MouseEvent) => void) | undefined;
 
     if (existingHandler) {
-
       return;
-
     }
 
-
-
     const handleClick = (event: MouseEvent) => {
-
       const target = event.target as Element;
 
       const highlightId = getHighlightIdFromElement(target);
 
-
-
-      if (highlightId) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-        handleHighlightClick(target);
-
+      if (!highlightId) {
+        return;
       }
 
+      event.preventDefault();
+      event.stopPropagation();
+
+      handleHighlightClick(target);
+
+      const iframeRect = iframe.getBoundingClientRect();
+      const position = {
+        x: iframeRect.left + event.clientX,
+        y: iframeRect.top + event.clientY,
+      };
+
+      onHighlightClickRef.current?.({
+        highlightId,
+        element: target,
+        iframe,
+        position,
+      });
     };
-
-
 
     (doc as any).__thoriumHighlightClickHandler = handleClick;
 
     doc.addEventListener('click', handleClick);
-
   }, []);
 
   /**
@@ -103,7 +124,6 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     // Select the highlight
     selectHighlightMark(highlightId, doc);
     dispatch(setSelectedHighlight(highlightId));
-
 
   }, [dispatch]);
 
@@ -222,7 +242,7 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     }
 
     renderedHighlightsRef.current.clear();
-    deselectAllHighlights(doc);
+    deselectAllHighlights(doc);
   }, []);
 
   /**
