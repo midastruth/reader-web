@@ -12,23 +12,26 @@ function getXPathForNode(node: Node, root: Node): string {
   let current: Node | null = node;
 
   while (current && current !== root) {
-    if (current.nodeType === Node.ELEMENT_NODE) {
-      const element = current as Element;
-      const tagName = element.tagName.toLowerCase();
-
-      // Find index among siblings with same tag name
-      let index = 1;
-      let sibling = element.previousSibling;
-      while (sibling) {
-        if (sibling.nodeType === Node.ELEMENT_NODE &&
-          (sibling as Element).tagName.toLowerCase() === tagName) {
-          index++;
-        }
-        sibling = sibling.previousSibling;
-      }
-
-      segments.unshift(`${tagName}[${index}]`);
-    } else if (current.nodeType === Node.TEXT_NODE) {
+    if (current.nodeType === Node.ELEMENT_NODE) {
+      const element = current as Element;
+      const localName = (element.localName || element.tagName).toLowerCase();
+
+      // Find index among siblings with same local-name (namespace-agnostic)
+      let index = 1;
+      let sibling = element.previousSibling;
+      while (sibling) {
+        if (sibling.nodeType === Node.ELEMENT_NODE) {
+          const siblingElement = sibling as Element;
+          const siblingLocalName = (siblingElement.localName || siblingElement.tagName).toLowerCase();
+          if (siblingLocalName === localName) {
+            index++;
+          }
+        }
+        sibling = sibling.previousSibling;
+      }
+
+      segments.unshift(`*[local-name()='${localName}'][${index}]`);
+    } else if (current.nodeType === Node.TEXT_NODE) {
       // Find index among text node siblings
       let index = 1;
       let sibling = current.previousSibling;
@@ -135,39 +138,72 @@ export function canRestoreRange(
   serializedRange: SerializedRange,
   doc: Document
 ): boolean {
-  try {
-    const root = doc.body || doc.documentElement;
-    if (!root) return false;
-
-    const resolve = (xpath: string) => {
-      const candidates = [xpath];
-      if (xpath.startsWith('/')) {
-        candidates.push(xpath.replace(/^\/+/, ''));
-      }
-
-      for (const candidate of candidates) {
-        const node = doc.evaluate(
-          candidate,
-          root,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null
-        ).singleNodeValue;
-
-        if (node) return node;
-      }
-
-      return null;
-    };
-
-    const startNode = resolve(serializedRange.startContainerPath);
-    const endNode = resolve(serializedRange.endContainerPath);
-
-    return startNode !== null && endNode !== null;
-  } catch (error) {
-    console.warn('Cannot restore range:', error);
-    return false;
-  }
+  try {
+
+    const root = doc.body || doc.documentElement;
+
+    if (!root) return false;
+
+
+
+    const resolve = (xpath: string) => {
+
+      const candidates = [xpath];
+
+      if (xpath.startsWith('/')) {
+
+        candidates.push(xpath.replace(/^\/+/, ''));
+
+      }
+
+
+
+      for (const candidate of candidates) {
+
+        const node = doc.evaluate(
+
+          candidate,
+
+          root,
+
+          null,
+
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+
+          null
+
+        ).singleNodeValue;
+
+
+
+        if (node) return node;
+
+      }
+
+
+
+      return null;
+
+    };
+
+
+
+    const startNode = resolve(serializedRange.startContainerPath);
+
+    const endNode = resolve(serializedRange.endContainerPath);
+
+
+
+    return startNode !== null && endNode !== null;
+
+  } catch (error) {
+
+    console.warn('Cannot restore range:', error);
+
+    return false;
+
+  }
+
 }
 
 /**

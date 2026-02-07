@@ -7,32 +7,121 @@ import type { SerializedRange, HighlightLocator } from '@/lib/types/highlights';
 /**
  * Find a node using XPath
  */
-function getNodeByXPath(xpath: string, doc: Document): Node | null {
-  const root = doc.body || doc.documentElement;
-  if (!root) return null;
-
-  const candidates = [xpath];
-  if (xpath.startsWith('/')) {
-    candidates.push(xpath.replace(/^\/+/, ''));
-  }
-
-  for (const candidate of candidates) {
-    try {
-      const result = doc.evaluate(
-        candidate,
-        root,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-      );
-      if (result.singleNodeValue) return result.singleNodeValue;
-    } catch (error) {
-      console.warn('XPath evaluation failed:', candidate, error);
-    }
-  }
-
-  return null;
-}
+function getNodeByXPath(xpath: string, doc: Document): Node | null {
+
+  const root = doc.body || doc.documentElement;
+
+  if (!root) return null;
+
+
+
+  const candidates: string[] = [];
+
+
+
+  const addCandidate = (value: string) => {
+
+    if (!value) return;
+
+    if (!candidates.includes(value)) {
+
+      candidates.push(value);
+
+    }
+
+  };
+
+
+
+  const toNamespaceAgnosticXPath = (path: string) => {
+
+    return path
+
+      .split('/')
+
+      .map((segment) => {
+
+        if (!segment || segment === '.' || segment === '..') return segment;
+
+        if (segment.startsWith('text()') || segment.startsWith('*[local-name()')) return segment;
+
+
+
+        const match = segment.match(/^([a-zA-Z][\w-]*)\[(\d+)\]$/);
+
+        if (!match) return segment;
+
+
+
+        const [, name, index] = match;
+
+        return `*[local-name()='${name.toLowerCase()}'][${index}]`;
+
+      })
+
+      .join('/');
+
+  };
+
+
+
+  addCandidate(xpath);
+
+  if (xpath.startsWith('/')) {
+
+    addCandidate(xpath.replace(/^\/+/, ''));
+
+  }
+
+
+
+  addCandidate(toNamespaceAgnosticXPath(xpath));
+
+  if (xpath.startsWith('/')) {
+
+    addCandidate(toNamespaceAgnosticXPath(xpath.replace(/^\/+/, '')));
+
+  }
+
+
+
+  for (const candidate of candidates) {
+
+    try {
+
+      const result = doc.evaluate(
+
+        candidate,
+
+        root,
+
+        null,
+
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+
+        null
+
+      );
+
+
+
+      if (result.singleNodeValue) return result.singleNodeValue;
+
+    } catch (error) {
+
+      console.warn('XPath evaluation failed:', candidate, error);
+
+    }
+
+  }
+
+
+
+  return null;
+
+}
+
+
 
 /**
  * Find text node containing specific text using fuzzy matching
@@ -115,30 +204,51 @@ export function locatorToRange(
         range.setStart(startNode, serializedRange.startOffset);
         range.setEnd(endNode, serializedRange.endOffset);
 
-        // Verify the restored range matches the expected text
         const restoredText = range.toString();
-        if (restoredText === locator.text.highlight) {
+
+        if (!range.collapsed && restoredText.trim().length > 0) {
+
           return range;
+
         }
 
-        // If text doesn't match exactly but is close, still accept
-        if (restoredText.trim() === locator.text.highlight.trim()) {
-          return range;
-        }
       } catch (error) {
-        console.warn('Failed to set range with XPath nodes:', error);
+
+        if (process.env.NODE_ENV !== 'production') {
+
+          console.warn('Failed to set range with XPath nodes:', error);
+
+        }
+
       }
+
     }
 
     // Fallback: text-based matching
-    console.warn('XPath restoration failed, falling back to text search');
+
+    const searchRoot = doc.body || doc.documentElement;
+
+
+    if (!searchRoot) {
+
+      return null;
+
+    }
+
+
 
     const result = findTextNodeByContent(
-      doc.body,
+
+      searchRoot,
+
       locator.text.highlight,
+
       locator.text.before,
+
       locator.text.after
+
     );
+
 
     if (result) {
       const range = doc.createRange();
@@ -147,8 +257,10 @@ export function locatorToRange(
       return range;
     }
 
-    console.error('Could not restore highlight:', locator.text.highlight);
-    return null;
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Could not restore highlight range');
+    }
+    return null;
 
   } catch (error) {
     console.error('Error restoring range:', error);
