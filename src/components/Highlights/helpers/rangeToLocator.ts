@@ -12,26 +12,46 @@ function getXPathForNode(node: Node, root: Node): string {
   let current: Node | null = node;
 
   while (current && current !== root) {
-    if (current.nodeType === Node.ELEMENT_NODE) {
-      const element = current as Element;
-      const localName = (element.localName || element.tagName).toLowerCase();
-
-      // Find index among siblings with same local-name (namespace-agnostic)
-      let index = 1;
-      let sibling = element.previousSibling;
-      while (sibling) {
-        if (sibling.nodeType === Node.ELEMENT_NODE) {
-          const siblingElement = sibling as Element;
-          const siblingLocalName = (siblingElement.localName || siblingElement.tagName).toLowerCase();
-          if (siblingLocalName === localName) {
-            index++;
-          }
-        }
-        sibling = sibling.previousSibling;
-      }
-
-      segments.unshift(`*[local-name()='${localName}'][${index}]`);
-    } else if (current.nodeType === Node.TEXT_NODE) {
+    if (current.nodeType === Node.ELEMENT_NODE) {
+
+      const element = current as Element;
+
+      const localName = (element.localName || element.tagName).toLowerCase();
+
+
+
+      // Find index among siblings with same local-name (namespace-agnostic)
+
+      let index = 1;
+
+      let sibling = element.previousSibling;
+
+      while (sibling) {
+
+        if (sibling.nodeType === Node.ELEMENT_NODE) {
+
+          const siblingElement = sibling as Element;
+
+          const siblingLocalName = (siblingElement.localName || siblingElement.tagName).toLowerCase();
+
+          if (siblingLocalName === localName) {
+
+            index++;
+
+          }
+
+        }
+
+        sibling = sibling.previousSibling;
+
+      }
+
+
+
+      segments.unshift(`*[local-name()='${localName}'][${index}]`);
+
+    } else if (current.nodeType === Node.TEXT_NODE) {
+
       // Find index among text node siblings
       let index = 1;
       let sibling = current.previousSibling;
@@ -221,23 +241,56 @@ export function isValidTextRange(range: Range): boolean {
 /**
  * Normalize range to ensure start/end are text nodes
  */
-export function normalizeRange(range: Range): Range {
-  // If we already have text nodes, just return
-  if (range.startContainer.nodeType === Node.TEXT_NODE &&
-    range.endContainer.nodeType === Node.TEXT_NODE) {
-    return range;
-  }
-
-  const newRange = range.cloneRange();
-
-  // Fix start
-  if (range.startContainer.nodeType === Node.ELEMENT_NODE) {
-    // If element, move to next text node or first child
-    // This is a simplified normalization, robust implementation would traverse the tree
-  }
-
-  return newRange;
-}
+export function normalizeRange(range: Range): Range {
+  const normalized = range.cloneRange();
+
+  const doc = range.startContainer.ownerDocument || range.endContainer.ownerDocument;
+  if (!doc) return normalized;
+
+  const rootCandidate =
+    normalized.commonAncestorContainer.nodeType === Node.TEXT_NODE
+      ? normalized.commonAncestorContainer.parentNode
+      : normalized.commonAncestorContainer;
+
+  const root = rootCandidate || doc.body || doc.documentElement;
+  if (!root) return normalized;
+
+  const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => {
+      try {
+        if (!normalized.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+      } catch {
+        return NodeFilter.FILTER_REJECT;
+      }
+
+      const text = node.textContent ?? '';
+      if (text.trim().length === 0) return NodeFilter.FILTER_REJECT;
+
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+
+  let firstText: Text | null = null;
+  let lastText: Text | null = null;
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    const textNode = node as Text;
+    if (!firstText) firstText = textNode;
+    lastText = textNode;
+  }
+
+  if (!firstText || !lastText) return normalized;
+
+  if (normalized.startContainer.nodeType !== Node.TEXT_NODE) {
+    normalized.setStart(firstText, 0);
+  }
+
+  if (normalized.endContainer.nodeType !== Node.TEXT_NODE) {
+    normalized.setEnd(lastText, lastText.data.length);
+  }
+
+  return normalized;
+}
 
 /**
  * Manually serialize range (helper for consumers that need just the range part)

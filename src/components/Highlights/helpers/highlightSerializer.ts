@@ -4,6 +4,9 @@
 
 import type { Highlight, HighlightColor } from '@/lib/types/highlights';
 
+import { splitRangeByElements } from './locatorToRange';
+
+
 /**
  * Color to CSS class mapping
  */
@@ -27,16 +30,35 @@ export function getHighlightClassName(color: HighlightColor, id: string): string
  * Generate inline styles for a highlight mark element
  */
 export function getHighlightStyles(color: HighlightColor): string {
-  const bgColor = HIGHLIGHT_COLORS[color];
+
+  const bgColor = HIGHLIGHT_COLORS[color] ?? HIGHLIGHT_COLORS.yellow;
+
   return `
-    background-color: ${bgColor};
+
+    background-color: ${bgColor} !important;
+
+    color: inherit !important;
+
+    display: inline !important;
+
+    -webkit-box-decoration-break: clone;
+
+    box-decoration-break: clone;
+
     cursor: pointer;
+
     position: relative;
+
     padding: 2px 0;
+
     border-radius: 2px;
+
     transition: background-color 0.2s ease;
+
   `.trim();
+
 }
+
 
 /**
  * Create a highlight mark element
@@ -90,40 +112,87 @@ export function createHighlightMark(
  * Wrap a range with a highlight mark
  */
 export function wrapRangeWithHighlight(
+
   range: Range,
+
   id: string,
+
   color: HighlightColor,
+
   hasNote: boolean = false
+
 ): HTMLElement | null {
-
-  const doc = range.startContainer.ownerDocument || range.endContainer.ownerDocument;
-  if (!doc) return null;
-
-  try {
 
-    const mark = createHighlightMark(doc, id, color, hasNote);
+  const doc = range.startContainer.ownerDocument || range.endContainer.ownerDocument;
 
-    range.surroundContents(mark);
-    return mark;
-  } catch (error) {
-    // If surroundContents fails (e.g., range crosses element boundaries),
-    // we need to manually wrap the contents
-    console.warn('surroundContents failed, using manual wrapping:', error);
+  if (!doc) return null;
+
+
+
+  const parts = splitRangeByElements(range);
+
+  let firstMark: HTMLElement | null = null;
+
+
+
+  // Process from end → start to reduce live-range drift while mutating the DOM.
+
+  for (let i = parts.length - 1; i >= 0; i--) {
+
+    const part = parts[i];
+
+    if (part.collapsed) continue;
+
+
 
     try {
-      const fragment = range.extractContents();
+
+      const mark = createHighlightMark(doc, id, color, hasNote);
+
+      part.surroundContents(mark);
+
+      if (!firstMark) firstMark = mark;
+
+      continue;
+
+    } catch {
+
+      // Fallback: manual wrapping (less strict than surroundContents)
+
+    }
+
+
+
+    try {
+
+      const fragment = part.extractContents();
 
       const mark = createHighlightMark(doc, id, color, hasNote);
 
       mark.appendChild(fragment);
-      range.insertNode(mark);
-      return mark;
+
+      part.insertNode(mark);
+
+      if (!firstMark) firstMark = mark;
+
     } catch (innerError) {
-      console.error('Failed to wrap range:', innerError);
-      return null;
+
+      if (process.env.NODE_ENV !== 'production') {
+
+        console.warn('Failed to wrap highlight sub-range:', innerError);
+
+      }
+
     }
+
   }
+
+
+
+  return firstMark;
+
 }
+
 
 /**
  * Remove highlight mark from a range
@@ -236,23 +305,38 @@ export function injectHighlightStyles(doc: Document): void {
   style.id = 'thorium-highlight-styles';
   style.textContent = `
     .thorium-highlight {
+
       position: relative;
+
       cursor: pointer;
+
       padding: 2px 0;
+
       border-radius: 2px;
+
+      color: inherit !important;
+
+      display: inline !important;
+
+      -webkit-box-decoration-break: clone;
+
+      box-decoration-break: clone;
+
       transition: background-color 0.2s ease, opacity 0.2s ease;
+
     }
+
 
     .thorium-highlight:hover {
       opacity: 0.8;
     }
 
-    .thorium-highlight-yellow { background-color: ${HIGHLIGHT_COLORS.yellow}; }
-    .thorium-highlight-green { background-color: ${HIGHLIGHT_COLORS.green}; }
-    .thorium-highlight-blue { background-color: ${HIGHLIGHT_COLORS.blue}; }
-    .thorium-highlight-pink { background-color: ${HIGHLIGHT_COLORS.pink}; }
-    .thorium-highlight-orange { background-color: ${HIGHLIGHT_COLORS.orange}; }
-    .thorium-highlight-purple { background-color: ${HIGHLIGHT_COLORS.purple}; }
+    .thorium-highlight-yellow { background-color: ${HIGHLIGHT_COLORS.yellow} !important; }
+    .thorium-highlight-green { background-color: ${HIGHLIGHT_COLORS.green} !important; }
+    .thorium-highlight-blue { background-color: ${HIGHLIGHT_COLORS.blue} !important; }
+    .thorium-highlight-pink { background-color: ${HIGHLIGHT_COLORS.pink} !important; }
+    .thorium-highlight-orange { background-color: ${HIGHLIGHT_COLORS.orange} !important; }
+    .thorium-highlight-purple { background-color: ${HIGHLIGHT_COLORS.purple} !important; }
 
     .thorium-highlight[data-has-note="true"] {
       border-bottom: 2px solid rgba(0, 0, 0, 0.3);

@@ -257,10 +257,14 @@ export function locatorToRange(
       return range;
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('Could not restore highlight range');
-    }
-    return null;
+    if (process.env.NODE_ENV !== 'production') {
+
+      console.warn('Could not restore highlight range');
+
+    }
+
+    return null;
+
 
   } catch (error) {
     console.error('Error restoring range:', error);
@@ -275,46 +279,87 @@ export function locatorToRange(
 export function splitRangeByElements(range: Range): Range[] {
   const ranges: Range[] = [];
 
-  if (range.startContainer === range.endContainer) {
+  // If it's fully within one text node, we can return as-is.
+
+  if (
+
+    range.startContainer === range.endContainer &&
+
+    range.startContainer.nodeType === Node.TEXT_NODE
+
+  ) {
+
     ranges.push(range.cloneRange());
+
     return ranges;
+
   }
+
 
   // For complex multi-element ranges, we'll need to split them
 
   // This is a simplified version - full implementation would handle all edge cases
 
-  const ownerDocument = range.commonAncestorContainer.ownerDocument;
+  const ownerDocument =
+
+    (range.commonAncestorContainer.nodeType === Node.DOCUMENT_NODE
+
+      ? (range.commonAncestorContainer as Document)
+
+      : range.commonAncestorContainer.ownerDocument) ||
+
+    range.startContainer.ownerDocument ||
+
+    range.endContainer.ownerDocument;
+
+
 
   if (!ownerDocument) {
 
-    return [range.cloneRange()];
+    return [];
 
   }
 
 
 
-  const walker = ownerDocument.createTreeWalker(
+  const root =
 
-    range.commonAncestorContainer,
+    range.commonAncestorContainer.nodeType === Node.TEXT_NODE
 
-    NodeFilter.SHOW_TEXT,
+      ? range.commonAncestorContainer.parentNode || range.commonAncestorContainer
 
-    {
+      : range.commonAncestorContainer;
 
-      acceptNode: (node) => {
 
-        return range.intersectsNode(node)
 
-          ? NodeFilter.FILTER_ACCEPT
+  const walker = ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
 
-          : NodeFilter.FILTER_REJECT;
+    acceptNode: (node) => {
+
+      try {
+
+        if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+
+      } catch {
+
+        return NodeFilter.FILTER_REJECT;
 
       }
 
-    }
 
-  );
+
+      const text = node.textContent ?? '';
+
+      if (text.trim().length === 0) return NodeFilter.FILTER_REJECT;
+
+
+
+      return NodeFilter.FILTER_ACCEPT;
+
+    },
+
+  });
+
 
 
   let node: Node | null;
@@ -331,10 +376,13 @@ export function splitRangeByElements(range: Range): Range[] {
       nodeRange.setEnd(node, range.endOffset);
     }
 
-    if (!nodeRange.collapsed) {
-      ranges.push(nodeRange);
-    }
+    if (nodeRange.collapsed) continue;
+    if (nodeRange.toString().trim().length === 0) continue;
+
+    ranges.push(nodeRange);
   }
 
-  return ranges.length > 0 ? ranges : [range.cloneRange()];
+  return ranges;
+
 }
+
