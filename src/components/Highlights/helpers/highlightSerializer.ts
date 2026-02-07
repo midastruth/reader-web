@@ -42,26 +42,49 @@ export function getHighlightStyles(color: HighlightColor): string {
  * Create a highlight mark element
  */
 export function createHighlightMark(
+
+  doc: Document,
+
   id: string,
+
   color: HighlightColor,
+
   hasNote: boolean = false
+
 ): HTMLElement {
-  const mark = document.createElement('mark');
+
+  const mark = doc.createElement('mark');
+
   mark.className = getHighlightClassName(color, id);
+
   mark.setAttribute('data-highlight-id', id);
+
   mark.setAttribute('data-highlight-color', color);
+
   if (hasNote) {
+
     mark.setAttribute('data-has-note', 'true');
+
   }
+
   mark.style.cssText = getHighlightStyles(color);
 
+
+
   // Add note indicator if has note
+
   if (hasNote) {
+
     mark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
+
   }
 
+
+
   return mark;
+
 }
+
 
 /**
  * Wrap a range with a highlight mark
@@ -72,8 +95,15 @@ export function wrapRangeWithHighlight(
   color: HighlightColor,
   hasNote: boolean = false
 ): HTMLElement | null {
+
+  const doc = range.startContainer.ownerDocument;
+
+
+
   try {
-    const mark = createHighlightMark(id, color, hasNote);
+
+    const mark = createHighlightMark(doc, id, color, hasNote);
+
     range.surroundContents(mark);
     return mark;
   } catch (error) {
@@ -82,8 +112,8 @@ export function wrapRangeWithHighlight(
     console.warn('surroundContents failed, using manual wrapping:', error);
 
     try {
-      const fragment = range.extractContents();
-      const mark = createHighlightMark(id, color, hasNote);
+      const fragment = range.extractContents();
+      const mark = createHighlightMark(doc, id, color, hasNote);
       mark.appendChild(fragment);
       range.insertNode(mark);
       return mark;

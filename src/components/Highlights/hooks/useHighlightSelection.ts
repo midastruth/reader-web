@@ -47,11 +47,20 @@ export function useHighlightSelection(bookId: string): UseHighlightSelectionRetu
    * Validate a text selection
    */
   const isValidSelection = useCallback((selection: TextSelection): boolean => {
-    if (!selection || !selection.range) {
+    if (!selection) {
+      console.warn('useHighlightSelection: selection is null/undefined');
+      return false;
+    }
+    if (!selection.range) {
+      console.warn('useHighlightSelection: selection.range is missing');
       return false;
     }
 
-    return isValidTextRange(selection.range);
+    const validRange = isValidTextRange(selection.range);
+    if (!validRange) {
+      console.warn('useHighlightSelection: isValidTextRange returned false', selection.range);
+    }
+    return validRange;
   }, []);
 
   /**
@@ -90,8 +99,7 @@ export function useHighlightSelection(bookId: string): UseHighlightSelectionRetu
 
         // Update Redux state
         dispatch(addHighlight(highlight));
-
-        console.log('Highlight created:', highlight.id);
+
         return highlight;
       } catch (error) {
         console.error('Failed to create highlight:', error);

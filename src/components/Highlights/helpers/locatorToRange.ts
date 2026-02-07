@@ -7,21 +7,32 @@ import type { SerializedRange, HighlightLocator } from '@/lib/types/highlights';
 /**
  * Find a node using XPath
  */
-function getNodeByXPath(xpath: string, doc: Document): Node | null {
-  try {
-    const result = doc.evaluate(
-      xpath,
-      doc.body,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
-    );
-    return result.singleNodeValue;
-  } catch (error) {
-    console.warn('XPath evaluation failed:', xpath, error);
-    return null;
-  }
-}
+function getNodeByXPath(xpath: string, doc: Document): Node | null {
+  const root = doc.body || doc.documentElement;
+  if (!root) return null;
+
+  const candidates = [xpath];
+  if (xpath.startsWith('/')) {
+    candidates.push(xpath.replace(/^\/+/, ''));
+  }
+
+  for (const candidate of candidates) {
+    try {
+      const result = doc.evaluate(
+        candidate,
+        root,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      );
+      if (result.singleNodeValue) return result.singleNodeValue;
+    } catch (error) {
+      console.warn('XPath evaluation failed:', candidate, error);
+    }
+  }
+
+  return null;
+}
 
 /**
  * Find text node containing specific text using fuzzy matching
@@ -32,11 +43,28 @@ function findTextNodeByContent(
   beforeContext?: string,
   afterContext?: string
 ): { node: Node; offset: number } | null {
-  const walker = document.createTreeWalker(
+  const ownerDocument = root.nodeType === Node.DOCUMENT_NODE
+
+    ? (root as Document)
+
+    : root.ownerDocument;
+
+
+
+  if (!ownerDocument) return null;
+
+
+
+  const walker = ownerDocument.createTreeWalker(
+
     root,
+
     NodeFilter.SHOW_TEXT,
+
     null
+
   );
+
 
   let currentNode: Node | null;
   const normalizedSearch = searchText.trim().toLowerCase();
@@ -141,22 +169,46 @@ export function splitRangeByElements(range: Range): Range[] {
   }
 
   // For complex multi-element ranges, we'll need to split them
+
   // This is a simplified version - full implementation would handle all edge cases
-  const walker = document.createTreeWalker(
+
+  const ownerDocument = range.commonAncestorContainer.ownerDocument;
+
+  if (!ownerDocument) {
+
+    return [range.cloneRange()];
+
+  }
+
+
+
+  const walker = ownerDocument.createTreeWalker(
+
     range.commonAncestorContainer,
+
     NodeFilter.SHOW_TEXT,
+
     {
+
       acceptNode: (node) => {
+
         return range.intersectsNode(node)
+
           ? NodeFilter.FILTER_ACCEPT
+
           : NodeFilter.FILTER_REJECT;
+
       }
+
     }
+
   );
+
 
   let node: Node | null;
   while ((node = walker.nextNode())) {
-    const nodeRange = document.createRange();
+    const nodeRange = ownerDocument.createRange();
+
     nodeRange.selectNodeContents(node);
 
     // Adjust for start/end boundaries

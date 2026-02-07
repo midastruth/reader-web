@@ -25,8 +25,13 @@ export interface HighlightManagerProps {
 }
 
 export interface HighlightManagerHandle {
+
   handleTextSelected: (selection: TextSelection) => void;
+
+  restoreForIframe: (iframe: HTMLIFrameElement, href: string) => Promise<void>;
+
 }
+
 
 export const HighlightManager = React.forwardRef<HighlightManagerHandle, HighlightManagerProps>(({ bookId, bookTitle, iframeRef }, ref) => {
   const dispatch = useDispatch();
@@ -92,7 +97,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
       return;
     }
-
+
     pendingSelectionRef.current = selection;
 
     // Calculate toolbar position
@@ -109,10 +114,24 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     });
   }, [isValidSelection]);
 
+  const restoreForIframe = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
+
+    await restoreHighlights(iframe, href);
+
+  }, [restoreHighlights]);
+
+
+
   // Expose methods to parent
+
   React.useImperativeHandle(ref, () => ({
-    handleTextSelected
+
+    handleTextSelected,
+
+    restoreForIframe,
+
   }));
+
 
   /**
    * Handle color selection from toolbar
@@ -123,10 +142,18 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     const highlight = await createHighlight(selection, color);
 
-    if (highlight && iframeRef?.current) {
-      // Render the highlight in the iframe
-      renderHighlight(highlight, iframeRef.current);
+    const iframeFromSelection = selection.range.startContainer.ownerDocument.defaultView?.frameElement as HTMLIFrameElement | null;
+
+    const targetIframe = iframeFromSelection || iframeRef?.current || null;
+
+
+
+    if (highlight && targetIframe) {
+
+      renderHighlight(highlight, targetIframe);
+
     }
+
 
     // Hide toolbar
     setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
@@ -143,13 +170,20 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     // Create highlight with default color first
     const highlight = await createHighlight(selection, activeColor);
 
-    if (highlight && iframeRef?.current) {
-      // Render the highlight
-      renderHighlight(highlight, iframeRef.current);
+    const iframeFromSelection = selection.range.startContainer.ownerDocument.defaultView?.frameElement as HTMLIFrameElement | null;
 
-      // Open note editor
+    const targetIframe = iframeFromSelection || iframeRef?.current || null;
+
+
+
+    if (highlight && targetIframe) {
+
+      renderHighlight(highlight, targetIframe);
+
       dispatch(require('@/lib/highlightsReducer').openNoteEditor(highlight.id));
+
     }
+
 
     // Hide toolbar
     setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
@@ -205,33 +239,8 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     setContextMenuState({ visible: false, position: { x: 0, y: 0 }, highlight: null });
   }, []);
 
-  /**
-   * Restore highlights when iframe is loaded
-   */
-  useEffect(() => {
-    if (!iframeRef?.current) return;
+  // Highlight restoration is triggered by the reader when frames are loaded.
 
-    const iframe = iframeRef.current;
-    const doc = iframe.contentDocument;
-    if (!doc) return;
-
-    // Listen for iframe load events
-    const handleLoad = () => {
-      const currentHref = doc.location.pathname;
-      restoreHighlights(iframe, currentHref);
-    };
-
-    iframe.addEventListener('load', handleLoad);
-
-    // Initial load
-    if (doc.readyState === 'complete') {
-      handleLoad();
-    }
-
-    return () => {
-      iframe.removeEventListener('load', handleLoad);
-    };
-  }, [iframeRef, restoreHighlights]);
 
   return (
     <>

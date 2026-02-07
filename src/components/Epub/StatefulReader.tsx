@@ -56,7 +56,8 @@ import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderArrowButton } from "../StatefulReaderArrowButton";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
-import { HighlightManager } from "../Highlights/HighlightManager";
+import { HighlightManager, type HighlightManagerHandle } from "../Highlights/HighlightManager";
+
 import type { TextSelection } from "../Highlights/hooks/useHighlightSelection";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
@@ -199,9 +200,43 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const [publication, setPublication] = useState<Publication | null>(null);
 
   const container = useRef<HTMLDivElement>(null);
-  const highlightManagerRef = useRef<{ handleTextSelected: (selection: TextSelection) => void } | null>(null);
+
+  const highlightManagerRef = useRef<HighlightManagerHandle | null>(null);
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const pendingHighlightRestoresRef = useRef<Array<{ iframe: HTMLIFrameElement; href: string }>>([]);
+
+
+
+  const setHighlightManagerHandle = useCallback((handle: HighlightManagerHandle | null) => {
+
+    highlightManagerRef.current = handle;
+
+
+
+    if (!handle) return;
+
+
+
+    const pending = pendingHighlightRestoresRef.current;
+
+    pendingHighlightRestoresRef.current = [];
+
+
+
+    pending.forEach(({ iframe, href }) => {
+
+      void handle.restoreForIframe(iframe, href);
+
+    });
+
+  }, []);
+
+
+
   const localDataKey = useRef(`${selfHref}-current-location`);
+
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
@@ -502,17 +537,106 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
   const listeners: EpubNavigatorListeners = {
     frameLoaded: async function (_wnd: Window): Promise<void> {
+
       await initReadingEnv();
+
+
+
       // Warning: this is using navigator’s internal methods that will become private, do not rely on them
+
       // See https://github.com/edrlab/thorium-web/issues/25
+
       const _cframes = getCframes();
+
       _cframes?.forEach(
+
         (frameManager: FrameManager | FXLFrameManager | undefined) => {
+
           if (frameManager) p.observe(frameManager.window);
+
         }
+
       );
+
       p.observe(window);
+
+
+
+      // Highlights: restore for currently loaded frame(s)
+
+      try {
+
+        const loadedIframe = (_wnd.frameElement as HTMLIFrameElement | null) || null;
+
+        if (loadedIframe) {
+
+          iframeRef.current = loadedIframe;
+
+        }
+
+
+
+        const locatorHref = currentLocator()?.href;
+
+
+
+        _cframes?.forEach((frameManager: FrameManager | FXLFrameManager | undefined) => {
+
+          if (!frameManager) return;
+
+
+
+          const iframe = frameManager.iframe;
+
+
+
+          const href =
+
+            ("debugHref" in frameManager ? (frameManager as FXLFrameManager).debugHref : undefined) ||
+
+            iframe.dataset.originalHref ||
+
+            locatorHref;
+
+
+
+          if (!href) return;
+
+
+
+          iframe.dataset.originalHref = href;
+
+          const handle = highlightManagerRef.current;
+
+          if (handle) {
+
+            void handle.restoreForIframe(iframe, href);
+
+            return;
+
+          }
+
+
+
+          const pending = pendingHighlightRestoresRef.current;
+
+          if (!pending.some((item) => item.iframe === iframe && item.href === href)) {
+
+            pending.push({ iframe, href });
+
+          }
+
+
+        });
+
+      } catch (error) {
+
+        console.warn("StatefulReader: failed to restore highlights for loaded frame", error);
+
+      }
+
     },
+
     positionChanged: async function (locator: Locator): Promise<void> {
       if (navLayout() !== Layout.fixed) {
         const debouncedHandleProgression = debounce(
@@ -591,7 +715,10 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     },
     textSelected: function (selection: BasicTextSelection): void {
       // Convert BasicTextSelection to TextSelection format for highlight system
-      if (!selection) return;
+      if (!selection) {
+        console.warn('StatefulReader: selection is null');
+        return;
+      }
 
       // Note: BasicTextSelection from Readium doesn't have the Range object
       // But we can approximate the data needed or rely on valid selection in the DOM
@@ -614,23 +741,156 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       // The `textSelected` event from Readium navigator might be insufficient if it doesn't pass the Range.
       // However, if the user just selected text, the DOM selection should still be active in the iframe.
 
-      if (iframeRef.current && highlightManagerRef.current) {
-        const doc = iframeRef.current.contentDocument;
-        const win = iframeRef.current.contentWindow;
-        if (doc && win) {
-          const domSelection = win.getSelection();
-          if (domSelection && domSelection.rangeCount > 0) {
-            const range = domSelection.getRangeAt(0);
-            const textSelection: TextSelection = {
-              range: range,
-              text: domSelection.toString(),
-              href: selection.targetFrameSrc || selfHref, // Fallback to selfRef
-              boundingClientRect: range.getBoundingClientRect()
-            };
+      // Lazy recovery for iframeRef if missing
+      if (!iframeRef.current && container.current) {
+        const iframe = container.current.querySelector('iframe');
+        if (iframe) {
+          iframeRef.current = iframe;
+          console.log('StatefulReader: iframe found via lazy lookup');
+        }
+      }
 
-            highlightManagerRef.current.handleTextSelected(textSelection);
+
+      // Prefer the exact iframe that reported the selection (FXL spreads can have multiple frames)
+
+      const frames = selection.targetFrameSrc ? getCframes() : undefined;
+
+      const matchingFrame = selection.targetFrameSrc
+
+        ? frames?.find((frame) => frame && frame.source === selection.targetFrameSrc)
+
+        : undefined;
+
+
+
+      if (matchingFrame) {
+
+        iframeRef.current = matchingFrame.iframe;
+
+      }
+
+
+
+      const selectionHref =
+
+        (matchingFrame && "debugHref" in matchingFrame ? (matchingFrame as FXLFrameManager).debugHref : undefined) ||
+
+        matchingFrame?.iframe.dataset.originalHref ||
+
+        currentLocator()?.href;
+
+
+
+      if (!selectionHref) {
+
+        console.warn('StatefulReader: could not resolve resource href for selection');
+
+        return;
+
+      }
+
+
+
+      if (iframeRef.current) {
+
+        iframeRef.current.dataset.originalHref = selectionHref;
+
+      }
+
+
+
+      const isIframeReady = !!iframeRef.current;
+
+      const isManagerReady = !!highlightManagerRef.current;
+
+
+      // Helper to try getting selection
+      const getSelectionFromIframe = (iframe: HTMLIFrameElement, targetSrc?: string, searchText?: string) => {
+        // Verify src if possible (blob URLs might differ slightly or need decoding, so simple check/warning)
+        if (targetSrc && iframe.src && iframe.src !== targetSrc) {
+          console.warn('StatefulReader: Mismatch in iframe src', { found: iframe.src, target: targetSrc });
+        }
+
+        const win = iframe.contentWindow;
+        if (win) {
+          let sel = win.getSelection();
+          if (sel && sel.rangeCount > 0) return sel;
+
+          // Fallback: Try to search for the text if explicit selection failed
+          if (searchText) {
+            console.log('StatefulReader: Selection empty, attempting window.find() fallback');
+            // Collapse selection or clear it to ensure find() works
+            sel?.removeAllRanges();
+
+            // We try to find the text to "re-select" it.
+            // window.find(aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog);
+            const found = (win as any).find(searchText, false, false, true, false, true, false);
+            if (found) {
+              console.log('StatefulReader: window.find() successful');
+              sel = win.getSelection();
+              if (sel && sel.rangeCount > 0) return sel;
+            }
           }
         }
+        return null;
+      };
+
+      const handleSelectionProcessing = (iframe: HTMLIFrameElement) => {
+        // First attempt: just get selection
+        const domSelection = getSelectionFromIframe(iframe, selection.targetFrameSrc);
+        console.log('StatefulReader: Processing selection', { found: !!domSelection });
+
+        if (domSelection && domSelection.rangeCount > 0) {
+          const range = domSelection.getRangeAt(0);
+          console.log('StatefulReader: range found', range);
+
+          const textSelection: TextSelection = {
+            range: range,
+            text: domSelection.toString(),
+            href: selectionHref,
+
+            boundingClientRect: range.getBoundingClientRect()
+          };
+
+          console.log('StatefulReader: calling highlightManagerRef.handleTextSelected');
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          highlightManagerRef.current!.handleTextSelected(textSelection);
+        } else {
+          console.warn('StatefulReader: No DOM selection found (immediate check)');
+
+          // Retry once after a small delay to handle race conditions
+          setTimeout(() => {
+            // Pass selection.text to trigger window.find() fallback
+            const delayedSel = getSelectionFromIframe(iframe, selection.targetFrameSrc, selection.text);
+            if (delayedSel && delayedSel.rangeCount > 0) {
+              console.log('StatefulReader: Selection found after delay/fallback');
+              const range = delayedSel.getRangeAt(0);
+              const textSelection: TextSelection = {
+                range: range,
+                text: delayedSel.toString(),
+                href: selectionHref,
+
+                boundingClientRect: range.getBoundingClientRect()
+              };
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              highlightManagerRef.current!.handleTextSelected(textSelection);
+            } else {
+              console.warn('StatefulReader: Still no selection after retry/fallback');
+            }
+          }, 50);
+        }
+      };
+
+      if (isIframeReady && isManagerReady) {
+        // Safe to use non-null assertion since we checked above
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        handleSelectionProcessing(iframeRef.current!);
+      } else {
+        console.error('StatefulReader: Refs missing when handling text selection', {
+          iframeRef: isIframeReady,
+          highlightManagerRef: isManagerReady,
+          publicationLoaded: !!publication
+        });
       }
     },
   };
@@ -732,29 +992,43 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       .catch(console.error);
   }, [arrowsOccupySpace, applyConstraint]);
 
-  useEffect(() => {
-    cache.current.reducedMotion = reducedMotion;
-  }, [reducedMotion]);
-
-  // Track iframe reference for highlight integration
+  // Track iframe element for highlighting
   useEffect(() => {
     if (!container.current) return;
 
-    // Navigator injects iframe into container, we need to wait for it
     const observer = new MutationObserver(() => {
       const iframe = container.current?.querySelector('iframe');
       if (iframe) {
         iframeRef.current = iframe;
+        console.log('StatefulReader: iframe found and ref set');
+
+        // Optional: Inject styles if needed when content loads
+        try {
+          const doc = iframe.contentDocument;
+          if (doc) {
+            // We can inject styles here if needed, or wait for load
+          }
+        } catch (e) {
+          // Ignored
+        }
       }
     });
 
-    observer.observe(container.current, {
-      childList: true,
-      subtree: true
-    });
+    observer.observe(container.current, { childList: true, subtree: true });
+
+    // Initial check
+    const iframe = container.current?.querySelector('iframe');
+    if (iframe) {
+      iframeRef.current = iframe;
+      console.log('StatefulReader: iframe found initially');
+    }
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    cache.current.reducedMotion = reducedMotion;
+  }, [reducedMotion]);
 
   // Theme can also change on colorScheme change so
   // we have to handle this side-effect but we can’t
@@ -1006,7 +1280,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       {/* Highlight Manager - handles all highlight functionality */}
       {publication && (
         <HighlightManager
-          ref={highlightManagerRef}
+          ref={setHighlightManagerHandle}
+
           bookId={selfHref}
           bookTitle={typeof publication.metadata.title === 'string' ? publication.metadata.title : publication.metadata.title?.toString()}
           iframeRef={iframeRef}

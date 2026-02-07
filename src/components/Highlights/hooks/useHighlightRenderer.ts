@@ -52,24 +52,42 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     // Inject highlight styles
     injectHighlightStyles(doc);
 
-    // Setup click handler for highlights
+    const existingHandler = (doc as any).__thoriumHighlightClickHandler as ((event: MouseEvent) => void) | undefined;
+
+    if (existingHandler) {
+
+      return;
+
+    }
+
+
+
     const handleClick = (event: MouseEvent) => {
+
       const target = event.target as Element;
+
       const highlightId = getHighlightIdFromElement(target);
 
+
+
       if (highlightId) {
+
         event.preventDefault();
+
         event.stopPropagation();
+
         handleHighlightClick(target);
+
       }
+
     };
+
+
+
+    (doc as any).__thoriumHighlightClickHandler = handleClick;
 
     doc.addEventListener('click', handleClick);
 
-    // Cleanup function
-    return () => {
-      doc.removeEventListener('click', handleClick);
-    };
   }, []);
 
   /**
@@ -86,7 +104,7 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     selectHighlightMark(highlightId, doc);
     dispatch(setSelectedHighlight(highlightId));
 
-    console.log('Highlight clicked:', highlightId);
+
   }, [dispatch]);
 
   /**
@@ -106,7 +124,9 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
       }
 
       // Restore the range from the serialized data
-      const range = locatorToRange(highlight.locator, highlight.range, doc.body);
+
+      const range = locatorToRange(highlight.range, highlight.locator, doc);
+
 
       if (!range) {
         console.warn('Could not restore range for highlight:', highlight.id);
@@ -114,11 +134,13 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
       }
 
       // Wrap the range with highlight mark
-      const mark = wrapRangeWithHighlight(range, highlight);
+
+      const mark = wrapRangeWithHighlight(range, highlight.id, highlight.color, !!highlight.note);
+
 
       if (mark) {
         renderedHighlightsRef.current.add(highlight.id);
-        console.log('Highlight rendered:', highlight.id);
+
       }
     } catch (error) {
       console.error('Failed to render highlight:', highlight.id, error);
@@ -145,7 +167,7 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
       // Get highlights for this chapter from IndexedDB
       const chapterHighlights = await HighlightsDB.getHighlightsByChapter(bookId, href);
 
-      console.log(`Restoring ${chapterHighlights.length} highlights for chapter:`, href);
+
 
       // Render each highlight
       for (const highlight of chapterHighlights) {
@@ -171,7 +193,6 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     removeHighlightMark(highlightId, doc);
     renderedHighlightsRef.current.delete(highlightId);
 
-    console.log('Highlight removed from DOM:', highlightId);
   }, []);
 
   /**
@@ -187,7 +208,6 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     // Update note indicator
     toggleHighlightNoteIndicator(highlight.id, !!highlight.note, doc);
 
-    console.log('Highlight updated:', highlight.id);
   }, []);
 
   /**
@@ -202,9 +222,7 @@ export function useHighlightRenderer(bookId: string): UseHighlightRendererReturn
     }
 
     renderedHighlightsRef.current.clear();
-    deselectAllHighlights(doc);
-
-    console.log('All highlights cleared from DOM');
+    deselectAllHighlights(doc);
   }, []);
 
   /**

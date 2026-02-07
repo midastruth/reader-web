@@ -44,7 +44,10 @@ function getXPathForNode(node: Node, root: Node): string {
     current = current.parentNode;
   }
 
-  return '/' + segments.join('/');
+  if (segments.length === 0) return '.';
+
+  return segments.join('/');
+
 }
 
 /**
@@ -85,44 +88,45 @@ function getTextContext(range: Range, contextLength = 50): {
 }
 
 /**
- * Convert a DOM Range to a Readium Locator with serialized range
+
+ * Convert a DOM Range to a Readium Locator
+
  */
+
 export function rangeToLocator(
+
   range: Range,
+
   href: string,
+
   progression?: number,
+
   position?: number
-): {
-  locator: HighlightLocator;
-  range: SerializedRange;
-} {
-  // Get the root node (usually the iframe document body)
-  const root = range.commonAncestorContainer.ownerDocument?.body ||
-    range.commonAncestorContainer;
 
-  // Serialize the range
-  const serializedRange: SerializedRange = {
-    startContainerPath: getXPathForNode(range.startContainer, root),
-    startOffset: range.startOffset,
-    endContainerPath: getXPathForNode(range.endContainer, root),
-    endOffset: range.endOffset,
-  };
+): HighlightLocator {
 
-  // Extract text context
   const textContext = getTextContext(range);
 
-  // Build locator
-  const locator: HighlightLocator = {
+
+
+  return {
+
     href,
+
     locations: {
+
       progression,
+
       position,
+
     },
+
     text: textContext,
+
   };
 
-  return { locator, range: serializedRange };
 }
+
 
 /**
  * Validate if a serialized range can be restored
@@ -131,28 +135,39 @@ export function canRestoreRange(
   serializedRange: SerializedRange,
   doc: Document
 ): boolean {
-  try {
-    const startNode = doc.evaluate(
-      serializedRange.startContainerPath,
-      doc.body,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
-    ).singleNodeValue;
-
-    const endNode = doc.evaluate(
-      serializedRange.endContainerPath,
-      doc.body,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
-    ).singleNodeValue;
-
-    return startNode !== null && endNode !== null;
-  } catch (error) {
-    console.warn('Cannot restore range:', error);
-    return false;
-  }
+  try {
+    const root = doc.body || doc.documentElement;
+    if (!root) return false;
+
+    const resolve = (xpath: string) => {
+      const candidates = [xpath];
+      if (xpath.startsWith('/')) {
+        candidates.push(xpath.replace(/^\/+/, ''));
+      }
+
+      for (const candidate of candidates) {
+        const node = doc.evaluate(
+          candidate,
+          root,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null
+        ).singleNodeValue;
+
+        if (node) return node;
+      }
+
+      return null;
+    };
+
+    const startNode = resolve(serializedRange.startContainerPath);
+    const endNode = resolve(serializedRange.endContainerPath);
+
+    return startNode !== null && endNode !== null;
+  } catch (error) {
+    console.warn('Cannot restore range:', error);
+    return false;
+  }
 }
 
 /**
@@ -192,9 +207,10 @@ export function normalizeRange(range: Range): Range {
  * Manually serialize range (helper for consumers that need just the range part)
  */
 export function serializeRange(range: Range): SerializedRange {
-  // Get the root node (usually the iframe document body)
-  const root = range.commonAncestorContainer.ownerDocument?.body ||
-    range.commonAncestorContainer;
+  const doc = range.startContainer.ownerDocument;
+
+  const root = doc?.body || doc?.documentElement || range.commonAncestorContainer;
+
 
   return {
     startContainerPath: getXPathForNode(range.startContainer, root),
