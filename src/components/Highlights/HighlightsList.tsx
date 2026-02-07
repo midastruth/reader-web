@@ -7,7 +7,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/lib/store';
-import type { Highlight, HighlightColor, HighlightSortBy } from '@/lib/types/highlights';
+import { HighlightSortBy, type Highlight, type HighlightColor } from '@/lib/types/highlights';
+
 import { setSelectedHighlight, openNoteEditor } from '@/lib/highlightsReducer';
 
 export interface HighlightsListProps {
@@ -34,7 +35,8 @@ export function HighlightsList({ onHighlightClick, onJumpToHighlight }: Highligh
   const [searchText, setSearchText] = useState('');
   const [filterColors, setFilterColors] = useState<HighlightColor[]>([]);
   const [filterWithNotesOnly, setFilterWithNotesOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<HighlightSortBy>('position');
+  const [sortBy, setSortBy] = useState<HighlightSortBy>(HighlightSortBy.POSITION);
+
   const [groupByChapter, setGroupByChapter] = useState(true);
 
   // Filter and sort highlights
@@ -63,13 +65,16 @@ export function HighlightsList({ onHighlightClick, onJumpToHighlight }: Highligh
     // Sort
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'position':
+        case HighlightSortBy.POSITION:
+
           return (a.locator.locations.progression || 0) - (b.locator.locations.progression || 0);
-        case 'created':
+        case HighlightSortBy.CREATED:
+
           return b.createdAt - a.createdAt;
-        case 'updated':
+        case HighlightSortBy.UPDATED:
+
           return b.updatedAt - a.updatedAt;
-        case 'color':
+        case HighlightSortBy.COLOR:
           return a.color.localeCompare(b.color);
         default:
           return 0;

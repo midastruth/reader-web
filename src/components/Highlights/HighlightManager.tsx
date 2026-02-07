@@ -97,7 +97,8 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       setToolbarState({ visible: false, position: { x: 0, y: 0 }, selection: null });
       return;
     }
-
+
+
     pendingSelectionRef.current = selection;
 
     // Calculate toolbar position
@@ -142,7 +143,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     const highlight = await createHighlight(selection, color);
 
-    const iframeFromSelection = selection.range.startContainer.ownerDocument.defaultView?.frameElement as HTMLIFrameElement | null;
+    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
 
     const targetIframe = iframeFromSelection || iframeRef?.current || null;
 
@@ -170,7 +171,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     // Create highlight with default color first
     const highlight = await createHighlight(selection, activeColor);
 
-    const iframeFromSelection = selection.range.startContainer.ownerDocument.defaultView?.frameElement as HTMLIFrameElement | null;
+    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
 
     const targetIframe = iframeFromSelection || iframeRef?.current || null;
 
@@ -271,5 +272,13 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   );
 });
 
+
+
+HighlightManager.displayName = 'HighlightManager';
+
+
+
 // Export the handler for use in StatefulReader
+
 export type TextSelectedHandler = (selection: TextSelection) => void;
+

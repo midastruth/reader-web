@@ -5,7 +5,6 @@
 
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
 import type { Highlight, HighlightColor } from '@/lib/types/highlights';
 import { addHighlight } from '@/lib/highlightsReducer';
 import HighlightsDB from '@/core/Storage/HighlightsDB';
@@ -16,9 +15,30 @@ import {
   normalizeRange,
 } from '../helpers/rangeToLocator';
 
+
+
+const createHighlightId = (): string => {
+
+  if (globalThis.crypto?.randomUUID) {
+
+    return globalThis.crypto.randomUUID();
+
+  }
+
+
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+};
+
+
+
 /**
+
  * Text selection data from Readium Navigator
+
  */
+
 export interface TextSelection {
   range: Range;
   text: string;
@@ -84,7 +104,7 @@ export function useHighlightSelection(bookId: string): UseHighlightSelectionRetu
 
         // Create the highlight object
         const highlight: Highlight = {
-          id: uuidv4(),
+          id: createHighlightId(),
           bookId,
           color,
           createdAt: Date.now(),
@@ -99,7 +119,8 @@ export function useHighlightSelection(bookId: string): UseHighlightSelectionRetu
 
         // Update Redux state
         dispatch(addHighlight(highlight));
-
+
+
         return highlight;
       } catch (error) {
         console.error('Failed to create highlight:', error);

@@ -746,7 +746,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         const iframe = container.current.querySelector('iframe');
         if (iframe) {
           iframeRef.current = iframe;
-          console.log('StatefulReader: iframe found via lazy lookup');
         }
       }
 
@@ -818,7 +817,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
           // Fallback: Try to search for the text if explicit selection failed
           if (searchText) {
-            console.log('StatefulReader: Selection empty, attempting window.find() fallback');
             // Collapse selection or clear it to ensure find() works
             sel?.removeAllRanges();
 
@@ -826,7 +824,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             // window.find(aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog);
             const found = (win as any).find(searchText, false, false, true, false, true, false);
             if (found) {
-              console.log('StatefulReader: window.find() successful');
               sel = win.getSelection();
               if (sel && sel.rangeCount > 0) return sel;
             }
@@ -838,11 +835,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       const handleSelectionProcessing = (iframe: HTMLIFrameElement) => {
         // First attempt: just get selection
         const domSelection = getSelectionFromIframe(iframe, selection.targetFrameSrc);
-        console.log('StatefulReader: Processing selection', { found: !!domSelection });
 
         if (domSelection && domSelection.rangeCount > 0) {
           const range = domSelection.getRangeAt(0);
-          console.log('StatefulReader: range found', range);
 
           const textSelection: TextSelection = {
             range: range,
@@ -852,8 +847,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             boundingClientRect: range.getBoundingClientRect()
           };
 
-          console.log('StatefulReader: calling highlightManagerRef.handleTextSelected');
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           highlightManagerRef.current!.handleTextSelected(textSelection);
         } else {
           console.warn('StatefulReader: No DOM selection found (immediate check)');
@@ -863,7 +856,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
             // Pass selection.text to trigger window.find() fallback
             const delayedSel = getSelectionFromIframe(iframe, selection.targetFrameSrc, selection.text);
             if (delayedSel && delayedSel.rangeCount > 0) {
-              console.log('StatefulReader: Selection found after delay/fallback');
               const range = delayedSel.getRangeAt(0);
               const textSelection: TextSelection = {
                 range: range,
@@ -872,7 +864,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
                 boundingClientRect: range.getBoundingClientRect()
               };
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               highlightManagerRef.current!.handleTextSelected(textSelection);
             } else {
               console.warn('StatefulReader: Still no selection after retry/fallback');
@@ -883,7 +874,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
       if (isIframeReady && isManagerReady) {
         // Safe to use non-null assertion since we checked above
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         handleSelectionProcessing(iframeRef.current!);
       } else {
         console.error('StatefulReader: Refs missing when handling text selection', {
@@ -1000,7 +990,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       const iframe = container.current?.querySelector('iframe');
       if (iframe) {
         iframeRef.current = iframe;
-        console.log('StatefulReader: iframe found and ref set');
 
         // Optional: Inject styles if needed when content loads
         try {
@@ -1020,7 +1009,6 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     const iframe = container.current?.querySelector('iframe');
     if (iframe) {
       iframeRef.current = iframe;
-      console.log('StatefulReader: iframe found initially');
     }
 
     return () => observer.disconnect();

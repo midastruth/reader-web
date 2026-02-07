@@ -122,9 +122,9 @@ export function HighlightNote() {
         {/* Highlight preview */}
         <div className="highlight-note-preview">
           <div className={`highlight-note-color-indicator highlight-${highlight.color}`} />
-          <blockquote className="highlight-note-quote">
-            "{displayText}"
-          </blockquote>
+          <blockquote className="highlight-note-quote">
+            &ldquo;{displayText}&rdquo;
+          </blockquote>
         </div>
 
         {/* Note editor */}

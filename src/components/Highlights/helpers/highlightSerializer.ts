@@ -95,12 +95,11 @@ export function wrapRangeWithHighlight(
   color: HighlightColor,
   hasNote: boolean = false
 ): HTMLElement | null {
-
-  const doc = range.startContainer.ownerDocument;
-
-
-
-  try {
+
+  const doc = range.startContainer.ownerDocument || range.endContainer.ownerDocument;
+  if (!doc) return null;
+
+  try {
 
     const mark = createHighlightMark(doc, id, color, hasNote);
 
@@ -112,8 +111,10 @@ export function wrapRangeWithHighlight(
     console.warn('surroundContents failed, using manual wrapping:', error);
 
     try {
-      const fragment = range.extractContents();
-      const mark = createHighlightMark(doc, id, color, hasNote);
+      const fragment = range.extractContents();
+
+      const mark = createHighlightMark(doc, id, color, hasNote);
+
       mark.appendChild(fragment);
       range.insertNode(mark);
       return mark;
