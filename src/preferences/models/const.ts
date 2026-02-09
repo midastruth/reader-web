@@ -133,7 +133,8 @@ export const defaultFontCollection: FontCollection = {
   ...readiumCSSFontCollection,
   iAWriterDuo: createDefinitionFromStaticFonts({
     id: "iAWriterDuo",
-    name: "IA Writer Duo",
+    name: "iA Writer Duo",
+    label: "iA Writer Duospace",
     fallbacks: ["monospace"],
     files: [
       { path: "/fonts/iAWriterDuo/iAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
@@ -168,6 +169,13 @@ export const tamilCollection = {
     cssUrl: "https://fonts.googleapis.com/css2?family=Anek+Tamil:wght@100..800&family=Catamaran:wght@100..900&family=Hind+Madurai:wght@400;700&family=Mukta+Malar:wght@400;700&family=Noto+Sans+Tamil:wght@100..900&family=Noto+Serif+Tamil:ital,wght@0,100..900;1,100..900",
     options: {
       order: ["noto-sans-tamil", "noto-serif-tamil", "anek-tamil", "catamaran", "hind-madurai", "mukta-malar"],
+      labels: {
+        "noto-sans-tamil": "Noto Sans",
+        "noto-serif-tamil": "Noto Serif",
+        "anek-tamil": "அனேக் தமிழ்",
+        "catamaran": "கட்டுமரன்",
+        "mukta-malar": "முக்த மலர்"
+      },
       fallbacks: {
         "noto-serif-tamil": ["serif"]
       }

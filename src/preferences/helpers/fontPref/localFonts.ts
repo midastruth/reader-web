@@ -5,6 +5,7 @@ interface CreateFontDefinitionParams {
   name: string;
   files: LocalStaticFontFile[];
   family?: string;
+  label?: string;
   fallbacks?: string[];
 }
 
@@ -17,7 +18,7 @@ interface CreateFontDefinitionParams {
 export const createDefinitionFromStaticFonts = (
   params: CreateFontDefinitionParams
 ): FontDefinition => {
-  const { id, name, files, family, fallbacks = ["sans-serif"] } = params;
+  const { id, name, files, family, label, fallbacks = ["sans-serif"] } = params;
   
   if (!files || files.length === 0) {
     throw new Error("No files provided to infer font specification");
@@ -51,6 +52,7 @@ export const createDefinitionFromStaticFonts = (
   return {
     id,
     name,
+    ...(label && { label }),
     source,
     spec
   };

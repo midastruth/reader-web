@@ -18,6 +18,7 @@ export interface GoogleFontDefinitionParams {
     widthStep?: number;
     weightStep?: number;
     display?: "swap" | "block" | "fallback" | "optional";
+    labels?: Record<string, string>; // derived fontId -> label
     fallbacks?: Record<string, string[]>; // derived fontId -> fallback array
     order?: string[]; // array of font IDs in desired order
   }
@@ -31,7 +32,7 @@ export interface GoogleFontDefinitionParams {
  */
 export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionParams): FontCollection => {
   const { cssUrl, options } = params;
-  const { widthStep = DEFAULT_WIDTH_STEP, weightStep = DEFAULT_WEIGHT_STEP, display, fallbacks, order } = options || {};
+  const { widthStep = DEFAULT_WIDTH_STEP, weightStep = DEFAULT_WEIGHT_STEP, display, labels, fallbacks, order } = options || {};
   
   // Extract URL from @import url() or href="", otherwise use as-is
   const processedUrl = cssUrl.includes("@import") 
@@ -147,6 +148,7 @@ export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionPar
       {
         id: fontId,
         name: family.name,
+        ...(labels?.[fontId] && { label: labels[fontId] }),
         source: { type: "custom", provider: "google" } as GoogleFontSource,
         spec: {
           family: family.name,

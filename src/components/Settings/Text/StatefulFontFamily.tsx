@@ -26,7 +26,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     // Handle i18n label if present
     if (font.label) {
       if (typeof font.label === "string") {
-        return t(font.label, { defaultValue: font.name });
+        return t(font.label, { defaultValue: font.label || font.name });
       } else if (typeof font.label === "object" && "key" in font.label) {
         return t(font.label.key, { 
           defaultValue: font.label.fallback || font.name 

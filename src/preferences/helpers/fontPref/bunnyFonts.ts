@@ -3,6 +3,7 @@ import { FontCollection, FontDefinition } from "@/preferences/preferences";
 interface BunnyFontDefinitionParams {
   cssUrl: string;
   options?: {
+    labels?: Record<string, string>; // derived fontId -> label
     fallbacks?: Record<string, string[]>; // derived fontId -> fallback array
     order?: string[]; // array of font IDs in desired order
   };
@@ -18,7 +19,7 @@ const DEFAULT_FALLBACK = "sans-serif";
  */
 export const createDefinitionsFromBunnyFonts = (params: BunnyFontDefinitionParams): FontCollection => {
   const { cssUrl, options } = params;
-  const { fallbacks, order } = options || {};
+  const { fallbacks, order, labels } = options || {};
   
   // Extract URL from @import url() or href="", otherwise use as-is
   const processedUrl = cssUrl.includes("@import") 
@@ -81,6 +82,7 @@ export const createDefinitionsFromBunnyFonts = (params: BunnyFontDefinitionParam
       {
         id: fontId,
         name: familyDisplayName,
+        ...(labels?.[fontId] && { label: labels[fontId] }),
         source: {
           type: "custom",
           provider: "bunny"
