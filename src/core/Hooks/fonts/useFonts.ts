@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef } from "react";
 import type { InjectableFontResources } from "@/preferences/services/fonts";
 import type { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
 
+import { getAndroidPatchCss } from "./androidPatchCss";
+
 type FontResource = (ILinkInjectable & IUrlInjectable) | (ILinkInjectable & IBlobInjectable);
 
 export const useFonts = (fontResources?: InjectableFontResources | null) => {
@@ -80,6 +82,28 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
     });
   }, [createLinkElement, removeInjectedElements]);
 
+  const getAndroidFXLPatch = useCallback((): (ILinkInjectable & IBlobInjectable) | null => {
+    if (typeof window === "undefined" || !window.navigator) {
+      return null;
+    }
+    
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isAndroid = userAgent.includes("android");
+    
+    if (!isAndroid) {
+      return null;
+    }
+    
+    const cssContent = getAndroidPatchCss();
+    const blob = new Blob([cssContent], { type: "text/css" });
+    
+    return {
+      as: "link",
+      rel: "stylesheet",
+      blob
+    };
+  }, []);
+
   useEffect(() => {
     injectFontResources(fontResources || null);
     
@@ -90,6 +114,7 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
 
   return {
     injectFontResources,
-    removeFontResources: removeInjectedElements
+    removeFontResources: removeInjectedElements,
+    getAndroidFXLPatch
   };
 };

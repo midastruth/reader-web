@@ -56,7 +56,7 @@ import { useLocalStorage } from "@/core/Hooks/useLocalStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
-import { useFonts } from "@/core/Hooks/useFonts";
+import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";

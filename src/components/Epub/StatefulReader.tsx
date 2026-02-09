@@ -71,7 +71,7 @@ import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
-import { useFonts } from "@/core/Hooks/useFonts";
+import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
@@ -198,7 +198,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
-  const { injectFontResources, removeFontResources } = useFonts();
+  const { injectFontResources, removeFontResources, getAndroidFXLPatch } = useFonts();
   
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -842,6 +842,19 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         }
 
         let injectables: IInjectablesConfig | undefined;
+
+        if (isFXLPublication) {
+          const androidPatch = getAndroidFXLPatch();
+          if (androidPatch) {
+            injectables = {
+              allowedDomains: [window.location.origin],
+              rules: [{
+                resources: [/\.xhtml$/, /\.html$/],
+                prepend: [androidPatch]
+              }]
+            };
+          }
+        }
         
         if (!isFXLPublication && isFontFamilyUsed) {
           const fontResources = getFontInjectables();
