@@ -96,7 +96,7 @@ export const createDefinitionsFromGoogleFonts = (params: GoogleFontDefinitionPar
                   const [min, max] = value.split("..").map(Number);
                   if (!isNaN(min) && !isNaN(max)) {
                     family.weights = {
-                      type: "range",
+                      type: "variable",
                       min,
                       max,
                       step: weightStep

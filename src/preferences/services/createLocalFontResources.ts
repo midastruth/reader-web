@@ -46,7 +46,7 @@ import { FontResource } from "./fonts";
       ];
 
       // Handle font weight
-      if (isVariable && weights.type === "range") {
+      if (isVariable && weights.type === "variable") {
         rules.push(`  font-weight: ${ weights.min } ${ weights.max };`);
       } else if ("weight" in fontFile) {
         rules.push(`  font-weight: ${ fontFile.weight };`);

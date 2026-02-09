@@ -51,7 +51,7 @@ Example:
       spec: {
         family: "Variable System Font",
         fallbacks: ["Arial", "Helvetica", "sans-serif"],
-        weights: { type: "range", min: 100, max: 900, step: 100 },
+        weights: { type: "variable", min: 100, max: 900, step: 100 },
         widths: { min: 100, max: 200, step: 10 },
         styles: ["normal", "italic"],
         display: "swap"
@@ -134,7 +134,7 @@ For convenience, you can use the `createDefinitionsFromBunnyFonts` helper functi
   - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires using Bunny’s `id` from the URL
 
 **Important Notes:**
-- Bunny Fonts only supports static font files, so you cannot use ranges (`weights` and `widths`)
+- Bunny Fonts only supports static font files, so you cannot use ranges for `weights` and `widths`
 - Font families are combined in a single URL by separating them with a pipe (`|`) character
 
 Example:
@@ -271,7 +271,7 @@ const googleFonts = {
       family: "Open Sans",
       fallbacks: ["Helvetica", "sans-serif"],
       weights: {
-        type: "range",
+        type: "variable",
         min: 300,
         max: 800
       },
@@ -404,7 +404,7 @@ const myVariableFont: FontDefinition = {
     family: "My Variable Font",
     fallbacks: ["sans-serif"],
     weights: {
-      type: "range",
+      type: "variable",
       min: 100,
       max: 900,
       step: 20

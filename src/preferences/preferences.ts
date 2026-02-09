@@ -85,7 +85,7 @@ export type WeightConfig =
       values: number[];
     }
   | {
-      type: "range";
+      type: "variable";
     } & VariableFontRangeConfig;
 
 export interface FontSpec {
