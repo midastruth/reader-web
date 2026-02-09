@@ -136,10 +136,10 @@ export const defaultFontCollection: FontCollection = {
     name: "IA Writer Duo",
     fallbacks: ["monospace"],
     files: [
-      { path: "/fonts/iAWriterDuo/IAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
-      { path: "/fonts/iAWriterDuo/IAWriterDuoS-Bold.woff2", weight: 700, style: "normal" },
-      { path: "/fonts/iAWriterDuo/IAWriterDuoS-Italic.woff2", weight: 400, style: "italic" },
-      { path: "/fonts/iAWriterDuo/IAWriterDuoS-BoldItalic.woff2", weight: 700, style: "italic" }
+      { path: "/fonts/iAWriterDuo/iAWriterDuoS-Regular.woff2", weight: 400, style: "normal" },
+      { path: "/fonts/iAWriterDuo/iAWriterDuoS-Bold.woff2", weight: 700, style: "normal" },
+      { path: "/fonts/iAWriterDuo/iAWriterDuoS-Italic.woff2", weight: 400, style: "italic" },
+      { path: "/fonts/iAWriterDuo/iAWriterDuoS-BoldItalic.woff2", weight: 700, style: "italic" }
     ]
   }),
   openDyslexic: createDefinitionFromStaticFonts({
