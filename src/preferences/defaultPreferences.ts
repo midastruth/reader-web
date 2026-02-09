@@ -36,7 +36,8 @@ import {
   defaultTextSettingsMain, 
   defaultTextSettingsSubpanel, 
   defaultWordSpacing, 
-  defaultZoom
+  defaultZoom,
+  tamilCollection
 } from "./models/const";
 
 export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<DefaultKeys>({
@@ -498,7 +499,11 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     ],
     keys: {
       [ThSettingsKeys.fontFamily]: {
-        default: defaultFontCollection
+        default: defaultFontCollection,
+        tamil: {
+          supportedLanguages: ["ta"],
+          fonts: tamilCollection
+        }
       },
       [ThSettingsKeys.letterSpacing]: defaultLetterSpacing,
       [ThSettingsKeys.lineHeight]: {

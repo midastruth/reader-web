@@ -447,7 +447,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
         
       // Only inject font resources if font family component is being used
       if (isFontFamilyUsed) {
-        const fontResources = getFontInjectables();
+        const fontResources = getFontInjectables({ language: resolvedMainLanguage });
         if (fontResources) {
           injectFontResources(getFontInjectables(undefined, true));
           injectables = {

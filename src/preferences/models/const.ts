@@ -163,6 +163,18 @@ export const defaultFontCollection: FontCollection = {
   })
 };
 
+export const tamilCollection = {
+  ...createDefinitionsFromGoogleFonts({
+    cssUrl: "https://fonts.googleapis.com/css2?family=Anek+Tamil:wght@100..800&family=Catamaran:wght@100..900&family=Hind+Madurai:wght@400;700&family=Mukta+Malar:wght@400;700&family=Noto+Sans+Tamil:wght@100..900&family=Noto+Serif+Tamil:ital,wght@0,100..900;1,100..900",
+    options: {
+      order: ["noto-sans-tamil", "noto-serif-tamil", "anek-tamil", "catamaran", "hind-madurai", "mukta-malar"],
+      fallbacks: {
+        "noto-serif-tamil": ["serif"]
+      }
+    }
+  })
+}
+
 export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {
   variant: ThSettingsRangeVariant.numberField,
   placeholder: ThSettingsRangePlaceholder.range,

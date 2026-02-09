@@ -857,7 +857,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         }
         
         if (!isFXLPublication && isFontFamilyUsed) {
-          const fontResources = getFontInjectables();
+          const fontResources = getFontInjectables({ language: resolvedFontLanguage });
           if (fontResources) {
             injectFontResources(getFontInjectables(undefined, true));
             injectables = {

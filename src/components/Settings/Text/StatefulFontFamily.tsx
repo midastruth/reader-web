@@ -38,13 +38,13 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     return font.name;
   }, [t]);
 
-  // Get language-specific font preferences
-  const fontPreferences = getFontsList();
-
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
 
   const fontLanguage = useAppSelector(state => state.publication.fontLanguage) || "default";
+
+  // Get language-specific font preferences
+  const fontPreferences = getFontsList({ language: fontLanguage });
 
   const fontFamily = useAppSelector(state => {
     const fontSettings = isWebPub ? state.webPubSettings.fontFamily : state.settings.fontFamily;
