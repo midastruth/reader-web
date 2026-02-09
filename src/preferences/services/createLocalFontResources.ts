@@ -1,5 +1,4 @@
-import type { FontDefinition, VariableFontRangeConfig } from "../preferences";
-import type { ILinkInjectable, IBlobInjectable } from "@readium/navigator";
+import { FontDefinition } from "../preferences";
 import { FontResource } from "./fonts";
 
 /**

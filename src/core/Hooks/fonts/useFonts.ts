@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import type { InjectableFontResources } from "@/preferences/services/fonts";
-import type { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
 
+import { InjectableFontResources } from "@/preferences/services/fonts";
+import { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
+
+import { getPlatform } from "@/core/Helpers/getPlatform";
 import { getAndroidPatchCss } from "./androidPatchCss";
 
 type FontResource = (ILinkInjectable & IUrlInjectable) | (ILinkInjectable & IBlobInjectable);
@@ -83,12 +85,8 @@ export const useFonts = (fontResources?: InjectableFontResources | null) => {
   }, [createLinkElement, removeInjectedElements]);
 
   const getAndroidFXLPatch = useCallback((): (ILinkInjectable & IBlobInjectable) | null => {
-    if (typeof window === "undefined" || !window.navigator) {
-      return null;
-    }
-    
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isAndroid = userAgent.includes("android");
+    const platform = getPlatform();
+    const isAndroid = platform === "android";
     
     if (!isAndroid) {
       return null;

@@ -1,6 +1,6 @@
-import type { FontDefinition, VariableFontRangeConfig, WeightConfig, ThFontFamilyPref, FontCollection, ValidatedLanguageCollection } from "../preferences";
+import { FontDefinition, VariableFontRangeConfig, WeightConfig, ThFontFamilyPref, FontCollection, ValidatedLanguageCollection } from "../preferences";
 
-import type { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
+import { ILinkInjectable, IUrlInjectable, IBlobInjectable } from "@readium/navigator";
 
 import { createBunnyFontResources } from "./createBunnyFontResources";
 import { createGoogleFontResources } from "./createGoogleFontResources";

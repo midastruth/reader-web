@@ -1,5 +1,4 @@
-import type { FontDefinition, WeightConfig, VariableFontRangeConfig, FontSpec } from "../preferences";
-import type { ILinkInjectable, IUrlInjectable } from "@readium/navigator";
+import { FontDefinition, WeightConfig, VariableFontRangeConfig, FontSpec } from "../preferences";
 import { FontResource } from "./fonts";
 
 /**
