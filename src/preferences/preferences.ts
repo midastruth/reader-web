@@ -429,7 +429,7 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
     // Extract language code from BCP-47 locale (e.g., "en-US" -> "en")
     const languageCode = params.locale.split("-")[0];
     if (!isSupportedLocale(languageCode)) {
-      console.warn(`Locale "${params.locale}" is not supported. Supported locales: ${supportedLocales.join(", ")}. Falling back to browser/OS language settings.`);
+      console.warn(`Locale "${ params.locale }" is not supported. Supported locales: ${ supportedLocales.join(", ") }. Falling back to browser/OS language settings.`);
       params.locale = undefined; // Let i18n fall back to browser/OS language settings
     }
   }
