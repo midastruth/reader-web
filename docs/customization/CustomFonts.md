@@ -123,7 +123,42 @@ The user setting will then be stored for the language the resolver resolved to, 
 
 You can include Bunny Fonts in your font collection. Bunny Fonts is a European and privacy-focused alternative to Google Fonts.
 
+#### Using the Helper Function (Recommended)
+
+For convenience, you can use the `createDefinitionsFromBunnyFonts` helper function:
+
+- `cssUrl` (string, required): The Bunny Fonts CSS URL, the entire `link` or `@import` statement from their website
+- `options` (object, optional): Configuration options
+  - `order` (string[]): Controls the display order of fonts in the UI, requires using Bunny’s `id` from the URL
+  - `labels` (Record<string, string>): Custom labels for each font family, requires using Bunny’s `id` from the URL
+  - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires using Bunny’s `id` from the URL
+
+**Important Notes:**
+- Bunny Fonts only supports static font files, so you cannot use ranges (`weights` and `widths`)
+- Font families are combined in a single URL by separating them with a pipe (`|`) character
+
+Example:
+
+```typescript
+import { createDefinitionsFromBunnyFonts } from "@edrlab/thorium-web/preferences";
+
+const bunnyFonts = createDefinitionsFromBunnyFonts({
+  cssUrl: "https://fonts.bunny.net/css?family=roboto:300,300i,400,400i,500,500i,700,700i|open-sans:400, 400i, 700, 700i",
+  
+  options: {
+    order: ["open-sans", "roboto"],
+    
+    fallbacks: {
+      "roboto": ["Arial", "sans-serif"],
+      "open-sans": ["Helvetica", "sans-serif"]
+    }
+  }
+});
+```
+
 #### Manual Configuration
+
+If you prefer more control or need to customize further, you can define the fonts manually:
 
 ```typescript
 const bunnyFonts = {
@@ -157,29 +192,39 @@ const settings = {
 };
 ```
 
+#### Finding Fonts
+
+1. Visit [Bunny Fonts](https://fonts.bunny.net/)
+2. Search for the font you want to use
+3. Select the weights and styles you need
+4. Copy the CSS URL, `link`, or `@import` statement from their website
+5. Use it with the helper function as shown above
+
 #### Using the Helper Function (Recommended)
 
-For convenience, you can use the `createDefinitionsFromBunnyFonts` helper function:
+For convenience, you can use the `createDefinitionsFromGoogleFonts` helper.
 
-- `cssUrl` (string, required): The Bunny Fonts CSS URL, the entire `link` or `@import` statement from their website
+- `cssUrl` (string, required): The Google Fonts CSS URL, the entire `link` or `@import` statement you copy from their page
 - `options` (object, optional): Configuration options
-  - `order` (string[]): Controls the display order of fonts in the UI, requires using Bunny’s `id` from the URL
-  - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires using Bunny’s `id` from the URL
+  - `order` (string[]): Controls the display order of fonts in the UI, requires derived `id`
+  - `labels` (Record<string, string>): Custom labels for each font family, requires derived `id`
+  - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires derived `id`
+  - `display` (string): Controls font-display behavior
+  - `weightStep` (number): For variable fonts, controls weight granularity
+  - `widthStep` (number): For variable width fonts, controls width granularity
 
-**Important Notes:**
-- Bunny Fonts only supports static font files, so you cannot use ranges (`weights` and `widths`)
-- Font families are combined in a single URL by separating them with a pipe (`|`) character
+Derived `id` is the font family name in lowercase, with spaces replaced by hyphens.
 
 Example:
 
 ```typescript
-import { createDefinitionsFromBunnyFonts } from "@edrlab/thorium-web/preferences";
+import { createDefinitionsFromGoogleFonts } from "@edrlab/thorium-web/preferences";
 
-const bunnyFonts = createDefinitionsFromBunnyFonts({
-  cssUrl: "https://fonts.bunny.net/css?family=roboto:300,300i,400,400i,500,500i,700,700i|open-sans:400, 400i, 700, 700i",
+const googleFonts = createDefinitionsFromGoogleFonts({
+  cssUrl: "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300..700;1,300..700",
   
   options: {
-    order: ["open-sans", "roboto"],
+    order: ["roboto", "open-sans"],
     
     fallbacks: {
       "roboto": ["Arial", "sans-serif"],
@@ -189,17 +234,9 @@ const bunnyFonts = createDefinitionsFromBunnyFonts({
 });
 ```
 
-#### Finding Fonts
-
-1. Visit [Bunny Fonts](https://fonts.bunny.net/)
-2. Search for the font you want to use
-3. Select the weights and styles you need
-4. Copy the CSS URL, `link`, or `@import` statement from their website
-5. Use it with the helper function as shown above
-
 ### Using Google Fonts
 
-You can include Google Fonts in your font collection by manually defining the font configuration. Here's how to do it:
+You can also include Google Fonts in your font collection by manually defining the font configuration if you prefer or need more control. Here's how to do it:
 
 #### Manual Configuration
 
@@ -255,39 +292,6 @@ const settings = {
 };
 ```
 
-#### Using the Helper Function (Recommended)
-
-For convenience, you can use the `createDefinitionsFromGoogleFonts` helper.
-
-- `cssUrl` (string, required): The Google Fonts CSS URL, the entire `link` or `@import` statement you copy from their page
-- `options` (object, optional): Configuration options
-  - `order` (string[]): Controls the display order of fonts in the UI, requires derived `id`
-  - `fallbacks` (Record<string, string[]>): Custom fallback fonts for each font family, requires derived `id`
-  - `display` (string): Controls font-display behavior
-  - `weightStep` (number): For variable fonts, controls weight granularity
-  - `widthStep` (number): For variable width fonts, controls width granularity
-
-Derived `id` is the font family name in lowercase, with spaces replaced by hyphens.
-
-Example:
-
-```typescript
-import { createDefinitionsFromGoogleFonts } from "@edrlab/thorium-web/preferences";
-
-const googleFonts = createDefinitionsFromGoogleFonts({
-  cssUrl: "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,300..700;1,300..700",
-  
-  options: {
-    order: ["roboto", "open-sans"],
-    
-    fallbacks: {
-      "roboto": ["Arial", "sans-serif"],
-      "open-sans": ["Helvetica", "sans-serif"]
-    }
-  }
-});
-```
-
 #### Finding Fonts
 
 1. Visit [Google Fonts](https://fonts.google.com/)
@@ -309,6 +313,7 @@ const myCustomFont = createDefinitionFromStaticFonts({
   id: "my-custom-font",
   name: "My Custom Font",
   family: "My Custom Font", // optional, defaults to name
+  label: "my.localized.name", // optional, defaults to name
   fallbacks: ["Arial", "sans-serif"], // optional, defaults to ["sans-serif"],
   files: [
     { path: "/fonts/my-custom-font-regular.woff2", weight: 400, style: "normal" },
@@ -339,6 +344,7 @@ You can also define the configuration manually if you prefer:
 const myCustomFont: FontDefinition = {
   id: "my-custom-font",
   name: "My Custom Font",
+  label: "my.localized.name", // optional, defaults to name
   source: {
     type: "custom",
     provider: "local",
@@ -382,6 +388,7 @@ For variable fonts, use this structure:
 const myVariableFont: FontDefinition = {
   id: "my-variable-font",
   name: "My Variable Font",
+  label: "my.localized.name", // optional, defaults to name
   source: {
     type: "custom",
     provider: "local",
