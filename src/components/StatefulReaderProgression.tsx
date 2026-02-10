@@ -141,7 +141,7 @@ export const StatefulReaderProgression = ({
         
       case ThProgressionFormat.positionsLeft:
         if (positionsLeft !== undefined) {
-          text = t(`reader.progression.positionsLeftInChapter`, { 
+          text = t(`reader.progression.positionsLeftInChapter.descriptive`, { 
             count: positionsLeft
           });
         }
