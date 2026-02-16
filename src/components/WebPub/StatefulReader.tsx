@@ -482,7 +482,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       WebPubNavigatorDestroy(() => p.destroy());
       removeFontResources();
     };
-  }, [publication, preferences, isFontFamilyUsed, resolveFontLanguage, injectFontResources, removeFontResources]);
+  }, [publication, preferences, isFontFamilyUsed, injectFontResources, removeFontResources]);
 
   return (
     <>
