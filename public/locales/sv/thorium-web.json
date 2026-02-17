@@ -6,7 +6,7 @@
             "docking": {
                 "dockingLeft": "Dockad panel till vänster",
                 "dockingRight": "Dockad panel till höger",
-                "dockingEmpty": "Inget innehåll",
+                "dockingEmpty": "För närvarande tom",
                 "dockingClosed": "Är stängd, innehåller {{ action }}",
                 "dockingCollapsed": "Är minimerad, innehåller {{ action }}"
             },
