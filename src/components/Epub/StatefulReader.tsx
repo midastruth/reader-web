@@ -60,7 +60,6 @@ import { StatefulReaderFooter } from "../StatefulReaderFooter";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
-import { defaultTextSettingsMain, defaultTextSettingsSubpanel } from "@/preferences/models/const";
 import { useEpubNavigator } from "@/core/Hooks/Epub/useEpubNavigator";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { usePrevious } from "@/core/Hooks/usePrevious";

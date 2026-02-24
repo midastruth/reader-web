@@ -47,7 +47,6 @@ import { StatefulReaderFooter } from "../StatefulReaderFooter";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
-import { defaultTextSettingsMain, defaultTextSettingsSubpanel } from "@/preferences/models/const";
 import { useWebPubNavigator } from "@/core/Hooks/WebPub";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useI18n } from "@/i18n/useI18n";
