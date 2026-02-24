@@ -39,6 +39,7 @@ import {
   defaultZoom,
   tamilCollection
 } from "./models/const";
+import { defaultContentProtectionConfig } from "./contentProtection";
 
 export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<DefaultKeys>({
 //  direction: ThLayoutDirection.ltr,
@@ -324,6 +325,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       }
     },
   },
+  contentProtection: defaultContentProtectionConfig,
   affordances: { 
     scroll: {
       hintInImmersive: true,

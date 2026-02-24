@@ -94,6 +94,7 @@ import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
+import { resolveContentProtectionConfig } from "@/preferences/contentProtection";
 
 export interface WebPubCSSSettings {
   fontFamily: FontFamilyStateObject;
@@ -473,7 +474,8 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       defaults: {
         experiments: preferences.experiments?.webPub || null
       },
-      injectables: injectables
+      injectables: injectables,
+      contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
     }, () => {
       p.observe(window);
     });

@@ -27,6 +27,7 @@ import {
 import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
+import { ContentProtectionConfig } from "./contentProtection";
 
 export type I18nValue<T> = T | string | { key: string; fallback?: string };
 
@@ -388,6 +389,7 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
       keys: Record<Exclude<ThemeKey<K>, "auto"> & string, ThemeTokens>;
     };
   };
+  contentProtection?: ContentProtectionConfig;
   affordances: {
     scroll: {
       hintInImmersive: boolean;

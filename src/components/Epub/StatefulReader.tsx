@@ -119,6 +119,7 @@ import { deserializePositions } from "@/helpers/deserializePositions";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
+import { resolveContentProtectionConfig } from "@/preferences/contentProtection";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
@@ -883,7 +884,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
           preferences: epubPreferences,
           defaults: defaults,
-          injectables: injectables
+          injectables: injectables,
+          contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
         }, () => p.observe(window));
       })
       .finally(() => {
