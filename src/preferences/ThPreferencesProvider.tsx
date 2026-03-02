@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ThPreferences, CustomizableKeys, DefaultKeys } from "./preferences";
 import { ThPreferencesContext, defaultPreferencesContextValue } from "./ThPreferencesContext";
-import { devContentProtectionConfig } from "./contentProtection";
+import { devContentProtectionConfig } from "./models/protection";
 
 import { ThPreferencesAdapter } from "./adapters/ThPreferencesAdapter";
 import { ThMemoryPreferencesAdapter } from "./adapters/ThMemoryPreferencesAdapter";

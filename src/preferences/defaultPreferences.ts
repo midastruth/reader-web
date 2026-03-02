@@ -10,8 +10,6 @@ import {
   ThSettingsKeys, 
   ThSheetTypes, 
   ThThemeKeys,  
-  ThLayoutDirection,
-  ThTextSettingsKeys,
   ThSheetHeaderVariant,
   ThLayoutUI,
   ThBackLinkVariant,
@@ -19,11 +17,12 @@ import {
   ThRunningHeadFormat,
   ThDocumentTitleFormat,
   ThArrowVariant,
-} from "./models/enums";
-import { createPreferences, ThPreferences, DefaultKeys, ValidatedLanguageCollection } from "./preferences";
+} from "./models";
+import { createPreferences, ThPreferences, DefaultKeys } from "./preferences";
 
 import ReadiumCSSColors from "@readium/css/css/vars/colors.json";
 import { 
+  defaultContentProtectionConfig,
   defaultFontCollection,
   defaultLetterSpacing, 
   defaultLineHeights, 
@@ -38,8 +37,7 @@ import {
   defaultWordSpacing, 
   defaultZoom,
   tamilCollection
-} from "./models/const";
-import { defaultContentProtectionConfig } from "./contentProtection";
+} from "./models";
 
 export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<DefaultKeys>({
 //  direction: ThLayoutDirection.ltr,

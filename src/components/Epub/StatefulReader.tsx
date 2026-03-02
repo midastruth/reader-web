@@ -20,7 +20,7 @@ import {
   ThSpacingSettingsKeys,
   ThProgressionFormat,
   ThSettingsKeys
-} from "../../preferences/models/enums";
+} from "../../preferences/models";
 import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 
 import { ThPlugin, ThPluginRegistry } from "../Plugins/PluginRegistry";
@@ -119,7 +119,7 @@ import { deserializePositions } from "@/helpers/deserializePositions";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
-import { resolveContentProtectionConfig } from "@/preferences/contentProtection";
+import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
 export interface ReadiumCSSSettings {
   columnCount: string;

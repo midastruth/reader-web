@@ -1,5 +1,5 @@
 import { IContentProtectionConfig } from "@readium/navigator";
-import { I18nValue } from "./preferences";
+import { I18nValue } from "./i18n";
 
 export interface CopyProtectionConfig {
   /** Maximum percentage of content that can be selected (0-1) */

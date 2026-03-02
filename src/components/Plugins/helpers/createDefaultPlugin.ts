@@ -1,5 +1,5 @@
 import { ThPlugin } from "../PluginRegistry";
-import { ThActionsKeys, ThSettingsKeys } from "@/preferences/models/enums";
+import { ThActionsKeys, ThSettingsKeys } from "@/preferences/models";
 
 import { StatefulFullscreenTrigger } from "../../Actions/Fullscreen/StatefulFullscreenTrigger";
 import { StatefulJumpToPositionTrigger } from "../../Actions/JumpToPosition/StatefulJumpToPositionTrigger";

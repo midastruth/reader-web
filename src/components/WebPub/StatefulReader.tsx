@@ -18,7 +18,7 @@ import {
   ThTextAlignOptions,
   ThSpacingSettingsKeys,
   ThSettingsKeys
-} from "@/preferences/models/enums";
+} from "@/preferences/models";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
 
@@ -94,7 +94,7 @@ import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
-import { resolveContentProtectionConfig } from "@/preferences/contentProtection";
+import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
 export interface WebPubCSSSettings {
   fontFamily: FontFamilyStateObject;
