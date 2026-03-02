@@ -102,16 +102,16 @@ export const resolveContentProtectionConfig = (
  * Default content protection configuration
  */
 export const defaultContentProtectionConfig: ContentProtectionConfig = {
-  protectCopy: true,
-  disableContextMenu: true,
-  disableDragAndDrop: true,
+  protectCopy: false,
+  disableContextMenu: false,
+  disableDragAndDrop: false,
   protectPrinting: {
-    disable: true,
+    disable: false,
     watermark: "reader.app.printingDisabled"
   },
-  disableSelectAll: true,
-  disableSave: true,
-  monitorDevTools: true
+  disableSelectAll: false,
+  disableSave: false,
+  monitorDevTools: false
 };
 
 /**
