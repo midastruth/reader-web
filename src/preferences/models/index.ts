@@ -1,5 +1,6 @@
 "use client";
 
+export * from "./CSSValues";
 export * from "./actions";
 export * from "./fonts";
 export * from "./i18n";
