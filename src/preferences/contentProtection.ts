@@ -1,15 +1,6 @@
 import { IContentProtectionConfig } from "@readium/navigator";
 import { I18nValue } from "./preferences";
 
-export interface SelectionMonitoringConfig {
-  /** Maximum number of selections per second to detect automation */
-  maxSelectionsPerSecond: number;
-  /** Minimum variance in selection patterns (lower values indicate more consistent patterns) */
-  minVariance: number;
-  /** Number of recent selections to keep in history for pattern analysis */
-  historySize: number;
-}
-
 export interface CopyProtectionConfig {
   /** Maximum percentage of content that can be selected (0-1) */
   maxSelectionPercent: number;
@@ -30,11 +21,13 @@ export interface PrintProtectionConfig {
 
 export interface ContentProtectionConfig {
   /**
-   * Monitor text selection for suspicious patterns (e.g., automated scraping)
-   * - boolean: true to enable with default settings, false to disable
-   * - object: Fine-grained control over selection monitoring
+   * Higher-level API will make use of the following from Content Protection API:
+   * - checkAutomation
+   * - checkIFrameEmbedding
+   * - monitorSelection
+   * - monitorDevTools
+   * - monitorScrollingExperimental
    */
-  monitorSelection?: boolean | SelectionMonitoringConfig;
 
   /**
    * Configure copy protection
@@ -52,23 +45,14 @@ export interface ContentProtectionConfig {
   /** Print protection configuration */
   protectPrinting?: PrintProtectionConfig;
 
-  /** Enable automation detection (e.g., Selenium, Puppeteer) */
-  checkAutomation?: boolean;
-
-  /** Check for embedding in iframes */
-  checkIFrameEmbedding?: boolean;
-
-  /** Monitor dev tools */
-  monitorDevTools?: boolean;
-
   /** Disable Select All functionality (Ctrl+A/Cmd+A) */
   disableSelectAll?: boolean;
 
   /** Disable Save functionality (Ctrl+S/Cmd+S) */
   disableSave?: boolean;
 
-  /** Monitor scrolling behavior (Experimental) */
-  monitorScrollingExperimental?: boolean;
+  /** Monitor developer tools for suspicious activity. We need it for the shortcut protection */
+  monitorDevTools?: boolean;
 }
 
 /**
@@ -99,7 +83,6 @@ export const resolveContentProtectionConfig = (
   
   // Construct the resolved config with proper types matching IContentProtectionConfig
   const resolved: IContentProtectionConfig = {
-    monitorSelection: contentProtection.monitorSelection,
     protectCopy: contentProtection.protectCopy,
     disableContextMenu: contentProtection.disableContextMenu,
     disableDragAndDrop: contentProtection.disableDragAndDrop,
@@ -107,12 +90,9 @@ export const resolveContentProtectionConfig = (
       disable: contentProtection.protectPrinting.disable,
       watermark: resolvedWatermark
     } : undefined,
-    checkAutomation: contentProtection.checkAutomation,
-    checkIFrameEmbedding: contentProtection.checkIFrameEmbedding,
-    monitorDevTools: contentProtection.monitorDevTools,
     disableSelectAll: contentProtection.disableSelectAll,
     disableSave: contentProtection.disableSave,
-    monitorScrollingExperimental: contentProtection.monitorScrollingExperimental
+    monitorDevTools: contentProtection.monitorDevTools
   };
   
   return resolved;
@@ -122,18 +102,29 @@ export const resolveContentProtectionConfig = (
  * Default content protection configuration
  */
 export const defaultContentProtectionConfig: ContentProtectionConfig = {
-  monitorSelection: false,
+  protectCopy: true,
+  disableContextMenu: true,
+  disableDragAndDrop: true,
+  protectPrinting: {
+    disable: true,
+    watermark: "reader.app.printingDisabled"
+  },
+  disableSelectAll: true,
+  disableSave: true,
+  monitorDevTools: true
+};
+
+/**
+ * Development content protection configuration - disables all protections
+ */
+export const devContentProtectionConfig: ContentProtectionConfig = {
   protectCopy: false,
   disableContextMenu: false,
   disableDragAndDrop: false,
   protectPrinting: {
-    disable: false,
-    watermark: "reader.app.printingDisabled"
+    disable: false
   },
-  checkAutomation: false,
-  checkIFrameEmbedding: false,
-  monitorDevTools: false,
   disableSelectAll: false,
   disableSave: false,
-  monitorScrollingExperimental: false
+  monitorDevTools: false
 };
