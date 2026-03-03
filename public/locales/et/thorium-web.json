@@ -48,7 +48,8 @@
             },
             "back": {
                 "trigger": "Tagasi"
-            }
+            },
+            "printingDisabled": "Printimise võimalus on lülitatud välja"
         },
         "navigation": {
             "scroll": {
