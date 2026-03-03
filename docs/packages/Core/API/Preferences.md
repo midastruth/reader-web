@@ -12,6 +12,7 @@ Context provider component for preferences management.
 ```typescript
 interface Props<K extends CustomizableKeys = DefaultKeys> {
   adapter?: ThPreferencesAdapter<K>;
+  devMode?: boolean;
   initialPreferences?: ThPreferences<K>;
   children: React.ReactNode;
 }
@@ -23,6 +24,7 @@ interface Props<K extends CustomizableKeys = DefaultKeys> {
 - Type-safe customization
 - Direction setting
 - Adapter support
+- Dev mode support
 
 ## Hooks
 

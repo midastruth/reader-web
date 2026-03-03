@@ -20,7 +20,7 @@ import {
   ThSpacingSettingsKeys,
   ThProgressionFormat,
   ThSettingsKeys
-} from "../../preferences/models/enums";
+} from "../../preferences/models";
 import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 
 import { ThPlugin, ThPluginRegistry } from "../Plugins/PluginRegistry";
@@ -119,6 +119,7 @@ import { deserializePositions } from "@/helpers/deserializePositions";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
+import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
@@ -598,6 +599,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       return false;
     },
     textSelected: function (_selection: BasicTextSelection): void {},
+    contentProtection: function (_type: string, _data: unknown): void {},
+    contextMenu: function (_data: unknown): void {},
+    peripheral: function (_data: unknown): void {},
   };
 
   const applyConstraint = useCallback(async (value: number) => {
@@ -837,6 +841,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
             ? (preferences.theming.icon.size || 24) * 5 
             : (preferences.theming.icon.size || 24),
+          scrollPaddingLeft: preferences.typography.pageGutter,
+          scrollPaddingRight: preferences.typography.pageGutter,
           experiments: preferences.experiments?.reflow || null
         }
 
@@ -878,7 +884,8 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
           preferences: epubPreferences,
           defaults: defaults,
-          injectables: injectables
+          injectables: injectables,
+          contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
         }, () => p.observe(window));
       })
       .finally(() => {

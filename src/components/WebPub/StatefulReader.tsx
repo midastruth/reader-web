@@ -18,7 +18,7 @@ import {
   ThTextAlignOptions,
   ThSpacingSettingsKeys,
   ThSettingsKeys
-} from "@/preferences/models/enums";
+} from "@/preferences/models";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
 
@@ -94,6 +94,7 @@ import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
+import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
 export interface WebPubCSSSettings {
   fontFamily: FontFamilyStateObject;
@@ -357,6 +358,9 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       return false;
     },
     textSelected: function (_selection: BasicTextSelection): void {},
+    contentProtection: function (_type: string, _data: unknown): void {},
+    contextMenu: function (_data: unknown): void {},
+    peripheral: function (_data: unknown): void {},
   };
 
   useEffect(() => {
@@ -470,7 +474,8 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       defaults: {
         experiments: preferences.experiments?.webPub || null
       },
-      injectables: injectables
+      injectables: injectables,
+      contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
     }, () => {
       p.observe(window);
     });
