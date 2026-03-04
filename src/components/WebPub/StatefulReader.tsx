@@ -83,25 +83,7 @@ import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
-
-export interface WebPubCSSSettings {
-  fontFamily: FontFamilyStateObject;
-  fontWeight: number;
-  hyphens: boolean | null;
-  letterSpacing: number | null;
-  lineHeight: ThLineHeightOptions | null;
-  paragraphIndent: number | null;
-  paragraphSpacing: number | null;
-  publisherStyles: boolean;
-  textAlign: ThTextAlignOptions | null;
-  textNormalization: boolean;
-  wordSpacing: number | null;
-  zoom: number;
-}
-
-export interface WebPubStatelessCache {
-  settings: WebPubCSSSettings;
-}
+import { useWebPubSettingsCache } from "@/core/Hooks/WebPub/useWebPubSettingsCache";
 
 export const ExperimentalWebPubStatefulReader = ({
   publication,
@@ -166,6 +148,21 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
   const hasDisplayTransformability = useAppSelector(state => state.publication.hasDisplayTransformability);
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
+
+  const cache = useWebPubSettingsCache(
+    fontFamily,
+    fontWeight,
+    hyphens,
+    letterSpacing,
+    lineHeight,
+    paragraphIndent,
+    paragraphSpacing,
+    publisherStyles,
+    textAlign,
+    textNormalization,
+    wordSpacing,
+    zoom
+  );
 
   const layoutUI = preferences.theming.layout.ui?.webPub || ThLayoutUI.stacked;
 
@@ -257,23 +254,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
 
   useDocumentTitle(documentTitle);
 
-  const cache = useRef<WebPubStatelessCache>({
-    settings: {
-      fontFamily: fontFamily,
-      fontWeight: fontWeight,
-      hyphens: hyphens,
-      letterSpacing: letterSpacing,
-      lineHeight: lineHeight,
-      paragraphIndent: paragraphIndent,
-      paragraphSpacing: paragraphSpacing,
-      publisherStyles: publisherStyles,
-      textAlign: textAlign,
-      textNormalization: textNormalization,
-      wordSpacing: wordSpacing,
-      zoom: zoom
-    }
-  });
-
   const toggleIsImmersive = useCallback(() => {
     // If tap/click in iframe, then header/footer no longer hoovering 
     dispatch(setHovering(false));
@@ -351,41 +331,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
   };
 
   useEffect(() => {
-    cache.current.settings.fontFamily = fontFamily;
-  }, [fontFamily]);
-  useEffect(() => {
-    cache.current.settings.fontWeight = fontWeight;
-  }, [fontWeight]);
-  useEffect(() => {
-    cache.current.settings.hyphens = hyphens;
-  }, [hyphens]);
-  useEffect(() => {
-    cache.current.settings.letterSpacing = letterSpacing;
-  }, [letterSpacing]);
-  useEffect(() => {
-    cache.current.settings.lineHeight = lineHeight;
-  }, [lineHeight]);
-  useEffect(() => {
-    cache.current.settings.paragraphIndent = paragraphIndent;
-  }, [paragraphIndent]);
-  useEffect(() => {
-    cache.current.settings.paragraphSpacing = paragraphSpacing;
-  }, [paragraphSpacing]);
-  useEffect(() => {
-    cache.current.settings.textAlign = textAlign;
-  }, [textAlign]);
-
-  useEffect(() => {
-    cache.current.settings.textNormalization = textNormalization;
-  }, [textNormalization]);
-  useEffect(() => {
-    cache.current.settings.wordSpacing = wordSpacing;
-  }, [wordSpacing]);
-  useEffect(() => {
-    cache.current.settings.zoom = zoom;
-  }, [zoom]);
-
-  useEffect(() => {
     if (!publication) return;
 
     const initialPosition: Locator | null = getLocalData();
@@ -447,7 +392,7 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
       WebPubNavigatorDestroy(() => p.destroy());
       removeFontResources();
     };
-  }, [publication, preferences, isFontFamilyUsed, injectFontResources, removeFontResources, fontLanguage, dispatch]);
+  }, [publication, preferences, cache, isFontFamilyUsed, injectFontResources, removeFontResources, fontLanguage, dispatch]);
 
   return (
     <>

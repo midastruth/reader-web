@@ -108,36 +108,7 @@ import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
-
-export interface ReadiumCSSSettings {
-  columnCount: string;
-  fontFamily: FontFamilyStateObject;
-  fontSize: number;
-  fontWeight: number;
-  hyphens: boolean | null;
-  letterSpacing: number | null;
-  lineLength: LineLengthStateObject | null;
-  lineHeight: ThLineHeightOptions | null;
-  paragraphIndent: number | null;
-  paragraphSpacing: number | null;
-  publisherStyles: boolean;
-  scroll: boolean;
-  textAlign: ThTextAlignOptions | null;
-  textNormalization: boolean;
-  theme?: string;
-  wordSpacing: number | null;
-}
-
-export interface StatelessCache {
-  layoutUI: ThLayoutUI;
-  isImmersive: boolean;
-  isHovering: boolean;
-  arrowsOccupySpace: boolean;
-  settings: ReadiumCSSSettings;
-  positionsList: Locator[];
-  colorScheme?: ThColorScheme;
-  reducedMotion?: boolean;
-}
+import { useEpubSettingsCache } from '@/core/Hooks/Epub/useEpubSettingsCache';
 
 export interface StatefulReaderProps {
   publication: Publication;
@@ -190,7 +161,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
   
   const container = useRef<HTMLDivElement>(null);
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
-  const navigatorLoaded = useRef(false);
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const positionsList = useAppSelector(state => state.publication.positionsList);
@@ -236,6 +206,32 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
       ? preferences.theming.layout.ui?.reflow || ThLayoutUI.layered
       : ThLayoutUI.stacked;
 
+  const cache = useEpubSettingsCache(
+    textAlign,
+    columnCount,
+    fontFamily,
+    fontSize,
+    fontWeight,
+    hyphens,
+    letterSpacing,
+    lineLength,
+    lineHeight,
+    paragraphIndent,
+    paragraphSpacing,
+    publisherStyles,
+    isScroll,
+    textNormalization,
+    wordSpacing,
+    theme,
+    positionsList,
+    colorScheme,
+    reducedMotion,
+    layoutUI,
+    isImmersive,
+    isHovering,
+    arrowsOccupySpace
+  );
+
   // Init theming (breakpoints, theme, media queries…)
   useTheming<ThemeKeyType>({ 
     theme: theme,
@@ -263,6 +259,11 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
   const atPublicationEnd = useAppSelector(state => state.publication.atPublicationEnd);
 
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    // Reset top bar visibility and last position
+    dispatch(setImmersive(false));
+  }, [isScroll, dispatch]);
 
   const [navigatorReady, setNavigatorReady] = useState(false);
 
@@ -340,39 +341,9 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
 
   useDocumentTitle(documentTitle);
 
-  // We need to use a cache so that we can use updated values
-  // without re-rendering the component, and reloading EpubNavigator
-  const cache = useRef<StatelessCache>({
-    layoutUI: layoutUI,
-    isImmersive: isImmersive,
-    isHovering: isHovering,
-    arrowsOccupySpace: arrowsOccupySpace || false,
-    settings: {
-      columnCount: columnCount,
-      fontFamily: fontFamily,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      hyphens: hyphens,
-      letterSpacing: letterSpacing,
-      lineHeight: lineHeight,
-      lineLength: lineLength,
-      paragraphIndent: paragraphIndent,
-      paragraphSpacing: paragraphSpacing,
-      publisherStyles: publisherStyles,
-      scroll: isScroll,
-      textAlign: textAlign,
-      textNormalization: textNormalization,
-      theme: theme,
-      wordSpacing: wordSpacing
-    },
-    positionsList: positionsList || [],
-    colorScheme: colorScheme,
-    reducedMotion: reducedMotion
-  });
-
   const activateImmersiveOnAction = useCallback(() => {
     if (!cache.current.isImmersive) dispatch(setImmersive(true));
-  }, [dispatch]);
+  }, [cache, dispatch]);
 
   const toggleIsImmersive = useCallback(() => {
     // If tap/click in iframe, then header/footer no longer hovering 
@@ -599,102 +570,12 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     })
   }, [submitPreferences]);
 
-  // Handling side effects on Navigator
-
-  useEffect(() => {
-    cache.current.isImmersive = isImmersive;
-  }, [isImmersive]);
-
-  useEffect(() => {
-    cache.current.isHovering = isHovering;
-  }, [isHovering]);
-
-  useEffect(() => {
-    cache.current.layoutUI = layoutUI;
-  }, [layoutUI]);
-
-  useEffect(() => {
-    cache.current.settings.scroll = isScroll;
-
-    // Reset top bar visibility and last position
-    dispatch(setImmersive(false));
-  }, [isScroll, dispatch]);
-
-  useEffect(() => {
-    cache.current.settings.columnCount = columnCount;
-  }, [columnCount]);
-
-  useEffect(() => {
-    cache.current.settings.fontFamily = fontFamily;
-  }, [fontFamily]);
-
-  useEffect(() => {
-    cache.current.settings.fontSize = fontSize;
-  }, [fontSize]);
-
-  useEffect(() => {
-    cache.current.settings.fontWeight = fontWeight;
-  }, [fontWeight]);
-
-  useEffect(() => {
-    cache.current.settings.hyphens = hyphens;
-  }, [hyphens]);
-
-  useEffect(() => {
-    cache.current.settings.letterSpacing = letterSpacing;
-  }, [letterSpacing]);
-
-  useEffect(() => {
-    cache.current.settings.lineHeight = lineHeight;
-  }, [lineHeight]);
-
-  useEffect(() => {
-    cache.current.settings.lineLength = lineLength;
-  }, [lineLength]);
-
-  useEffect(() => {
-    cache.current.settings.paragraphIndent = paragraphIndent;
-  }, [paragraphIndent]);
-
-  useEffect(() => {
-    cache.current.settings.paragraphSpacing = paragraphSpacing;
-  }, [paragraphSpacing]);
-
-  useEffect(() => {
-    cache.current.settings.textAlign = textAlign;
-  }, [textAlign]);
-
-  useEffect(() => {
-    cache.current.settings.textNormalization = textNormalization;
-  }, [textNormalization]);
-
-  useEffect(() => {
-    cache.current.settings.theme = theme;
-  }, [theme]);
-
-  useEffect(() => {
-    cache.current.settings.wordSpacing = wordSpacing;
-  }, [wordSpacing]);
-
-  useEffect(() => {
-    cache.current.positionsList = positionsList || [];
-  }, [positionsList]);
-
   useEffect(() => {
     if (!navigatorReady) return;
 
-    cache.current.arrowsOccupySpace = arrowsOccupySpace || false;
-
-    const handleConstraint = async () => {
-      await applyConstraint(arrowsOccupySpace ? arrowsWidth.current : 0)
-    }
-    handleConstraint()
+    applyConstraint(arrowsOccupySpace ? arrowsWidth.current : 0)
       .catch(console.error);
   }, [arrowsOccupySpace, applyConstraint, navigatorReady]);
-
-  useEffect(() => {
-    cache.current.reducedMotion = reducedMotion;
-  }, [reducedMotion]);
 
   // Theme can also change on colorScheme change so
   // we have to handle this side-effect but we can’t
@@ -730,7 +611,7 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
 
     applyCurrentTheme()
       .catch(console.error);
-  }, [themeObject, previousTheme, preferences.theming.themes, fxlThemeKeys, reflowThemeKeys, colorScheme, isFXL, submitPreferences, dispatch, navigatorReady]);
+  }, [cache, themeObject, previousTheme, preferences.theming.themes, fxlThemeKeys, reflowThemeKeys, colorScheme, isFXL, submitPreferences, dispatch, navigatorReady]);
 
   useEffect(() => {
     preferences.direction && dispatch(setDirection(preferences.direction));
@@ -765,7 +646,7 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
             ? undefined 
             : cache.current.settings.lineHeight === null 
               ? null 
-              : lineHeightOptions[cache.current.settings.lineHeight],
+              : (lineHeightOptions as any)[cache.current.settings.lineHeight],
           optimalLineLength: cache.current.settings.lineLength?.optimal != null 
             ? cache.current.settings.lineLength.optimal 
             : undefined,
@@ -858,7 +739,7 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
       if (!isFXL) removeFontResources();
       setNavigatorReady(false);
     };
-  }, [publication, positionsList, preferences, fxlThemeKeys, reflowThemeKeys, isFontFamilyUsed, injectFontResources, removeFontResources, fontLanguage, dispatch]);
+  }, [publication, positionsList, preferences, cache, fxlThemeKeys, reflowThemeKeys, isFontFamilyUsed, injectFontResources, removeFontResources, fontLanguage, dispatch]);
 
   // If breakpoint is not defined, we are not ready to render
   // since useDocking needs it to derive the sheet type
