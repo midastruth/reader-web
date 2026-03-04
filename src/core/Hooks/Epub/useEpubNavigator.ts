@@ -114,7 +114,7 @@ export const useEpubNavigator = () => {
     if (navigatorInstance?.layout === Layout.fixed) {
       FXLPositionChanged.disconnect();
     }
-    navigatorInstance?.destroy;
+    navigatorInstance?.destroy();
   }, [FXLPositionChanged]);
 
   const goRight = useCallback((animated: boolean, callback: cbb) => {
