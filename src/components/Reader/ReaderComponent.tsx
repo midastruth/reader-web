@@ -1,3 +1,4 @@
+import { Publication } from "@readium/shared";
 import dynamic from "next/dynamic";
 
 const StatefulEpubReader = dynamic(() => import("@/components/Epub").then(mod => ({ default: mod.StatefulReader })), {
@@ -10,7 +11,7 @@ const StatefulWebPubReader = dynamic(() => import("@/components/WebPub").then(mo
 
 interface ReaderComponentProps {
   profile: "epub" | "webPub" | "audio" | undefined | null;
-  publication: any;
+  publication: Publication;
   localDataKey: string | null;
 }
 
