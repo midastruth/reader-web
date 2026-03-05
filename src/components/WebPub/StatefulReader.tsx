@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
@@ -11,7 +11,6 @@ import {
   ThLayoutUI,
   ThDocumentTitleFormat,
   ThProgressionFormat, 
-  ThThemeKeys,
   ThSpacingSettingsKeys,
   ThSettingsKeys
 } from "@/preferences/models";
@@ -219,7 +218,9 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     dispatch(toggleImmersive());
   }, [dispatch]);
 
-  const p = new Peripherals(useAppStore(), preferences.actions, {
+  const appStore = useAppStore();
+
+  const p = useMemo(() => new Peripherals(appStore, preferences.actions, {
     moveTo: () => {},
     goProgression: () => {},
     toggleAction: (actionKey) => {
@@ -237,9 +238,9 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
           break
       }
     }
-  });
+  }), [appStore, preferences.actions, fs, dispatch]);
 
-  const listeners: WebPubNavigatorListeners = {
+  const listeners: WebPubNavigatorListeners = useMemo(() => ({
     frameLoaded: async function (_wnd: Window): Promise<void> {
       p.observe(window);
     },
@@ -287,7 +288,7 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     contentProtection: function (_type: string, _data: unknown): void {},
     contextMenu: function (_data: unknown): void {},
     peripheral: function (_data: unknown): void {},
-  };
+  }), [p, setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive]);
 
   // Initialize reader using the new composite hook
   const { navigatorReady } = useWebPubReaderInit({
