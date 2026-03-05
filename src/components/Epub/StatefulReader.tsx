@@ -248,7 +248,7 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     submitPreferences
   } = epubNavigator;
 
-  const { setLocalData, getLocalData, localData } = useLocalStorage(localDataKey || 'no-local-storage');
+  const { setLocalData, getLocalData, localData } = useLocalStorage(localDataKey);
 
   const timeline = useTimeline({
     publication: publication,
