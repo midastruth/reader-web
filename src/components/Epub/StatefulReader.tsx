@@ -639,11 +639,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     dispatch(setPlatformModifier(getPlatformModifier()));
   }, [preferences.direction, dispatch]);
 
-  // If breakpoint is not defined, we are not ready to render
-  // since useDocking needs it to derive the sheet type
-  // Same for arrows and collapsible actions.
-  if (!breakpoint || !navigatorReady) return null;
-
   return (
     <>
     <I18nProvider locale={ preferences.locale }>
