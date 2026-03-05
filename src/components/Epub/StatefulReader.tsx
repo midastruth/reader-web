@@ -427,8 +427,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     }
   }), [appStore, preferences.actions, dispatch, activateImmersiveOnAction, cache, goRight, goLeft, goBackward, goForward, fs]);
 
-  const scrollAffordances = preferences.affordances.scroll;
-
   const listeners: EpubNavigatorListeners = useMemo(() => ({
     frameLoaded: async function (_wnd: Window): Promise<void> {
       await initReadingEnv();
@@ -488,14 +486,14 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
             dispatch(setScrollAffordance(true));
           }
         } else if (!cache.current.isImmersive && _delta > 20) {
-          if (scrollAffordances.hideOnForwardScroll) {
+          if (preferences.affordances.scroll.hideOnForwardScroll) {
             dispatch(setImmersive(true));
           }
         } else if (cache.current.isImmersive && _delta < -20) {
           if (
             // Keep consistent with pagination behavior
             cache.current.layoutUI === ThLayoutUI.layered && 
-            scrollAffordances.showOnBackwardScroll
+            preferences.affordances.scroll.showOnBackwardScroll
           ) {
             dispatch(setImmersive(false));
           }
@@ -522,14 +520,16 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     contentProtection: function (_type: string, _data: unknown): void {},
     contextMenu: function (_data: unknown): void {},
     peripheral: function (_data: unknown): void {},
-  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, canGoBackward, canGoForward, dispatch, handleTap, handleClick, cache, scrollAffordances, isScrollStart, isScrollEnd]);
+  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, canGoBackward, canGoForward, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd]);
+  
+  const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
   // Initialize reader using the new composite hook
   const { navigatorReady } = useEpubReaderInit({
     container,
     publication,
     positionsList,
-    initialPosition: getLocalData(),
+    initialPosition,
     listeners,
     preferences,
     cache,
