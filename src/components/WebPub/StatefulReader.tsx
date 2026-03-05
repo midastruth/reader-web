@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-import { ThemeKeyType, useTheming } from "../../preferences";
-
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
 import { StatefulReaderProps } from "../Epub/StatefulReader";
@@ -55,15 +53,6 @@ import { useFonts } from "@/core/Hooks/fonts/useFonts";
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
 import { 
-  setBreakpoint, 
-  setColorScheme, 
-  setContrast, 
-  setForcedColors, 
-  setMonochrome, 
-  setReducedMotion, 
-  setReducedTransparency 
-} from "@/lib/themeReducer";
-import { 
   setLoading,
   setHovering, 
   toggleImmersive, 
@@ -78,9 +67,7 @@ import {
 import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import Peripherals from "../../helpers/peripherals";
-import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
-import { prefixString } from "@/core/Helpers/prefixString";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
 export const ExperimentalWebPubStatefulReader = ({
@@ -140,7 +127,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
   const publisherStyles = useAppSelector(state => state.webPubSettings.publisherStyles);
   const textNormalization = useAppSelector(state => state.webPubSettings.textNormalization);
   const wordSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.wordSpacing);
-  const theme = ThThemeKeys.light;
   const zoom = useAppSelector(state => state.webPubSettings.zoom);
   const fontLanguage = useAppSelector(state => state.publication.fontLanguage);
   const hasDisplayTransformability = useAppSelector(state => state.publication.hasDisplayTransformability);
@@ -163,29 +149,6 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
   );
 
   const layoutUI = preferences.theming.layout.ui?.webPub || ThLayoutUI.stacked;
-
-  // Init theming (breakpoints, theme, media queries…)
-  useTheming<ThemeKeyType>({ 
-    theme: theme,
-    themeKeys: preferences.theming.themes.keys,
-    systemKeys: preferences.theming.themes.systemThemes,
-    breakpointsMap: preferences.theming.breakpoints,
-    initProps: {
-      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
-      ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
-      ...propsToCSSVars(preferences.theming.layout, { 
-        prefix: prefixString("layout"),
-        exclude: ["ui"]
-      })
-    },
-    onBreakpointChange: (breakpoint) => dispatch(setBreakpoint(breakpoint)),
-    onColorSchemeChange: (colorScheme) => dispatch(setColorScheme(colorScheme)),
-    onContrastChange: (contrast) => dispatch(setContrast(contrast)),
-    onForcedColorsChange: (forcedColors) => dispatch(setForcedColors(forcedColors)),
-    onMonochromeChange: (isMonochrome) => dispatch(setMonochrome(isMonochrome)),
-    onReducedMotionChange: (reducedMotion) => dispatch(setReducedMotion(reducedMotion)),
-    onReducedTransparencyChange: (reducedTransparency) => dispatch(setReducedTransparency(reducedTransparency))
-  });
 
   const dispatch = useAppDispatch();
 
