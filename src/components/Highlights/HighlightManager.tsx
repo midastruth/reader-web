@@ -7,7 +7,7 @@ import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
-import { loadHighlights, setCurrentBook } from '@/lib/highlightsReducer';
+import { loadHighlights, openNoteEditor, setCurrentBook } from '@/lib/highlightsReducer';
 import HighlightsDB from '@/core/Storage/HighlightsDB';
 import { useHighlightSelection, type TextSelection } from './hooks/useHighlightSelection';
 import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHighlightRenderer';
@@ -102,6 +102,13 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     showContextMenu(highlightId, position);
   }, [showContextMenu]);
 
+  const getIframeForSelection = useCallback((selection: TextSelection | null) => {
+    const iframeFromSelection =
+      selection?.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
+
+    return iframeFromSelection || activeIframeRef.current || iframeRef?.current || null;
+  }, [iframeRef]);
+
   // Hooks
   const { createHighlight, isValidSelection } = useHighlightSelection(bookId);
   const {
@@ -144,19 +151,24 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     pendingSelectionRef.current = selection;
 
-    // Calculate toolbar position
+    const targetIframe = getIframeForSelection(selection);
+    const iframeRect = targetIframe?.getBoundingClientRect();
     const rect = selection.boundingClientRect || selection.range.getBoundingClientRect();
     const position = {
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10, // Above the selection
+      x: (iframeRect?.left || 0) + rect.left + rect.width / 2,
+      y: (iframeRect?.top || 0) + rect.top - 10,
     };
+
+    if (targetIframe) {
+      activeIframeRef.current = targetIframe;
+    }
 
     setToolbarState({
       visible: true,
       position,
       selection,
     });
-  }, [hideContextMenu, hideToolbar, isValidSelection]);
+  }, [getIframeForSelection, hideContextMenu, hideToolbar, isValidSelection]);
 
   const restoreForIframe = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
 
@@ -185,10 +197,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     if (!selection) return;
 
     const highlight = await createHighlight(selection, color);
-
-    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
-
-    const targetIframe = iframeFromSelection || iframeRef?.current || null;
+    const targetIframe = getIframeForSelection(selection);
 
 
 
@@ -203,7 +212,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     // Hide toolbar
     hideToolbar();
-  }, [createHighlight, iframeRef, renderHighlight, hideToolbar]);
+  }, [createHighlight, getIframeForSelection, renderHighlight, hideToolbar]);
 
   /**
    * Handle "Add Note" from toolbar
@@ -214,10 +223,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     // Create highlight with default color first
     const highlight = await createHighlight(selection, activeColor);
-
-    const iframeFromSelection = selection.range.startContainer.ownerDocument?.defaultView?.frameElement as HTMLIFrameElement | null;
-
-    const targetIframe = iframeFromSelection || iframeRef?.current || null;
+    const targetIframe = getIframeForSelection(selection);
 
 
 
@@ -227,14 +233,14 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
       renderHighlight(highlight, targetIframe);
 
-      dispatch(require('@/lib/highlightsReducer').openNoteEditor(highlight.id));
+      dispatch(openNoteEditor(highlight.id));
 
     }
 
 
     // Hide toolbar
     hideToolbar();
-  }, [createHighlight, activeColor, iframeRef, renderHighlight, dispatch, hideToolbar]);
+  }, [createHighlight, activeColor, getIframeForSelection, renderHighlight, dispatch, hideToolbar]);
 
   /**
    * Handle color change from context menu
@@ -267,6 +273,25 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     removeHighlight(contextMenuState.highlight.id, targetIframe);
   }, [contextMenuState.highlight, iframeRef, removeHighlight]);
 
+  const handleHighlightUpdated = useCallback((highlight: Highlight) => {
+    const targetIframe = activeIframeRef.current || iframeRef?.current || null;
+
+    if (!targetIframe) return;
+
+    updateHighlightInDOM(highlight, targetIframe);
+
+    setContextMenuState((currentState) => {
+      if (!currentState.highlight || currentState.highlight.id !== highlight.id) {
+        return currentState;
+      }
+
+      return {
+        ...currentState,
+        highlight,
+      };
+    });
+  }, [iframeRef, updateHighlightInDOM]);
+
   // Highlight restoration is triggered by the reader when frames are loaded.
 
 
@@ -294,7 +319,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       )}
 
       {/* Note Editor */}
-      <HighlightNote />
+      <HighlightNote onHighlightUpdated={handleHighlightUpdated} />
     </>
   );
 });
@@ -308,4 +333,3 @@ HighlightManager.displayName = 'HighlightManager';
 // Export the handler for use in StatefulReader
 
 export type TextSelectedHandler = (selection: TextSelection) => void;
-

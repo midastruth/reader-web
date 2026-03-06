@@ -85,9 +85,10 @@ export function HighlightToolbar({
     <div
       className="highlight-toolbar"
       style={{
-        position: 'absolute',
+        position: 'fixed',
         left: position.x,
         top: position.y,
+        transform: 'translateX(-50%)',
         zIndex: 10000,
       }}
       onClick={(e) => e.stopPropagation()}

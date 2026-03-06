@@ -3,15 +3,20 @@
  * Modal dialog with auto-save functionality
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import debounce from 'debounce';
 import type { RootState } from '@/lib/store';
+import type { Highlight } from '@/lib/types/highlights';
 import { updateHighlight, closeNoteEditor } from '@/lib/highlightsReducer';
 import HighlightsDB from '@/core/Storage/HighlightsDB';
 
-export function HighlightNote() {
+export interface HighlightNoteProps {
+  onHighlightUpdated?: (highlight: Highlight) => void;
+}
+
+export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -45,16 +50,22 @@ export function HighlightNote() {
     if (!highlight) return;
 
     setIsSaving(true);
+    const note = text || undefined;
 
     try {
       // Update in database
-      await HighlightsDB.updateHighlight(highlight.id, { note: text || undefined });
+      await HighlightsDB.updateHighlight(highlight.id, { note });
 
       // Update in Redux
       dispatch(updateHighlight({
         id: highlight.id,
-        updates: { note: text || undefined }
+        updates: { note }
       }));
+
+      onHighlightUpdated?.({
+        ...highlight,
+        note,
+      });
 
       setLastSaved(Date.now());
     } catch (error) {
@@ -62,12 +73,11 @@ export function HighlightNote() {
     } finally {
       setIsSaving(false);
     }
-  }, [highlight, dispatch]);
+  }, [highlight, dispatch, onHighlightUpdated]);
 
-  const debouncedSave = useCallback(
-    debounce((text: string) => saveNote(text), 500),
-    [saveNote]
-  );
+  const debouncedSave = useMemo(() => {
+    return debounce((text: string) => saveNote(text), 500);
+  }, [saveNote]);
 
   const handleNoteChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
@@ -75,9 +85,16 @@ export function HighlightNote() {
     debouncedSave(text);
   }, [debouncedSave]);
 
+  useEffect(() => {
+    return () => {
+      debouncedSave.clear();
+    };
+  }, [debouncedSave]);
+
   const handleClose = useCallback(() => {
+    debouncedSave.flush();
     dispatch(closeNoteEditor());
-  }, [dispatch]);
+  }, [debouncedSave, dispatch]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     // Close on Escape
