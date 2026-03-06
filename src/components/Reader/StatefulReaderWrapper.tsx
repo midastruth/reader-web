@@ -1,7 +1,12 @@
 import dynamic from "next/dynamic";
 
-import { Publication } from "@readium/shared";
+import { Publication, Locator } from "@readium/shared";
 import { ThThemeKeys, ThemeKeyType, useTheming } from "@/preferences";
+
+export interface PositionStorage {
+  get: () => Locator | undefined;
+  set: (locator: Locator) => void | Promise<void>;
+}
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 
@@ -31,6 +36,7 @@ interface ReaderComponentProps {
   profile: "epub" | "webPub" | "audio" | undefined | null;
   publication: Publication;
   localDataKey: string | null;
+  positionStorage?: PositionStorage;
 }
 
 export const StatefulReaderWrapper = ({ profile, ...props }: ReaderComponentProps) => {

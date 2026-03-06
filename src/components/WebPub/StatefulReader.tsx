@@ -34,6 +34,7 @@ import {
 import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
+import { PositionStorage } from "../Reader/StatefulReaderWrapper";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
@@ -72,7 +73,8 @@ import { resolveContentProtectionConfig } from "@/preferences/models/protection"
 export const ExperimentalWebPubStatefulReader = ({
   publication,
   localDataKey,
-  plugins
+  plugins,
+  positionStorage
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
@@ -94,13 +96,13 @@ export const ExperimentalWebPubStatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } />
       </ThPluginProvider>
     </>
   );
 };
 
-const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publication; localDataKey: string | null }) => {
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
@@ -163,7 +165,14 @@ const StatefulReaderInner = ({ publication, localDataKey }: { publication: Publi
     canGoForward,
   } = webPubNavigator;
 
-  const { setLocalData, getLocalData, localData } = useLocalStorage(localDataKey);
+  const localStorageData = useLocalStorage(localDataKey);
+  const { setLocalData, getLocalData, localData } = positionStorage 
+    ? {
+        setLocalData: positionStorage.set,
+        getLocalData: positionStorage.get,
+        localData: positionStorage.get()
+      }
+    : localStorageData;
 
   const timeline = useTimeline({
     publication: publication,
