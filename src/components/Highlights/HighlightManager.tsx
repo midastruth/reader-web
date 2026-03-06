@@ -68,6 +68,9 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   // (Important when FXL spreads have multiple iframes.)
   const activeIframeRef = useRef<HTMLIFrameElement | null>(null);
   const iframeSelectionCleanupRef = useRef(new Map<HTMLIFrameElement, () => void>());
+  const lastPointerUpPositionRef = useRef(
+    new Map<HTMLIFrameElement, { x: number; y: number; timestamp: number }>()
+  );
 
   /**
    * Hide toolbars/menus
@@ -133,7 +136,15 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       });
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = (event: PointerEvent) => {
+      const iframeRect = iframe.getBoundingClientRect();
+
+      lastPointerUpPositionRef.current.set(iframe, {
+        x: iframeRect.left + event.clientX,
+        y: iframeRect.top + event.clientY,
+        timestamp: Date.now(),
+      });
+
       scheduleSelectionCheck();
     };
 
@@ -147,6 +158,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     iframeSelectionCleanupRef.current.set(iframe, () => {
       doc.removeEventListener('pointerup', handlePointerUp);
       doc.removeEventListener('keyup', handleKeyUp);
+      lastPointerUpPositionRef.current.delete(iframe);
     });
   }, [hideToolbar]);
 
@@ -180,12 +192,14 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
   useEffect(() => {
     const cleanupMap = iframeSelectionCleanupRef.current;
+    const pointerMap = lastPointerUpPositionRef.current;
 
     return () => {
       for (const cleanup of cleanupMap.values()) {
         cleanup();
       }
       cleanupMap.clear();
+      pointerMap.clear();
     };
   }, []);
 
@@ -228,11 +242,18 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     const targetIframe = getIframeForSelection(selection);
     const iframeRect = targetIframe?.getBoundingClientRect();
+    const lastPointerUp = targetIframe ? lastPointerUpPositionRef.current.get(targetIframe) : null;
     const rect = selection.boundingClientRect || selection.range.getBoundingClientRect();
-    const position = {
-      x: (iframeRect?.left || 0) + rect.left + rect.width / 2,
-      y: (iframeRect?.top || 0) + rect.top - 10,
-    };
+    const shouldUsePointerUpPosition = !!lastPointerUp && Date.now() - lastPointerUp.timestamp < 1000;
+    const position = shouldUsePointerUpPosition
+      ? {
+          x: lastPointerUp.x,
+          y: lastPointerUp.y,
+        }
+      : {
+          x: (iframeRect?.left || 0) + rect.left + rect.width / 2,
+          y: (iframeRect?.top || 0) + rect.top - 10,
+        };
 
     if (targetIframe) {
       activeIframeRef.current = targetIframe;
