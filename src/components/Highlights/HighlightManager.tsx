@@ -67,6 +67,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   // Keep track of the last iframe the user interacted with.
   // (Important when FXL spreads have multiple iframes.)
   const activeIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const iframeSelectionCleanupRef = useRef(new Map<HTMLIFrameElement, () => void>());
 
   /**
    * Hide toolbars/menus
@@ -109,6 +110,46 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     return iframeFromSelection || activeIframeRef.current || iframeRef?.current || null;
   }, [iframeRef]);
 
+  const setupIframeSelectionDismissal = useCallback((iframe: HTMLIFrameElement) => {
+    const doc = iframe.contentDocument;
+    const win = iframe.contentWindow;
+    if (!doc || !win) return;
+
+    iframeSelectionCleanupRef.current.get(iframe)?.();
+
+    const scheduleSelectionCheck = () => {
+      if (!pendingSelectionRef.current) return;
+
+      win.requestAnimationFrame(() => {
+        const selection = win.getSelection();
+        const hasActiveSelection = !!selection &&
+          selection.rangeCount > 0 &&
+          !selection.isCollapsed &&
+          selection.toString().trim().length > 0;
+
+        if (!hasActiveSelection) {
+          hideToolbar();
+        }
+      });
+    };
+
+    const handlePointerUp = () => {
+      scheduleSelectionCheck();
+    };
+
+    const handleKeyUp = () => {
+      scheduleSelectionCheck();
+    };
+
+    doc.addEventListener('pointerup', handlePointerUp);
+    doc.addEventListener('keyup', handleKeyUp);
+
+    iframeSelectionCleanupRef.current.set(iframe, () => {
+      doc.removeEventListener('pointerup', handlePointerUp);
+      doc.removeEventListener('keyup', handleKeyUp);
+    });
+  }, [hideToolbar]);
+
   // Hooks
   const { createHighlight, isValidSelection } = useHighlightSelection(bookId);
   const {
@@ -136,6 +177,40 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     loadBookHighlights();
   }, [bookId, dispatch]);
+
+  useEffect(() => {
+    const cleanupMap = iframeSelectionCleanupRef.current;
+
+    return () => {
+      for (const cleanup of cleanupMap.values()) {
+        cleanup();
+      }
+      cleanupMap.clear();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!pendingSelectionRef.current) return;
+
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        hideToolbar();
+        return;
+      }
+
+      if (!target.closest('.highlight-toolbar')) {
+        hideToolbar();
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [hideToolbar]);
 
   /**
    * Show highlight toolbar when text is selected
@@ -171,10 +246,11 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   }, [getIframeForSelection, hideContextMenu, hideToolbar, isValidSelection]);
 
   const restoreForIframe = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
+    setupIframeSelectionDismissal(iframe);
 
     await restoreHighlights(iframe, href);
 
-  }, [restoreHighlights]);
+  }, [restoreHighlights, setupIframeSelectionDismissal]);
 
 
 
