@@ -59,8 +59,7 @@ export const useEpubStatelessCache = (
     scroll,
     textNormalization,
     wordSpacing,
-    theme,
-    positionsList
+    theme
   );
 
   const cache = useRef<EPubStatelessCache>({
@@ -69,7 +68,7 @@ export const useEpubStatelessCache = (
     isHovering,
     arrowsOccupySpace: arrowsOccupySpace || false,
     settings: settingsCache.current.settings,
-    positionsList: settingsCache.current.positionsList,
+    positionsList: positionsList,
     colorScheme,
     reducedMotion,
   });
@@ -80,7 +79,7 @@ export const useEpubStatelessCache = (
     isHovering,
     arrowsOccupySpace: arrowsOccupySpace || false,
     settings: settingsCache.current.settings,
-    positionsList: settingsCache.current.positionsList,
+    positionsList: positionsList,
     colorScheme,
     reducedMotion,
   }), [
@@ -89,6 +88,7 @@ export const useEpubStatelessCache = (
     isHovering,
     arrowsOccupySpace,
     settingsCache,
+    positionsList,
     colorScheme,
     reducedMotion,
   ]);

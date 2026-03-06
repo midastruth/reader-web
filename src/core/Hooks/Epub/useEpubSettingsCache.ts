@@ -1,10 +1,8 @@
 "use client";
 
 import { useRef, useMemo } from "react";
-import { ThLayoutUI, ThTextAlignOptions, ThLineHeightOptions } from "@/preferences/models";
-import { ThColorScheme } from "@/core/Hooks/useColorScheme";
+import { ThTextAlignOptions, ThLineHeightOptions } from "@/preferences/models";
 import { LineLengthStateObject, FontFamilyStateObject } from "@/lib/settingsReducer";
-import { Locator } from "@readium/shared";
 
 export interface ReadiumCSSSettings {
   columnCount: string;
@@ -27,7 +25,6 @@ export interface ReadiumCSSSettings {
 
 export interface EPubSettingsCache {
   settings: ReadiumCSSSettings;
-  positionsList: Locator[];
 }
 
 export const useEpubSettingsCache = (
@@ -46,8 +43,7 @@ export const useEpubSettingsCache = (
   scroll: boolean,
   textNormalization: boolean,
   wordSpacing: number | null,
-  theme: string | undefined,
-  positionsList: Locator[]
+  theme: string | undefined
 ) => {
   const cache = useRef<EPubSettingsCache>({
     settings: {
@@ -68,7 +64,6 @@ export const useEpubSettingsCache = (
       theme,
       wordSpacing,
     },
-    positionsList: positionsList || [],
   });
 
   const memoizedCache = useMemo(() => ({
@@ -90,7 +85,6 @@ export const useEpubSettingsCache = (
       theme,
       wordSpacing,
     },
-    positionsList: positionsList || [],
   }), [
     columnCount,
     fontFamily,
@@ -108,7 +102,6 @@ export const useEpubSettingsCache = (
     textNormalization,
     theme,
     wordSpacing,
-    positionsList,
   ]);
 
   // Update synchronously to match original behavior
