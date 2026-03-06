@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-import { CSSColor } from "../CSSValues";
+import { ThBreakpoints, CSSColor } from "../models";
 
-import { ThBreakpoints } from "../models/enums";
 import { BreakpointsMap, useBreakpoints } from "@/core/Hooks/useBreakpoints";
 import { useReducedMotion } from "@/core/Hooks/useReducedMotion";
 import { useReducedTransparency } from "@/core/Hooks/useReducedTransparency";
@@ -74,7 +73,7 @@ export const useTheming = <T extends string>({
   const monochrome = useMonochrome(onMonochromeChange);
   const reducedMotion = useReducedMotion(onReducedMotionChange);
   const reducedTransparency = useReducedTransparency(onReducedTransparencyChange);
-
+  
   const updateThemeColorMetaTag = useCallback((color: string): void => {
     if (typeof document === "undefined") return;
     

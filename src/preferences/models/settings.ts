@@ -1,22 +1,108 @@
-"use client";
+import { ThSheetHeaderVariant } from "./actions";
+import { I18nValue } from "./i18n";
 
-import fontStacks from "@readium/css/css/vars/fontStacks.json";
+export interface ThSettingsGroupPref<T> {
+  main: T[];
+  subPanel: T[] | null;
+  header?: ThSheetHeaderVariant;
+}
 
-import { 
-  ThLineHeightOptions, 
-  ThSettingsRangePlaceholder, 
-  ThSettingsRangeVariant, 
-  ThSpacingPresetKeys, 
-  ThSpacingSettingsKeys, 
-  ThTextSettingsKeys 
-} from "./enums";
-import { ThActionsTokens, ThSettingsRangePref } from "../preferences";
-import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
+export interface ThSettingsRangePref {
+  variant?: ThSettingsRangeVariant;
+  placeholder?: I18nValue<ThSettingsRangePlaceholder>;
+  range?: [number, number];
+  step?: number;
+}
 
-export const defaultActionKeysObject: ThActionsTokens = {
-  visibility: ThCollapsibilityVisibility.partially,
-  shortcut: null
-};
+export interface ThSettingsRadioPref<T extends string> {
+  allowUnset?: boolean;
+  keys: {
+    [key in T]: number;
+  };
+}
+
+export enum ThSettingsKeys {
+  columns = "columns",
+  fontFamily = "fontFamily",
+  fontWeight = "fontWeight",
+  hyphens = "hyphens",
+  layout = "layout",
+  letterSpacing = "letterSpacing",
+  lineHeight = "lineHeight",
+  paragraphIndent = "paragraphIndent",
+  paragraphSpacing = "paragraphSpacing",
+  publisherStyles = "publisherStyles",
+  spacingGroup = "spacingGroup",
+  spacingPresets = "spacingPresets",
+  textAlign = "textAlign",
+  textGroup = "textGroup",
+  textNormalize = "textNormalize",
+  theme = "theme",
+  wordSpacing = "wordSpacing",
+  zoom = "zoom"
+}
+
+export enum ThTextSettingsKeys {
+  fontFamily = "fontFamily",
+  fontWeight = "fontWeight",
+  hyphens = "hyphens",
+  textAlign = "textAlign",
+  textNormalize = "textNormalize"
+}
+
+export enum ThSpacingSettingsKeys {
+  letterSpacing = "letterSpacing",
+  lineHeight = "lineHeight",
+  paragraphIndent = "paragraphIndent",
+  paragraphSpacing = "paragraphSpacing",
+  publisherStyles = "publisherStyles",
+  spacingPresets = "spacingPresets",
+  wordSpacing = "wordSpacing"
+}
+
+export enum ThSettingsContainerKeys {
+  initial = "initial",
+  text = "text",
+  spacing = "spacing"
+}
+
+export enum ThSettingsRangeVariant {
+  slider = "slider",
+  incrementedSlider = "incrementedSlider",
+  numberField = "numberField"
+}
+
+export enum ThSettingsRangePlaceholder {
+  range = "range",
+  none = "none"
+}
+
+export enum ThSpacingPresetKeys {
+  publisher = "publisher",
+  tight = "tight",
+  balanced = "balanced",
+  loose = "loose",
+  accessible = "accessible",
+  custom = "custom"
+}
+
+export enum ThLayoutOptions { 
+  scroll = "scroll_option",
+  paginated = "page_option"
+}
+
+export enum ThTextAlignOptions {
+  publisher = "publisher",
+  start = "start",
+  justify = "justify"
+}
+
+export enum ThLineHeightOptions {
+  publisher = "publisher",
+  small = "small",
+  medium = "medium",
+  large = "large"
+}
 
 export const defaultTextSettingsMain = [ThTextSettingsKeys.fontFamily];
 
@@ -49,15 +135,6 @@ export const defaultSpacingPresetsOrder = [
   ThSpacingPresetKeys.balanced,
   ThSpacingPresetKeys.loose
 ]
-
-export const defaultFontFamilyOptions = {
-  publisher: null,
-  oldStyle: fontStacks.RS__oldStyleTf,
-  modern: fontStacks.RS__modernTf,
-  sans: fontStacks.RS__sansTf,
-  humanist: fontStacks.RS__humanistTf,
-  monospace: fontStacks.RS__monospaceTf
-}
 
 export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {
   variant: ThSettingsRangeVariant.numberField,

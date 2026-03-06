@@ -13,8 +13,10 @@ import {
   EpubNavigatorListeners, 
   EpubPreferences, 
   EpubSettings, 
+  IContentProtectionConfig, 
   IEpubDefaults, 
-  IEpubPreferences
+  IEpubPreferences,
+  IInjectablesConfig
 } from "@readium/navigator";
 
 type cbb = (ok: boolean) => void;
@@ -30,6 +32,8 @@ export interface EpubNavigatorLoadProps {
   initialPosition?: Locator;
   preferences?: IEpubPreferences;
   defaults?: IEpubDefaults;
+  injectables?: IInjectablesConfig;
+  contentProtection?: IContentProtectionConfig;
 }
 
 export const useEpubNavigator = () => {
@@ -82,7 +86,12 @@ export const useEpubNavigator = () => {
         config.listeners, 
         config.positionsList, 
         config.initialPosition, 
-        { preferences: config.preferences || {}, defaults: config.defaults || {} }
+        { 
+          preferences: config.preferences || {}, 
+          defaults: config.defaults || {}, 
+          injectables: config.injectables || undefined,
+          contentProtection: config.contentProtection || undefined
+        }
       );
 
       navigatorInstance.load().then(() => {

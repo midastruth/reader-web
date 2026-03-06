@@ -3,101 +3,35 @@ import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
 import { 
   ThActionsKeys,
+  ThDocumentTitleFormat,
+  ThLayoutUI,
+  ThProgressionFormat,
+  ThRunningHeadFormat,
   ThDockingKeys,
-  ThDockingTypes,
   ThLineHeightOptions, 
   ThSettingsKeys, 
-  ThSettingsRangeVariant, 
-  ThSheetHeaderVariant, 
   ThSheetTypes, 
   ThSpacingSettingsKeys, 
   ThTextSettingsKeys, 
   ThThemeKeys, 
   ThLayoutDirection, 
-  ThLayoutUI,
-  ThBackLinkVariant,
-  ThProgressionFormat,
-  ThRunningHeadFormat,
-  ThBreakpoints,
-  ThDocumentTitleFormat,
   ThSpacingPresetKeys,
-  ThSettingsRangePlaceholder,
-  ThArrowVariant
-} from "./models/enums";
+  ThActionsTokens,
+  ThFontFamilyPref,
+  ThSettingsRangePref,
+  ThSettingsRadioPref,
+  I18nValue,
+  ThBackLinkPref,
+  ThFormatPref,
+  ThPaginatedAffordancePref,
+  ThDockingPref,
+  ThSettingsGroupPref,
+  ValidatedLanguageCollection
+} from "./models";
 import { ExperimentKey } from "@readium/navigator";
-import { ThCollapsibility, ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
+import { ThCollapsibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
-
-export type I18nValue<T> = T | string | { key: string; fallback?: string };
-
-export type ThBackLinkContent = 
-  | { 
-      type: "img";
-      src: string;
-      alt?: string;
-    }
-  | {
-      type: "svg";
-      content: string; // Raw SVG string
-    };
-
-export interface ThBackLinkPref {
-  href: string;
-  variant?: ThBackLinkVariant;
-  visibility?: "always" | "partially";
-  content?: ThBackLinkContent;
-}
-
-export type ThBottomSheetDetent = "content-height" | "full-height";
-
-export interface ThActionsSnappedPref {
-  scrim?: boolean | string;
-  maxWidth?: number | null;
-  maxHeight?: number | ThBottomSheetDetent;
-  peekHeight?: number | ThBottomSheetDetent;
-  minHeight?: number | ThBottomSheetDetent;
-}
-
-export interface ThActionsDockedPref {
-  dockable: ThDockingTypes,
-  dragIndicator?: boolean,
-  width?: number,
-  minWidth?: number,
-  maxWidth?: number
-}
-
-export interface ThActionsTokens {
-  visibility: ThCollapsibilityVisibility;
-  shortcut: string | null;
-  sheet?: {
-    defaultSheet: Exclude<ThSheetTypes, ThSheetTypes.dockedStart | ThSheetTypes.dockedEnd>;
-    breakpoints: BreakpointsMap<ThSheetTypes>;
-  };
-  docked?: ThActionsDockedPref;
-  snapped?: ThActionsSnappedPref;
-};
-
-export interface ThSettingsSpacingPresets<K extends CustomizableKeys = DefaultKeys> {
-  reflowOrder: Array<ThSpacingPresetKeys>;
-  webPubOrder: Array<ThSpacingPresetKeys>;
-  // Not customizable as the component is static radiogroup (icons), unlike themes
-  // Publisher and custom are not included as they are special cases
-  keys: {
-    [key in Exclude<ThSpacingPresetKeys, "publisher" | "custom">]?: ThSpacingPreset<K>;
-  };
-}
-
-export type ThSpacingPreset<K extends CustomizableKeys = DefaultKeys> = {
-  [ThSpacingSettingsKeys.letterSpacing]?: number;
-  [ThSpacingSettingsKeys.lineHeight]?: ThLineHeightOptions;
-  [ThSpacingSettingsKeys.paragraphIndent]?: number;
-  [ThSpacingSettingsKeys.paragraphSpacing]?: number;
-  [ThSpacingSettingsKeys.wordSpacing]?: number;
-} & (K extends { spacing: infer S } 
-  ? S extends string 
-      ? { [key in S]?: number | ThLineHeightOptions }
-    : {}
-  : {});
+import { ContentProtectionConfig } from "./models/protection";
 
 export type CustomizableKeys = {
   action?: string;
@@ -105,6 +39,15 @@ export type CustomizableKeys = {
   settings?: string;
   text?: string;
   spacing?: string;
+};
+
+// Default internal keys alias for convenience
+export type DefaultKeys = {
+  action: ThActionsKeys;
+  theme: ThThemeKeys;
+  settings: ThSettingsKeys;
+  text: ThTextSettingsKeys;
+  spacing: ThSpacingSettingsKeys;
 };
 
 // Key types to better handle custom keys for external consumers
@@ -143,6 +86,28 @@ export type SpacingSettingsKey<K extends CustomizableKeys> =
       : ThSpacingSettingsKeys
     : ThSpacingSettingsKeys;
 
+export interface ThSettingsSpacingPresets<K extends CustomizableKeys = DefaultKeys> {
+  reflowOrder: Array<ThSpacingPresetKeys>;
+  webPubOrder: Array<ThSpacingPresetKeys>;
+  // Not customizable as the component is static radiogroup (icons), unlike themes
+  // Publisher and custom are not included as they are special cases
+  keys: {
+    [key in Exclude<ThSpacingPresetKeys, "publisher" | "custom">]?: ThSpacingPreset<K>;
+  };
+}
+
+export type ThSpacingPreset<K extends CustomizableKeys = DefaultKeys> = {
+  [ThSpacingSettingsKeys.letterSpacing]?: number;
+  [ThSpacingSettingsKeys.lineHeight]?: ThLineHeightOptions;
+  [ThSpacingSettingsKeys.paragraphIndent]?: number;
+  [ThSpacingSettingsKeys.paragraphSpacing]?: number;
+  [ThSpacingSettingsKeys.wordSpacing]?: number;
+} & (K extends { spacing: infer S } 
+  ? S extends string 
+      ? { [key in S]?: number | ThLineHeightOptions }
+    : {}
+  : {});
+
 export interface ThActionsPref<K extends CustomizableKeys> {
   reflowOrder: Array<ActionKey<K>>;
   fxlOrder: Array<ActionKey<K>>;
@@ -151,36 +116,8 @@ export interface ThActionsPref<K extends CustomizableKeys> {
   keys: Record<ActionKey<K>, ThActionsTokens>;
 };
 
-export interface ThDockingPref<T extends string> {
-  displayOrder: T[];
-  collapse: ThCollapsibility;
-  dock: BreakpointsMap<ThDockingTypes> | boolean; 
-  keys: {
-    [key in T]: Pick<ThActionsTokens, "visibility" | "shortcut">;
-  }
-};
-
-export interface ThSettingsGroupPref<T> {
-  main?: T[];
-  subPanel?: T[] | null;
-  header?: ThSheetHeaderVariant;
-}
-
-export interface ThSettingsRangePref {
-  variant?: ThSettingsRangeVariant;
-  placeholder?: I18nValue<ThSettingsRangePlaceholder>;
-  range?: [number, number];
-  step?: number;
-}
-
-export interface ThSettingsRadioPref<T extends string> {
-  allowUnset?: boolean;
-  keys: {
-    [key in T]: number;
-  };
-}
-
 export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
+  [ThSettingsKeys.fontFamily]: ThFontFamilyPref;
   [ThSettingsKeys.letterSpacing]: ThSettingsRangePref;
   [ThSettingsKeys.lineHeight]: ThSettingsRadioPref<Exclude<ThLineHeightOptions, ThLineHeightOptions.publisher>>;
   [ThSettingsKeys.paragraphIndent]: ThSettingsRangePref;
@@ -196,32 +133,6 @@ export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
 );
 
 export type ThConstraintKeys = Extract<ThSheetTypes, ThSheetTypes.bottomSheet | ThSheetTypes.popover> | "pagination";
-
-export interface ThFormatPrefValue<T extends string | Array<string>> {
-  variants: T;
-  displayInImmersive?: boolean;
-  displayInFullscreen?: boolean;
-}
-
-export interface ThFormatPref<T extends string | Array<string>> {
-  default: ThFormatPrefValue<T>;
-  breakpoints?: { 
-    [key in ThBreakpoints]?: ThFormatPrefValue<T>;
-  };
-}
-
-export interface ThPaginatedAffordancePrefValue {
-  variant: ThArrowVariant;
-  discard?: Array<"navigation" | "immersive" | "fullscreen"> | "none";
-  hint?: Array<"immersiveChange" | "fullscreenChange" | "layoutChange"> | "none";
-}
-
-export interface ThPaginatedAffordancePref {
-  default: Required<ThPaginatedAffordancePrefValue>;
-  breakpoints?: {
-    [key in ThBreakpoints]?: ThPaginatedAffordancePrefValue;
-  };
-}
 
 // Main preferences interface with simplified generics
 export interface ThPreferences<K extends CustomizableKeys = {}> {
@@ -299,6 +210,7 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
       keys: Record<Exclude<ThemeKey<K>, "auto"> & string, ThemeTokens>;
     };
   };
+  contentProtection?: ContentProtectionConfig;
   affordances: {
     scroll: {
       hintInImmersive: boolean;
@@ -322,8 +234,8 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     fxlOrder: Array<SettingsKey<K>>;
     webPubOrder: Array<SettingsKey<K>>;
     keys: ThSettingsKeyTypes<K>;
-    text?: ThSettingsGroupPref<TextSettingsKey<K>>;
-    spacing?: ThSettingsGroupPref<SpacingSettingsKey<K>> & { presets?: ThSettingsSpacingPresets<K> };
+    text: ThSettingsGroupPref<TextSettingsKey<K>>;
+    spacing: ThSettingsGroupPref<SpacingSettingsKey<K>> & { presets?: ThSettingsSpacingPresets<K> };
   };
 }
 
@@ -340,7 +252,7 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
     // Extract language code from BCP-47 locale (e.g., "en-US" -> "en")
     const languageCode = params.locale.split("-")[0];
     if (!isSupportedLocale(languageCode)) {
-      console.warn(`Locale "${params.locale}" is not supported. Supported locales: ${supportedLocales.join(", ")}. Falling back to browser/OS language settings.`);
+      console.warn(`Locale "${ params.locale }" is not supported. Supported locales: ${ supportedLocales.join(", ") }. Falling back to browser/OS language settings.`);
       params.locale = undefined; // Let i18n fall back to browser/OS language settings
     }
   }
@@ -505,16 +417,38 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
     }
   }
   
-  return params;
-};
+  // Validate font family preferences for language conflicts
+  if (params.settings?.keys?.fontFamily) {
+    const fontFamilyPref = params.settings.keys.fontFamily;
+    const languageMap = new Map<string, string[]>();
+    
+    // Build a map of languages to the collections that support them
+    Object.entries(fontFamilyPref).forEach(([collectionName, collectionData]) => {
+      if (collectionName === "default") return;
+      
+      // Check if this collection has supportedLanguages (it's a ValidatedLanguageCollection)
+      const supportedLangs = "supportedLanguages" in collectionData ? 
+        (collectionData as ValidatedLanguageCollection).supportedLanguages : null;
+        
+      if (supportedLangs && Array.isArray(supportedLangs)) {
+        supportedLangs.forEach((lang: string) => {
+          if (!languageMap.has(lang)) {
+            languageMap.set(lang, []);
+          }
+          languageMap.get(lang)!.push(collectionName);
+        });
+      }
+    });
+    
+    // Check for conflicts and warn about them
+    languageMap.forEach((collections, language) => {
+      if (collections.length > 1) {
+        console.warn(`Language "${ language }" is supported by multiple font collections: ${ collections.join(", ") }. This may cause ambiguous font selection. Consider consolidating to a single collection per language.`);
+      }
+    });
+  }
 
-// Default internal keys alias for convenience
-export type DefaultKeys = {
-  action: ThActionsKeys;
-  theme: ThThemeKeys;
-  settings: ThSettingsKeys;
-  text: ThTextSettingsKeys;
-  spacing: ThSpacingSettingsKeys;
+  return params;
 };
 
 // Type helpers that support both custom and default keys

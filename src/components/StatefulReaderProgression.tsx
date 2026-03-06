@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 
 import progressionStyles from "./assets/styles/thorium-web.reader.progression.module.css";
 
-import { ThProgressionFormat } from "@/preferences/models/enums";
+import { ThProgressionFormat } from "@/preferences/models";
 import { ThFormatPref, ThFormatPrefValue } from "@/preferences";
 
 import { ThProgression } from "@/core/Components/Reader/ThProgression";
@@ -141,7 +141,7 @@ export const StatefulReaderProgression = ({
         
       case ThProgressionFormat.positionsLeft:
         if (positionsLeft !== undefined) {
-          text = t(`reader.progression.positionsLeftInChapter`, { 
+          text = t(`reader.progression.positionsLeftInChapter.descriptive`, { 
             count: positionsLeft
           });
         }

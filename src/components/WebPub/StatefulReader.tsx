@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-import { defaultFontFamilyOptions, ThemeKeyType, useTheming } from "../../preferences";
+import { ThemeKeyType, useTheming } from "../../preferences";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
@@ -16,8 +16,9 @@ import {
   ThThemeKeys,
   ThLineHeightOptions,
   ThTextAlignOptions,
-  ThSpacingSettingsKeys
-} from "@/preferences/models/enums";
+  ThSpacingSettingsKeys,
+  ThSettingsKeys
+} from "@/preferences/models";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
 
@@ -29,7 +30,7 @@ import {
   BasicTextSelection,
   FrameClickEvent,
 } from "@readium/navigator-html-injectables";
-import { IWebPubPreferences, TextAlignment, WebPubNavigatorListeners } from "@readium/navigator";
+import { IInjectablesConfig, IWebPubPreferences, TextAlignment, WebPubNavigatorListeners } from "@readium/navigator";
 import { 
   Locator, 
   Manifest, 
@@ -45,6 +46,7 @@ import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 import { useWebPubNavigator } from "@/core/Hooks/WebPub";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useI18n } from "@/i18n/useI18n";
@@ -53,6 +55,7 @@ import { useLocalStorage } from "@/core/Hooks/useLocalStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
+import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
@@ -79,8 +82,10 @@ import {
   setTimeline,
   setPublicationStart,
   setPublicationEnd,
-  setHasDisplayTransformability
+  setHasDisplayTransformability,
+  setFontLanguage
 } from "@/lib/publicationReducer";
+import { FontFamilyStateObject } from "@/lib/settingsReducer";
 
 import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
@@ -89,9 +94,10 @@ import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { prefixString } from "@/core/Helpers/prefixString";
+import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
 export interface WebPubCSSSettings {
-  fontFamily: keyof typeof defaultFontFamilyOptions | null;
+  fontFamily: FontFamilyStateObject;
   fontWeight: number;
   hyphens: boolean | null;
   letterSpacing: number | null;
@@ -141,10 +147,17 @@ export const ExperimentalWebPubStatefulReader = ({
 };
 
 const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
-
-  const { preferences } = usePreferences();
+  const { preferences, resolveFontLanguage, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
+  const { injectFontResources, removeFontResources } = useFonts();
+
+  // Check if font family component is being used
+  const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.fontFamily,
+    publicationType: "webpub",
+    componentType: "text"
+  });
 
   const [publication, setPublication] = useState<Publication | null>(null);
 
@@ -345,6 +358,9 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       return false;
     },
     textSelected: function (_selection: BasicTextSelection): void {},
+    contentProtection: function (_type: string, _data: unknown): void {},
+    contextMenu: function (_data: unknown): void {},
+    peripheral: function (_data: unknown): void {},
   };
 
   useEffect(() => {
@@ -404,6 +420,8 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     if (!publication) return;
 
     dispatch(setRTL(publication.metadata.effectiveReadingProgression === ReadingProgression.rtl));
+    const resolvedMainLanguage = resolveFontLanguage(publication.metadata.languages?.[0], publication.metadata.effectiveReadingProgression);
+    dispatch(setFontLanguage(resolvedMainLanguage));
 
     const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
     dispatch(setHasDisplayTransformability(displayTransformability));
@@ -414,8 +432,10 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       zoom: cache.current.settings.zoom
     };
 
+    let injectables: IInjectablesConfig | undefined = undefined;
+
     if (displayTransformability) {
-      webPubPreferences.fontFamily = cache.current.settings.fontFamily && defaultFontFamilyOptions[cache.current.settings.fontFamily];
+      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily[resolvedMainLanguage] ?? "")?.fontStack || null;
       webPubPreferences.fontWeight = cache.current.settings.fontWeight;
       webPubPreferences.hyphens = cache.current.settings.hyphens;
       webPubPreferences.letterSpacing = cache.current.settings.letterSpacing;
@@ -427,8 +447,24 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       webPubPreferences.textAlign = cache.current.settings.textAlign as TextAlignment | null | undefined;
       webPubPreferences.textNormalization = cache.current.settings.textNormalization;
       webPubPreferences.wordSpacing = cache.current.settings.wordSpacing;
+        
+      // Only inject font resources if font family component is being used
+      if (isFontFamilyUsed) {
+        const fontResources = getFontInjectables({ language: resolvedMainLanguage });
+        if (fontResources) {
+          injectFontResources(getFontInjectables(undefined, true));
+          injectables = {
+            allowedDomains: fontResources.allowedDomains,
+            rules: [{
+              resources: [/\.xhtml$/, /\.html$/],
+              prepend: fontResources.prepend,
+              append: fontResources.append
+            }]
+          };
+        }
+      }
     }
-
+    
     WebPubNavigatorLoad({
       container: container.current,
       publication: publication,
@@ -437,7 +473,9 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
       preferences: webPubPreferences,
       defaults: {
         experiments: preferences.experiments?.webPub || null
-      }
+      },
+      injectables: injectables,
+      contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
     }, () => {
       p.observe(window);
     });
@@ -445,11 +483,10 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     dispatch(setLoading(false));
 
     return () => {
-      WebPubNavigatorDestroy(() => {
-        p.destroy();
-      });
+      WebPubNavigatorDestroy(() => p.destroy());
+      removeFontResources();
     };
-  }, [publication, preferences]);
+  }, [publication, preferences, isFontFamilyUsed, injectFontResources, removeFontResources]);
 
   return (
     <>
