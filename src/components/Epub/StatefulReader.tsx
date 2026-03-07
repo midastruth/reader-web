@@ -588,7 +588,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   // we have to handle this side-effect but we can’t
   // from the ReadingDisplayTheme component since it
   // would have to be mounted for this to work
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!navigatorReady) return;
 
     if (cache.current.colorScheme !== colorScheme) {
