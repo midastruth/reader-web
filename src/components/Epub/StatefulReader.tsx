@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { 
   ThemeKeyType, 
@@ -113,7 +113,7 @@ export const StatefulReader = ({
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (plugins && plugins.length > 0) {
       plugins.forEach(plugin => {
         ThPluginRegistry.register(plugin);
@@ -577,7 +577,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
     })
   }, [submitPreferences]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!navigatorReady) return;
 
     applyConstraint(arrowsOccupySpace ? arrowsWidth.current : 0)
@@ -620,7 +620,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       .catch(console.error);
   }, [cache, themeObject, previousTheme, preferences.theming.themes, fxlThemeKeys, reflowThemeKeys, colorScheme, isFXL, submitPreferences, dispatch, navigatorReady]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     preferences.direction && dispatch(setDirection(preferences.direction));
     dispatch(setPlatformModifier(getPlatformModifier()));
   }, [preferences.direction, dispatch]);
