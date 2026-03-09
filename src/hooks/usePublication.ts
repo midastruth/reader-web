@@ -23,17 +23,18 @@ import {
 import { setReaderProfile, ReaderProfile } from "@/lib/readerReducer";
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { deserializePositions } from "@/helpers/deserializePositions";
+import { ErrorHandler, ProcessedError } from "@/utils/errorHandler";
 
 export interface UsePublicationOptions {
   url: string;
-  onError?: (error: string) => void;
+  onError?: (error: ProcessedError) => void;
   fetcher?: Fetcher;
 }
 
 export interface UsePublicationReturn {
   // Loading states
   isLoading: boolean;
-  error: string;
+  error: ProcessedError | null;
   
   // Publication data
   publication: Publication | null;
@@ -90,7 +91,7 @@ export const usePublication = ({
   
   // Basic states
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<ProcessedError | null>(null);
   const [manifest, setManifest] = useState<object | null>(null);
   const [selfLink, setSelfLink] = useState<string | null>(null);
   const [localDataKey, setLocalDataKey] = useState<string | null>(null);
@@ -107,21 +108,22 @@ export const usePublication = ({
 
   const handleManifestError = (error: unknown, context: string) => {
     console.error(`${ context }:`, error);
-    const errorMsg = `Failed loading manifest ${ url }: ${ error instanceof Error ? error.message : "Unknown error" }`;
-    setError(errorMsg);
+    const processedError = ErrorHandler.process(error, context);
+    setError(processedError);
     setIsLoading(false);
   };
 
   // Basic URL validation and loading
   useEffect(() => {
     if (!url) {
-      setError("Manifest URL is required");
+      const validationError = ErrorHandler.process(new Error('Manifest URL is required'), 'Validation');
+      setError(validationError);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-    setError("");
+    setError(null);
     
     // Decode URL if needed
     const decodedUrl = decodeURIComponent(url);
