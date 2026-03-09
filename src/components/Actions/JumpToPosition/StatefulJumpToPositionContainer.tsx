@@ -39,6 +39,7 @@ export const StatefulJumpToPositionContainer = ({
   // Component has to handle updates locally since EpubNavigator updates positions, 
   // so we use these as an intermediary
   const [position, setPosition] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   // Position Numbers can be a range so we must check position is in range
   // And not only that the array simply includes the position
@@ -73,9 +74,16 @@ export const StatefulJumpToPositionContainer = ({
 
     if (!positionsList) return;
 
+    setErrorMessage(undefined); // Clear previous errors
+
     const item = positionsList.find(item => item.locations.position === position);
 
-    if (!item || positionInRange()) return setOpen(false);
+    if (!item) {
+      setErrorMessage(t("reader.jumpToPosition.error.notFound"));
+      return;
+    }
+    
+    if (positionInRange()) return setOpen(false);
 
     const cb = () => {
       setOpen(false);
@@ -84,7 +92,7 @@ export const StatefulJumpToPositionContainer = ({
     };
     
     go(item, !reducedMotion, cb);
-  }, [position, positionsList, reducedMotion, positionInRange, go, setOpen, dispatch]);
+  }, [position, positionsList, reducedMotion, t, positionInRange, go, setOpen, dispatch]);
 
   // Since we are using an intermediary local state, we must keep track when positionNumbers changes
   useEffect(() => {
@@ -133,6 +141,7 @@ export const StatefulJumpToPositionContainer = ({
             step={ 1 }
             formatOptions={{ style: "decimal" }}
             isWheelDisabled={ true }
+            errorMessage={ errorMessage }
             compounds={{
               label: {
                 className: jumpToPositionStyles.label
