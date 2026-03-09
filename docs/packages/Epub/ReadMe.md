@@ -22,14 +22,23 @@ The Reader Component is the main component of this package. It is a React compon
 You can use it like this:
 
 ```jsx
+import { usePublication } from "@edrlab/thorium-web/hooks";
 import { StatefulReader, ThStoreProvider, ThPreferencesProvider, ThI18nProvider } from "@edrlab/thorium-web/epub";
 
-const App = () => {
+const App = ({ manifestUrl }) => {
+  const { publication, localDataKey, isLoading, error } = usePublication({
+    url: manifestUrl,
+    onError: (error) => console.error("Publication loading error:", error)
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <ThStoreProvider>
       <ThPreferencesProvider>
         <ThI18nProvider>
-          <StatefulReader rawManifest={ manifestObject } selfHref={ manifestSelfLink } />
+          <StatefulReader publication={ publication } localDataKey={ localDataKey } />
         </ThI18nProvider>
       </ThPreferencesProvider>
     </ThStoreProvider>
@@ -37,13 +46,14 @@ const App = () => {
 };
 ```
 
-The Reader expects two props:
+The Reader expects the following props:
 
-- `rawManifest`: the raw Readium Web Publication Manifest for the EPUB file.
-- `selfHref`: the `self` href to be found in this manifest.
+- `publication`: the Publication object representing the EPUB file.
+- `localDataKey`: a key for storing reader position and settings locally.
 - `plugins` (optional): the components (actions, settings) to use in the reader. More below.
+- `positionStorage` (optional): custom storage interface for position data.
 
-You can take a look how the NextJS app is currently doing in [the Read Page](../../src/app/read/page.tsx).
+You can take a look how the NextJS app is currently doing in [the Read Page](../../src/app/read/[identifier]/page.tsx).
 
 > [!IMPORTANT]
 > Due to the complexity the reader has to handle, it does not currently accept `children`. This also explains why it requires dependencies (Redux, Preferences) and is not directly stylable. We are hopeful these limitations may be removed in the future but it will require some additional effort. If you have any ideas, please let us know. In the meantime, you can build your own reader component if you want to use the other components exported from this package.
@@ -184,8 +194,8 @@ import { MyActionContainer } from "./Actions/MyActionContainer";
 import { MyScrollSwitch } from "./Settings/MyScrollSwitch";
 
 export const MyCustomReader = ({
-  rawManifest,
-  selfHref
+  publication,
+  localDataKey
 }: Omit<StatefulReaderProps, "plugins"> ) => {
     
   // Instantiate the default plugin
@@ -215,8 +225,8 @@ export const MyCustomReader = ({
   return (
     <>
       <StatefulReader 
-        rawManifest={ manifestObject } 
-        selfHref={ manifestSelfLink } 
+        publication={ publication } 
+        localDataKey={ localDataKey } 
         plugins={ customPlugins }
       />
     </>
@@ -228,9 +238,23 @@ Then in your app:
 
 ```tsx
 import { MyCustomReader } from "./MyCustomReader";
-const App = () => {
+import { usePublication } from "@edrlab/thorium-web/hooks";
+
+const App = ({ manifestUrl }) => {
+  const { publication, localDataKey, isLoading, error } = usePublication({
+    url: manifestUrl,
+    onError: (error) => console.error("Publication loading error:", error)
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
-    <MyCustomReader rawManifest={ manifestObject } selfHref={ manifestSelfLink } />
+    <MyCustomReader 
+      publication={publication} 
+      localDataKey={localDataKey}
+      plugins={customPlugins}
+    />
   );
 };
 ```

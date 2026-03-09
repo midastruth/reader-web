@@ -5,5 +5,12 @@
 import "../../app/read/app.css";
 import "../../app/reset.css";
 
+// Import all global dependencies
 export * from "../index";
-export * from "./epub-core";
+
+// Import EPUB and WebPub core exports
+export * from "../Epub/epub-core";
+export * from "../WebPub/webpub-core";
+
+// StatefulReaderWrapper
+export * from "./StatefulReaderWrapper";
