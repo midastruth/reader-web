@@ -19,6 +19,8 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setActionOpen } from "@/lib/actionsReducer";
 import { setImmersive, setUserNavigated } from "@/lib/readerReducer";
 
+import { isPositionsListValid } from "./helpers/utils";
+
 export const StatefulJumpToPositionContainer = ({ 
   triggerRef 
 }: StatefulActionContainerProps) => {
@@ -99,8 +101,8 @@ export const StatefulJumpToPositionContainer = ({
     positionNumbers && setPosition(positionNumbers[0]);
   }, [positionNumbers]);
 
-  // In case there is no positions list we return
-  if (!positionsList) return null;
+  // In case there is no positions list or no valid positions we return
+  if (!isPositionsListValid(positionsList)) return null;
 
   return (
     <>
