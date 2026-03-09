@@ -7,7 +7,7 @@ import { usePublication } from "@/hooks/usePublication";
 import { useAppSelector } from "@/lib/hooks";
 import { verifyManifestUrl } from "@/app/api/verify-manifest/verifyDomain";
 import { StatefulReaderWrapper } from "@/components/Reader/StatefulReaderWrapper";
-import { ErrorHandler, ProcessedError } from "@/utils/errorHandler";
+import { ErrorHandler, ProcessedError } from "@/helpers/errorHandler";
 
 type Params = { identifier: string };
 

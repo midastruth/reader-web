@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ProcessedError } from "@/utils/errorHandler";
+import { ProcessedError } from "@/helpers/errorHandler";
 import { useI18n } from "@/i18n/useI18n";
 import errorStyles from "./assets/styles/thorium-web.error.module.css";
 

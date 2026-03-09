@@ -23,7 +23,7 @@ import {
 import { setReaderProfile, ReaderProfile } from "@/lib/readerReducer";
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { deserializePositions } from "@/helpers/deserializePositions";
-import { ErrorHandler, ProcessedError } from "@/utils/errorHandler";
+import { ErrorHandler, ProcessedError } from "@/helpers/errorHandler";
 
 export interface UsePublicationOptions {
   url: string;
