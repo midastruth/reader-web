@@ -105,6 +105,13 @@ export const usePublication = ({
   const [fontLanguage, setFontLanguageState] = useState("");
   const [hasDisplayTransformability, setHasDisplayTransformabilityState] = useState(false);
 
+  const handleManifestError = (error: unknown, context: string) => {
+    console.error(`${ context }:`, error);
+    const errorMsg = `Failed loading manifest ${ url }: ${ error instanceof Error ? error.message : "Unknown error" }`;
+    setError(errorMsg);
+    setIsLoading(false);
+  };
+
   // Basic URL validation and loading
   useEffect(() => {
     if (!url) {
@@ -127,55 +134,56 @@ export const usePublication = ({
       
       // Get self-link first
       fetched.link().then(async (link) => {
-        const selfHref = link.toURL(decodedUrl);
-        setSelfLink(selfHref || null);
-        if (selfHref) {
-          setLocalDataKey(`${selfHref}-current-location`);
-          
-          // Create fetcher with selfHref for proper URL resolution
-          const manifestFetcher = customFetcher || new HttpFetcher(undefined, selfHref);
-          
-          // Fetch manifest with proper fetcher
-          const manifestFetched = manifestFetcher.get(manifestLink);
-          const manifestData = await manifestFetched.readAsJSON();
-          
-          setManifest(manifestData as object);
-          
-          // Create publication
-          const manifestObj = Manifest.deserialize(manifestData)!;
-          manifestObj.setSelfLink(selfHref);
+        try {
+          const selfHref = link.toURL(decodedUrl);
+          setSelfLink(selfHref || null);
+          if (selfHref) {
+            setLocalDataKey(`${ selfHref }-current-location`);
+            
+            // Create fetcher with selfHref for proper URL resolution
+            const manifestFetcher = customFetcher || new HttpFetcher(undefined, selfHref);
+            
+            // Fetch manifest with proper fetcher
+            const manifestFetched = manifestFetcher.get(manifestLink);
+            const manifestData = await manifestFetched.readAsJSON();
+            
+            setManifest(manifestData as object);
+            
+            // Create publication
+            const manifestObj = Manifest.deserialize(manifestData)!;
+            manifestObj.setSelfLink(selfHref);
 
-          // Detect profile from parsed manifest
-          const detectedProfile = detectProfile(manifestObj);
-          setProfile(detectedProfile);
-          dispatch(setReaderProfile(detectedProfile));
+            // Detect profile from parsed manifest
+            const detectedProfile = detectProfile(manifestObj);
+            setProfile(detectedProfile);
+            dispatch(setReaderProfile(detectedProfile));
 
-          const pub = new Publication({
-            manifest: manifestObj,
-            fetcher: manifestFetcher
-          });
-          
-          // For EPUB, fetch positions before mounting reader
-          if (detectedProfile === "epub") {
-            try {
-              const rawPositions = await pub.positionsFromManifest();
-              const positionsList = deserializePositions(rawPositions);
-              dispatch(setPositionsList(positionsList));
-            } catch (error) {
-              console.error("Failed to fetch positions:", error);
-              dispatch(setPositionsList([]));
+            const pub = new Publication({
+              manifest: manifestObj,
+              fetcher: manifestFetcher
+            });
+            
+            // For EPUB, fetch positions before mounting reader
+            if (detectedProfile === "epub") {
+              try {
+                const rawPositions = await pub.positionsFromManifest();
+                const positionsList = deserializePositions(rawPositions);
+                dispatch(setPositionsList(positionsList));
+              } catch (error) {
+                console.error("Failed to fetch positions:", error);
+                dispatch(setPositionsList([]));
+              }
             }
+            
+            setPublication(pub);
+            setIsLoading(false);
           }
-          
-          setPublication(pub);
-          setIsLoading(false);
+        } catch (error: unknown) {
+          handleManifestError(error, "Error loading manifest");
         }
       });
     } catch (error: unknown) {
-      console.error("Error loading manifest:", error);
-      const errorMsg = `Failed loading manifest ${decodedUrl}: ${error instanceof Error ? error.message : "Unknown error"}`;
-      setError(errorMsg);
-      setIsLoading(false);
+      handleManifestError(error, "Error loading manifest");
     }
   }, [url, customFetcher, dispatch]);
 
