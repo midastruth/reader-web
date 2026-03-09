@@ -88,6 +88,7 @@ interface PositionStorage {
 ### Features
 
 - **Conditional Rendering**: Automatically renders EPUB, WebPub, or Audio readers based on profile
+- **Theme Management**: Initializes the theme system automatically
 - **Preferences Management**: Sets up preferences for each profile
 - **Redux State Management**: Integrates with Thorium's Redux store for theme, publication, and settings state
 - **Accessibility**: Manages breakpoints, color schemes, contrast, and motion preferences
