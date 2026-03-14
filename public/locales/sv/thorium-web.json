@@ -48,7 +48,8 @@
             },
             "back": {
                 "trigger": "Tillbaka"
-            }
+            },
+            "printingDisabled": "Utskrift har inaktiverats"
         },
         "navigation": {
             "scroll": {
