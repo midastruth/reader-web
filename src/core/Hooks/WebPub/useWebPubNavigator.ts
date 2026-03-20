@@ -43,7 +43,7 @@ export const useWebPubNavigator = () => {
       await navigatorInstance?.submitPreferences(new WebPubPreferences(preferences));
     }, []);
   
-    const getSetting = useCallback(<K extends keyof WebPubSettings>(settingKey: K) => {
+  const getSetting = useCallback(<K extends keyof WebPubSettings>(settingKey: K) => {
       return navigatorInstance?.settings[settingKey] as WebPubSettings[K];
     }, []);
 

@@ -1,11 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { 
   ThemeKeyType, 
-  usePreferenceKeys, 
-  useTheming
+  usePreferenceKeys
 } from "../../preferences";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
@@ -13,15 +12,12 @@ import arrowStyles from "../assets/styles/thorium-web.reader.paginatedArrow.modu
 
 import { 
   ThActionsKeys,  
-  ThLineHeightOptions, 
-  ThTextAlignOptions, 
   ThLayoutUI,
   ThDocumentTitleFormat,
   ThSpacingSettingsKeys,
   ThProgressionFormat,
   ThSettingsKeys
 } from "../../preferences/models";
-import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 
 import { ThPlugin, ThPluginRegistry } from "../Plugins/PluginRegistry";
 
@@ -36,36 +32,30 @@ import {
 import { 
   EpubNavigatorListeners, 
   FrameManager, 
-  FXLFrameManager, 
-  IEpubDefaults, 
-  IEpubPreferences,  
-  IInjectablesConfig,  
-  TextAlignment
+  FXLFrameManager
 } from "@readium/navigator";
 import { 
   Locator, 
-  Manifest, 
   Publication, 
-  Fetcher, 
-  HttpFetcher, 
-  Layout, 
-  ReadingProgression,
-  Feature
+  Layout
 } from "@readium/shared";
 
 import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderArrowButton } from "../StatefulReaderArrowButton";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
+import { PositionStorage, StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
+import { useEpubStatelessCache } from "./Hooks/useEpubStatelessCache";
+import { useEpubReaderInit } from "./Hooks/useReaderInit";
 import { useEpubNavigator } from "@/core/Hooks/Epub/useEpubNavigator";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { usePrevious } from "@/core/Hooks/usePrevious";
 import { useI18n } from "@/i18n/useI18n";
 import { useTimeline } from "@/core/Hooks/useTimeline";
-import { useLocalStorage } from "@/core/Hooks/useLocalStorage";
+import { usePositionStorage } from "@/hooks/usePositionStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
@@ -74,15 +64,8 @@ import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
-import { AppDispatch } from "@/lib/store";
+
 import { 
-  setBreakpoint, 
-  setColorScheme, 
-  setContrast, 
-  setForcedColors, 
-  setMonochrome, 
-  setReducedMotion, 
-  setReducedTransparency, 
   setTheme 
 } from "@/lib/themeReducer";
 import { 
@@ -94,20 +77,13 @@ import {
   setDirection, 
   setFullscreen,
   setScrollAffordance,
-  setUserNavigated,
-  setReaderProfile
+  setUserNavigated
 } from "@/lib/readerReducer";
 import { 
-  setFXL, 
-  setRTL, 
-  setPositionsList,
   setTimeline,
   setPublicationStart,
-  setPublicationEnd,
-  setHasDisplayTransformability,
-  setFontLanguage
+  setPublicationEnd
 } from "@/lib/publicationReducer";
-import { LineLengthStateObject, FontFamilyStateObject } from "@/lib/settingsReducer";
 
 import classNames from "classnames";
 import debounce from "debounce";
@@ -115,60 +91,22 @@ import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import Peripherals from "../../helpers/peripherals";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
-import { deserializePositions } from "@/helpers/deserializePositions";
-import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
-import { prefixString } from "@/core/Helpers/prefixString";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
-
-export interface ReadiumCSSSettings {
-  columnCount: string;
-  fontFamily: FontFamilyStateObject;
-  fontSize: number;
-  fontWeight: number;
-  hyphens: boolean | null;
-  letterSpacing: number | null;
-  lineLength: LineLengthStateObject | null;
-  lineHeight: ThLineHeightOptions | null;
-  paragraphIndent: number | null;
-  paragraphSpacing: number | null;
-  publisherStyles: boolean;
-  scroll: boolean;
-  textAlign: ThTextAlignOptions | null;
-  textNormalization: boolean;
-  theme?: string;
-  wordSpacing: number | null;
-}
-
-export interface StatelessCache {
-  layoutUI: ThLayoutUI;
-  isImmersive: boolean;
-  isHovering: boolean;
-  arrowsOccupySpace: boolean;
-  settings: ReadiumCSSSettings;
-  positionsList: Locator[];
-  colorScheme?: ThColorScheme;
-  reducedMotion?: boolean;
-}
-
-export interface StatefulReaderProps {
-  rawManifest: object;
-  selfHref: string;
-  plugins?: ThPlugin[];
-}
 
 // We need to register plugins before hooks run
 // otherwise we can’t access the values of spacing presets
 // when the component is effectively mounted as we check
 // if the component is registered and displayed from prefs
 export const StatefulReader = ({
-  rawManifest,
-  selfHref,
-  plugins
+  publication,
+  localDataKey,
+  plugins,
+  positionStorage
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (plugins && plugins.length > 0) {
       plugins.forEach(plugin => {
         ThPluginRegistry.register(plugin);
@@ -186,28 +124,26 @@ export const StatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner rawManifest={ rawManifest } selfHref={ selfHref } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } />
       </ThPluginProvider>
     </>
   );
 };
 
-const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = usePreferenceKeys();
-  const { preferences, resolveFontLanguage, getFontMetadata, getFontInjectables } = usePreferences();
+  const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
   const { injectFontResources, removeFontResources, getAndroidFXLPatch } = useFonts();
   
-  const [publication, setPublication] = useState<Publication | null>(null);
-
   const container = useRef<HTMLDivElement>(null);
-  const localDataKey = useRef(`${selfHref}-current-location`);
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const positionsList = useAppSelector(state => state.publication.positionsList);
+  const fontLanguage = useAppSelector(state => state.publication.fontLanguage);
 
   // Check if font family component is being used
   const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
@@ -249,43 +185,49 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       ? preferences.theming.layout.ui?.reflow || ThLayoutUI.layered
       : ThLayoutUI.stacked;
 
-  // Init theming (breakpoints, theme, media queries…)
-  useTheming<ThemeKeyType>({ 
-    theme: theme,
-    themeKeys: preferences.theming.themes.keys,
-    systemKeys: preferences.theming.themes.systemThemes,
-    breakpointsMap: preferences.theming.breakpoints,
-    initProps: {
-      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
-      ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
-      ...propsToCSSVars(preferences.theming.layout, { 
-        prefix: prefixString("layout"),
-        exclude: ["ui"]
-      })
-    },
-    onBreakpointChange: (breakpoint) => dispatch(setBreakpoint(breakpoint)),
-    onColorSchemeChange: (colorScheme) => dispatch(setColorScheme(colorScheme)),
-    onContrastChange: (contrast) => dispatch(setContrast(contrast)),
-    onForcedColorsChange: (forcedColors) => dispatch(setForcedColors(forcedColors)),
-    onMonochromeChange: (isMonochrome) => dispatch(setMonochrome(isMonochrome)),
-    onReducedMotionChange: (reducedMotion) => dispatch(setReducedMotion(reducedMotion)),
-    onReducedTransparencyChange: (reducedTransparency) => dispatch(setReducedTransparency(reducedTransparency))
-  });
+  const cache = useEpubStatelessCache(
+    textAlign,
+    columnCount,
+    fontFamily,
+    fontSize,
+    fontWeight,
+    hyphens,
+    letterSpacing,
+    lineLength,
+    lineHeight,
+    paragraphIndent,
+    paragraphSpacing,
+    publisherStyles,
+    isScroll,
+    textNormalization,
+    wordSpacing,
+    theme,
+    positionsList,
+    colorScheme,
+    reducedMotion,
+    layoutUI,
+    isImmersive,
+    isHovering,
+    arrowsOccupySpace
+  );
 
   const atPublicationStart = useAppSelector(state => state.publication.atPublicationStart);
   const atPublicationEnd = useAppSelector(state => state.publication.atPublicationEnd);
 
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    // Reset top bar visibility and last position
+    dispatch(setImmersive(false));
+  }, [isScroll, dispatch]);
+
   const onFsChange = useCallback((isFullscreen: boolean) => {
-      dispatch(setFullscreen(isFullscreen));
-    }, [dispatch]);
+    dispatch(setFullscreen(isFullscreen));
+  }, [dispatch]);
   const fs = useFullscreen(onFsChange);
 
   const epubNavigator = useEpubNavigator();
   const { 
-    EpubNavigatorLoad, 
-    EpubNavigatorDestroy, 
     goLeft, 
     goRight, 
     goBackward, 
@@ -298,11 +240,10 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     isScrollStart,
     isScrollEnd,
     getCframes,
-    onFXLPositionChange,
     submitPreferences
   } = epubNavigator;
 
-  const { setLocalData, getLocalData, localData } = useLocalStorage(localDataKey.current);
+  const { setLocalData, getLocalData, localData } = usePositionStorage(localDataKey, positionStorage);
 
   const timeline = useTimeline({
     publication: publication,
@@ -351,39 +292,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
   useDocumentTitle(documentTitle);
 
-  // We need to use a cache so that we can use updated values
-  // without re-rendering the component, and reloading EpubNavigator
-  const cache = useRef<StatelessCache>({
-    layoutUI: layoutUI,
-    isImmersive: isImmersive,
-    isHovering: isHovering,
-    arrowsOccupySpace: arrowsOccupySpace || false,
-    settings: {
-      columnCount: columnCount,
-      fontFamily: fontFamily,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      hyphens: hyphens,
-      letterSpacing: letterSpacing,
-      lineHeight: lineHeight,
-      lineLength: lineLength,
-      paragraphIndent: paragraphIndent,
-      paragraphSpacing: paragraphSpacing,
-      publisherStyles: publisherStyles,
-      scroll: isScroll,
-      textAlign: textAlign,
-      textNormalization: textNormalization,
-      theme: theme,
-      wordSpacing: wordSpacing
-    },
-    positionsList: positionsList || [],
-    colorScheme: colorScheme,
-    reducedMotion: reducedMotion
-  });
-
   const activateImmersiveOnAction = useCallback(() => {
     if (!cache.current.isImmersive) dispatch(setImmersive(true));
-  }, [dispatch]);
+  }, [cache, dispatch]);
 
   const toggleIsImmersive = useCallback(() => {
     // If tap/click in iframe, then header/footer no longer hovering 
@@ -393,7 +304,7 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
   // Warning: this is using navigator’s internal methods that will become private, do not rely on them
   // See https://github.com/edrlab/thorium-web/issues/25
-  const handleTap = (event: FrameClickEvent) => {
+  const handleTap = useCallback((event: FrameClickEvent) => {
     const _cframes = getCframes();
     if (_cframes) {
       if (!cache.current.settings.scroll) {
@@ -418,9 +329,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         }
       }
     }
-  };
+  }, [getCframes, cache, preferences.affordances.scroll, goLeft, goRight, dispatch, activateImmersiveOnAction, toggleIsImmersive]);
 
-  const handleClick = (event: FrameClickEvent) => {
+  const handleClick = useCallback((event: FrameClickEvent) => {
     if (
       cache.current.layoutUI === ThLayoutUI.layered &&
       ( !cache.current.settings.scroll ||
@@ -428,29 +339,46 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
       ) {
         toggleIsImmersive();
       }
-  };
+  }, [cache, preferences.affordances.scroll, toggleIsImmersive]);
+
+  // We could use canGoBackward() and canGoForward() directly on arrows
+  // but maybe we will need to sync the state for other features in the future
+  const updatePublicationNavigationState = useCallback(() => {
+    if (canGoBackward()) {
+      dispatch(setPublicationStart(false));
+    } else {
+      dispatch(setPublicationStart(true));
+    }
+    
+    if (canGoForward()) {
+      dispatch(setPublicationEnd(false));
+    } else {
+      dispatch(setPublicationEnd(true));
+    }
+  }, [canGoBackward, canGoForward, dispatch]);
 
   // We need this as a workaround due to positionChanged being unreliable
   // in FXL – if the frame is in the pool hidden and is shown again,
   // positionChanged won’t fire.
   const handleFXLProgression = useCallback((locator: Locator) => {
     setLocalData(locator);
-  }, [setLocalData]);
+    updatePublicationNavigationState();
+  }, [setLocalData, updatePublicationNavigationState]);
 
-  onFXLPositionChange(handleFXLProgression);
-
-  const initReadingEnv = async () => {
+  const initReadingEnv = useCallback(async () => {
     if (navLayout() === Layout.fixed) {
       // [TMP] Working around positionChanged not firing consistently for FXL
-      // Init’ing so that progression can be populated on first spread loaded
+      // Init'ing so that progression can be populated on first spread loaded
       const cLoc = currentLocator();
       if (cLoc) {
         handleFXLProgression(cLoc);
       };
     }
-  };
+  }, [navLayout, currentLocator, handleFXLProgression]);
 
-  const p = new Peripherals(useAppStore(), preferences.actions, {
+  const appStore = useAppStore();
+
+  const p = useMemo(() => new Peripherals(appStore, preferences.actions, {
     moveTo: (direction) => {
       const navigationCallback = () => {
         dispatch(setUserNavigated(true));
@@ -507,12 +435,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
           break
       }
     }
-  });
+  }), [appStore, preferences.actions, dispatch, activateImmersiveOnAction, cache, goRight, goLeft, goBackward, goForward, fs]);
 
-  const listeners: EpubNavigatorListeners = {
+  const listeners: EpubNavigatorListeners = useMemo(() => ({
     frameLoaded: async function (_wnd: Window): Promise<void> {
       await initReadingEnv();
-      // Warning: this is using navigator’s internal methods that will become private, do not rely on them
+      // Warning: this is using navigator's internal methods that will become private, do not rely on them
       // See https://github.com/edrlab/thorium-web/issues/25
       const _cframes = getCframes();
       _cframes?.forEach(
@@ -527,22 +455,9 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
         const debouncedHandleProgression = debounce(
           async () => {
             setLocalData(locator);
+            updatePublicationNavigationState();
           }, 250);
         debouncedHandleProgression();
-      }
-
-      // We could use canGoBackward() and canGoForward() directly on arrows
-      // but maybe we will need to sync the state for other features in the future
-      if (canGoBackward()) {
-        dispatch(setPublicationStart(false));
-      } else {
-        dispatch(setPublicationStart(true));
-      }
-      
-      if (canGoForward()) {
-        dispatch(setPublicationEnd(false));
-      } else {
-        dispatch(setPublicationEnd(true));
       }
     },
     tap: function (_e: FrameClickEvent): boolean {
@@ -602,7 +517,45 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     contentProtection: function (_type: string, _data: unknown): void {},
     contextMenu: function (_data: unknown): void {},
     peripheral: function (_data: unknown): void {},
-  };
+  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState]);
+  
+  const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
+
+  // Initialize reader using the new composite hook
+  const { navigatorReady } = useEpubReaderInit({
+    container,
+    publication,
+    positionsList,
+    initialPosition,
+    listeners,
+    preferences,
+    cache,
+    isFontFamilyUsed,
+    fontLanguage,
+    getFontMetadata,
+    injectFontResources,
+    removeFontResources,
+    getAndroidFXLPatch,
+    getFontInjectables,
+    fxlThemeKeys,
+    reflowThemeKeys,
+    lineHeightOptions,
+    arrowsOccupySpace,
+    arrowsWidth,
+    colorScheme,
+    isFXL,
+    contentProtectionConfig: resolveContentProtectionConfig(preferences.contentProtection, t),
+    onNavigatorReady: () => {
+      dispatch(setLoading(false));
+    },
+    onNavigatorLoaded: () => {
+      p.observe(window);
+    },
+    onCleanup: () => {
+      p.destroy();
+    },
+    fxlProgressionCallback: handleFXLProgression
+  });
 
   const applyConstraint = useCallback(async (value: number) => {
     await submitPreferences({
@@ -610,106 +563,20 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
     })
   }, [submitPreferences]);
 
-  // Handling side effects on Navigator
+  useLayoutEffect(() => {
+    if (!navigatorReady) return;
 
-  useEffect(() => {
-    cache.current.isImmersive = isImmersive;
-  }, [isImmersive]);
-
-  useEffect(() => {
-    cache.current.isHovering = isHovering;
-  }, [isHovering]);
-
-  useEffect(() => {
-    cache.current.layoutUI = layoutUI;
-  }, [layoutUI]);
-
-  useEffect(() => {
-    cache.current.settings.scroll = isScroll;
-
-    // Reset top bar visibility and last position
-    dispatch(setImmersive(false));
-  }, [isScroll, dispatch]);
-
-  useEffect(() => {
-    cache.current.settings.columnCount = columnCount;
-  }, [columnCount]);
-
-  useEffect(() => {
-    cache.current.settings.fontFamily = fontFamily;
-  }, [fontFamily]);
-
-  useEffect(() => {
-    cache.current.settings.fontSize = fontSize;
-  }, [fontSize]);
-
-  useEffect(() => {
-    cache.current.settings.fontWeight = fontWeight;
-  }, [fontWeight]);
-
-  useEffect(() => {
-    cache.current.settings.hyphens = hyphens;
-  }, [hyphens]);
-
-  useEffect(() => {
-    cache.current.settings.letterSpacing = letterSpacing;
-  }, [letterSpacing]);
-
-  useEffect(() => {
-    cache.current.settings.lineHeight = lineHeight;
-  }, [lineHeight]);
-
-  useEffect(() => {
-    cache.current.settings.lineLength = lineLength;
-  }, [lineLength]);
-
-  useEffect(() => {
-    cache.current.settings.paragraphIndent = paragraphIndent;
-  }, [paragraphIndent]);
-
-  useEffect(() => {
-    cache.current.settings.paragraphSpacing = paragraphSpacing;
-  }, [paragraphSpacing]);
-
-  useEffect(() => {
-    cache.current.settings.textAlign = textAlign;
-  }, [textAlign]);
-
-  useEffect(() => {
-    cache.current.settings.textNormalization = textNormalization;
-  }, [textNormalization]);
-
-  useEffect(() => {
-    cache.current.settings.theme = theme;
-  }, [theme]);
-
-  useEffect(() => {
-    cache.current.settings.wordSpacing = wordSpacing;
-  }, [wordSpacing]);
-
-  useEffect(() => {
-    cache.current.positionsList = positionsList || [];
-  }, [positionsList]);
-
-  useEffect(() => {
-    cache.current.arrowsOccupySpace = arrowsOccupySpace || false;
-
-    const handleConstraint = async () => {
-      await applyConstraint(arrowsOccupySpace ? arrowsWidth.current : 0)
-    }
-    handleConstraint()
+    applyConstraint(arrowsOccupySpace ? arrowsWidth.current : 0)
       .catch(console.error);
-  }, [arrowsOccupySpace, applyConstraint]);
-
-  useEffect(() => {
-    cache.current.reducedMotion = reducedMotion;
-  }, [reducedMotion]);
+  }, [arrowsOccupySpace, applyConstraint, navigatorReady]);
 
   // Theme can also change on colorScheme change so
   // we have to handle this side-effect but we can’t
   // from the ReadingDisplayTheme component since it
   // would have to be mounted for this to work
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!navigatorReady) return;
+
     if (cache.current.colorScheme !== colorScheme) {
       cache.current.colorScheme = colorScheme;
     }
@@ -737,174 +604,12 @@ const StatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; s
 
     applyCurrentTheme()
       .catch(console.error);
-  }, [themeObject, previousTheme, preferences.theming.themes, fxlThemeKeys, reflowThemeKeys, colorScheme, isFXL, submitPreferences, dispatch]);
+  }, [cache, themeObject, previousTheme, preferences.theming.themes, fxlThemeKeys, reflowThemeKeys, colorScheme, isFXL, submitPreferences, dispatch, navigatorReady]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     preferences.direction && dispatch(setDirection(preferences.direction));
     dispatch(setPlatformModifier(getPlatformModifier()));
   }, [preferences.direction, dispatch]);
-
-  useEffect(() => {
-    const fetcher: Fetcher = new HttpFetcher(undefined, selfHref);
-    const manifest = Manifest.deserialize(rawManifest)!;
-    manifest.setSelfLink(selfHref);
-
-    setPublication(new Publication({
-      manifest: manifest,
-      fetcher: fetcher
-    }));
-
-    dispatch(setReaderProfile("epub"));
-  }, [rawManifest, selfHref, dispatch]);
-
-  useEffect(() => {
-    if (!publication) return;
-
-    dispatch(setRTL(publication.metadata.effectiveReadingProgression === ReadingProgression.rtl));
-
-    const isFXLPublication = publication.metadata.effectiveLayout === Layout.fixed;
-    dispatch(setFXL(isFXLPublication));
-
-    const resolvedFontLanguage = resolveFontLanguage(publication.metadata.languages?.[0], publication.metadata.effectiveReadingProgression);
-    dispatch(setFontLanguage(resolvedFontLanguage));
-    
-    const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
-    dispatch(setHasDisplayTransformability(displayTransformability));
-
-    let positionsList: Locator[] | undefined;
-
-    const fetchPositions = async () => {
-      positionsList = await publication.positionsFromManifest();
-      const deserializedPositionsList = deserializePositions(positionsList);
-      dispatch(setPositionsList(deserializedPositionsList));
-    };
-
-    fetchPositions()
-      .catch(console.error)
-      .then(() => {
-        const initialPosition: Locator | null = getLocalData();
-
-        const initialConstraint = cache.current.arrowsOccupySpace ? arrowsWidth.current : 0;
-        
-        const themeKeys = isFXLPublication ? fxlThemeKeys : reflowThemeKeys;
-        const theme = themeKeys.includes(cache.current.settings.theme as any) ? cache.current.settings.theme : "auto";
-        const themeProps = buildThemeObject<ThemeKeyType>({
-          theme: theme,
-          themeKeys: preferences.theming.themes.keys,
-          systemThemes: preferences.theming.themes.systemThemes,
-          colorScheme: cache.current.colorScheme
-        });
-
-        const epubPreferences: IEpubPreferences = isFXLPublication ? {} : {
-          columnCount: cache.current.settings.columnCount === "auto" ? null : Number(cache.current.settings.columnCount),
-          constraint: initialConstraint,
-          fontFamily: getFontMetadata(cache.current.settings.fontFamily[resolvedFontLanguage] ?? "")?.fontStack || null,
-          fontSize: cache.current.settings.fontSize,
-          fontWeight: cache.current.settings.fontWeight,
-          hyphens: cache.current.settings.hyphens,
-          letterSpacing: cache.current.settings.publisherStyles ? undefined : cache.current.settings.letterSpacing,
-          lineHeight: cache.current.settings.publisherStyles 
-            ? undefined 
-            : cache.current.settings.lineHeight === null 
-              ? null 
-              : lineHeightOptions[cache.current.settings.lineHeight],
-          optimalLineLength: cache.current.settings.lineLength?.optimal != null 
-            ? cache.current.settings.lineLength.optimal 
-            : undefined,
-          maximalLineLength: cache.current.settings.lineLength?.max?.isDisabled 
-            ? null 
-            : (cache.current.settings.lineLength?.max?.chars != null) 
-              ? cache.current.settings.lineLength.max.chars 
-              : undefined,
-          minimalLineLength: cache.current.settings.lineLength?.min?.isDisabled 
-            ? null 
-            : (cache.current.settings.lineLength?.min?.chars != null) 
-              ? cache.current.settings.lineLength.min.chars 
-              : undefined,
-          paragraphIndent: cache.current.settings.publisherStyles ? undefined : cache.current.settings.paragraphIndent,
-          paragraphSpacing: cache.current.settings.publisherStyles ? undefined : cache.current.settings.paragraphSpacing,
-          scroll: cache.current.settings.scroll,
-          textAlign: cache.current.settings.textAlign as unknown as TextAlignment | null | undefined,
-          textNormalization: cache.current.settings.textNormalization,
-          wordSpacing: cache.current.settings.publisherStyles ? undefined : cache.current.settings.wordSpacing,
-          ...themeProps
-        };
-
-        const defaults: IEpubDefaults = isFXLPublication ? {} : {
-          maximalLineLength: preferences.typography.maximalLineLength,
-          minimalLineLength: preferences.typography.minimalLineLength,
-          optimalLineLength: preferences.typography.optimalLineLength,
-          pageGutter: preferences.typography.pageGutter,
-          scrollPaddingTop: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
-            ? (preferences.theming.icon.size || 24) * 3 
-            : (preferences.theming.icon.size || 24),
-          scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
-            ? (preferences.theming.icon.size || 24) * 5 
-            : (preferences.theming.icon.size || 24),
-          scrollPaddingLeft: preferences.typography.pageGutter,
-          scrollPaddingRight: preferences.typography.pageGutter,
-          experiments: preferences.experiments?.reflow || null
-        }
-
-        let injectables: IInjectablesConfig | undefined;
-
-        if (isFXLPublication) {
-          const androidPatch = getAndroidFXLPatch();
-          if (androidPatch) {
-            injectables = {
-              allowedDomains: [window.location.origin],
-              rules: [{
-                resources: [/\.xhtml$/, /\.html$/],
-                prepend: [androidPatch]
-              }]
-            };
-          }
-        }
-        
-        if (!isFXLPublication && isFontFamilyUsed) {
-          const fontResources = getFontInjectables({ language: resolvedFontLanguage });
-          if (fontResources) {
-            injectFontResources(getFontInjectables(undefined, true));
-            injectables = {
-              allowedDomains: fontResources.allowedDomains,
-              rules: [{
-                resources: [/\.xhtml$/, /\.html$/],
-                prepend: fontResources.prepend,
-                append: fontResources.append
-              }]
-            };
-          }
-        }
-  
-        EpubNavigatorLoad({
-          container: container.current, 
-          publication: publication,
-          listeners: listeners, 
-          positionsList: positionsList,
-          initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
-          preferences: epubPreferences,
-          defaults: defaults,
-          injectables: injectables,
-          contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
-        }, () => p.observe(window));
-      })
-      .finally(() => {
-        const setLoadingThunk = (dispatch: AppDispatch) => {
-          dispatch(setLoading(false));
-        };
-        dispatch(setLoadingThunk);
-      });
-
-    return () => {
-      EpubNavigatorDestroy(() => p.destroy());
-      if (!isFXL) removeFontResources();
-    };
-  }, [publication, preferences, fxlThemeKeys, reflowThemeKeys, isFontFamilyUsed, injectFontResources, removeFontResources]);
-
-  // If breakpoint is not defined, we are not ready to render
-  // since useDocking needs it to derive the sheet type
-  // Same for arrows and collapsible actions.
-  if (!breakpoint) return null;
 
   return (
     <>
