@@ -325,7 +325,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   return (
     <>
     <I18nProvider locale={ preferences.locale }>
-    <NavigatorProvider navigator={ webPubNavigator }>
+    <NavigatorProvider visualNavigator={ webPubNavigator }>
       <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
           <div 

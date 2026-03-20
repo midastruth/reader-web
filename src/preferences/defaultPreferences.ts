@@ -8,7 +8,7 @@ import {
   ThDockingTypes, 
   ThDockingKeys, 
   ThSettingsKeys, 
-  ThSheetTypes, 
+  ThSheetTypes,
   ThThemeKeys,  
   ThSheetHeaderVariant,
   ThLayoutUI,
@@ -42,7 +42,13 @@ import {
   defaultTextSettingsSubpanel, 
   defaultWordSpacing, 
   defaultZoom,
-  tamilCollection
+  tamilCollection,
+  ThAudioKeys,
+  defaultAudioVolume,
+  defaultAudioPlaybackRate,
+  defaultAudioSkipBackwardInterval,
+  defaultAudioSkipForwardInterval,
+  ThAudioPlayerComponent
 } from "./models";
 import { createPreferences, ThPreferences, DefaultKeys } from "./preferences";
 
@@ -179,7 +185,16 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       ui: {
         reflow: ThLayoutUI.layered,
         fxl: ThLayoutUI.layered,
-        webPub: ThLayoutUI.stacked
+        webPub: ThLayoutUI.stacked,
+        audio: ThLayoutUI.stacked
+      },
+      audio: {
+        order: [
+          ThAudioPlayerComponent.cover,
+          ThAudioPlayerComponent.playbackControls,
+          ThAudioPlayerComponent.progressBar,
+          ThAudioPlayerComponent.mediaControls
+        ]
       },
       radius: 5, // border-radius of containers
       spacing: 20, // padding of containers/sheets
@@ -213,6 +228,11 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
         ThThemeKeys.contrast3
       ],
       fxlOrder: [
+        "auto",
+        ThThemeKeys.light,
+        ThThemeKeys.dark
+      ],
+      audioOrder: [
         "auto",
         ThThemeKeys.light,
         ThThemeKeys.dark
@@ -268,6 +288,20 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       }
     }
   },
+  audio: {
+    order: [
+      ThAudioKeys.theme,
+      ThAudioKeys.skipBackwardInterval,
+      ThAudioKeys.skipForwardInterval,
+      ThAudioKeys.autoPlay
+    ],
+    keys: {
+      [ThAudioKeys.volume]: defaultAudioVolume,
+      [ThAudioKeys.playbackRate]: defaultAudioPlaybackRate,
+      [ThAudioKeys.skipBackwardInterval]: defaultAudioSkipBackwardInterval,
+      [ThAudioKeys.skipForwardInterval]: defaultAudioSkipForwardInterval,
+    }
+  },
   shortcuts: {
     representation: UnstableShortcutRepresentation.symbol,
     joiner: "+"
@@ -289,6 +323,11 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       ThActionsKeys.settings,
       ThActionsKeys.toc,
       ThActionsKeys.fullscreen
+    ],
+    audioOrder: [
+      ThActionsKeys.settings,
+      ThActionsKeys.toc,
+      ThActionsKeys.jumpToPosition
     ],
     collapse: {
       // Number of partially icons to display
