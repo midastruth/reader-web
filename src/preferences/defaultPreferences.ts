@@ -28,6 +28,7 @@ import {
   defaultFullscreenAction,
   defaultTocAction,
   defaultJumpToPositionAction,
+  defaultAudioContentProtectionConfig,
   defaultContentProtectionConfig,
   defaultFontCollection,
   defaultLetterSpacing, 
@@ -253,6 +254,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     },
   },
   contentProtection: defaultContentProtectionConfig,
+  audioContentProtection: defaultAudioContentProtectionConfig,
   affordances: { 
     scroll: {
       hintInImmersive: true,

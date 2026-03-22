@@ -7,12 +7,13 @@ import {
   Locator, 
   Publication 
 } from "@readium/shared";
-import { 
-  AudioNavigator, 
+import {
+  AudioNavigator,
   AudioNavigatorListeners,
   AudioPreferences,
   IAudioPreferences,
-  IAudioDefaults
+  IAudioDefaults,
+  IContentProtectionConfig
 } from "@readium/navigator";
 import { AudioSettings } from "./useAudioSettingsCache";
 
@@ -27,6 +28,7 @@ export interface AudioNavigatorLoadProps {
   initialPosition?: Locator;
   preferences?: IAudioPreferences;
   defaults?: IAudioDefaults;
+  contentProtection?: IContentProtectionConfig;
   audioContext?: AudioContext;
 }
 
@@ -45,12 +47,13 @@ export const useAudioNavigator = () => {
     publication.current = config.publication;
 
     navigatorInstance = new AudioNavigator(
-      config.publication, 
-      config.listeners, 
-      config.initialPosition, 
-      { 
-        preferences: config.preferences || {}, 
-        defaults: config.defaults || {}
+      config.publication,
+      config.listeners,
+      config.initialPosition,
+      {
+        preferences: config.preferences || {},
+        defaults: config.defaults || {},
+        contentProtection: config.contentProtection,
       }
     );
 

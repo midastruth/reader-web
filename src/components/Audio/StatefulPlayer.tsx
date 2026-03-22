@@ -12,6 +12,7 @@ import { ThPluginProvider } from "../Plugins/PluginProvider";
 import { NavigatorProvider } from "@/core/Navigator";
 
 import { Publication } from "@readium/shared";
+import { ContextMenuEvent, KeyboardEventData, SuspiciousActivityEvent } from "@readium/navigator-html-injectables";
 import { AudioNavigatorListeners } from "@readium/navigator";
 import { PositionStorage } from "../Reader/StatefulReaderWrapper";
 import { ThLayoutUI, ThAudioPlayerComponent } from "@/preferences/models";
@@ -29,6 +30,7 @@ import { usePreferenceKeys } from "@/preferences/hooks/usePreferenceKeys";
 import { useAudioNavigator } from "@/core/Hooks/Audio/useAudioNavigator";
 import { useAudioSettingsCache } from "@/core/Hooks/Audio/useAudioSettingsCache";
 import { useI18n } from "@/i18n/useI18n";
+import { resolveAudioContentProtectionConfig } from "@/preferences/models/protection";
 import { useTimeline } from "@/core/Hooks/useTimeline";
 import { usePositionStorage } from "@/hooks/usePositionStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
@@ -190,6 +192,9 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       console.error("[AudioNavigator] playback error", error, locator);
       dispatch(setStatus("paused"));
     },
+    contentProtection: (_type: string, _detail: SuspiciousActivityEvent) => {},
+    peripheral: (_data: KeyboardEventData) => {},
+    contextMenu: (_data: ContextMenuEvent) => {}
   }), [setLocalData, canGoBackward, canGoForward, dispatch]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
@@ -200,6 +205,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     listeners,
     preferences,
     cache,
+    contentProtectionConfig: resolveAudioContentProtectionConfig(preferences.audioContentProtection, t),
     onNavigatorLoaded: () => dispatch(setLoading(false)),
   });
 

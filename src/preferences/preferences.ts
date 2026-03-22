@@ -34,7 +34,7 @@ import {
 import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
-import { ContentProtectionConfig } from "./models/protection";
+import { AudioContentProtectionConfig, ContentProtectionConfig } from "./models/protection";
 
 export type CustomizableKeys = {
   action?: string;
@@ -244,6 +244,7 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     };
   };
   contentProtection?: ContentProtectionConfig;
+  audioContentProtection?: AudioContentProtectionConfig;
   affordances: {
     scroll: {
       hintInImmersive: boolean;

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { Locator, LocatorLocations, Publication } from "@readium/shared";
-import { AudioNavigatorListeners } from "@readium/navigator";
+import { AudioNavigatorListeners, IContentProtectionConfig } from "@readium/navigator";
 import { ThPreferences } from "@/preferences";
 
 import { AudioSettingsCache } from "@/core/Hooks/Audio/useAudioSettingsCache";
@@ -16,6 +16,7 @@ interface UseAudioPlayerInitProps {
   listeners: AudioNavigatorListeners;
   preferences: ThPreferences;
   cache: React.RefObject<AudioSettingsCache>;
+  contentProtectionConfig?: IContentProtectionConfig;
   onNavigatorReady?: () => void;
   onNavigatorLoaded?: () => void;
   onCleanup?: () => void;
@@ -27,6 +28,7 @@ export const useAudioPlayerInit = ({
   listeners,
   preferences,
   cache,
+  contentProtectionConfig,
   onNavigatorReady,
   onNavigatorLoaded,
   onCleanup,
@@ -60,6 +62,7 @@ export const useAudioPlayerInit = ({
       }) : undefined,
       preferences: audioPreferences,
       defaults: audioDefaults,
+      contentProtection: contentProtectionConfig,
     };
 
     isNavigatorLoadedAudio.current = true;
