@@ -128,6 +128,8 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--th-layout-spacing) / 2);
+  max-height: var(--th-layout-constraints-dropdown, 250px);
+  overflow-y: auto;
 }
 
 .audioPlaybackRateListboxItem {

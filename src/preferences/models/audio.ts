@@ -23,7 +23,7 @@ export const defaultAudioVolume: Required<ThSettingsRangePref> = {
 export const defaultAudioPlaybackRate: Required<ThSettingsRangePref> = {
   variant: ThSettingsRangeVariant.slider,
   range: [0.5, 2],
-  step: 0.25,
+  step: 0.1,
   placeholder: ThSettingsRangePlaceholder.range
 }
 
