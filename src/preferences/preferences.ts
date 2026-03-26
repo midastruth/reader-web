@@ -20,7 +20,8 @@ import {
   ThSpacingPresetKeys,
   ThActionsTokens,
   ThFontFamilyPref,
-  ThSettingsRangePref,
+  ThSettingsRangePrefRequired,
+  ThSettingsRangeVariant,
   ThSettingsRadioPref,
   I18nValue,
   ThBackLinkPref,
@@ -100,19 +101,19 @@ export type AudioSettingsKey<K extends CustomizableKeys> =
 
 type ThAudioSkipIntervalKeys =
   | {
-      [ThAudioKeys.skipInterval]: Required<ThSettingsRangePref>;
+      [ThAudioKeys.skipInterval]: ThSettingsRangePrefRequired;
       [ThAudioKeys.skipBackwardInterval]?: never;
       [ThAudioKeys.skipForwardInterval]?: never;
     }
   | {
       [ThAudioKeys.skipInterval]?: never;
-      [ThAudioKeys.skipBackwardInterval]: Required<ThSettingsRangePref>;
-      [ThAudioKeys.skipForwardInterval]: Required<ThSettingsRangePref>;
+      [ThAudioKeys.skipBackwardInterval]: ThSettingsRangePrefRequired;
+      [ThAudioKeys.skipForwardInterval]: ThSettingsRangePrefRequired;
     };
 
 export type ThAudioKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
-  [ThAudioKeys.volume]: Required<ThSettingsRangePref>;
-  [ThAudioKeys.playbackRate]: Required<ThSettingsRangePref>;
+  [ThAudioKeys.volume]: ThSettingsRangePrefRequired;
+  [ThAudioKeys.playbackRate]: ThSettingsRangePrefRequired;
 } & ThAudioSkipIntervalKeys & (
   K extends { audio: infer A }
     ? A extends string
@@ -154,12 +155,12 @@ export interface ThActionsPref<K extends CustomizableKeys> {
 
 export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
   [ThSettingsKeys.fontFamily]: ThFontFamilyPref;
-  [ThSettingsKeys.letterSpacing]: Required<ThSettingsRangePref>;
+  [ThSettingsKeys.letterSpacing]: ThSettingsRangePrefRequired;
   [ThSettingsKeys.lineHeight]: ThSettingsRadioPref<Exclude<ThLineHeightOptions, ThLineHeightOptions.publisher>>;
-  [ThSettingsKeys.paragraphIndent]: Required<ThSettingsRangePref>;
-  [ThSettingsKeys.paragraphSpacing]: Required<ThSettingsRangePref>;
-  [ThSettingsKeys.wordSpacing]: Required<ThSettingsRangePref>;
-  [ThSettingsKeys.zoom]: Required<ThSettingsRangePref>;
+  [ThSettingsKeys.paragraphIndent]: ThSettingsRangePrefRequired;
+  [ThSettingsKeys.paragraphSpacing]: ThSettingsRangePrefRequired;
+  [ThSettingsKeys.wordSpacing]: ThSettingsRangePrefRequired;
+  [ThSettingsKeys.zoom]: ThSettingsRangePrefRequired;
 } & (
   K extends { settings: infer S } 
     ? S extends string 
@@ -505,6 +506,34 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
       }
     });
   }
+
+  // Validate sliderWithPresets presets are reachable given range and step
+  const validateRangePresets = (pref: ThSettingsRangePrefRequired, context: string): void => {
+    if (pref.variant !== ThSettingsRangeVariant.sliderWithPresets || !pref.presets?.length) return;
+    const [min, max] = [Math.min(...pref.range), Math.max(...pref.range)];
+    const step = pref.step;
+    const tolerance = step * 1e-9;
+    const invalid = pref.presets.filter(p => {
+      if (p < min || p > max) return true;
+      const offset = (p - min) / step;
+      return Math.abs(offset - Math.round(offset)) > tolerance;
+    });
+    if (invalid.length > 0) {
+      console.warn(`${ context }: presets [${ invalid.join(", ") }] are not reachable with range=[${ min }, ${ max }] and step=${ step }.`);
+    }
+  };
+
+  Object.entries(params.audio?.keys ?? {}).forEach(([key, pref]) => {
+    if (pref && typeof pref === "object" && "variant" in pref) {
+      validateRangePresets(pref as ThSettingsRangePrefRequired, `audio.keys.${ key }`);
+    }
+  });
+
+  Object.entries(params.settings?.keys ?? {}).forEach(([key, pref]) => {
+    if (pref && typeof pref === "object" && "variant" in pref) {
+      validateRangePresets(pref as ThSettingsRangePrefRequired, `settings.keys.${ key }`);
+    }
+  });
 
   return params;
 };

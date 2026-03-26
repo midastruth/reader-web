@@ -171,6 +171,12 @@
   border: 2px solid var(--th-theme-focus);
 }
 
+/* Playback rate - slider with presets variant */
+
+.audioPlaybackRateSliderContent {
+  min-width: 260px;
+}
+
 /* Playback rate listbox */
 
 .audioPlaybackRateListbox {
