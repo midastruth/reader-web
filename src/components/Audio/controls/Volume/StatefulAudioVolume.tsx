@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import { Dialog, Popover } from "react-aria-components";
 
@@ -9,7 +9,7 @@ import VolumeDownIcon from "../assets/icons/volume_down.svg";
 import VolumeMuteIcon from "../assets/icons/volume_mute.svg";
 import VolumeOffIcon from "../assets/icons/volume_off.svg";
 
-import { ThAudioKeys } from "@/preferences/models";
+import { ThAudioKeys, ThAudioActionKeys } from "@/preferences/models";
 import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
@@ -22,18 +22,18 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setVolume } from "@/lib/audioSettingsReducer";
+import { toggleActionOpen, setActionOpen } from "@/lib/actionsReducer";
 
 export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const volume = useAppSelector(state => state.audioSettings.volume);
-
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.volume]?.isOpen ?? false);
 
   const { t } = useI18n();
   const { preferences } = usePreferences();
-  
+
   const dispatch = useAppDispatch();
   const { submitPreferences, getSetting } = useNavigator().media;
 
@@ -66,7 +66,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
         ref={ triggerRef }
         tooltipLabel={ t("reader.playback.preferences.audio.volume") }
         placement="top"
-        onPress={ () => setIsOpen(prev => !prev) }
+        onPress={ () => dispatch(toggleActionOpen({ key: ThAudioActionKeys.volume })) }
         isDisabled={ isDisabled }
         className={ audioStyles.audioVolumeButton }
       >
@@ -75,26 +75,26 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
       <Popover
         triggerRef={ triggerRef }
         isOpen={ isOpen }
-        onOpenChange={ setIsOpen }
+        onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.volume, isOpen: open })) }
         placement="top"
         className={ audioStyles.audioControlPopover }
       >
         <Dialog className={ audioStyles.audioControlPopoverDialog }>
-            <ThSlider
-              aria-label={ t("reader.playback.preferences.audio.volume") }
-              className={ audioStyles.audioVolumeSlider }
-              orientation="vertical"
-              range={ config.range }
-              step={ config.step }
-              value={ volume }
-              onChange={ updatePreference }
-              compounds={ {
-                wrapper: { ref: contentRef },
-                track: { className: audioStyles.audioVolumeSliderTrack },
-                thumb: { className: audioStyles.audioVolumeSliderThumb },
-                output: { style: { display: "none" } }
-              } }
-            />
+          <ThSlider
+            aria-label={ t("reader.playback.preferences.audio.volume") }
+            className={ audioStyles.audioVolumeSlider }
+            orientation="vertical"
+            range={ config.range }
+            step={ config.step }
+            value={ volume }
+            onChange={ updatePreference }
+            compounds={ {
+              wrapper: { ref: contentRef },
+              track: { className: audioStyles.audioVolumeSliderTrack },
+              thumb: { className: audioStyles.audioVolumeSliderThumb },
+              output: { style: { display: "none" } }
+            } }
+          />
         </Dialog>
       </Popover>
     </>

@@ -244,7 +244,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
           })}>
             <StatefulPlayerHeader
               actionKeys={ audioActionKeys }
-              actionsOrder={ preferences.actions.audioOrder }
+              actionsOrder={ preferences.actions.audio.secondary.displayOrder }
               layout={ preferences.theming.layout?.ui?.audio || ThLayoutUI.stacked }
             />
 

@@ -33,7 +33,8 @@
 
 .audioVolumeButton,
 .audioPlaybackRateButton,
-.audioSleepTimerButton {
+.audioSleepTimerButton,
+.audioTocButton {
   --th-icon-size: calc(var(--audio-icon-base) * (5/4));
   padding: calc(var(--th-icon-size) * (1/4));
 }
@@ -177,34 +178,24 @@
   min-width: 260px;
 }
 
-/* Playback rate listbox */
+/* Playback rate - number field variant */
 
-.audioPlaybackRateListbox {
+.audioPlaybackRateNumberField {
+  min-width: 140px;
+  display: flex;
+  justify-content: center;
+}
+
+/* TOC popover */
+
+.audioTocContent {
+  width: 280px;
   display: flex;
   flex-direction: column;
   gap: calc(var(--th-layout-spacing) / 2);
-  max-height: var(--th-layout-constraints-dropdown, 250px);
+}
+
+.audioTocTree {
+  max-height: 360px;
   overflow-y: auto;
-}
-
-.audioPlaybackRateListboxItem {
-  padding: calc(var(--th-layout-spacing) / 4);
-  border-radius: var(--th-layout-radius);
-  outline: none;
-}
-
-.audioPlaybackRateListboxItem[data-selected] {
-  color: var(--th-theme-subdue);
-}
-
-.audioPlaybackRateListboxItem[data-hovered] {
-  background-color: var(--th-theme-hover);
-}
-
-.audioPlaybackRateListboxItem[data-focus-visible] {
-  outline: 2px solid var(--th-theme-focus);
-}
-
-.audioPlaybackRateListboxItem[data-disabled] {
-  color: var(--th-theme-disable);
 }

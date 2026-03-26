@@ -6,12 +6,16 @@ import { Dialog, ListBox, ListBoxItem, Popover } from "react-aria-components";
 
 import SnoozeIcon from "../assets/icons/snooze.svg";
 
+import { ThAudioActionKeys } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 
 import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
+
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { toggleActionOpen, setActionOpen } from "@/lib/actionsReducer";
 
 const PRESETS = [
   { label: "15 min", seconds: 15 * 60 },
@@ -28,8 +32,10 @@ function formatBadge(seconds: number): string {
 
 export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+
+  const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.sleepTimer]?.isOpen ?? false);
+  const dispatch = useAppDispatch();
 
   const { t } = useI18n();
   const { pause } = useNavigator().media;
@@ -51,8 +57,8 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
 
   const handleSelect = useCallback((key: string) => {
     setRemainingSeconds(key === "cancel" ? null : Number(key));
-    setIsOpen(false);
-  }, []);
+    dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
+  }, [dispatch]);
 
   const isActive = remainingSeconds !== null;
 
@@ -62,7 +68,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
         ref={ triggerRef }
         tooltipLabel={ t("audio.settings.sleepTimer") }
         placement="top"
-        onPress={ () => setIsOpen(prev => !prev) }
+        onPress={ () => dispatch(toggleActionOpen({ key: ThAudioActionKeys.sleepTimer })) }
         isDisabled={ isDisabled }
         className={ audioStyles.audioSleepTimerButton }
       >
@@ -76,7 +82,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
       <Popover
         triggerRef={ triggerRef }
         isOpen={ isOpen }
-        onOpenChange={ setIsOpen }
+        onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: open })) }
         placement="top"
         className={ audioStyles.audioControlPopover }
       >

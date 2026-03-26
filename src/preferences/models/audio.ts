@@ -1,6 +1,15 @@
 "use client";
 
+import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
+import { ThActionsTokens, ThDockingTypes, ThSheetTypes } from "./actions";
 import { ThSettingsRangePrefRequired, ThSettingsRangeVariant, ThSettingsRangePlaceholder } from "./settings";
+
+export enum ThAudioActionKeys {
+  toc = "audio.toc",
+  volume = "audio.volume",
+  playbackRate = "audio.playbackRate",
+  sleepTimer = "audio.sleepTimer",
+}
 
 export enum ThAudioKeys {
   theme = "theme",
@@ -49,3 +58,26 @@ export const defaultAudioSkipInterval: ThSettingsRangePrefRequired = {
   step: 5,
   placeholder: ThSettingsRangePlaceholder.range
 }
+
+// Action tokens for ThAudioActionKeys used in the secondary zone (e.g. header bar).
+// Visibility applies here (secondary collapsibility). Primary zone never uses these tokens.
+// Volume and playback rate are primary-only and have no secondary tokens.
+export const defaultAudioSleepTimerAction: ThActionsTokens = {
+  visibility: ThCollapsibilityVisibility.partially,
+  shortcut: null,
+  sheet: {
+    defaultSheet: ThSheetTypes.popover,
+    breakpoints: {}
+  },
+  docked: { dockable: ThDockingTypes.none }
+};
+
+export const defaultAudioTocAction: ThActionsTokens = {
+  visibility: ThCollapsibilityVisibility.partially,
+  shortcut: null,
+  sheet: {
+    defaultSheet: ThSheetTypes.popover,
+    breakpoints: {}
+  },
+  docked: { dockable: ThDockingTypes.none }
+};

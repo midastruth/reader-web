@@ -1,16 +1,18 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 
 import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 
-import { Dialog, ListBox, ListBoxItem, Popover, Select } from "react-aria-components";
+import { Dialog, Popover } from "react-aria-components";
 
 import SpeedIcon from "../assets/icons/speed.svg";
 
-import { ThAudioKeys, ThSettingsRangeVariant } from "@/preferences/models";
+import { ThAudioKeys, ThAudioActionKeys, ThSettingsRangeVariant } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 import { StatefulSliderWithPresets } from "../../../Settings/StatefulSliderWithPresets";
+import { ThSlider } from "@/core/Components/Settings/ThSlider";
+import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 
 import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
 
@@ -20,11 +22,13 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setPlaybackRate } from "@/lib/audioSettingsReducer";
+import { toggleActionOpen, setActionOpen } from "@/lib/actionsReducer";
 
 export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean }) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
+
+  const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.playbackRate]?.isOpen ?? false);
 
   useFirstFocusable({
     withinRef: contentRef,
@@ -40,92 +44,80 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
 
   const config = preferences.audio.keys[ThAudioKeys.playbackRate];
 
-  const values = useMemo(() => {
-    const min = Math.min(...config.range);
-    const max = Math.max(...config.range);
-    const count = Math.round((max - min) / config.step) + 1;
-    return Array.from({ length: count }, (_, i) =>
-      Math.round((min + i * config.step) * 100) / 100
-    );
-  }, [config.range, config.step]);
-
   const updatePreference = useCallback(async (value: number) => {
     await submitPreferences({ playbackRate: value });
     dispatch(setPlaybackRate(getSetting("playbackRate")));
   }, [submitPreferences, getSetting, dispatch]);
 
-  if (config.variant === ThSettingsRangeVariant.sliderWithPresets) {
+  const renderContent = () => {
+    if (config.variant === ThSettingsRangeVariant.slider) {
+      return (
+        <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
+          <ThSlider
+            aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
+            range={ config.range }
+            step={ config.step }
+            value={ playbackRate }
+            onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
+          />
+        </div>
+      );
+    }
+
+    if (config.variant === ThSettingsRangeVariant.numberField) {
+      return (
+        <div ref={ contentRef } className={ audioStyles.audioPlaybackRateNumberField }>
+          <ThNumberField
+            aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
+            range={ config.range }
+            step={ config.step }
+            value={ playbackRate }
+            onChange={ updatePreference }
+          />
+        </div>
+      );
+    }
+
+    // Default: sliderWithPresets
     return (
-      <>
-        <StatefulActionIcon
-          ref={ triggerRef }
-          tooltipLabel={ t("reader.playback.preferences.playbackRate.descriptive") }
-          placement="top"
-          onPress={ () => setIsOpen(prev => !prev) }
-          isDisabled={ isDisabled }
-          className={ audioStyles.audioPlaybackRateButton }
-        >
-          <SpeedIcon aria-hidden="true" focusable="false" />
-          <span className={ audioStyles.audioPlaybackRateLabel } aria-hidden="true">{ playbackRate }×</span>
-        </StatefulActionIcon>
-        <Popover
-          triggerRef={ triggerRef }
-          isOpen={ isOpen }
-          onOpenChange={ setIsOpen }
-          placement="top"
-          className={ audioStyles.audioControlPopover }
-        >
-          <Dialog className={ audioStyles.audioControlPopoverDialog }>
-            <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
-              <StatefulSliderWithPresets
-                aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
-                presets={ config.presets || [] }
-                formatValue={ (v) => `${v}×` }
-                value={ playbackRate }
-                onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
-                range={ config.range }
-                step={ config.step }
-              />
-            </div>
-          </Dialog>
-        </Popover>
-      </>
+      <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
+        <StatefulSliderWithPresets
+          aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
+          presets={ config.presets || [] }
+          formatValue={ (v) => `${v}×` }
+          value={ playbackRate }
+          onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
+          range={ config.range }
+          step={ config.step }
+        />
+      </div>
     );
-  }
+  };
 
   return (
-    <Select
-      aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
-      isDisabled={ isDisabled }
-      selectedKey={ String(playbackRate) }
-      onSelectionChange={ (key) => updatePreference(Number(key)) }
-    >
+    <>
       <StatefulActionIcon
+        ref={ triggerRef }
         tooltipLabel={ t("reader.playback.preferences.playbackRate.descriptive") }
         placement="top"
+        onPress={ () => dispatch(toggleActionOpen({ key: ThAudioActionKeys.playbackRate })) }
+        isDisabled={ isDisabled }
         className={ audioStyles.audioPlaybackRateButton }
       >
         <SpeedIcon aria-hidden="true" focusable="false" />
         <span className={ audioStyles.audioPlaybackRateLabel } aria-hidden="true">{ playbackRate }×</span>
       </StatefulActionIcon>
       <Popover
+        triggerRef={ triggerRef }
+        isOpen={ isOpen }
+        onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.playbackRate, isOpen: open })) }
         placement="top"
         className={ audioStyles.audioControlPopover }
       >
-        <ListBox
-          className={ audioStyles.audioPlaybackRateListbox }
-        >
-          { values.map((v) => (
-            <ListBoxItem
-              key={ String(v) }
-              id={ String(v) }
-              className={ audioStyles.audioPlaybackRateListboxItem }
-            >
-              { v }×
-            </ListBoxItem>
-          )) }
-        </ListBox>
+        <Dialog className={ audioStyles.audioControlPopoverDialog }>
+          { renderContent() }
+        </Dialog>
       </Popover>
-    </Select>
+    </>
   );
 };

@@ -28,6 +28,9 @@ import {
   defaultFullscreenAction,
   defaultTocAction,
   defaultJumpToPositionAction,
+  ThAudioActionKeys,
+  defaultAudioTocAction,
+  defaultAudioSleepTimerAction,
   defaultAudioContentProtectionConfig,
   defaultContentProtectionConfig,
   defaultFontCollection,
@@ -328,23 +331,35 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       ThActionsKeys.toc,
       ThActionsKeys.fullscreen
     ],
-    audioOrder: [
-      ThActionsKeys.settings,
-      ThActionsKeys.toc,
-      ThActionsKeys.jumpToPosition
-    ],
+    audio: {
+      primary: {
+        displayOrder: [
+          ThAudioActionKeys.volume,
+          ThAudioActionKeys.playbackRate,
+          ThAudioActionKeys.toc,
+          ThAudioActionKeys.sleepTimer
+        ]
+      },
+      secondary: {
+        displayOrder: [
+          ThActionsKeys.settings
+        ]
+      }
+    },
     collapse: {
       // Number of partially icons to display
       // value "all" a keyword for the length of displayOrder above
       // Icons with visibility always are excluded from collapsing
       [ThBreakpoints.compact]: 2,
       [ThBreakpoints.medium]: 3
-    }, 
+    },
     keys: {
       [ThActionsKeys.settings]: defaultSettingsAction,
       [ThActionsKeys.fullscreen]: defaultFullscreenAction,
       [ThActionsKeys.toc]: defaultTocAction,
-      [ThActionsKeys.jumpToPosition]: defaultJumpToPositionAction
+      [ThActionsKeys.jumpToPosition]: defaultJumpToPositionAction,
+      [ThAudioActionKeys.toc]: defaultAudioTocAction,
+      [ThAudioActionKeys.sleepTimer]: defaultAudioSleepTimerAction
     }
   },
   docking: {

@@ -1,8 +1,9 @@
 import { UnstableShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
 import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
-import { 
+import {
   ThActionsKeys,
+  ThAudioActionKeys,
   ThAudioKeys,
   ThAudioSettingsKeys,
   ThDocumentTitleFormat,
@@ -148,9 +149,27 @@ export interface ThActionsPref<K extends CustomizableKeys> {
   reflowOrder: Array<ActionKey<K>>;
   fxlOrder: Array<ActionKey<K>>;
   webPubOrder: Array<ActionKey<K>>;
-  audioOrder: Array<ActionKey<K>>;
+  audio: {
+    /**
+     * Primary zone (e.g. media controls bar). Accepts any string key —
+     * components are resolved via the plugin registry's primaryAudioActions.
+     * No ThActionsTokens required; visibility does not apply here.
+     * Volume and playback rate are primary-only (no secondary tokens).
+     */
+    primary: {
+      displayOrder: string[];
+    };
+    /**
+     * Secondary zone (e.g. header collapsible bar). Keys must have a
+     * corresponding entry in `keys` with full ThActionsTokens.
+     * ThAudioActionKeys (e.g. toc, sleepTimer) are allowed here.
+     */
+    secondary: {
+      displayOrder: Array<ActionKey<K> | ThAudioActionKeys>;
+    };
+  };
   collapse: ThCollapsibility;
-  keys: Record<ActionKey<K>, ThActionsTokens>;
+  keys: Record<ActionKey<K>, ThActionsTokens> & Partial<Record<ThAudioActionKeys, ThActionsTokens>>;
 };
 
 export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
@@ -345,8 +364,13 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
   
   // Validate actions
   if (params.actions) {
-    validateObjectKeys<ActionKey<K>, ThActionsTokens>(
-      [params.actions.reflowOrder as Array<ActionKey<K>>, params.actions.fxlOrder as Array<ActionKey<K>>, params.actions.webPubOrder as Array<ActionKey<K>>],
+    validateObjectKeys<ActionKey<K> | ThAudioActionKeys, ThActionsTokens>(
+      [
+        params.actions.reflowOrder as Array<ActionKey<K>>,
+        params.actions.fxlOrder as Array<ActionKey<K>>,
+        params.actions.webPubOrder as Array<ActionKey<K>>,
+        params.actions.audio.secondary.displayOrder as Array<ActionKey<K> | ThAudioActionKeys>
+      ],
       params.actions.keys as Record<string, ThActionsTokens>,
       "actions"
     );
