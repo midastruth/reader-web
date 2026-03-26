@@ -21,6 +21,7 @@ import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 
 import { StatefulAudioCover } from "./StatefulAudioCover";
+import { StatefulAudioMetadata } from "./StatefulAudioMetadata";
 import { StatefulAudioPlaybackControls } from "./controls/StatefulAudioPlaybackControls";
 import { StatefulAudioMediaControls } from "./controls/StatefulAudioMediaControls";
 import { StatefulAudioProgressBar } from "./controls/StatefulAudioProgressBar";
@@ -217,6 +218,8 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     switch (component) {
       case ThAudioPlayerComponent.cover:
         return <StatefulAudioCover key={ component } coverUrl={ coverUrl } title={ publication?.metadata?.title?.getTranslation("en") } />;
+      case ThAudioPlayerComponent.metadata:
+        return publication ? <StatefulAudioMetadata key={ component } publication={ publication } /> : null;
       case ThAudioPlayerComponent.playbackControls:
         return <StatefulAudioPlaybackControls key={ component } />;
       case ThAudioPlayerComponent.progressBar:

@@ -192,6 +192,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       audio: {
         order: [
           ThAudioPlayerComponent.cover,
+          ThAudioPlayerComponent.metadata,
           ThAudioPlayerComponent.playbackControls,
           ThAudioPlayerComponent.progressBar,
           ThAudioPlayerComponent.mediaControls
