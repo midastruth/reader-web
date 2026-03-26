@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 
 import audioStyles from "./assets/styles/thorium-web.audioProgressBar.module.css";
 
@@ -36,7 +36,10 @@ export const StatefulAudioProgressBar = ({ currentChapter }: { currentChapter?: 
       seekableRanges={ seekableRanges }
       compounds={{
         wrapper: {
-          className: audioStyles.audioProgressControl
+          className: audioStyles.audioProgressControl,
+          onKeyDown: (e: React.KeyboardEvent) => {
+            if (e.key === "Escape") (document.activeElement as HTMLElement)?.blur();
+          }
         },
         chapter: {
           className: audioStyles.audioProgressChapter

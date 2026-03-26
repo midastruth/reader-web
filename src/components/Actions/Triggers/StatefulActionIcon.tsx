@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
+
+import { useObjectRef } from "react-aria";
 
 import { TooltipProps } from "react-aria-components";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
@@ -25,15 +27,16 @@ export interface StatefulActionIconProps extends ThActionButtonProps {
 }
 
 export const StatefulActionIcon = ({
- visibility,
- placement,
- tooltipLabel,
- children,
+  ref: externalRef,
+  visibility,
+  placement,
+  tooltipLabel,
+  children,
   ...props
 }: StatefulActionIconProps) => {
   const { preferences } = usePreferences();
 
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useObjectRef(externalRef ?? null);
 
   const dispatch = useAppDispatch();
 
