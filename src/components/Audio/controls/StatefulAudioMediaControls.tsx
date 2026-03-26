@@ -8,6 +8,7 @@ import { StatefulAudioPlaybackRate } from "./PlaybackRate/StatefulAudioPlaybackR
 
 import { useI18n } from "@/i18n/useI18n";
 import { useAppSelector } from "@/lib";
+import { StatefulSleepTimer } from "./SleepTimer/StatefulSleepTimer";
 
 export const StatefulAudioMediaControls = () => {
   const { t } = useI18n();
@@ -17,7 +18,8 @@ export const StatefulAudioMediaControls = () => {
   return (
     <ThActionsBar className={ audioStyles.audioMediaControls } aria-label={ t("audio.player.mediaControls") }>
       <StatefulAudioVolume isDisabled={ !isTrackReady || isStalled } />
-      <StatefulAudioPlaybackRate isDisabled={ !isTrackReady || isStalled }/>
+      <StatefulAudioPlaybackRate isDisabled={ !isTrackReady || isStalled } />
+      <StatefulSleepTimer isDisabled={ !isTrackReady || isStalled } />
     </ThActionsBar>
   );
 };

@@ -52,7 +52,7 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
     >
       <StatefulActionIcon
         tooltipLabel={ t("audio.settings.playbackRate") }
-        placement="bottom"
+        placement="top"
         className={ audioStyles.audioPlaybackRateButton }
       >
         <SpeedIcon aria-hidden="true" focusable="false" />

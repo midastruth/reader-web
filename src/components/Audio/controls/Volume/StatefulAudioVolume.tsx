@@ -65,7 +65,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
       <StatefulActionIcon
         ref={ triggerRef }
         tooltipLabel={ t("audio.settings.volume") }
-        placement="bottom"
+        placement="top"
         onPress={ () => setIsOpen(prev => !prev) }
         isDisabled={ isDisabled }
         className={ audioStyles.audioVolumeButton }

@@ -127,7 +127,8 @@
       "playbackRate": "Playback Speed",
       "skipBackwardInterval": "Skip Backward Interval",
       "skipForwardInterval": "Skip Forward Interval",
-      "volume": "Volume"
+      "volume": "Volume",
+      "sleepTimer": "Sleep Timer"
     }
   }
 }

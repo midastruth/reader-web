@@ -25,20 +25,23 @@
 
 .audioMediaControls {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 1rem;
   --audio-icon-base: var(--th-icon-size, 24px);
 }
 
 .audioVolumeButton,
-.audioPlaybackRateButton {
+.audioPlaybackRateButton,
+.audioSleepTimerButton {
   --th-icon-size: calc(var(--audio-icon-base) * (5/4));
   padding: calc(var(--th-icon-size) * (1/4));
 }
 
 .audioPlaybackRateButton {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   outline: none;
 }
 
@@ -51,9 +54,6 @@
 }
 
 .audioPlaybackRateLabel {
-  position: absolute;
-  bottom: 0;
-  right: 0;
   line-height: 1;
   font-size: calc(var(--th-icon-size, 24px) * (5/12));
   font-variant-numeric: tabular-nums;
@@ -71,6 +71,55 @@
 
 .audioControlPopoverDialog {
   outline: none;
+}
+
+/* Sleep timer */
+
+.audioSleepTimerButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  outline: none;
+}
+
+.audioSleepTimerButton[data-focus-visible] {
+  outline: 2px solid var(--th-theme-focus);
+}
+
+.audioSleepTimerButton[data-disabled] {
+  color: var(--th-theme-disable);
+}
+
+.audioSleepTimerLabel {
+  line-height: 1;
+  font-size: calc(var(--th-icon-size, 24px) * (5/12));
+  font-variant-numeric: tabular-nums;
+  font-weight: bold;
+}
+
+.audioSleepTimerListbox {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--th-layout-spacing) / 2);
+}
+
+.audioSleepTimerListboxItem {
+  padding: calc(var(--th-layout-spacing) / 4);
+  border-radius: var(--th-layout-radius);
+  outline: none;
+  cursor: default;
+}
+
+.audioSleepTimerListboxItem[data-hovered] {
+  background-color: var(--th-theme-hover);
+}
+
+.audioSleepTimerListboxItem[data-focus-visible] {
+  outline: 2px solid var(--th-theme-focus);
+}
+
+.audioSleepTimerListboxItem[data-cancel] {
+  color: var(--th-theme-subdue);
 }
 
 /* Volume slider */
