@@ -3,33 +3,28 @@
 import React from "react";
 
 import { ActionKeyType } from "@/preferences";
-import { ThLayoutUI, ThRunningHeadFormat } from "@/preferences/models";
-import { ThFormatPref } from "@/preferences";
+import { ThLayoutUI } from "@/preferences/models";
 
-import readerStyles from "./assets/styles/thorium-web.reader.app.module.css";
-import readerHeaderStyles from "./assets/styles/thorium-web.reader.header.module.css";
-import overflowMenuStyles from "./Actions/assets/styles/thorium-web.overflow.module.css";
+import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
+import readerHeaderStyles from "../assets/styles/thorium-web.reader.header.module.css";
+import overflowMenuStyles from "../Actions/assets/styles/thorium-web.overflow.module.css";
 
-import { ThHeader } from "@/core/Components/Reader/ThHeader";
-import { StatefulBackLink } from "./StatefulBackLink";
-import { StatefulReaderRunningHead } from "./StatefulReaderRunningHead";
-import { ThInteractiveOverlay } from "../core/Components/Reader/ThInteractiveOverlay";
-import { StatefulCollapsibleActionsBar } from "./Actions/StatefulCollapsibleActionsBar";
+import { StatefulBackLink } from "../StatefulBackLink";
+import { ThInteractiveOverlay } from "@/core/Components/Reader/ThInteractiveOverlay";
+import { StatefulCollapsibleActionsBar } from "../Actions/StatefulCollapsibleActionsBar";
 
-import { useReaderHeaderBase } from "./hooks/useReaderHeaderBase";
+import { useReaderHeaderBase } from "../hooks/useReaderHeaderBase";
 
 import classNames from "classnames";
 
-export const StatefulReaderHeader = ({
+export const StatefulPlayerHeader = ({
   actionKeys,
   actionsOrder,
   layout,
-  runningHeadFormatPref
 }: {
   actionKeys: ActionKeyType[];
   actionsOrder: ActionKeyType[];
   layout: ThLayoutUI;
-  runningHeadFormatPref?: ThFormatPref<ThRunningHeadFormat>;
 }) => {
   const {
     headerRef, focusWithinProps, setHover, removeHover,
@@ -45,17 +40,14 @@ export const StatefulReaderHeader = ({
         onMouseLeave={ removeHover }
       />
 
-      <ThHeader
+      <div
         ref={ headerRef }
         className={ classNames(readerStyles.topBar, readerHeaderStyles.header) }
-        aria-label={ t("reader.app.header.label") }
         onMouseEnter={ setHover }
         onMouseLeave={ removeHover }
         { ...focusWithinProps }
       >
         { preferences.theming.header?.backLink && <StatefulBackLink className={ readerHeaderStyles.backlinkWrapper } /> }
-
-        <StatefulReaderRunningHead formatPref={ runningHeadFormatPref } />
 
         <StatefulCollapsibleActionsBar
           id="reader-header-overflowMenu"
@@ -69,7 +61,7 @@ export const StatefulReaderHeader = ({
               : undefined
           }
         />
-      </ThHeader>
+      </div>
     </>
   );
 };

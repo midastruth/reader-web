@@ -18,7 +18,7 @@ import { PositionStorage } from "../Reader/StatefulReaderWrapper";
 import { ThLayoutUI, ThAudioPlayerComponent } from "@/preferences/models";
 
 import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
-import { StatefulReaderHeader } from "../StatefulReaderHeader";
+import { StatefulPlayerHeader } from "./StatefulPlayerHeader";
 
 import { StatefulAudioCover } from "./StatefulAudioCover";
 import { StatefulAudioMetadata } from "./StatefulAudioMetadata";
@@ -242,11 +242,10 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
             isHovering,
             isFXL: false,
           })}>
-            <StatefulReaderHeader
+            <StatefulPlayerHeader
               actionKeys={ audioActionKeys }
               actionsOrder={ preferences.actions.audioOrder }
               layout={ preferences.theming.layout?.ui?.audio || ThLayoutUI.stacked }
-              runningHeadFormatPref={ preferences.theming.header?.runningHead?.format?.audio }
             />
 
             <article className={ audioStyles.audioPlayerWrapper } aria-label={ t("reader.app.publicationWrapper") }>
