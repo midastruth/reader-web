@@ -26,21 +26,12 @@ export const StatefulAudioProgressBar = ({ currentChapter }: { currentChapter?: 
     seek(time);
   }, [seek]);
 
-  const formatTime = (seconds: number) => {
-    if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${ mins }:${ secs.toString().padStart(2, "0") }`;
-  };
-
   return (
     <ThAudioProgress
       currentTime={ current }
       duration={ total }
       onSeek={ handleSeek }
-      currentChapter={ currentChapter }
-      elapsedTime={ formatTime(current) }
-      remainingTime={ formatTime(Math.max(0, total - current)) }
+      currentChapter={ currentChapter || "​" } // Zero-width space to prevent shift
       isDisabled={ !isTrackReady || isStalled }
       seekableRanges={ seekableRanges }
       compounds={{

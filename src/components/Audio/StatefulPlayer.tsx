@@ -223,7 +223,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       case ThAudioPlayerComponent.playbackControls:
         return <StatefulAudioPlaybackControls key={ component } />;
       case ThAudioPlayerComponent.progressBar:
-        return <StatefulAudioProgressBar key={ component } currentChapter={ timeline?.progression?.currentChapter || t("reader.app.progression.referenceFallback") } />;
+        return <StatefulAudioProgressBar key={ component } currentChapter={ timeline?.progression?.currentChapter } />;
       case ThAudioPlayerComponent.mediaControls:
         return <StatefulAudioMediaControls key={ component } />;
     }
