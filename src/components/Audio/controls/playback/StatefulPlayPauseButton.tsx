@@ -29,8 +29,8 @@ export const StatefulPlayPauseButton = ({ isDisabled }: { isDisabled?: boolean }
     <StatefulActionIcon
       onPress={ handlePress }
       isDisabled={ isDisabled }
-      aria-label={ isPlaying ? t("audio.player.pause") : t("audio.player.play") }
-      tooltipLabel={ isPlaying ? t("audio.player.pause") : t("audio.player.play") }
+      aria-label={ isPlaying ? t("reader.playback.actions.pause") : t("reader.playback.actions.play") }
+      tooltipLabel={ isPlaying ? t("reader.playback.actions.pause") : t("reader.playback.actions.play") }
       className={ audioStyles.audioPlayPauseButton }
     >
       {isPlaying ? (

@@ -55,7 +55,7 @@ export const StatefulAudioSkipBackwardInterval = ({
     { skipBackwardIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField 
       ? <StatefulNumberField
         standalone={ standalone }
-        label={ t("audio.settings.skipBackwardInterval") }
+        label={ t("reader.playback.preferences.audio.skipBackwardInterval") }
         placeholder={ placeholderText }
         defaultValue={ undefined }
         value={ skipBackwardInterval ?? undefined }
@@ -74,7 +74,7 @@ export const StatefulAudioSkipBackwardInterval = ({
       : <StatefulSlider
         standalone={ standalone}
         displayTicks={ skipBackwardIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
-        label={ t("audio.settings.skipBackwardInterval") }
+        label={ t("reader.playback.preferences.audio.skipBackwardInterval") }
         placeholder={ placeholderText }
         defaultValue={ undefined }
         value={ skipBackwardInterval ?? undefined }

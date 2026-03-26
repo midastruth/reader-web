@@ -18,8 +18,8 @@ export const StatefulNextTrackButton = ({ isDisabled }: { isDisabled?: boolean }
     <StatefulActionIcon
       onPress={ () => goForward(false, () => {}) }
       isDisabled={ isDisabled || atEnd }
-      aria-label={ t("audio.player.nextTrack") }
-      tooltipLabel={ t("audio.player.nextTrack") }
+      aria-label={ t("reader.actions.goForward") }
+      tooltipLabel={ t("reader.actions.goForward") }
       className={ audioStyles.audioNextTrackButton }
     >
       <SkipNextIcon aria-hidden="true" focusable="false" />

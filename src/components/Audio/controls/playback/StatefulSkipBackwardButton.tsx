@@ -29,8 +29,8 @@ export const StatefulSkipBackwardButton = ({ isDisabled }: { isDisabled?: boolea
     <StatefulActionIcon
       onPress={ skipBackward }
       isDisabled={ isDisabled }
-      aria-label={ t("audio.player.skipBackward") }
-      tooltipLabel={ t("audio.player.skipBackward") }
+      aria-label={ t("reader.playback.actions.skipBackward.descriptive") }
+      tooltipLabel={ t("reader.playback.actions.skipBackward.descriptive") }
       className={ audioStyles.audioSkipBackwardButton }
     >
       <Icon aria-hidden="true" focusable="false" />

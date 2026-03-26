@@ -45,13 +45,13 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
 
   return (
     <Select
-      aria-label={ t("audio.settings.playbackRate") }
+      aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
       isDisabled={ isDisabled }
       selectedKey={ String(playbackRate) }
       onSelectionChange={ (key) => updatePreference(String(key)) }
     >
       <StatefulActionIcon
-        tooltipLabel={ t("audio.settings.playbackRate") }
+        tooltipLabel={ t("reader.playback.preferences.playbackRate.descriptive") }
         placement="top"
         className={ audioStyles.audioPlaybackRateButton }
       >

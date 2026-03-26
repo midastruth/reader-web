@@ -29,8 +29,8 @@ export const StatefulSkipForwardButton = ({ isDisabled }: { isDisabled?: boolean
     <StatefulActionIcon
       onPress={ skipForward }
       isDisabled={ isDisabled }
-      aria-label={ t("audio.player.skipForward") }
-      tooltipLabel={ t("audio.player.skipForward") }
+      aria-label={ t("reader.playback.actions.skipForward.descriptive") }
+      tooltipLabel={ t("reader.playback.actions.skipForward.descriptive") }
       className={ audioStyles.audioSkipForwardButton }
     >
       <Icon aria-hidden="true" focusable="false" />

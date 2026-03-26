@@ -31,7 +31,7 @@ export const StatefulAudioSettingsContainer = ({
   return (
     <StatefulSettingsWrapper
       triggerRef={ triggerRef }
-      heading={ t("audio.settings.title") }
+      heading={ t("reader.playback.preferences.audio.title") }
       headerVariant={ ThSheetHeaderVariant.close }
       onClosePress={ close }
     >

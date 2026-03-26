@@ -64,7 +64,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
     <>
       <StatefulActionIcon
         ref={ triggerRef }
-        tooltipLabel={ t("audio.settings.volume") }
+        tooltipLabel={ t("reader.playback.preferences.audio.volume") }
         placement="top"
         onPress={ () => setIsOpen(prev => !prev) }
         isDisabled={ isDisabled }
@@ -81,7 +81,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
       >
         <Dialog className={ audioStyles.audioControlPopoverDialog }>
             <ThSlider
-              aria-label={ t("audio.settings.volume") }
+              aria-label={ t("reader.playback.preferences.audio.volume") }
               className={ audioStyles.audioVolumeSlider }
               orientation="vertical"
               range={ config.range }
