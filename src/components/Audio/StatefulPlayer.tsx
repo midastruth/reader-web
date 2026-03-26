@@ -227,7 +227,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       case ThAudioPlayerComponent.mediaControls:
         return <StatefulAudioMediaControls key={ component } />;
     }
-  }, [coverUrl, publication, timeline, t]);
+  }, [coverUrl, publication, timeline]);
 
   return (
     <>
