@@ -98,14 +98,24 @@ export type AudioSettingsKey<K extends CustomizableKeys> =
       : ThAudioSettingsKeys
     : ThAudioSettingsKeys;
 
+type ThAudioSkipIntervalKeys =
+  | {
+      [ThAudioKeys.skipInterval]: Required<ThSettingsRangePref>;
+      [ThAudioKeys.skipBackwardInterval]?: never;
+      [ThAudioKeys.skipForwardInterval]?: never;
+    }
+  | {
+      [ThAudioKeys.skipInterval]?: never;
+      [ThAudioKeys.skipBackwardInterval]: Required<ThSettingsRangePref>;
+      [ThAudioKeys.skipForwardInterval]: Required<ThSettingsRangePref>;
+    };
+
 export type ThAudioKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
   [ThAudioKeys.volume]: Required<ThSettingsRangePref>;
   [ThAudioKeys.playbackRate]: Required<ThSettingsRangePref>;
-  [ThAudioKeys.skipBackwardInterval]: Required<ThSettingsRangePref>;
-  [ThAudioKeys.skipForwardInterval]: Required<ThSettingsRangePref>;
-} & (
-  K extends { audio: infer A } 
-    ? A extends string 
+} & ThAudioSkipIntervalKeys & (
+  K extends { audio: infer A }
+    ? A extends string
       ? { [key in A]: any }
       : {}
     : {}
@@ -341,6 +351,16 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
     );
   }
   
+  // Validate audio skip interval mutual exclusivity
+  if (params.audio?.order) {
+    const order = params.audio.order as string[];
+    const hasSkipInterval = order.includes(ThAudioKeys.skipInterval);
+    const hasSplitIntervals = order.includes(ThAudioKeys.skipBackwardInterval) || order.includes(ThAudioKeys.skipForwardInterval);
+    if (hasSkipInterval && hasSplitIntervals) {
+      console.warn(`audio.order contains both "${ ThAudioKeys.skipInterval }" and split interval keys ("${ ThAudioKeys.skipBackwardInterval }"/"${ ThAudioKeys.skipForwardInterval }"). Use one or the other, not both.`);
+    }
+  }
+
   // Validate themes
   if (params.theming?.themes) {
     validateObjectKeys<ThemeKey<K> | "auto", ThemeTokens>(

@@ -8,6 +8,7 @@ export enum ThAudioKeys {
   playbackRate = "playbackRate",
   skipBackwardInterval = "skipBackwardInterval",
   skipForwardInterval = "skipForwardInterval",
+  skipInterval = "skipInterval",
   autoPlay = "autoPlay",
 }
 
@@ -35,6 +36,13 @@ export const defaultAudioSkipBackwardInterval: Required<ThSettingsRangePref> = {
 }
 
 export const defaultAudioSkipForwardInterval: Required<ThSettingsRangePref> = {
+  variant: ThSettingsRangeVariant.slider,
+  range: [5, 60],
+  step: 5,
+  placeholder: ThSettingsRangePlaceholder.range
+}
+
+export const defaultAudioSkipInterval: Required<ThSettingsRangePref> = {
   variant: ThSettingsRangeVariant.slider,
   range: [5, 60],
   step: 5,

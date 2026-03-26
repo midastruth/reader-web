@@ -12,6 +12,7 @@ import { StatefulFullscreenTrigger } from "../../Actions/Fullscreen/StatefulFull
 
 import { StatefulAudioSkipBackwardInterval } from "../../Audio/Settings/StatefulAudioSkipBackwardInterval";
 import { StatefulAudioSkipForwardInterval } from "../../Audio/Settings/StatefulAudioSkipForwardInterval";
+import { StatefulAudioSkipInterval } from "../../Audio/Settings/StatefulAudioSkipInterval";
 import { StatefulAudioAutoPlay } from "../../Audio/Settings/StatefulAudioAutoPlay";
 import { StatefulTheme } from "../../Settings/StatefulTheme";
 
@@ -42,6 +43,9 @@ export const createAudioDefaultPlugin = (): ThPlugin => {
       settings: {
         [ThAudioKeys.theme]: {
           Comp: StatefulTheme
+        },
+        [ThAudioKeys.skipInterval]: {
+          Comp: StatefulAudioSkipInterval
         },
         [ThAudioKeys.skipBackwardInterval]: {
           Comp: StatefulAudioSkipBackwardInterval

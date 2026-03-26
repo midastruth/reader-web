@@ -100,6 +100,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const preservePitch = useAppSelector(state => state.audioSettings.preservePitch);
   const skipBackwardInterval = useAppSelector(state => state.audioSettings.skipBackwardInterval);
   const skipForwardInterval = useAppSelector(state => state.audioSettings.skipForwardInterval);
+  const skipInterval = useAppSelector(state => state.audioSettings.skipInterval);
   const pollInterval = useAppSelector(state => state.audioSettings.pollInterval);
   const autoPlay = useAppSelector(state => state.audioSettings.autoPlay);
   const enableMediaSession = useAppSelector(state => state.audioSettings.enableMediaSession);
@@ -110,6 +111,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     preservePitch,
     skipBackwardInterval,
     skipForwardInterval,
+    skipInterval,
     pollInterval,
     autoPlay,
     enableMediaSession

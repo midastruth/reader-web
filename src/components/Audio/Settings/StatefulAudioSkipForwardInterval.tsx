@@ -16,6 +16,7 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { setSkipForwardInterval } from "@/lib/audioSettingsReducer";
+import { defaultAudioSkipForwardInterval } from "@/preferences/models/audio";
 
 export interface StatefulAudioSkipForwardIntervalProps {
   standalone?: boolean;
@@ -31,7 +32,7 @@ export const StatefulAudioSkipForwardInterval = ({
   const dispatch = useAppDispatch();
   const { submitPreferences, getSetting } = useNavigator().media;
 
-  const config = preferences.audio.keys[ThAudioKeys.skipForwardInterval];
+  const config = preferences.audio.keys[ThAudioKeys.skipForwardInterval] ?? defaultAudioSkipForwardInterval;
 
   const skipForwardIntervalRangeConfig = {
     variant: config.variant,

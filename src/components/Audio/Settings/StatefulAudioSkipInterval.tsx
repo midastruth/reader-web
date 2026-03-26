@@ -15,72 +15,74 @@ import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
-import { setSkipBackwardInterval } from "@/lib/audioSettingsReducer";
-import { defaultAudioSkipBackwardInterval } from "@/preferences/models/audio";
+import { setSkipInterval } from "@/lib/audioSettingsReducer";
+import { defaultAudioSkipInterval } from "@/preferences/models/audio";
 
-export interface StatefulAudioSkipBackwardIntervalProps {
+export interface StatefulAudioSkipIntervalProps {
   standalone?: boolean;
 }
 
-export const StatefulAudioSkipBackwardInterval = ({
+export const StatefulAudioSkipInterval = ({
   standalone = true
-}: StatefulAudioSkipBackwardIntervalProps) => {
+}: StatefulAudioSkipIntervalProps) => {
   const { t } = useI18n();
   const { preferences } = usePreferences();
 
-  const skipBackwardInterval = useAppSelector(state => state.audioSettings.skipBackwardInterval);
+  const skipInterval = useAppSelector(state => state.audioSettings.skipInterval);
   const dispatch = useAppDispatch();
+
   const { submitPreferences, getSetting } = useNavigator().media;
 
-  const config = preferences.audio.keys[ThAudioKeys.skipBackwardInterval] ?? defaultAudioSkipBackwardInterval;
+  const config = preferences.audio.keys[ThAudioKeys.skipInterval] ?? defaultAudioSkipInterval;
 
-  const skipBackwardIntervalRangeConfig = {
+  const skipIntervalRangeConfig = {
     variant: config.variant,
     placeholder: config.placeholder,
     range: config.range,
     step: config.step
   };
 
-  const placeholderText = usePlaceholder(skipBackwardIntervalRangeConfig.placeholder, skipBackwardIntervalRangeConfig.range);
+  const placeholderText = usePlaceholder(skipIntervalRangeConfig.placeholder, skipIntervalRangeConfig.range);
 
   const updatePreference = useCallback(async (value: number | number[]) => {
     const val = Array.isArray(value) ? value[0] : value;
-    await submitPreferences({ skipBackwardInterval: val });
-    const effectiveSkipBackwardInterval = getSetting("skipBackwardInterval");
-    dispatch(setSkipBackwardInterval(effectiveSkipBackwardInterval));
+    await submitPreferences({
+      skipForwardInterval: val,
+      skipBackwardInterval: val
+    });
+    dispatch(setSkipInterval(getSetting("skipForwardInterval")));
   }, [submitPreferences, getSetting, dispatch]);
 
   return (
     <>
-    { skipBackwardIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField 
+    { skipIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField
       ? <StatefulNumberField
         standalone={ standalone }
-        label={ t("audio.settings.skipBackwardInterval") }
+        label={ t("audio.settings.skipInterval") }
         placeholder={ placeholderText }
         defaultValue={ undefined }
-        value={ skipBackwardInterval ?? undefined }
+        value={ skipInterval }
         onChange={ updatePreference }
         onReset={ undefined }
-        range={ skipBackwardIntervalRangeConfig.range || [1, 60] }
-        step={ skipBackwardIntervalRangeConfig.step }
+        range={ skipIntervalRangeConfig.range || [1, 60] }
+        step={ skipIntervalRangeConfig.step }
         steppers={{
           decrementLabel: t("common.actions.decrease"),
           incrementLabel: t("common.actions.increase")
         }}
-        formatOptions={ { style: "unit", unit: "second" } }
+        formatOptions={{ style: "unit", unit: "second" }}
         isWheelDisabled={ true }
         isVirtualKeyboardDisabled={ true }
       />
       : <StatefulSlider
-        standalone={ standalone}
-        displayTicks={ skipBackwardIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
-        label={ t("audio.settings.skipBackwardInterval") }
+        standalone={ standalone }
+        displayTicks={ skipIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
+        label={ t("audio.settings.skipInterval") }
         placeholder={ placeholderText }
-        defaultValue={ undefined }
-        value={ skipBackwardInterval ?? undefined }
+        value={ skipInterval }
         onChange={ updatePreference }
-        range={ skipBackwardIntervalRangeConfig.range }
-        step={ skipBackwardIntervalRangeConfig.step }
+        range={ skipIntervalRangeConfig.range }
+        step={ skipIntervalRangeConfig.step }
       />
     }
     </>
