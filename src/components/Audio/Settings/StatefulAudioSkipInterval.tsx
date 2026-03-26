@@ -83,6 +83,7 @@ export const StatefulAudioSkipInterval = ({
         onChange={ updatePreference }
         range={ skipIntervalRangeConfig.range }
         step={ skipIntervalRangeConfig.step }
+        formatOptions={{ style: "unit", unit: "second" }}
       />
     }
     </>
