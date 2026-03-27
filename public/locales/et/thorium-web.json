@@ -49,7 +49,16 @@
             "back": {
                 "trigger": "Tagasi"
             },
-            "printingDisabled": "Printimise võimalus on lülitatud välja"
+            "printingDisabled": "Printimise võimalus on lülitatud välja",
+            "errors": {
+                "title": "Viga",
+                "notFound": "Avaldatud sisu ei leidu.",
+                "accessDenied": "Ligipääs on keelatud.",
+                "network": "Teenus pole saadaval, palun proovi hiljem uuesti.",
+                "serverError": "Serveri viga, palun proovi hiljem uuesti.",
+                "clientError": "Vigane päring.",
+                "generic": "Avaldatud sisu laadimine ei õnnestu."
+            }
         },
         "navigation": {
             "scroll": {
