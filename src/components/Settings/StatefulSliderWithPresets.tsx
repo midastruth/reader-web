@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { useRef } from "react";
 
 import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
@@ -9,6 +9,8 @@ import { ThSliderWithPresets, ThSliderWithPresetsProps } from "@/core/Components
 
 import { useSharedPreferences } from "@/preferences/hooks/useSharedPreferences";
 import { useI18n } from "@/i18n/useI18n";
+import { useGridNavigation } from "./hooks/useGridNavigation";
+import { ThLayoutDirection } from "@/preferences/models";
 
 import classNames from "classnames";
 
@@ -33,10 +35,28 @@ export const StatefulSliderWithPresets = ({
   ...props
 }: StatefulSliderWithPresetsProps) => {
   const { t } = useI18n();
-  const { theming } = useSharedPreferences();
+  const { theming, direction } = useSharedPreferences();
   const tooltipDelay = theming.icon.tooltipDelay;
 
   const presetsColumns = presets?.length > 1 ? Math.ceil(presets.length / 2) : 1;
+
+  const presetsListRef = useRef<HTMLDivElement | null>(null);
+  const presetsRef = useRef(presets);
+  presetsRef.current = presets;
+
+  const currentScalarValue = Array.isArray(value) ? value[0] : value;
+
+  const { onKeyDown } = useGridNavigation({
+    containerRef: presetsListRef,
+    items: presetsRef,
+    currentValue: currentScalarValue,
+    onChange: (v) => props.onChange?.([v]),
+    isRTL: direction === ThLayoutDirection.rtl,
+    onFocus: (v) => {
+      const el = presetsListRef.current?.querySelector(`input[value="${ v }"]`) as HTMLElement | null;
+      el?.focus();
+    },
+  });
 
   const style = {
     ...(displayTicks && props.range && props.step ? {
@@ -105,15 +125,14 @@ export const StatefulSliderWithPresets = ({
             }
           }
         },
-        presetsList: {
+        presetsWrapper: {
+          ref: presetsListRef,
           className: settingsStyles.sliderWithPresetsPresets,
-          style: { "--th-presets-columns": presetsColumns } as React.CSSProperties
-        },
-        presetsItem: {
-          className: settingsStyles.sliderWithPresetsItem
+          style: { "--th-presets-columns": presetsColumns } as never
         },
         preset: {
-          className: settingsStyles.sliderWithPresetsPreset
+          className: settingsStyles.sliderWithPresetsPreset,
+          onKeyDown
         }
       }}
     />

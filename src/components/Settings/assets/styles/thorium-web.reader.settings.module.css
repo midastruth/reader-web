@@ -283,24 +283,16 @@
 }
 
 .sliderWithPresetsPresets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(var(--th-presets-columns, 4), 1fr);
   gap: calc(var(--th-layout-spacing) / 4);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.sliderWithPresetsItem {
-  flex: 0 0 calc(
-    (100% - (var(--th-presets-columns, 4) - 1) * calc(var(--th-layout-spacing) / 4))
-    / var(--th-presets-columns, 4)
-  );
-}
-
 .sliderWithPresetsPreset {
-  width: 100%;
+  text-align: center;
   padding: calc(var(--th-layout-spacing) / 3) calc(var(--th-layout-spacing) / 2);
   border-radius: var(--th-layout-radius);
   box-sizing: border-box;

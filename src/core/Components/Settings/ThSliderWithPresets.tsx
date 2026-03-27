@@ -2,10 +2,11 @@
 
 import { useCallback } from "react";
 
-import { Button, ButtonProps } from "react-aria-components";
+import { RadioGroupProps } from "react-aria-components";
 
 import { HTMLAttributesWithRef } from "../customTypes";
 import { ThSlider, ThSliderProps } from "./ThSlider";
+import { ThRadioGroup, ThRadioGroupProps } from "./ThRadioGroup";
 
 export interface ThSliderWithPresetsProps extends Omit<ThSliderProps, "compounds"> {
   presets: number[];
@@ -20,17 +21,21 @@ export interface ThSliderWithPresetsProps extends Omit<ThSliderProps, "compounds
      */
     slider?: ThSliderProps["compounds"];
     /**
-     * Props for the presets list element.
+     * Props for the RadioGroup element wrapping the presets.
      */
-    presetsList?: HTMLAttributesWithRef<HTMLUListElement>;
+    presetsList?: Omit<RadioGroupProps, "value" | "onChange" | "children">;
     /**
-     * Props for each preset list item element.
+     * Props for the inner wrapper div containing the Radio items (grid container).
      */
-    presetsItem?: HTMLAttributesWithRef<HTMLLIElement>;
+    presetsWrapper?: HTMLAttributesWithRef<HTMLDivElement>;
     /**
-     * Props applied to each preset button.
+     * Props applied to each preset Radio.
      */
-    preset?: Omit<ButtonProps, "onPress" | "children">;
+    preset?: ThRadioGroupProps["compounds"] extends infer C ? C extends { radio?: infer R } ? R : never : never;
+    /**
+     * Props applied to the label span inside each preset Radio.
+     */
+    presetLabel?: ThRadioGroupProps["compounds"] extends infer C ? C extends { radioLabel?: infer L } ? L : never : never;
   };
 }
 
@@ -46,9 +51,19 @@ export const ThSliderWithPresets = ({
 }: ThSliderWithPresetsProps) => {
   const currentValue = Array.isArray(value) ? value[0] : value;
 
-  const handlePresetPress = useCallback((presetValue: number) => {
-    onChange?.([presetValue]);
+  const handleChange = useCallback((v: string) => {
+    onChange?.([parseFloat(v)]);
   }, [onChange]);
+
+  const radioValue = currentValue !== undefined && presets.includes(currentValue)
+    ? String(currentValue)
+    : "";
+
+  const radioItems = presets.map((p) => ({
+    id: String(p),
+    value: String(p),
+    label: formatValue ? formatValue(p) : String(p),
+  }));
 
   return (
     <div { ...compounds?.wrapper }>
@@ -60,19 +75,17 @@ export const ThSliderWithPresets = ({
         compounds={ compounds?.slider }
         { ...props }
       />
-      <ul { ...compounds?.presetsList }>
-        { presets.map((presetValue) => (
-          <li key={ presetValue } { ...compounds?.presetsItem }>
-            <Button
-              { ...compounds?.preset }
-              data-selected={ currentValue === presetValue || undefined }
-              onPress={ () => handlePresetPress(presetValue) }
-            >
-              { formatValue ? formatValue(presetValue) : String(presetValue) }
-            </Button>
-          </li>
-        )) }
-      </ul>
+      <ThRadioGroup
+        { ...compounds?.presetsList }
+        value={ radioValue }
+        onChange={ handleChange }
+        items={ radioItems }
+        compounds={{
+          wrapper: compounds?.presetsWrapper,
+          radio: compounds?.preset,
+          radioLabel: compounds?.presetLabel,
+        }}
+      />
     </div>
   );
 };
