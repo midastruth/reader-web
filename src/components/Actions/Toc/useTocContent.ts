@@ -9,7 +9,7 @@ import { TocItem } from "@/core/Hooks/useTimeline";
 interface UseTocContentOptions {
   isOpen: boolean;
   tocTree: TocItem[] | undefined;
-  tocEntry: Key | string | undefined;
+  tocEntry: Key | undefined;
 }
 
 function filterTocTree(

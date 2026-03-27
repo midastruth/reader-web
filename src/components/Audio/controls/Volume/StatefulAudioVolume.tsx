@@ -17,7 +17,7 @@ import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon
 import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
 
 import { useNavigator } from "@/core/Navigator";
-import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -32,12 +32,12 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.volume]?.isOpen ?? false);
 
   const { t } = useI18n();
-  const { preferences } = usePreferences();
+  const { preferences } = useAudioPreferences();
 
   const dispatch = useAppDispatch();
   const { submitPreferences, getSetting } = useNavigator().media;
 
-  const config = preferences.audio.keys[ThAudioKeys.volume];
+  const config = preferences.settings.keys[ThAudioKeys.volume];
 
   const VolumeIcon = useMemo(() => {
     if (volume === 0) return VolumeOffIcon;

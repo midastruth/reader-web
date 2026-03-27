@@ -17,6 +17,7 @@ import { ThInteractiveOverlay } from "../core/Components/Reader/ThInteractiveOve
 import { StatefulCollapsibleActionsBar } from "./Actions/StatefulCollapsibleActionsBar";
 
 import { useReaderHeaderBase } from "./hooks/useReaderHeaderBase";
+import { usePreferences } from "@/preferences/hooks";
 
 import classNames from "classnames";
 
@@ -33,8 +34,10 @@ export const StatefulReaderHeader = ({
 }) => {
   const {
     headerRef, focusWithinProps, setHover, removeHover,
-    listActionItems, isImmersive, isHovering, isScroll, preferences, t,
+    listActionItems, isImmersive, isHovering, isScroll, t,
   } = useReaderHeaderBase(actionKeys);
+
+  const { preferences } = usePreferences();
 
   return (
     <>

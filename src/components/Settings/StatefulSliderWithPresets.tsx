@@ -5,7 +5,7 @@ import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.c
 
 import { ThSliderWithPresets, ThSliderWithPresetsProps } from "@/core/Components/Settings/ThSliderWithPresets";
 
-import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useSharedPreferences } from "@/preferences/hooks/useSharedPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import classNames from "classnames";
@@ -31,7 +31,8 @@ export const StatefulSliderWithPresets = ({
   ...props
 }: StatefulSliderWithPresetsProps) => {
   const { t } = useI18n();
-  const { preferences } = usePreferences();
+  const { theming } = useSharedPreferences();
+  const tooltipDelay = theming.icon.tooltipDelay;
 
   const style = {
     ...(displayTicks && props.range && props.step ? {
@@ -90,8 +91,8 @@ export const StatefulSliderWithPresets = ({
             className: classNames(readerSharedUI.icon, settingsStyles.resetButton),
             compounds: {
               tooltipTrigger: {
-                delay: preferences.theming.arrow.tooltipDelay,
-                closeDelay: preferences.theming.arrow.tooltipDelay
+                delay: tooltipDelay,
+                closeDelay: tooltipDelay
               },
               tooltip: {
                 className: readerSharedUI.tooltip

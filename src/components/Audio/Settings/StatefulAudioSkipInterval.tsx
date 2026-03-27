@@ -11,7 +11,7 @@ import { StatefulSlider } from "../../Settings/StatefulSlider";
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { usePlaceholder } from "../../Settings/hooks/usePlaceholder";
-import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
@@ -26,14 +26,14 @@ export const StatefulAudioSkipInterval = ({
   standalone = true
 }: StatefulAudioSkipIntervalProps) => {
   const { t } = useI18n();
-  const { preferences } = usePreferences();
+  const { preferences } = useAudioPreferences();
 
   const skipInterval = useAppSelector(state => state.audioSettings.skipInterval);
   const dispatch = useAppDispatch();
 
   const { submitPreferences, getSetting } = useNavigator().media;
 
-  const config = preferences.audio.keys[ThAudioKeys.skipInterval] ?? defaultAudioSkipInterval;
+  const config = preferences.settings.keys[ThAudioKeys.skipInterval] ?? defaultAudioSkipInterval;
 
   const skipIntervalRangeConfig = {
     variant: config.variant,

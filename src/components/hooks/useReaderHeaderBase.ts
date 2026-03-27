@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, HTMLAttributes } from "react";
 
-import { ActionKeyType } from "@/preferences";
 import { ThActionsKeys } from "@/preferences/models";
 
 import { ThActionEntry } from "@/core/Components/Actions/ThActionsBar";
 import { usePlugins } from "../Plugins/PluginProvider";
-import { usePreferences } from "@/preferences/hooks";
 import { useActions } from "@/core/Components";
 import { useI18n } from "@/i18n/useI18n";
 import { useFocusWithin } from "react-aria";
@@ -18,9 +16,8 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { isPositionsListValid } from "../Actions/JumpToPosition/helpers/utils";
 import { isIOSish } from "@/core/Helpers/getPlatform";
 
-export const useReaderHeaderBase = (actionKeys: ActionKeyType[]) => {
+export const useReaderHeaderBase = (actionKeys: string[]) => {
   const headerRef = useRef<HTMLDivElement>(null);
-  const { preferences } = usePreferences();
   const { t } = useI18n();
   const { actionsComponentsMap } = usePlugins();
 
@@ -59,7 +56,7 @@ export const useReaderHeaderBase = (actionKeys: ActionKeyType[]) => {
   };
 
   const listActionItems = useCallback(() => {
-    const actionsItems: ThActionEntry<ActionKeyType>[] = [];
+    const actionsItems: ThActionEntry<string>[] = [];
 
     if (actionsComponentsMap && Object.keys(actionsComponentsMap).length > 0) {
       actionKeys.forEach((key) => {
@@ -97,14 +94,13 @@ export const useReaderHeaderBase = (actionKeys: ActionKeyType[]) => {
 
   return {
     headerRef,
-    focusWithinProps,
+    focusWithinProps: focusWithinProps as HTMLAttributes<HTMLElement>,
     setHover,
     removeHover,
     listActionItems,
     isImmersive,
     isHovering,
     isScroll,
-    preferences,
     t,
   };
 };

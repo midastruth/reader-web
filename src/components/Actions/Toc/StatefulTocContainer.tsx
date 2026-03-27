@@ -29,7 +29,7 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
   const { t } = useI18n();
 
   const unstableTimeline = useAppSelector(state => state.publication.unstableTimeline);
-  const tocEntry = unstableTimeline?.toc?.currentEntry;
+  const tocEntry = unstableTimeline?.toc?.currentEntry ?? undefined;
   const tocTree = unstableTimeline?.toc?.tree;
 
   const direction = useAppSelector(state => state.reader.direction);
@@ -93,7 +93,7 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
         document.removeEventListener("keydown", handleEscape, true);
       };
     }
-  }, [actionState, setOpen, filterValue]);
+  }, [actionState, setOpen, filterValue, searchInputRef]);
 
   return (
     <StatefulSheetWrapper

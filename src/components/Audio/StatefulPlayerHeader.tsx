@@ -1,8 +1,5 @@
 "use client";
 
-import React from "react";
-
-import { ActionKeyType } from "@/preferences";
 import { ThLayoutUI } from "@/preferences/models";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
@@ -14,6 +11,7 @@ import { ThInteractiveOverlay } from "@/core/Components/Reader/ThInteractiveOver
 import { StatefulCollapsibleActionsBar } from "../Actions/StatefulCollapsibleActionsBar";
 
 import { useReaderHeaderBase } from "../hooks/useReaderHeaderBase";
+import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 
 import classNames from "classnames";
 
@@ -22,14 +20,16 @@ export const StatefulPlayerHeader = ({
   actionsOrder,
   layout,
 }: {
-  actionKeys: ActionKeyType[];
-  actionsOrder: ActionKeyType[];
+  actionKeys: string[];
+  actionsOrder: string[];
   layout: ThLayoutUI;
 }) => {
   const {
     headerRef, focusWithinProps, setHover, removeHover,
-    listActionItems, isImmersive, isHovering, isScroll, preferences, t,
+    listActionItems, isImmersive, isHovering, t,
   } = useReaderHeaderBase(actionKeys);
+
+  const { preferences } = useAudioPreferences();
 
   return (
     <>
@@ -52,14 +52,10 @@ export const StatefulPlayerHeader = ({
         <StatefulCollapsibleActionsBar
           id="reader-header-overflowMenu"
           items={ listActionItems() }
-          prefs={{ ...preferences.actions, displayOrder: actionsOrder }}
+          prefs={{ ...preferences.actions.secondary, displayOrder: actionsOrder }}
           className={ readerHeaderStyles.actionsWrapper }
           aria-label={ t("reader.app.header.actions") }
-          overflowMenuClassName={
-            (!isScroll || preferences.affordances.scroll.hintInImmersive)
-              ? overflowMenuStyles.hint
-              : undefined
-          }
+          overflowMenuClassName={ overflowMenuStyles.hint }
         />
       </div>
     </>

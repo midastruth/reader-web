@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 
-import { ThPreferences } from "@/preferences";
+import { ThAudioPreferences } from "@/preferences/audioPreferences";
 import { ThAudioKeys } from "@/preferences/models/audio";
 import { AudioSettings } from "@/core/Hooks/Audio/useAudioSettingsCache";
 
 interface UseAudioPreferencesConfigProps {
   settings: AudioSettings;
-  preferences: ThPreferences;
+  preferences: ThAudioPreferences;
 }
 
 export const useAudioPreferencesConfig = ({
@@ -16,7 +16,7 @@ export const useAudioPreferencesConfig = ({
   preferences,
 }: UseAudioPreferencesConfigProps) => {
   const audioPreferences = useMemo(() => {
-    const isSkipIntervalMode = ThAudioKeys.skipInterval in preferences.audio.keys;
+    const isSkipIntervalMode = ThAudioKeys.skipInterval in preferences.settings.keys;
     return {
       volume: settings.volume,
       playbackRate: settings.playbackRate,
@@ -27,7 +27,7 @@ export const useAudioPreferencesConfig = ({
       autoPlay: settings.autoPlay,
       enableMediaSession: settings.enableMediaSession,
     };
-  }, [settings, preferences.audio.keys]);
+  }, [settings, preferences.settings.keys]);
 
   const audioDefaults = useMemo(() => {
     return {

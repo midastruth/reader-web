@@ -11,7 +11,7 @@ import readerSharedUI from "../../assets/styles/thorium-web.button.module.css";
 
 import { ThActionButton, ThActionButtonProps } from "@/core/Components/Buttons/ThActionButton";
 
-import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useSharedPreferences } from "@/preferences/hooks/useSharedPreferences";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setImmersive } from "@/lib/readerReducer";
@@ -34,7 +34,7 @@ export const StatefulActionIcon = ({
   children,
   ...props
 }: StatefulActionIconProps) => {
-  const { preferences } = usePreferences();
+  const { theming } = useSharedPreferences();
 
   const triggerRef = useObjectRef(externalRef ?? null);
 
@@ -86,13 +86,13 @@ export const StatefulActionIcon = ({
       onFocus={ handleImmersive }
       compounds={ tooltipLabel ? {
         tooltipTrigger: {
-          delay: preferences.theming.icon.tooltipDelay,
-          closeDelay: preferences.theming.icon.tooltipDelay
+          delay: theming.icon.tooltipDelay,
+          closeDelay: theming.icon.tooltipDelay
         },
         tooltip: {
           className: readerSharedUI.tooltip,
           placement: placement,
-          offset: preferences.theming.icon.tooltipOffset || 0
+          offset: theming.icon.tooltipOffset || 0
         },
         label: tooltipLabel
       } : undefined }

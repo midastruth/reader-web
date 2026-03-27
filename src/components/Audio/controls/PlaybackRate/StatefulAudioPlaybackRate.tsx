@@ -17,7 +17,7 @@ import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
 
 import { useNavigator } from "@/core/Navigator/hooks";
-import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -37,12 +37,12 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
   });
 
   const { t } = useI18n();
-  const { preferences } = usePreferences();
+  const { preferences } = useAudioPreferences();
   const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
   const dispatch = useAppDispatch();
   const { submitPreferences, getSetting } = useNavigator().media;
 
-  const config = preferences.audio.keys[ThAudioKeys.playbackRate];
+  const config = preferences.settings.keys[ThAudioKeys.playbackRate];
 
   const updatePreference = useCallback(async (value: number) => {
     await submitPreferences({ playbackRate: value });

@@ -3,21 +3,18 @@ import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
 import {
   ThActionsKeys,
-  ThAudioActionKeys,
-  ThAudioKeys,
-  ThAudioSettingsKeys,
   ThDocumentTitleFormat,
   ThDockingKeys,
   ThLayoutUI,
   ThLineHeightOptions,
   ThProgressionFormat,
   ThRunningHeadFormat,
-  ThSettingsKeys, 
+  ThSettingsKeys,
   ThSheetTypes,
-  ThTextSettingsKeys, 
-  ThSpacingSettingsKeys, 
-  ThThemeKeys, 
-  ThLayoutDirection, 
+  ThTextSettingsKeys,
+  ThSpacingSettingsKeys,
+  ThThemeKeys,
+  ThLayoutDirection,
   ThSpacingPresetKeys,
   ThActionsTokens,
   ThFontFamilyPref,
@@ -31,12 +28,11 @@ import {
   ThDockingPref,
   ThSettingsGroupPref,
   ValidatedLanguageCollection,
-  ThAudioPlayerComponent
 } from "./models";
 import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
-import { AudioContentProtectionConfig, ContentProtectionConfig } from "./models/protection";
+import { ContentProtectionConfig } from "./models/protection";
 
 export type CustomizableKeys = {
   action?: string;
@@ -44,7 +40,6 @@ export type CustomizableKeys = {
   settings?: string;
   text?: string;
   spacing?: string;
-  audio?: string;
 };
 
 // Default internal keys alias for convenience
@@ -54,18 +49,17 @@ export type DefaultKeys = {
   settings: ThSettingsKeys;
   text: ThTextSettingsKeys;
   spacing: ThSpacingSettingsKeys;
-  audio: ThAudioKeys;
 };
 
 // Key types to better handle custom keys for external consumers
-export type ActionKey<K extends CustomizableKeys> = 
-  K extends { action: infer A } 
-    ? A extends string 
-      ? ThActionsKeys | A 
+export type ActionKey<K extends CustomizableKeys> =
+  K extends { action: infer A }
+    ? A extends string
+      ? ThActionsKeys | A
       : ThActionsKeys
     : ThActionsKeys;
 
-export type ThemeKey<K extends CustomizableKeys> = 
+export type ThemeKey<K extends CustomizableKeys> =
   K extends { theme: infer T } 
     ? T extends string 
       ? ThThemeKeys | T 
@@ -93,35 +87,6 @@ export type SpacingSettingsKey<K extends CustomizableKeys> =
       : ThSpacingSettingsKeys
     : ThSpacingSettingsKeys;
 
-export type AudioSettingsKey<K extends CustomizableKeys> = 
-  K extends { audio: infer A } 
-    ? A extends string 
-      ? ThAudioSettingsKeys | A 
-      : ThAudioSettingsKeys
-    : ThAudioSettingsKeys;
-
-type ThAudioSkipIntervalKeys =
-  | {
-      [ThAudioKeys.skipInterval]: ThSettingsRangePrefRequired;
-      [ThAudioKeys.skipBackwardInterval]?: never;
-      [ThAudioKeys.skipForwardInterval]?: never;
-    }
-  | {
-      [ThAudioKeys.skipInterval]?: never;
-      [ThAudioKeys.skipBackwardInterval]: ThSettingsRangePrefRequired;
-      [ThAudioKeys.skipForwardInterval]: ThSettingsRangePrefRequired;
-    };
-
-export type ThAudioKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
-  [ThAudioKeys.volume]: ThSettingsRangePrefRequired;
-  [ThAudioKeys.playbackRate]: ThSettingsRangePrefRequired;
-} & ThAudioSkipIntervalKeys & (
-  K extends { audio: infer A }
-    ? A extends string
-      ? { [key in A]: any }
-      : {}
-    : {}
-);
 
 export interface ThSettingsSpacingPresets<K extends CustomizableKeys = DefaultKeys> {
   reflowOrder: Array<ThSpacingPresetKeys>;
@@ -149,27 +114,8 @@ export interface ThActionsPref<K extends CustomizableKeys> {
   reflowOrder: Array<ActionKey<K>>;
   fxlOrder: Array<ActionKey<K>>;
   webPubOrder: Array<ActionKey<K>>;
-  audio: {
-    /**
-     * Primary zone (e.g. media controls bar). Accepts any string key —
-     * components are resolved via the plugin registry's primaryAudioActions.
-     * No ThActionsTokens required; visibility does not apply here.
-     * Volume and playback rate are primary-only (no secondary tokens).
-     */
-    primary: {
-      displayOrder: string[];
-    };
-    /**
-     * Secondary zone (e.g. header collapsible bar). Keys must have a
-     * corresponding entry in `keys` with full ThActionsTokens.
-     * ThAudioActionKeys (e.g. toc, sleepTimer) are allowed here.
-     */
-    secondary: {
-      displayOrder: Array<ActionKey<K> | ThAudioActionKeys>;
-    };
-  };
   collapse: ThCollapsibility;
-  keys: Record<ActionKey<K>, ThActionsTokens> & Partial<Record<ThAudioActionKeys, ThActionsTokens>>;
+  keys: Record<ActionKey<K>, ThActionsTokens>;
 };
 
 export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
@@ -218,7 +164,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
           reflow?: ThFormatPref<ThRunningHeadFormat>;
           fxl?: ThFormatPref<ThRunningHeadFormat>;
           webPub?: ThFormatPref<ThRunningHeadFormat>;
-          audio?: ThFormatPref<ThRunningHeadFormat>;
         }
       }
     };
@@ -227,7 +172,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
         reflow?: ThFormatPref<ThProgressionFormat | Array<ThProgressionFormat>>;
         fxl?: ThFormatPref<ThProgressionFormat | Array<ThProgressionFormat>>;
         webPub?: ThFormatPref<ThProgressionFormat | Array<ThProgressionFormat>>;
-        audio?: ThFormatPref<ThProgressionFormat | Array<ThProgressionFormat>>;
       };
     };
     arrow: {
@@ -245,10 +189,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
         reflow?: ThLayoutUI,
         fxl?: ThLayoutUI,
         webPub?: ThLayoutUI,
-        audio?: ThLayoutUI
-      };
-      audio: {
-        order: Array<ThAudioPlayerComponent>;
       };
       radius: number;
       spacing: number;
@@ -264,7 +204,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     themes: {
       reflowOrder: Array<ThemeKey<K> | "auto">;
       fxlOrder: Array<ThemeKey<K> | "auto">;
-      audioOrder: Array<ThemeKey<K> | "auto">;
       systemThemes?: {
         light: ThemeKey<K>;
         dark: ThemeKey<K>;
@@ -274,7 +213,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     };
   };
   contentProtection?: ContentProtectionConfig;
-  audioContentProtection?: AudioContentProtectionConfig;
   affordances: {
     scroll: {
       hintInImmersive: boolean;
@@ -288,10 +226,6 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
     }
   };
   actions: ThActionsPref<K>;
-  audio: {
-    order: Array<AudioSettingsKey<K>>;
-    keys: ThAudioKeyTypes<K>;
-  };
   shortcuts: {
     representation: UnstableShortcutRepresentation;
     joiner?: string;
@@ -364,32 +298,21 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
   
   // Validate actions
   if (params.actions) {
-    validateObjectKeys<ActionKey<K> | ThAudioActionKeys, ThActionsTokens>(
+    validateObjectKeys<ActionKey<K>, ThActionsTokens>(
       [
         params.actions.reflowOrder as Array<ActionKey<K>>,
         params.actions.fxlOrder as Array<ActionKey<K>>,
         params.actions.webPubOrder as Array<ActionKey<K>>,
-        params.actions.audio.secondary.displayOrder as Array<ActionKey<K> | ThAudioActionKeys>
       ],
       params.actions.keys as Record<string, ThActionsTokens>,
       "actions"
     );
   }
-  
-  // Validate audio skip interval mutual exclusivity
-  if (params.audio?.order) {
-    const order = params.audio.order as string[];
-    const hasSkipInterval = order.includes(ThAudioKeys.skipInterval);
-    const hasSplitIntervals = order.includes(ThAudioKeys.skipBackwardInterval) || order.includes(ThAudioKeys.skipForwardInterval);
-    if (hasSkipInterval && hasSplitIntervals) {
-      console.warn(`audio.order contains both "${ ThAudioKeys.skipInterval }" and split interval keys ("${ ThAudioKeys.skipBackwardInterval }"/"${ ThAudioKeys.skipForwardInterval }"). Use one or the other, not both.`);
-    }
-  }
 
   // Validate themes
   if (params.theming?.themes) {
     validateObjectKeys<ThemeKey<K> | "auto", ThemeTokens>(
-      [params.theming.themes.reflowOrder as Array<ThemeKey<K> | "auto">, params.theming.themes.fxlOrder as Array<ThemeKey<K> | "auto">, params.theming.themes.audioOrder as Array<ThemeKey<K> | "auto">],
+      [params.theming.themes.reflowOrder as Array<ThemeKey<K> | "auto">, params.theming.themes.fxlOrder as Array<ThemeKey<K> | "auto">],
       params.theming.themes.keys as Record<string, ThemeTokens>,
       "theming.themes",
       "auto" // Special case for themes
@@ -546,12 +469,6 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
       console.warn(`${ context }: presets [${ invalid.join(", ") }] are not reachable with range=[${ min }, ${ max }] and step=${ step }.`);
     }
   };
-
-  Object.entries(params.audio?.keys ?? {}).forEach(([key, pref]) => {
-    if (pref && typeof pref === "object" && "variant" in pref) {
-      validateRangePresets(pref as ThSettingsRangePrefRequired, `audio.keys.${ key }`);
-    }
-  });
 
   Object.entries(params.settings?.keys ?? {}).forEach(([key, pref]) => {
     if (pref && typeof pref === "object" && "variant" in pref) {

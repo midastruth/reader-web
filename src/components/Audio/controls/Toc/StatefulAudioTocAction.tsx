@@ -32,7 +32,7 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
 
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.toc]?.isOpen ?? false);
   const unstableTimeline = useAppSelector(state => state.publication.unstableTimeline);
-  const tocEntry = unstableTimeline?.toc?.currentEntry;
+  const tocEntry = unstableTimeline?.toc?.currentEntry ?? undefined;
   const tocTree = unstableTimeline?.toc?.tree;
 
   const direction = useAppSelector(state => state.reader.direction);
