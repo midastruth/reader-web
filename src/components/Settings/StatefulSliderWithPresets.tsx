@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
 
@@ -33,6 +35,8 @@ export const StatefulSliderWithPresets = ({
   const { t } = useI18n();
   const { theming } = useSharedPreferences();
   const tooltipDelay = theming.icon.tooltipDelay;
+
+  const presetsColumns = presets?.length > 1 ? Math.ceil(presets.length / 2) : 1;
 
   const style = {
     ...(displayTicks && props.range && props.step ? {
@@ -102,7 +106,11 @@ export const StatefulSliderWithPresets = ({
           }
         },
         presetsList: {
-          className: settingsStyles.sliderWithPresetsPresets
+          className: settingsStyles.sliderWithPresetsPresets,
+          style: { "--th-presets-columns": presetsColumns } as React.CSSProperties
+        },
+        presetsItem: {
+          className: settingsStyles.sliderWithPresetsItem
         },
         preset: {
           className: settingsStyles.sliderWithPresetsPreset

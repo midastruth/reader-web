@@ -82,7 +82,8 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
     return (
       <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
         <StatefulSliderWithPresets
-          aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
+          standalone
+          label={ t("reader.playback.preferences.playbackRate.descriptive") }
           presets={ config.presets || [] }
           formatValue={ (v) => `${v}×` }
           value={ playbackRate }
