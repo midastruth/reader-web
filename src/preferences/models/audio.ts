@@ -19,7 +19,23 @@ export enum ThAudioKeys {
   skipForwardInterval = "skipForwardInterval",
   skipInterval = "skipInterval",
   autoPlay = "autoPlay",
+  sleepTimer = "sleepTimer",
 }
+
+export enum ThSettingsTimerVariant {
+  presetList = "presetList",
+  durationField = "durationField",
+}
+
+export type ThSettingsTimerPref =
+  | {
+      variant: ThSettingsTimerVariant.presetList;
+      presets: number[];
+    }
+  | {
+      variant: ThSettingsTimerVariant.durationField;
+      maxHours?: number;
+    };
 
 export type ThAudioSettingsKeys = Exclude<ThAudioKeys, ThAudioKeys.volume | ThAudioKeys.playbackRate>;
 
@@ -58,6 +74,16 @@ export const defaultAudioSkipInterval: ThSettingsRangePrefRequired = {
   step: 5,
   placeholder: ThSettingsRangePlaceholder.range
 }
+
+export const defaultAudioSleepTimer: ThSettingsTimerPref = {
+  variant: ThSettingsTimerVariant.durationField,
+  maxHours: 23,
+};
+
+export const defaultAudioSleepTimerPresetList: ThSettingsTimerPref = {
+  variant: ThSettingsTimerVariant.presetList,
+  presets: [15 * 60, 30 * 60, 45 * 60, 60 * 60, 90 * 60],
+};
 
 // Action tokens for ThAudioActionKeys used in the secondary zone (e.g. header bar).
 // Visibility applies here (secondary collapsibility). Primary zone never uses these tokens.

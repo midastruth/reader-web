@@ -12,6 +12,8 @@ import { TocContent } from "@/components/Actions/Toc/TocContent";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 
 import { Dialog, Popover, Selection } from "react-aria-components";
+import { FocusScope } from "react-aria";
+import { ThContainerHeader } from "@/core/Components/Containers/ThContainerHeader/ThContainerHeader";
 
 import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
 
@@ -79,21 +81,28 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
         className={ `${ audioStyles.audioControlPopover } ${ audioStyles.audioTocPopover }` }
       >
         <Dialog className={ audioStyles.audioControlPopoverDialog }>
-          <div className={ audioStyles.audioTocContent }>
-            <TocContent
-              filterValue={ filterValue }
-              onFilterChange={ setFilterValue }
-              displayedTocTree={ displayedTocTree }
-              tocTree={ tocTree }
-              tocEntry={ tocEntry }
-              expandedKeys={ expandedKeys }
-              onExpandedChange={ setExpandedKeys }
-              onSelectionChange={ handleAction }
-              isRTL={ isRTL }
-              treeRef={ treeRef }
-              searchInputRef={ searchInputRef }
+          <FocusScope contain>
+            <ThContainerHeader
+              label={ t("reader.tableOfContents.title") }
+              compounds={{ heading: { className: audioStyles.audioControlPopoverHeading } }}
             />
-          </div>
+            <div className={ audioStyles.audioTocContent }>
+              <TocContent
+                filterValue={ filterValue }
+                onFilterChange={ setFilterValue }
+                displayedTocTree={ displayedTocTree }
+                tocTree={ tocTree }
+                tocEntry={ tocEntry }
+                expandedKeys={ expandedKeys }
+                onExpandedChange={ setExpandedKeys }
+                onSelectionChange={ handleAction }
+                isRTL={ isRTL }
+                treeRef={ treeRef }
+                searchInputRef={ searchInputRef }
+                compounds={{ treeWrapper: { className: audioStyles.audioTocTree } }}
+              />
+            </div>
+          </FocusScope>
         </Dialog>
       </Popover>
     </>

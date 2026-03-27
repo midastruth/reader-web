@@ -113,7 +113,14 @@
       "coverAlt": "Audiobook cover"
     },
     "settings": {
-      "sleepTimer": "Sleep Timer"
+      "sleepTimer": {
+        "_": "Sleep Timer",
+        "hours": "h",
+        "minutes": "min",
+        "start": "Start",
+        "instruction": "Playback will pause after the set duration.",
+        "remaining": "Pausing in:"
+      }
     }
   }
 }

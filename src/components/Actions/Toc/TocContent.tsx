@@ -32,6 +32,10 @@ export interface TocContentProps {
   isRTL?: boolean;
   treeRef?: RefObject<HTMLDivElement | null>;
   searchInputRef?: RefObject<HTMLInputElement | null>;
+  compounds?: {
+    tree?: { className?: string };
+    treeWrapper?: { className?: string };
+  };
 }
 
 export const TocContent = ({
@@ -46,6 +50,7 @@ export const TocContent = ({
   isRTL = false,
   treeRef,
   searchInputRef,
+  compounds,
 }: TocContentProps) => {
   const { t } = useI18n();
 
@@ -76,12 +81,13 @@ export const TocContent = ({
           }
         } }
       />
+      <div { ...compounds?.treeWrapper }>
       <Tree
         ref={ treeRef }
         aria-label={ t("reader.toc.entries") }
         selectionMode="single"
         items={ displayedTocTree }
-        className={ tocStyles.tree }
+        className={ [tocStyles.tree, compounds?.tree?.className].filter(Boolean).join(" ") }
         onSelectionChange={ onSelectionChange }
         selectedKeys={ tocEntry ? [tocEntry] : [] }
         expandedKeys={ expandedKeys }
@@ -116,6 +122,7 @@ export const TocContent = ({
           );
         } }
       </Tree>
+      </div>
     </>
   );
 };

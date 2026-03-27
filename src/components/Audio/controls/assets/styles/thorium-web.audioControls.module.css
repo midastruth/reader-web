@@ -74,6 +74,12 @@
   outline: none;
 }
 
+.audioControlPopoverHeading {
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0 0 calc(var(--th-layout-spacing) / 2) 0;
+}
+
 /* Sleep timer */
 
 .audioSleepTimerButton {
@@ -119,8 +125,83 @@
   outline: 2px solid var(--th-theme-focus);
 }
 
-.audioSleepTimerListboxItem[data-cancel] {
+.audioSleepTimerListboxItemCancel {
   color: var(--th-theme-subdue);
+}
+
+/* Sleep timer duration field */
+
+.audioSleepTimerDurationField {
+  display: flex;
+  flex-direction: column;
+}
+
+.audioSleepTimerInstruction {
+  display: block;
+  margin: 0 0 var(--th-layout-spacing) 0;
+}
+
+.audioSleepTimerInputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--th-layout-spacing) / 4);
+  margin-bottom: var(--th-layout-spacing);
+}
+
+.audioSleepTimerFieldGroup {
+  display: contents;
+}
+
+.audioSleepTimerFieldInput {
+  width: 4ch;
+  text-align: center;
+  background: transparent;
+  border: 2px solid var(--th-theme-subdue);
+  border-radius: var(--th-layout-radius);
+  padding: calc(var(--th-icon-size, 24px) * (1/4)) calc(var(--th-layout-spacing) / 2);
+  color: var(--th-theme-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: bold;
+  outline: none;
+}
+
+.audioSleepTimerFieldInput[data-focus-visible] {
+  outline: 2px solid var(--th-theme-focus);
+}
+
+.audioSleepTimerUnitLabel {
+  margin-inline-end: calc(var(--th-layout-spacing) / 4);
+}
+
+.audioSleepTimerRemaining {
+  font-variant-numeric: tabular-nums;
+  font-weight: bold;
+  margin: 0 0 var(--th-layout-spacing) 0;
+}
+
+.audioSleepTimerActionButton {
+  padding: calc(var(--th-icon-size, 24px) * (1/4)) calc(var(--th-icon-size, 24px) * (1/2));
+  border-radius: var(--th-layout-radius);
+  border: 2px solid var(--th-theme-subdue);
+  background: transparent;
+  color: var(--th-theme-text);
+  cursor: default;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.audioSleepTimerActionButton[data-hovered] {
+  background-color: var(--th-theme-hover);
+}
+
+.audioSleepTimerActionButton[data-focus-visible] {
+  outline: 2px solid var(--th-theme-focus);
+}
+
+.audioSleepTimerActionButton[data-disabled] {
+  color: var(--th-theme-disable);
 }
 
 /* Volume slider */

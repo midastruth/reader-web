@@ -19,6 +19,7 @@ import {
   ThActionsTokens,
   ThSettingsRangePrefRequired,
   ThSettingsRangeVariant,
+  ThSettingsTimerPref,
   ThBackLinkPref,
   ThDockingPref,
   ThAudioPlayerComponent,
@@ -70,6 +71,7 @@ type ThAudioSkipIntervalKeys =
 export type ThAudioKeyTypes<K extends AudioCustomizableKeys = AudioDefaultKeys> = {
   [ThAudioKeys.volume]: ThSettingsRangePrefRequired;
   [ThAudioKeys.playbackRate]: ThSettingsRangePrefRequired;
+  [ThAudioKeys.sleepTimer]: ThSettingsTimerPref;
 } & ThAudioSkipIntervalKeys & (
   K extends { audio: infer A }
     ? A extends string
