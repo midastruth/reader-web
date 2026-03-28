@@ -115,7 +115,7 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
         placement="top"
         className={ audioStyles.audioControlPopover }
       >
-        <Dialog className={ audioStyles.audioControlPopoverDialog }>
+        <Dialog aria-label={ t("reader.playback.preferences.playbackRate.descriptive") } className={ audioStyles.audioControlPopoverDialog }>
           { renderContent() }
         </Dialog>
       </Popover>

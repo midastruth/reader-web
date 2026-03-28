@@ -117,6 +117,7 @@
         "_": "Sleep Timer",
         "hours": "h",
         "minutes": "min",
+        "seconds": "s",
         "start": "Start",
         "instruction": "Playback will pause after the set duration.",
         "remaining": "Pausing in:"

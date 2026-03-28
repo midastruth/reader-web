@@ -33,6 +33,7 @@ import { ExperimentKey } from "@readium/navigator";
 import { ThCollapsibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import { supportedLocales, isSupportedLocale } from "@/i18n/supported-locales";
 import { ContentProtectionConfig } from "./models/protection";
+import { validateObjectKeys } from "./helpers";
 
 export type CustomizableKeys = {
   action?: string;
@@ -259,43 +260,6 @@ export const createPreferences = <K extends CustomizableKeys = {}>(
     }
   }
 
-  // Helper function to validate keys against the provided order arrays
-  const validateObjectKeys = <K extends string, V>(
-    orderArrays: K[][],
-    keysObj: Record<string, V>,
-    context: string,
-    specialCase?: string | string[],
-    fallback?: V
-  ): void => {
-    // Combine all arrays and filter out special cases if needed
-    const allOrders = new Set<K>(
-      orderArrays.flatMap(arr => {
-        if (!specialCase) return arr;
-        return arr.filter(k => {
-          if (Array.isArray(specialCase)) {
-            return !specialCase.includes(k);
-          } else {
-            return k !== specialCase;
-          }
-        });
-      })
-    );
-    
-    // Get available keys
-    const availableKeys = Object.keys(keysObj);
-    
-    // Check that all keys exist and add from fallback if available
-    allOrders.forEach(key => {
-      if (!availableKeys.includes(key)) {
-        if (fallback) {
-          // Add the missing key from fallback to the params object
-          keysObj[key] = fallback;
-        }
-        console.warn(`Key "${ key }" in ${ context } order arrays not found in ${ context }.keys.${ fallback ? `\nUsing fallback: ${ JSON.stringify(fallback) }` : "" }`);
-      }
-    });
-  };
-  
   // Validate actions
   if (params.actions) {
     validateObjectKeys<ActionKey<K>, ThActionsTokens>(

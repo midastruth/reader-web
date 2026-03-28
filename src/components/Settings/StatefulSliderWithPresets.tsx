@@ -125,6 +125,9 @@ export const StatefulSliderWithPresets = ({
             }
           }
         },
+        presetsList: {
+          "aria-label": label,
+        },
         presetsWrapper: {
           ref: presetsListRef,
           className: settingsStyles.sliderWithPresetsPresets,

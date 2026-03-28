@@ -117,16 +117,17 @@
   cursor: default;
 }
 
-.audioSleepTimerListboxItem[data-hovered] {
+.audioSleepTimerListboxItem[data-selected] {
+  background-color: var(--th-theme-hover);
+  font-weight: bold;
+}
+
+.audioSleepTimerListboxItem[data-hovered]:not([data-selected]) {
   background-color: var(--th-theme-hover);
 }
 
 .audioSleepTimerListboxItem[data-focus-visible] {
   outline: 2px solid var(--th-theme-focus);
-}
-
-.audioSleepTimerListboxItemCancel {
-  color: var(--th-theme-subdue);
 }
 
 /* Sleep timer duration field */
@@ -178,6 +179,10 @@
   font-variant-numeric: tabular-nums;
   font-weight: bold;
   margin: 0 0 var(--th-layout-spacing) 0;
+}
+
+.audioSleepTimerPresetCancelButton {
+  margin-top: var(--th-layout-spacing);
 }
 
 .audioSleepTimerActionButton {

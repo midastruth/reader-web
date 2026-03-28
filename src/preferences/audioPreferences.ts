@@ -5,17 +5,13 @@ import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
 import { ThCollapsibility } from "@/core/Components/Actions/hooks/useCollapsibility";
 import {
-  ThActionsKeys,
   ThAudioActionKeys,
   ThAudioKeys,
-  ThAudioSettingsKeys,
   ThDockingKeys,
-  ThDockingTypes,
   ThLayoutDirection,
   ThLayoutUI,
   ThSheetTypes,
   ThThemeKeys,
-  ThSpacingPresetKeys,
   ThActionsTokens,
   ThSettingsRangePrefRequired,
   ThSettingsRangeVariant,
@@ -28,6 +24,7 @@ import { AudioContentProtectionConfig } from "./models/protection";
 import {
   ActionKey,
   } from "./preferences";
+import { validateObjectKeys } from "./helpers";
 
 export type AudioCustomizableKeys = {
   audioAction?: string;
@@ -80,7 +77,7 @@ export type ThAudioKeyTypes<K extends AudioCustomizableKeys = AudioDefaultKeys> 
     : {}
 );
 
-// ─── Key type for extensible audio primary/secondary actions ─────────────────
+// Key type for extensible audio primary/secondary actions
 
 export type ThAudioActionKey<K extends AudioCustomizableKeys = {}> =
   K extends { audioAction: infer A }
@@ -89,7 +86,7 @@ export type ThAudioActionKey<K extends AudioCustomizableKeys = {}> =
       : ThAudioActionKeys
     : ThAudioActionKeys;
 
-// ─── Actions preference ───────────────────────────────────────────────────────
+// Actions preference
 
 /**
  * Primary zone (media controls bar). Components resolved via the plugin
@@ -111,7 +108,7 @@ export interface ThAudioActionsPref<K extends AudioCustomizableKeys = {}> {
   };
 }
 
-// ─── Main audio preferences ───────────────────────────────────────────────────
+// Main audio preferences
 
 export type ThAudioConstraintKeys =
   | Extract<ThSheetTypes, ThSheetTypes.bottomSheet | ThSheetTypes.popover>
@@ -174,27 +171,7 @@ export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
   docking: ThDockingPref<ThDockingKeys>;
 }
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
-
-const validateObjectKeys = <K extends string, V>(
-  orderArrays: K[][],
-  keysObj: Record<string, V>,
-  context: string,
-  fallback?: V
-): void => {
-  const allOrders = new Set<K>(orderArrays.flat());
-  const availableKeys = Object.keys(keysObj);
-  allOrders.forEach(key => {
-    if (!availableKeys.includes(key)) {
-      if (fallback) keysObj[key] = fallback;
-      console.warn(
-        `Key "${ key }" in ${ context } order arrays not found in ${ context }.keys.${
-          fallback ? `\nUsing fallback: ${ JSON.stringify(fallback) }` : ""
-        }`
-      );
-    }
-  });
-};
+// Validation 
 
 const validateRangePresets = (pref: ThSettingsRangePrefRequired, context: string): void => {
   if (pref.variant !== ThSettingsRangeVariant.sliderWithPresets || !pref.presets?.length) return;
@@ -245,7 +222,7 @@ export const createAudioPreferences = <K extends AudioCustomizableKeys = {}>(
       [params.theming.themes.audioOrder as Array<ThAudioThemeKey<K> | "auto">],
       params.theming.themes.keys as Record<string, ThemeTokens>,
       "theming.themes",
-      undefined
+      "auto"
     );
   }
 
@@ -258,4 +235,3 @@ export const createAudioPreferences = <K extends AudioCustomizableKeys = {}>(
 
   return params;
 };
-

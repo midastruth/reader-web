@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Button, Dialog, ListBox, ListBoxItem, Popover } from "react-aria-components";
+import { Button, Dialog, Popover } from "react-aria-components";
 import { FocusScope } from "react-aria";
 
 import SnoozeIcon from "../assets/icons/snooze.svg";
@@ -10,6 +10,7 @@ import SnoozeIcon from "../assets/icons/snooze.svg";
 import { ThAudioActionKeys, ThAudioKeys, ThSettingsTimerVariant } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
+import { ThRadioGroup } from "@/core/Components/Settings/ThRadioGroup";
 
 import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
 
@@ -21,20 +22,6 @@ import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { toggleActionOpen, setActionOpen } from "@/lib/actionsReducer";
 
 export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => {
-  const formatBadge = (seconds: number): string => {
-    if (seconds < 60) return `${ seconds }s`;
-    return `${ Math.ceil(seconds / 60) }m`;
-  };
-
-  const formatRemaining = (seconds: number): string => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    const mm = m.toString().padStart(2, "0");
-    const ss = s.toString().padStart(2, "0");
-    if (h > 0) return `${ h }h ${ mm }m ${ ss }s`;
-    return `${ mm }m ${ ss }s`;
-  };
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [hours, setHours] = useState(0);
@@ -44,6 +31,23 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
   const dispatch = useAppDispatch();
 
   const { t } = useI18n();
+
+  const formatBadge = (seconds: number): string => {
+    if (seconds < 60) return `${ seconds }${ t("audio.settings.sleepTimer.seconds") }`;
+    return `${ Math.ceil(seconds / 60) }${ t("audio.settings.sleepTimer.minutes") }`;
+  };
+
+  const formatRemaining = (seconds: number): string => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    const mm = m.toString().padStart(2, "0");
+    const ss = s.toString().padStart(2, "0");
+    const min = t("audio.settings.sleepTimer.minutes");
+    const sec = t("audio.settings.sleepTimer.seconds");
+    if (h > 0) return `${ h }${ t("audio.settings.sleepTimer.hours") } ${ mm }${ min } ${ ss }${ sec }`;
+    return `${ mm }${ min } ${ ss }${ sec }`;
+  };
   const { preferences } = useAudioPreferences();
   const { pause } = useNavigator().media;
   const pauseRef = useRef(pause);
@@ -77,8 +81,8 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [hours, minutes, dispatch]);
 
-  const handlePresetSelect = useCallback((key: string) => {
-    setRemainingSeconds(key === "cancel" ? null : Number(key));
+  const handlePresetSelect = useCallback((value: string) => {
+    setRemainingSeconds(Number(value) * 60);
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [dispatch]);
 
@@ -87,31 +91,33 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
 
   const renderContent = () => {
     if (variant === ThSettingsTimerVariant.presetList && config?.variant === ThSettingsTimerVariant.presetList) {
+      const items = config.presets.map(minutes => ({
+        id: String(minutes),
+        value: String(minutes),
+        label: `${ minutes } ${ t("audio.settings.sleepTimer.minutes") }`,
+      }));
+
       return (
-        <ListBox
-          aria-label={ t("audio.settings.sleepTimer._") }
-          className={ audioStyles.audioSleepTimerListbox }
-          onAction={ (key) => handlePresetSelect(String(key)) }
-        >
-          { config.presets.map((seconds) => (
-            <ListBoxItem
-              key={ String(seconds) }
-              id={ String(seconds) }
-              className={ audioStyles.audioSleepTimerListboxItem }
-            >
-              { formatRemaining(seconds) }
-            </ListBoxItem>
-          )) }
+        <div className={ audioStyles.audioSleepTimerDurationField }>
+          <ThRadioGroup
+            aria-label={ t("audio.settings.sleepTimer._") }
+            value={ remainingSeconds !== null ? String(remainingSeconds) : "" }
+            onChange={ handlePresetSelect }
+            items={ items }
+            compounds={{
+              wrapper: { className: audioStyles.audioSleepTimerListbox },
+              radio: { className: audioStyles.audioSleepTimerListboxItem },
+            }}
+          />
           { isActive && (
-            <ListBoxItem
-              key="cancel"
-              id="cancel"
-              className={ `${ audioStyles.audioSleepTimerListboxItem } ${ audioStyles.audioSleepTimerListboxItemCancel }` }
+            <Button
+              className={ `${ audioStyles.audioSleepTimerActionButton } ${ audioStyles.audioSleepTimerPresetCancelButton }` }
+              onPress={ handleCancel }
             >
               { t("common.actions.cancel") }
-            </ListBoxItem>
+            </Button>
           ) }
-        </ListBox>
+        </div>
       );
     }
 
@@ -202,7 +208,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
         placement="top"
         className={ audioStyles.audioControlPopover }
       >
-        <Dialog className={ audioStyles.audioControlPopoverDialog }>
+        <Dialog aria-label={ t("audio.settings.sleepTimer._") } className={ audioStyles.audioControlPopoverDialog }>
           <FocusScope contain>
             { renderContent() }
           </FocusScope>

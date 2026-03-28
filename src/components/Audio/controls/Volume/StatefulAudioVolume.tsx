@@ -79,7 +79,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
         placement="top"
         className={ audioStyles.audioControlPopover }
       >
-        <Dialog className={ audioStyles.audioControlPopoverDialog }>
+        <Dialog aria-label={ t("reader.playback.preferences.audio.volume") } className={ audioStyles.audioControlPopoverDialog }>
           <ThSlider
             aria-label={ t("reader.playback.preferences.audio.volume") }
             className={ audioStyles.audioVolumeSlider }

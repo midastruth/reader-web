@@ -30,6 +30,7 @@ export enum ThSettingsTimerVariant {
 export type ThSettingsTimerPref =
   | {
       variant: ThSettingsTimerVariant.presetList;
+      /** Preset durations in minutes. */
       presets: number[];
     }
   | {
@@ -82,7 +83,7 @@ export const defaultAudioSleepTimer: ThSettingsTimerPref = {
 
 export const defaultAudioSleepTimerPresetList: ThSettingsTimerPref = {
   variant: ThSettingsTimerVariant.presetList,
-  presets: [15 * 60, 30 * 60, 45 * 60, 60 * 60, 90 * 60],
+  presets: [15, 30, 45, 60, 90],
 };
 
 // Action tokens for ThAudioActionKeys used in the secondary zone (e.g. header bar).
