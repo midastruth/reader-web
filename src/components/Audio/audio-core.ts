@@ -2,6 +2,7 @@
 
 // Audio core exports
 export * from "./controls";
+export * from "./actions";
 export * from "./Settings";
 export { StatefulPlayer } from "./StatefulPlayer";
 

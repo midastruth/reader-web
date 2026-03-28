@@ -106,7 +106,7 @@ export const StatefulSliderWithPresets = ({
           },
           output: {
             className: settingsStyles.sliderOutput,
-            ...(hideOutput && { style: { display: "none" } })
+            ...(hideOutput && { style: () => ({ display: "none" }) })
           },
           placeholder: {
             className: settingsStyles.sliderPlaceholder

@@ -14,7 +14,7 @@ import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 
-import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
+import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
@@ -92,7 +92,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
               wrapper: { ref: contentRef },
               track: { className: audioStyles.audioVolumeSliderTrack },
               thumb: { className: audioStyles.audioVolumeSliderThumb },
-              output: { style: { display: "none" } }
+              output: { style: () => ({ display: "none" }) }
             } }
           />
         </Dialog>

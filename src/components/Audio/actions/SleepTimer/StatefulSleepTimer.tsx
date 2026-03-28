@@ -12,7 +12,7 @@ import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import { ThRadioGroup } from "@/core/Components/Settings/ThRadioGroup";
 
-import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
+import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";

@@ -14,10 +14,10 @@ import { StatefulAudioSkipInterval } from "../../Audio/Settings/StatefulAudioSki
 import { StatefulAudioAutoPlay } from "../../Audio/Settings/StatefulAudioAutoPlay";
 import { StatefulTheme } from "../../Settings/StatefulTheme";
 
-import { StatefulAudioVolume } from "../../Audio/controls/Volume/StatefulAudioVolume";
-import { StatefulAudioPlaybackRate } from "../../Audio/controls/PlaybackRate/StatefulAudioPlaybackRate";
-import { StatefulAudioTocAction } from "../../Audio/controls/Toc/StatefulAudioTocAction";
-import { StatefulSleepTimer } from "../../Audio/controls/SleepTimer/StatefulSleepTimer";
+import { StatefulAudioVolume } from "../../Audio/actions/Volume/StatefulAudioVolume";
+import { StatefulAudioPlaybackRate } from "../../Audio/actions/PlaybackRate/StatefulAudioPlaybackRate";
+import { StatefulAudioTocAction } from "../../Audio/actions/Toc/StatefulAudioTocAction";
+import { StatefulSleepTimer } from "../../Audio/actions/SleepTimer/StatefulSleepTimer";
 
 export const createAudioDefaultPlugin = (): ThPlugin => {
   return {

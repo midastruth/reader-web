@@ -4,12 +4,12 @@ Audio control components are fully self-contained — they connect to the naviga
 
 ## Composite Controls
 
-### StatefulAudioMediaControls
+### StatefulAudioMediaActions
 
 Renders the primary action bar. Components and their order are driven by the plugin registry's `primaryAudioActionsMap` and `actions.primary.displayOrder` in preferences. Controls are disabled when the track is not ready or stalled.
 
 ```typescript
-interface StatefulAudioMediaControlsProps {}
+interface StatefulAudioMediaActionsProps {}
 ```
 
 ### StatefulAudioPlaybackControls

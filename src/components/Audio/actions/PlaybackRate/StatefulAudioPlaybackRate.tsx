@@ -14,7 +14,7 @@ import { StatefulSliderWithPresets } from "../../../Settings/StatefulSliderWithP
 import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 
-import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
+import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";

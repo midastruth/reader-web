@@ -23,7 +23,7 @@ import { StatefulPlayerHeader } from "./StatefulPlayerHeader";
 import { StatefulAudioCover } from "./StatefulAudioCover";
 import { StatefulAudioMetadata } from "./StatefulAudioMetadata";
 import { StatefulAudioPlaybackControls } from "./controls/StatefulAudioPlaybackControls";
-import { StatefulAudioMediaControls } from "./controls/StatefulAudioMediaControls";
+import { StatefulAudioMediaActions } from "./actions/StatefulAudioMediaActions";
 import { StatefulAudioProgressBar } from "./controls/StatefulAudioProgressBar";
 
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
@@ -220,8 +220,8 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
         return <StatefulAudioPlaybackControls key={ component } />;
       case ThAudioPlayerComponent.progressBar:
         return <StatefulAudioProgressBar key={ component } currentChapter={ timeline?.progression?.currentChapter } />;
-      case ThAudioPlayerComponent.mediaControls:
-        return <StatefulAudioMediaControls key={ component } />;
+      case ThAudioPlayerComponent.mediaActions:
+        return <StatefulAudioMediaActions key={ component } />;
     }
   }, [coverUrl, publication, timeline]);
 

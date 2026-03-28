@@ -104,5 +104,5 @@ export enum ThAudioPlayerComponent {
   metadata = "metadata",
   playbackControls = "playbackControls",
   progressBar = "progressBar",
-  mediaControls = "mediaControls"
+  mediaActions = "mediaActions"
 }

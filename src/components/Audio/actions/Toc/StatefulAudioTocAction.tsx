@@ -15,7 +15,7 @@ import { Dialog, Popover, Selection } from "react-aria-components";
 import { FocusScope } from "react-aria";
 import { ThContainerHeader } from "@/core/Components/Containers/ThContainerHeader/ThContainerHeader";
 
-import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
+import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";

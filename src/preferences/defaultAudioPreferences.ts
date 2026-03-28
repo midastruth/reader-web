@@ -49,7 +49,7 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
           ThAudioPlayerComponent.metadata,
           ThAudioPlayerComponent.playbackControls,
           ThAudioPlayerComponent.progressBar,
-          ThAudioPlayerComponent.mediaControls
+          ThAudioPlayerComponent.mediaActions
         ],
         radius: 5,
         spacing: 20,

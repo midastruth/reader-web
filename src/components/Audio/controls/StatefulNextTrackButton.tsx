@@ -2,8 +2,8 @@
 
 import SkipNextIcon from "./assets/icons/skip_next.svg";
 
-import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
-import audioStyles from "../assets/styles/thorium-web.audioControls.module.css";
+import { StatefulActionIcon } from "../../Actions/Triggers/StatefulActionIcon";
+import audioStyles from "./assets/styles/thorium-web.audioPlayback.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useAppSelector } from "@/lib/hooks";
