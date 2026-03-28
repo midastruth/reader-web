@@ -8,6 +8,7 @@ import { ThAudioKeys } from "@/preferences/models";
 
 import { StatefulNumberField } from "../../Settings/StatefulNumberField";
 import { StatefulSlider } from "../../Settings/StatefulSlider";
+import { StatefulSliderWithPresets } from "../../Settings/StatefulSliderWithPresets";
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { usePlaceholder } from "../../Settings/hooks/usePlaceholder";
@@ -50,10 +51,9 @@ export const StatefulAudioSkipForwardInterval = ({
     dispatch(setSkipForwardInterval(effectiveSkipForwardInterval));
   }, [submitPreferences, getSetting, dispatch]);
 
-  return (
-    <>
-    { skipForwardIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField 
-      ? <StatefulNumberField
+  if (skipForwardIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField) {
+    return (
+      <StatefulNumberField
         standalone={ standalone }
         label={ t("reader.playback.preferences.audio.skipForwardInterval") }
         placeholder={ placeholderText }
@@ -71,18 +71,36 @@ export const StatefulAudioSkipForwardInterval = ({
         isWheelDisabled={ true }
         isVirtualKeyboardDisabled={ true }
       />
-      : <StatefulSlider
+    );
+  }
+
+  if (skipForwardIntervalRangeConfig.variant === ThSettingsRangeVariant.sliderWithPresets) {
+    return (
+      <StatefulSliderWithPresets
         standalone={ standalone }
-        displayTicks={ skipForwardIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
         label={ t("reader.playback.preferences.audio.skipForwardInterval") }
         placeholder={ placeholderText }
+        presets={ config.presets || [] }
+        formatOptions={{ style: "unit", unit: "second" }}
         value={ skipForwardInterval }
         onChange={ updatePreference }
         range={ skipForwardIntervalRangeConfig.range }
         step={ skipForwardIntervalRangeConfig.step }
-        formatOptions={{ style: "unit", unit: "second" }}
       />
-    }
-    </>
+    );
+  }
+
+  return (
+    <StatefulSlider
+      standalone={ standalone }
+      displayTicks={ skipForwardIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
+      label={ t("reader.playback.preferences.audio.skipForwardInterval") }
+      placeholder={ placeholderText }
+      value={ skipForwardInterval }
+      onChange={ updatePreference }
+      range={ skipForwardIntervalRangeConfig.range }
+      step={ skipForwardIntervalRangeConfig.step }
+      formatOptions={{ style: "unit", unit: "second" }}
+    />
   );
 };

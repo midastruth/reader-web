@@ -8,6 +8,7 @@ import { ThAudioKeys } from "@/preferences/models";
 
 import { StatefulNumberField } from "../../Settings/StatefulNumberField";
 import { StatefulSlider } from "../../Settings/StatefulSlider";
+import { StatefulSliderWithPresets } from "../../Settings/StatefulSliderWithPresets";
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { usePlaceholder } from "../../Settings/hooks/usePlaceholder";
@@ -53,10 +54,9 @@ export const StatefulAudioSkipInterval = ({
     dispatch(setSkipInterval(getSetting("skipForwardInterval")));
   }, [submitPreferences, getSetting, dispatch]);
 
-  return (
-    <>
-    { skipIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField
-      ? <StatefulNumberField
+  if (skipIntervalRangeConfig.variant === ThSettingsRangeVariant.numberField) {
+    return (
+      <StatefulNumberField
         standalone={ standalone }
         label={ t("reader.playback.preferences.audio.skipInterval") }
         placeholder={ placeholderText }
@@ -74,18 +74,37 @@ export const StatefulAudioSkipInterval = ({
         isWheelDisabled={ true }
         isVirtualKeyboardDisabled={ true }
       />
-      : <StatefulSlider
+    );
+  }
+
+  if (skipIntervalRangeConfig.variant === ThSettingsRangeVariant.sliderWithPresets) {
+    return (
+      <StatefulSliderWithPresets
         standalone={ standalone }
-        displayTicks={ skipIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
         label={ t("reader.playback.preferences.audio.skipInterval") }
         placeholder={ placeholderText }
+        presets={ config.presets || [] }
+        formatOptions={{ style: "unit", unit: "second" }}
         value={ skipInterval }
         onChange={ updatePreference }
         range={ skipIntervalRangeConfig.range }
         step={ skipIntervalRangeConfig.step }
-        formatOptions={{ style: "unit", unit: "second" }}
       />
-    }
-    </>
+    );
+  }
+
+  return (
+    <StatefulSlider
+      standalone={ standalone }
+      displayTicks={ skipIntervalRangeConfig.variant === ThSettingsRangeVariant.incrementedSlider }
+      label={ t("reader.playback.preferences.audio.skipInterval") }
+      placeholder={ placeholderText }
+      value={ skipInterval }
+      onChange={ updatePreference }
+      range={ skipIntervalRangeConfig.range }
+      step={ skipIntervalRangeConfig.step }
+      formatOptions={{ style: "unit", unit: "second" }}
+    />
   );
 };
+

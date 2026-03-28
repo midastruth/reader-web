@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { useNumberFormatter } from "react-aria";
 
 import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
@@ -36,6 +37,8 @@ export const StatefulSliderWithPresets = ({
 }: StatefulSliderWithPresetsProps) => {
   const { t } = useI18n();
   const { theming, direction } = useSharedPreferences();
+  const numberFormatter = useNumberFormatter(props.formatOptions);
+  const resolvedFormatValue = formatValue ?? (props.formatOptions ? (v: number) => numberFormatter.format(v) : undefined);
   const tooltipDelay = theming.icon.tooltipDelay;
 
   const presetsColumns = presets?.length > 1 ? Math.ceil(presets.length / 2) : 1;
@@ -74,7 +77,7 @@ export const StatefulSliderWithPresets = ({
   return (
     <ThSliderWithPresets
       presets={ presets }
-      formatValue={ formatValue }
+      formatValue={ resolvedFormatValue }
       value={ value }
       { ...props }
       { ...(standalone ? { label: label } : { "aria-label": label }) }

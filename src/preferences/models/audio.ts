@@ -56,24 +56,27 @@ export const defaultAudioPlaybackRate: ThSettingsRangePrefRequired = {
 }
 
 export const defaultAudioSkipBackwardInterval: ThSettingsRangePrefRequired = {
-  variant: ThSettingsRangeVariant.slider,
+  variant: ThSettingsRangeVariant.sliderWithPresets,
   range: [5, 60],
   step: 5,
-  placeholder: ThSettingsRangePlaceholder.range
+  placeholder: ThSettingsRangePlaceholder.range,
+  presets: [5, 10, 30]
 }
 
 export const defaultAudioSkipForwardInterval: ThSettingsRangePrefRequired = {
-  variant: ThSettingsRangeVariant.slider,
+  variant: ThSettingsRangeVariant.sliderWithPresets,
   range: [5, 60],
   step: 5,
-  placeholder: ThSettingsRangePlaceholder.range
+  placeholder: ThSettingsRangePlaceholder.range,
+  presets: [5, 10, 30]
 }
 
 export const defaultAudioSkipInterval: ThSettingsRangePrefRequired = {
-  variant: ThSettingsRangeVariant.slider,
+  variant: ThSettingsRangeVariant.sliderWithPresets,
   range: [5, 60],
   step: 5,
-  placeholder: ThSettingsRangePlaceholder.range
+  placeholder: ThSettingsRangePlaceholder.range,
+  presets: [5, 10, 30]
 }
 
 export const defaultAudioSleepTimer: ThSettingsTimerPref = {
