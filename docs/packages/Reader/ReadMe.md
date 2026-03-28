@@ -134,8 +134,8 @@ interface PositionStorage {
 ### Supported Profiles
 
 - **"epub"**: Renders the EPUB StatefulReader with FXL or reflow rendition
-- **"webPub"**: Renders the WebPub ExperimentalStatefulReader  
-- **"audio"**: Placeholder for future audio reader implementation
+- **"webPub"**: Renders the WebPub ExperimentalStatefulReader
+- **"audio"**: Renders the audio StatefulPlayer
 
 ### Features
 
