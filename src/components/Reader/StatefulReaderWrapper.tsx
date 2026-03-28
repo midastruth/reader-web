@@ -103,9 +103,7 @@ export const StatefulReaderWrapper = ({ profile, plugins, isLoading, preferences
         adapter={ preferences?.adapter as ThAudioPreferencesAdapter<any> | undefined }
       >
         <ThI18nProvider>
-          <StatefulLoader isLoading={ isLoading ?? false }>
-            <StatefulAudioContent { ...props } coverUrl={ coverUrl } />
-          </StatefulLoader>
+          <StatefulAudioContent { ...props } coverUrl={ coverUrl } externalLoading={ isLoading ?? false } />
         </ThI18nProvider>
       </ThAudioPreferencesProvider>
     );
@@ -133,14 +131,15 @@ interface AudioContentProps {
   localDataKey: string | null;
   positionStorage?: PositionStorage;
   coverUrl?: string;
+  externalLoading: boolean;
 }
 
-const StatefulAudioContent = ({ publication, localDataKey, positionStorage, coverUrl }: AudioContentProps) => {
+const StatefulAudioContent = ({ publication, localDataKey, positionStorage, coverUrl, externalLoading }: AudioContentProps) => {
   const { preferences } = useAudioPreferences();
   const themeObject = useAppSelector(state => state.theming.theme);
   const dispatch = useAppDispatch();
 
-  useTheming<ThemeKeyType>({
+  const { themeResolved } = useTheming<ThemeKeyType>({
     theme: themeObject.audio,
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
@@ -165,9 +164,11 @@ const StatefulAudioContent = ({ publication, localDataKey, positionStorage, cove
   });
 
   return (
-    <Suspense>
-      <StatefulPlayer publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } coverUrl={ coverUrl } />
-    </Suspense>
+    <StatefulLoader isLoading={ externalLoading || !themeResolved }>
+      <Suspense>
+        <StatefulPlayer publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } coverUrl={ coverUrl } />
+      </Suspense>
+    </StatefulLoader>
   );
 };
 
