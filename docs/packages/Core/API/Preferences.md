@@ -169,13 +169,16 @@ interface useThemingProps<T extends string> {
   };
   breakpointsMap: BreakpointsMap<number | null>;
   initProps?: Record<string, any>;
+  coverUrl?: string;
+  autoThemeSource?: "cover" | "system";
+  onCoverThemeGenerated?: (themeTokens: ThemeTokens) => void;
   onBreakpointChange?: (breakpoint: ThBreakpoints | null) => void;
   onColorSchemeChange?: (colorScheme: ThColorScheme) => void;
   onContrastChange?: (contrast: ThContrast) => void;
   onForcedColorsChange?: (forcedColors: boolean) => void;
   onMonochromeChange?: (isMonochrome: boolean) => void;
   onReducedMotionChange?: (reducedMotion: boolean) => void;
-  onReducedTransparencyChange?: (reducedTransparency: boolean) => void; 
+  onReducedTransparencyChange?: (reducedTransparency: boolean) => void;
 }
 
 function useTheming<T extends string>(props: useThemingProps<T>): {
@@ -188,15 +191,19 @@ function useTheming<T extends string>(props: useThemingProps<T>): {
   monochrome: boolean;
   reducedMotion: boolean;
   reducedTransparency: boolean;
+  coverThemeTokens: ThemeTokens | null;
+  themeResolved: boolean;
 }
 ```
 
 **Features:**
 - Theme management
 - System theme detection
+- Cover-based automatic theme generation (`autoThemeSource: "cover"`)
 - CSS variable handling
 - Media query support
 - Automatic theme color meta tag updates
+- `themeResolved` flag to defer rendering until cover theme extraction completes
 
 ## Helpers
 

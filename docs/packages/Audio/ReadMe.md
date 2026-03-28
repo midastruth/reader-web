@@ -155,6 +155,9 @@ const myPreferences = createAudioPreferences({
 
 ## Related Documentation
 
+- [Audio Hooks API](./API/Hooks.md)
+- [Audio Settings API](./API/Settings.md)
+- [Audio Controls API](./API/Controls.md)
 - [Core Package](../Core/ReadMe.md)
 - [Reader Package](../Reader/ReadMe.md)
 - [Epub Package](../Epub/ReadMe.md)
