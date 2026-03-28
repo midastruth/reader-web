@@ -21,6 +21,7 @@ export interface StatefulSliderWithPresetsProps extends Omit<ThSliderWithPresets
   resetLabel?: string;
   displayTicks?: boolean;
   hideOutput?: boolean;
+  onEscape?: () => void;
 }
 
 export const StatefulSliderWithPresets = ({
@@ -33,6 +34,7 @@ export const StatefulSliderWithPresets = ({
   resetLabel,
   presets,
   formatValue,
+  onEscape,
   ...props
 }: StatefulSliderWithPresetsProps) => {
   const { t } = useI18n();
@@ -55,6 +57,7 @@ export const StatefulSliderWithPresets = ({
     currentValue: currentScalarValue,
     onChange: (v) => props.onChange?.([v]),
     isRTL: direction === ThLayoutDirection.rtl,
+    onEscape,
     onFocus: (v) => {
       const el = presetsListRef.current?.querySelector(`input[value="${ v }"]`) as HTMLElement | null;
       el?.focus();

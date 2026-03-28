@@ -90,6 +90,7 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
           onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
           range={ config.range }
           step={ config.step }
+          onEscape={ () => dispatch(setActionOpen({ key: ThAudioActionKeys.playbackRate, isOpen: false })) }
         />
       </div>
     );

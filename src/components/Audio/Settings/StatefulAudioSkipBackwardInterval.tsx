@@ -4,7 +4,7 @@ import { useCallback } from "react";
 
 import { ThSettingsRangeVariant } from "@/preferences";
 
-import { ThAudioKeys } from "@/preferences/models";
+import { ThActionsKeys, ThAudioKeys } from "@/preferences/models";
 
 import { StatefulNumberField } from "../../Settings/StatefulNumberField";
 import { StatefulSlider } from "../../Settings/StatefulSlider";
@@ -16,6 +16,7 @@ import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
+import { setActionOpen } from "@/lib";
 import { setSkipBackwardInterval } from "@/lib/audioSettingsReducer";
 import { defaultAudioSkipBackwardInterval } from "@/preferences/models/audio";
 
@@ -82,6 +83,7 @@ export const StatefulAudioSkipBackwardInterval = ({
         placeholder={ placeholderText }
         presets={ config.presets || [] }
         formatOptions={{ style: "unit", unit: "second" }}
+        onEscape={ () => dispatch(setActionOpen({ key: ThActionsKeys.settings, isOpen: false })) }
         value={ skipBackwardInterval ?? undefined }
         onChange={ updatePreference }
         range={ skipBackwardIntervalRangeConfig.range }
