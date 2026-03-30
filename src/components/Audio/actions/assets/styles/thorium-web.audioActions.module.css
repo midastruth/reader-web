@@ -61,12 +61,6 @@
   outline: none;
 }
 
-.audioControlPopoverHeading {
-  font-weight: bold;
-  font-size: 1rem;
-  margin: 0 0 calc(var(--th-layout-spacing) / 2) 0;
-}
-
 /* Sleep timer */
 
 .audioSleepTimerButton {
@@ -254,16 +248,3 @@
   justify-content: center;
 }
 
-/* TOC popover */
-
-.audioTocContent {
-  width: 280px;
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--th-layout-spacing) / 2);
-}
-
-.audioTocTree {
-  max-height: 360px;
-  overflow-y: auto;
-}

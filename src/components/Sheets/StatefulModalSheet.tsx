@@ -5,13 +5,14 @@ import { StatefulModalBase } from "./StatefulModalBase";
 
 import sheetStyles from "./assets/styles/thorium-web.sheets.module.css";
 
-export interface StatefulFullScreenSheetProps extends StatefulSheet {};
+export interface StatefulModalSheetProps extends StatefulSheet {};
 
-export const StatefulFullScreenSheet = (props: StatefulFullScreenSheetProps) => {
+export const StatefulModalSheet = (props: StatefulModalSheetProps) => {
   return (
     <StatefulModalBase
       { ...props }
-      sheetClassName={ sheetStyles.fullscreen }
+      sheetClassName={ sheetStyles.modal }
+      dialogClassName={ sheetStyles.modalDialog }
     />
   )
 }

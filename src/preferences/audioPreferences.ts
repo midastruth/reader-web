@@ -109,10 +109,7 @@ export interface ThAudioActionsPref<K extends AudioCustomizableKeys = {}> {
 
 // Main audio preferences
 
-export type ThAudioConstraintKeys =
-  | Extract<ThSheetTypes, ThSheetTypes.bottomSheet | ThSheetTypes.popover>
-  | "pagination"
-  | "dropdown";
+export type ThAudioConstraintKeys = Extract<ThSheetTypes, ThSheetTypes.bottomSheet | ThSheetTypes.popover | ThSheetTypes.modal>;
 
 export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
   direction?: ThLayoutDirection;

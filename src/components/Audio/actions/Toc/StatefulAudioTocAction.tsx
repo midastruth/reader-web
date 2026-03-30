@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { Link } from "@readium/shared";
 import { ThAudioActionKeys, ThLayoutDirection } from "@/preferences/models";
@@ -10,20 +10,20 @@ import { useTocContent } from "@/components/Actions/Toc/useTocContent";
 import { TocContent } from "@/components/Actions/Toc/TocContent";
 
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
-
-import { Dialog, Popover, Selection } from "react-aria-components";
-import { FocusScope } from "react-aria";
-import { ThContainerHeader } from "@/core/Components/Containers/ThContainerHeader/ThContainerHeader";
+import { StatefulModalSheet } from "@/components/Sheets";
 
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
+import { isActiveElement } from "@/core/Helpers/focusUtilities";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setActionOpen, toggleActionOpen } from "@/lib/actionsReducer";
 import { setTocEntry } from "@/lib/publicationReducer";
 import { setImmersive, setUserNavigated } from "@/lib/readerReducer";
+
+import { Selection } from "react-aria-components";
 
 export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -46,6 +46,18 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
 
   const { expandedKeys, setExpandedKeys, filterValue, setFilterValue, displayedTocTree, treeRef, searchInputRef } =
     useTocContent({ isOpen, tocTree, tocEntry });
+
+  useEffect(() => {
+    if (isOpen) {
+      const handleEscape = (event: KeyboardEvent) => {
+        if ((!isActiveElement(searchInputRef.current) && !filterValue) && event.key === "Escape") {
+          setOpen(false);
+        }
+      };
+      document.addEventListener("keydown", handleEscape, true);
+      return () => document.removeEventListener("keydown", handleEscape, true);
+    }
+  }, [isOpen, filterValue, searchInputRef, setOpen]);
 
   const handleAction = (keys: Selection) => {
     if (keys === "all" || !keys || keys.size === 0) return;
@@ -73,38 +85,29 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
       >
         <TocIcon aria-hidden="true" focusable="false" />
       </StatefulActionIcon>
-      <Popover
+      <StatefulModalSheet
+        id={ ThAudioActionKeys.toc }
         triggerRef={ triggerRef }
+        heading={ t("reader.tableOfContents.title") }
+        className=""
         isOpen={ isOpen }
         onOpenChange={ setOpen }
-        placement="top"
-        className={ `${ audioStyles.audioControlPopover } ${ audioStyles.audioTocPopover }` }
+        onClosePress={ () => setOpen(false) }
       >
-        <Dialog className={ audioStyles.audioControlPopoverDialog }>
-          <FocusScope contain>
-            <ThContainerHeader
-              label={ t("reader.tableOfContents.title") }
-              compounds={{ heading: { className: audioStyles.audioControlPopoverHeading } }}
-            />
-            <div className={ audioStyles.audioTocContent }>
-              <TocContent
-                filterValue={ filterValue }
-                onFilterChange={ setFilterValue }
-                displayedTocTree={ displayedTocTree }
-                tocTree={ tocTree }
-                tocEntry={ tocEntry }
-                expandedKeys={ expandedKeys }
-                onExpandedChange={ setExpandedKeys }
-                onSelectionChange={ handleAction }
-                isRTL={ isRTL }
-                treeRef={ treeRef }
-                searchInputRef={ searchInputRef }
-                compounds={{ treeWrapper: { className: audioStyles.audioTocTree } }}
-              />
-            </div>
-          </FocusScope>
-        </Dialog>
-      </Popover>
+        <TocContent
+          filterValue={ filterValue }
+          onFilterChange={ setFilterValue }
+          displayedTocTree={ displayedTocTree }
+          tocTree={ tocTree }
+          tocEntry={ tocEntry }
+          expandedKeys={ expandedKeys }
+          onExpandedChange={ setExpandedKeys }
+          onSelectionChange={ handleAction }
+          isRTL={ isRTL }
+          treeRef={ treeRef }
+          searchInputRef={ searchInputRef }
+        />
+      </StatefulModalSheet>
     </>
   );
 };

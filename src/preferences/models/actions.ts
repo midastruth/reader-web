@@ -62,6 +62,7 @@ export enum ThDockingTypes {
 
 export enum ThSheetTypes {
   popover = "popover",
+  modal = "modal",
   fullscreen = "fullscreen",
   dockedStart = "docked start",
   dockedEnd = "docked end",

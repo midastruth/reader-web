@@ -59,8 +59,7 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
         constraints: {
           [ThSheetTypes.bottomSheet]: 600,
           [ThSheetTypes.popover]: 600,
-          pagination: 1024,
-          dropdown: 250
+          [ThSheetTypes.modal]: 600,
         }
       },
       breakpoints: {
