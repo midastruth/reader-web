@@ -12,6 +12,7 @@ import { StatefulSliderWithPresets } from "../../Settings/StatefulSliderWithPres
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { usePlaceholder } from "../../Settings/hooks/usePlaceholder";
+import { useEffectiveRange } from "../../Settings/hooks/useEffectiveRange";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
@@ -32,14 +33,16 @@ export const StatefulAudioSkipForwardInterval = ({
 
   const skipForwardInterval = useAppSelector(state => state.audioSettings.skipForwardInterval);
   const dispatch = useAppDispatch();
-  const { submitPreferences, getSetting } = useNavigator().media;
+  const { submitPreferences, getSetting, preferencesEditor } = useNavigator().media;
 
   const config = preferences.settings.keys[ThAudioKeys.skipForwardInterval] ?? defaultAudioSkipForwardInterval;
+
+  const { range, presets } = useEffectiveRange(config.range, preferencesEditor?.skipForwardInterval?.supportedRange, config.presets);
 
   const skipForwardIntervalRangeConfig = {
     variant: config.variant,
     placeholder: config.placeholder,
-    range: config.range,
+    range,
     step: config.step
   };
 
@@ -81,7 +84,7 @@ export const StatefulAudioSkipForwardInterval = ({
         standalone={ standalone }
         label={ t("reader.playback.preferences.audio.skipForwardInterval") }
         placeholder={ placeholderText }
-        presets={ config.presets || [] }
+        presets={ presets || [] }
         formatOptions={{ style: "unit", unit: "second" }}
         onEscape={ () => dispatch(setActionOpen({ key: ThActionsKeys.settings, isOpen: false })) }
         value={ skipForwardInterval }

@@ -19,6 +19,7 @@ import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 import { useNavigator } from "@/core/Navigator";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
+import { useEffectiveRange } from "../../../Settings/hooks/useEffectiveRange";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setVolume } from "@/lib/audioSettingsReducer";
@@ -35,17 +36,19 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
   const { preferences } = useAudioPreferences();
 
   const dispatch = useAppDispatch();
-  const { submitPreferences, getSetting } = useNavigator().media;
+  const { submitPreferences, getSetting, preferencesEditor } = useNavigator().media;
 
   const config = preferences.settings.keys[ThAudioKeys.volume];
 
+  const { range } = useEffectiveRange(config.range, preferencesEditor?.volume?.supportedRange);
+
   const VolumeIcon = useMemo(() => {
     if (volume === 0) return VolumeOffIcon;
-    const max = Math.max(...config.range);
+    const max = Math.max(...range);
     if (volume <= max / 3) return VolumeMuteIcon;
     if (volume <= (max / 3) * 2) return VolumeDownIcon;
     return VolumeUpIcon;
-  }, [volume, config.range]);
+  }, [volume, range]);
 
   const updatePreference = useCallback(async (value: number | number[]) => {
     const val = Array.isArray(value) ? value[0] : value;
@@ -84,7 +87,7 @@ export const StatefulAudioVolume = ({ isDisabled }: { isDisabled: boolean }) => 
             aria-label={ t("reader.playback.preferences.audio.volume") }
             className={ audioStyles.audioVolumeSlider }
             orientation="vertical"
-            range={ config.range }
+            range={ range }
             step={ config.step }
             value={ volume }
             onChange={ updatePreference }

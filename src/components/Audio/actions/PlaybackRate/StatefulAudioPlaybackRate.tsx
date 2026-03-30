@@ -17,6 +17,7 @@ import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
 import { useNavigator } from "@/core/Navigator/hooks";
+import { useEffectiveRange } from "../../../Settings/hooks/useEffectiveRange";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
@@ -40,9 +41,10 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
   const { preferences } = useAudioPreferences();
   const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
   const dispatch = useAppDispatch();
-  const { submitPreferences, getSetting } = useNavigator().media;
+  const { submitPreferences, getSetting, preferencesEditor } = useNavigator().media;
 
   const config = preferences.settings.keys[ThAudioKeys.playbackRate];
+  const { range, presets } = useEffectiveRange(config.range, preferencesEditor?.playbackRate?.supportedRange, config.presets);
 
   const updatePreference = useCallback(async (value: number) => {
     await submitPreferences({ playbackRate: value });
@@ -55,7 +57,7 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
         <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
           <ThSlider
             aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
-            range={ config.range }
+            range={ range }
             step={ config.step }
             value={ playbackRate }
             onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
@@ -69,7 +71,7 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
         <div ref={ contentRef } className={ audioStyles.audioPlaybackRateNumberField }>
           <ThNumberField
             aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
-            range={ config.range }
+            range={ range }
             step={ config.step }
             value={ playbackRate }
             onChange={ updatePreference }
@@ -84,11 +86,11 @@ export const StatefulAudioPlaybackRate = ({ isDisabled }: { isDisabled: boolean 
         <StatefulSliderWithPresets
           standalone
           label={ t("reader.playback.preferences.playbackRate.descriptive") }
-          presets={ config.presets || [] }
+          presets={ presets || [] }
           formatValue={ (v) => `${v}×` }
           value={ playbackRate }
           onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
-          range={ config.range }
+          range={ range }
           step={ config.step }
           onEscape={ () => dispatch(setActionOpen({ key: ThAudioActionKeys.playbackRate, isOpen: false })) }
         />
