@@ -7,7 +7,7 @@ If you are not forking this project but importing its packages, please refer to 
 Otherwise you should be able to modify the preferences object directly in [defaultPreferences](../../src/preferences/defaultPreferences.ts).
 
 > [!NOTE]
-> Audio has its own separate preferences system. Use `createAudioPreferences` and `ThAudioPreferencesProvider` instead of their EPUB/WebPub equivalents. See [Audio Handling Preferences](./audio/HandlingPreferences.md), [Audio Settings](./audio/Settings.md), and [Audio Content Protection](./audio/Protection.md) for details.
+> Audio has its own separate preferences system. Use `createAudioPreferences` and `ThAudioPreferencesProvider` instead of their EPUB/WebPub equivalents. See the [Audio Customization doc](./audio/Customization.md) for a full overview.
 
 ## Direction
 

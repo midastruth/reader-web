@@ -80,28 +80,3 @@ settings: {
 }
 ```
 
-## Player Layout Order
-
-The `theming.layout.order` array controls which player components are rendered and in what order. Values come from enum `ThAudioPlayerComponent`:
-
-- `cover`: the cover image
-- `metadata`: title and author
-- `progressBar`: the seekable progress bar
-- `playbackControls`: previous, skip backward, play/pause, skip forward, next
-- `mediaActions`: the primary actions bar (volume, playback rate, and other primary actions)
-
-```typescript
-import { ThAudioPlayerComponent } from "@edrlab/thorium-web/audio";
-
-theming: {
-  layout: {
-    order: [
-      ThAudioPlayerComponent.cover,
-      ThAudioPlayerComponent.metadata,
-      ThAudioPlayerComponent.progressBar,
-      ThAudioPlayerComponent.playbackControls,
-      ThAudioPlayerComponent.mediaActions
-    ]
-  }
-}
-```
