@@ -150,6 +150,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
             step={ 1 }
             value={ hours }
             onChange={ setHours }
+            onInputChange={ (raw) => setHours(parseInt(raw) || 0) }
             compounds={{
               group: { className: audioStyles.audioSleepTimerFieldGroup },
               input: { className: audioStyles.audioSleepTimerFieldInput }
@@ -164,6 +165,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
             step={ 1 }
             value={ minutes }
             onChange={ setMinutes }
+            onInputChange={ (raw) => setMinutes(parseInt(raw) || 0) }
             compounds={{
               group: { className: audioStyles.audioSleepTimerFieldGroup },
               input: { className: audioStyles.audioSleepTimerFieldInput }
