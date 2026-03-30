@@ -28,7 +28,7 @@ import { StatefulAudioProgressBar } from "./controls/StatefulAudioProgressBar";
 
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useAudioNavigator } from "@/core/Hooks/Audio/useAudioNavigator";
-import { useAudioSettingsCache } from "@/core/Hooks/Audio/useAudioSettingsCache";
+import { useAudioStatelessCache } from "./Hooks/useAudioStatelessCache";
 import { useI18n } from "@/i18n/useI18n";
 import { resolveAudioContentProtectionConfig } from "@/preferences/models/protection";
 import { useTimeline } from "@/core/Hooks/useTimeline";
@@ -44,7 +44,14 @@ import {
   setPublicationStart,
   setPublicationEnd
 } from "@/lib/publicationReducer";
-import { setStatus, setSeeking, setStalled, setTrackReady, setSeekableRanges } from "@/lib/playerReducer";
+import { 
+  setStatus, 
+  setSeeking, 
+  setStalled, 
+  setTrackReady, 
+  setSleepOnTrackEnd, 
+  setSeekableRanges 
+} from "@/lib/playerReducer";
 
 import { createAudioDefaultPlugin } from "../Plugins/helpers/createAudioDefaultPlugin";
 
@@ -91,6 +98,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const { preferences } = useAudioPreferences();
   const { t } = useI18n();
 
+  const sleepOnTrackEnd = useAppSelector(state => state.player.sleepOnTrackEnd);
   const volume = useAppSelector(state => state.audioSettings.volume);
   const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
   const preservePitch = useAppSelector(state => state.audioSettings.preservePitch);
@@ -101,7 +109,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const autoPlay = useAppSelector(state => state.audioSettings.autoPlay);
   const enableMediaSession = useAppSelector(state => state.audioSettings.enableMediaSession);
 
-  const cache = useAudioSettingsCache(
+  const cache = useAudioStatelessCache(
     volume,
     playbackRate,
     preservePitch,
@@ -110,17 +118,15 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     skipInterval,
     pollInterval,
     autoPlay,
-    enableMediaSession
+    enableMediaSession,
+    sleepOnTrackEnd
   );
 
 
   const dispatch = useAppDispatch();
 
   const audioNavigator = useAudioNavigator();
-  const { 
-    canGoBackward,
-    canGoForward,
-  } = audioNavigator;
+  const { canGoBackward, canGoForward, submitPreferences } = audioNavigator;
 
   const { setLocalData, getLocalData, localData } = usePositionStorage(localDataKey, positionStorage);
 
@@ -163,9 +169,17 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       dispatch(setStalled(false));
       dispatch(setStatus("paused"));
     },
-    trackEnded: () => {},
+    trackEnded: () => {
+      if (cache.current.sleepOnTrackEnd) {
+        submitPreferences({ autoPlay: false });
+      }
+    },
     metadataLoaded: () => {},
     play: () => {
+      if (cache.current.sleepOnTrackEnd) {
+        submitPreferences({ autoPlay: cache.current.settings.autoPlay });
+        dispatch(setSleepOnTrackEnd(false));
+      }
       dispatch(setStatus("playing"));
     },
     pause: () => {
@@ -191,7 +205,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     contentProtection: (_type: string, _detail: SuspiciousActivityEvent) => {},
     peripheral: (_data: KeyboardEventData) => {},
     contextMenu: (_data: ContextMenuEvent) => {}
-  }), [setLocalData, canGoBackward, canGoForward, dispatch]);
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, cache, submitPreferences]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

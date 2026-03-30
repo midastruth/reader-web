@@ -30,8 +30,8 @@ export enum ThSettingsTimerVariant {
 export type ThSettingsTimerPref =
   | {
       variant: ThSettingsTimerVariant.presetList;
-      /** Preset durations in minutes. */
-      presets: number[];
+      /** Preset durations in minutes, or "endOfResource" to pause at end of track. */
+      presets: (number | "endOfResource")[];
     }
   | {
       variant: ThSettingsTimerVariant.durationField;
@@ -86,7 +86,7 @@ export const defaultAudioSleepTimer: ThSettingsTimerPref = {
 
 export const defaultAudioSleepTimerPresetList: ThSettingsTimerPref = {
   variant: ThSettingsTimerVariant.presetList,
-  presets: [15, 30, 45, 60, 90],
+  presets: [15, 30, 45, 60, 90, "endOfResource"],
 };
 
 // Action tokens for ThAudioActionKeys used in the secondary zone (e.g. header bar).

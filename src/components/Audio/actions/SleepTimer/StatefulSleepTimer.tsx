@@ -20,6 +20,7 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { toggleActionOpen, setActionOpen } from "@/lib/actionsReducer";
+import { setSleepOnTrackEnd } from "@/lib/playerReducer";
 
 export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -28,6 +29,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
   const [minutes, setMinutes] = useState(0);
 
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.sleepTimer]?.isOpen ?? false);
+  const sleepOnTrackEnd = useAppSelector(state => state.player.sleepOnTrackEnd);
   const dispatch = useAppDispatch();
 
   const { t } = useI18n();
@@ -48,6 +50,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
     if (h > 0) return `${ h }${ t("audio.settings.sleepTimer.hours") } ${ mm }${ min } ${ ss }${ sec }`;
     return `${ mm }${ min } ${ ss }${ sec }`;
   };
+
   const { preferences } = useAudioPreferences();
   const { pause } = useNavigator().media;
   const pauseRef = useRef(pause);
@@ -71,6 +74,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
 
   const handleCancel = useCallback(() => {
     setRemainingSeconds(null);
+    dispatch(setSleepOnTrackEnd(false));
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [dispatch]);
 
@@ -82,26 +86,41 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
   }, [hours, minutes, dispatch]);
 
   const handlePresetSelect = useCallback((value: string) => {
-    setRemainingSeconds(Number(value) * 60);
+    if (value === "endOfResource") {
+      dispatch(setSleepOnTrackEnd(true));
+    } else {
+      setRemainingSeconds(Number(value) * 60);
+    }
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [dispatch]);
 
-  const isActive = remainingSeconds !== null;
+  const isActive = remainingSeconds !== null || sleepOnTrackEnd;
   const maxHours = (config.variant === ThSettingsTimerVariant.durationField ? config.maxHours : undefined) ?? 23;
 
   const renderContent = () => {
     if (variant === ThSettingsTimerVariant.presetList && config?.variant === ThSettingsTimerVariant.presetList) {
-      const items = config.presets.map(minutes => ({
-        id: String(minutes),
-        value: String(minutes),
-        label: `${ minutes } ${ t("audio.settings.sleepTimer.minutes") }`,
-      }));
+      const items = config.presets.map(preset => preset === "endOfResource"
+        ? {
+            id: "endOfResource",
+            value: "endOfResource",
+            label: t("audio.settings.sleepTimer.endOfResource"),
+          }
+        : {
+            id: String(preset),
+            value: String(preset),
+            label: `${ preset } ${ t("audio.settings.sleepTimer.minutes") }`,
+          }
+      );
+
+      const activeValue = sleepOnTrackEnd
+        ? "endOfResource"
+        : remainingSeconds !== null ? String(remainingSeconds / 60) : "";
 
       return (
         <div className={ audioStyles.audioSleepTimerDurationField }>
           <ThRadioGroup
             aria-label={ t("audio.settings.sleepTimer._") }
-            value={ remainingSeconds !== null ? String(remainingSeconds) : "" }
+            value={ activeValue }
             onChange={ handlePresetSelect }
             items={ items }
             compounds={{
@@ -122,11 +141,11 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
     }
 
     // durationField variant
-    if (isActive) {
+    if (isActive && remainingSeconds !== null) {
       return (
         <div className={ audioStyles.audioSleepTimerDurationField }>
           <p className={ audioStyles.audioSleepTimerRemaining }>
-            { t("audio.settings.sleepTimer.remaining") } { formatRemaining(remainingSeconds!) }
+            { t("audio.settings.sleepTimer.remaining") } { formatRemaining(remainingSeconds) }
           </p>
           <Button
             className={ audioStyles.audioSleepTimerActionButton }
@@ -199,7 +218,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
         <SnoozeIcon aria-hidden="true" focusable="false" />
         { isActive && (
           <span className={ audioStyles.audioSleepTimerLabel } aria-hidden="true">
-            { formatBadge(remainingSeconds!) }
+            { sleepOnTrackEnd ? t("audio.settings.sleepTimer.endOfResource") : formatBadge(remainingSeconds!) }
           </span>
         ) }
       </StatefulActionIcon>

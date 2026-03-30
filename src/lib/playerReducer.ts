@@ -12,6 +12,7 @@ export interface PlayerReducerState {
   isSeeking: boolean;
   isStalled: boolean;
   isTrackReady: boolean;
+  sleepOnTrackEnd: boolean;
   seekableRanges: SeekableRange[];
 }
 
@@ -20,6 +21,7 @@ const initialState: PlayerReducerState = {
   isSeeking: false,
   isStalled: false,
   isTrackReady: false,
+  sleepOnTrackEnd: false,
   seekableRanges: [],
 };
 
@@ -39,12 +41,22 @@ export const playerSlice = createSlice({
     setTrackReady: (state, action: { payload: boolean }) => {
       state.isTrackReady = action.payload;
     },
+    setSleepOnTrackEnd: (state, action: { payload: boolean }) => {
+      state.sleepOnTrackEnd = action.payload;
+    },
     setSeekableRanges: (state, action: { payload: SeekableRange[] }) => {
       state.seekableRanges = action.payload;
     },
   },
 });
 
-export const { setStatus, setSeeking, setStalled, setTrackReady, setSeekableRanges } = playerSlice.actions;
+export const { 
+  setStatus, 
+  setSeeking, 
+  setStalled, 
+  setTrackReady, 
+  setSleepOnTrackEnd, 
+  setSeekableRanges 
+} = playerSlice.actions;
 
 export default playerSlice.reducer;
