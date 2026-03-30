@@ -113,6 +113,8 @@ This document outlines the available styling classes and custom properties for t
 
 ### Header & Footer
 
+> These classes apply to Epub/WebPub readers only. For audio, see [Audio App Structure](#audio-app-structure).
+
 - `.thorium_web_reader_app_topBar` - Top navigation bar
 - `.thorium_web_reader_app_bottomBar` - Bottom navigation bar
 - `.thorium_web_reader_app_headerOverlay` - Header overlay for layered-ui
@@ -198,6 +200,12 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_toc_empty` - Empty state
 
 ## Audio Components
+
+### App Structure
+
+- `.thorium_web_audio_app_main` - Root container for the audio player application. Applied to the `<main>` element
+- `.thorium_web_audio_app_shell` - Inner shell container, found within the docking wrapper
+- `.thorium_web_audio_app_topBar` - Top navigation bar
 
 ### Player
 

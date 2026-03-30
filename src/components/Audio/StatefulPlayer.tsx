@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useState, useMemo, useCallback } from "react";
 
-import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
+import audioLayoutStyles from "./assets/styles/thorium-web.audio.app.module.css";
 import audioStyles from "./assets/styles/thorium-web.audioPlayer.module.css";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
@@ -15,7 +15,7 @@ import { Publication } from "@readium/shared";
 import { ContextMenuEvent, KeyboardEventData, SuspiciousActivityEvent } from "@readium/navigator-html-injectables";
 import { AudioNavigatorListeners } from "@readium/navigator";
 import { PositionStorage } from "../Reader/StatefulReaderWrapper";
-import { ThLayoutUI, ThAudioPlayerComponent } from "@/preferences/models";
+import { ThAudioPlayerComponent } from "@/preferences/models";
 
 import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulPlayerHeader } from "./StatefulPlayerHeader";
@@ -47,7 +47,6 @@ import {
 import { setStatus, setSeeking, setStalled, setTrackReady, setSeekableRanges } from "@/lib/playerReducer";
 
 import { createAudioDefaultPlugin } from "../Plugins/helpers/createAudioDefaultPlugin";
-import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 
 export interface StatefulPlayerProps {
   publication: Publication;
@@ -114,8 +113,6 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     enableMediaSession
   );
 
-  const isImmersive = useAppSelector(state => state.reader.isImmersive);
-  const isHovering = useAppSelector(state => state.reader.isHovering);
 
   const dispatch = useAppDispatch();
 
@@ -229,19 +226,12 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     <>
     <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider mediaNavigator={ audioNavigator }>
-      <main className={ readerStyles.main }>
+      <main className={ audioLayoutStyles.main }>
         <StatefulDockingWrapper>
-          <div className={ getReaderClassNames({
-            layoutUI: preferences.theming.layout?.ui || ThLayoutUI.stacked,
-            isScroll: false,
-            isImmersive,
-            isHovering,
-            isFXL: false,
-          })}>
+          <div className={ audioLayoutStyles.shell }>
             <StatefulPlayerHeader
               actionKeys={ preferences.actions.secondary.displayOrder as string[] }
               actionsOrder={ preferences.actions.secondary.displayOrder as string[] }
-              layout={ preferences.theming.layout?.ui || ThLayoutUI.stacked }
             />
 
             <article className={ audioStyles.audioPlayerWrapper } aria-label={ t("reader.app.publicationWrapper") }>

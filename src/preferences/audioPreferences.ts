@@ -9,7 +9,6 @@ import {
   ThAudioKeys,
   ThDockingKeys,
   ThLayoutDirection,
-  ThLayoutUI,
   ThSheetTypes,
   ThThemeKeys,
   ThActionsTokens,
@@ -129,8 +128,6 @@ export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
       tooltipDelay?: number;
     };
     layout: {
-      /** Overall layout mode for the audio player UI. */
-      ui?: ThLayoutUI;
       /** Ordered list of player components to render. */
       order: Array<ThAudioPlayerComponent>;
       radius: number;

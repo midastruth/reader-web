@@ -61,7 +61,7 @@ The entire list of class names is available in the [API docs](./API.md).
 
 Classes are following pattern `thorium_web_` + module name + component name e.g. `.thorium_web_button_icon`, `.thorium_web_overflow_menu`, or `.thorium_web_sheets_popover`.
 
-`StatefulReader` also provides the following layouts and states:
+`StatefulReader` (Epub/WebPub) provides the following layouts and states:
 
 - `.thorium_web_stackedUI`/`.thorium_web_layeredUI`: the type of layout used, derived from preference `layout.ui`
 - `.thorium_web_isReflow`/`.thorium_web_isFXL`: whether the EPUB reader is in reflow or fixed-layout mode
@@ -74,6 +74,9 @@ Classes are following pattern `thorium_web_` + module name + component name e.g.
   - `.thorium_web_isExpanded`
   - `.thorium_web_isLarge`
   - `.thorium_web_isXLarge`
+
+> [!NOTE]
+> `StatefulPlayer` (Audio) uses its own layout independent of `StatefulReader`. None of the above layout classes or states (`thorium_web_stackedUI`, `thorium_web_layeredUI`, `thorium_web_isImmersive`, `thorium_web_isHovering`, etc.) apply to the audio player. See [Audio App Structure](./API.md#audio-app-structure) for audio-specific layout classes.
 
 ### Component states
 

@@ -10,7 +10,6 @@ import {
   ThBreakpoints,
   ThDockingKeys,
   ThDockingTypes,
-  ThLayoutUI,
   ThSheetTypes,
   ThThemeKeys,
   ThBackLinkVariant,
@@ -43,7 +42,6 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
         tooltipOffset: 10
       },
       layout: {
-        ui: ThLayoutUI.stacked,
         order: [
           ThAudioPlayerComponent.cover,
           ThAudioPlayerComponent.metadata,
