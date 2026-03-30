@@ -15,6 +15,7 @@
 }
 
 .audioPlaybackRateButton {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,7 +30,18 @@
   color: var(--th-theme-disable);
 }
 
-.audioPlaybackRateLabel {
+.audioPlaybackRateButton:has(.audioPlaybackRateLabel),
+.audioSleepTimerButton:has(.audioSleepTimerLabel) {
+  padding-bottom: calc(var(--th-icon-size) * (2/3));
+}
+
+.audioPlaybackRateLabel,
+.audioSleepTimerLabel {
+  position: absolute;
+  bottom: calc(var(--th-icon-size) * (1/4));
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   line-height: 1;
   font-size: calc(var(--th-icon-size, 24px) * (5/12));
   font-variant-numeric: tabular-nums;
@@ -58,6 +70,7 @@
 /* Sleep timer */
 
 .audioSleepTimerButton {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,12 +85,6 @@
   color: var(--th-theme-disable);
 }
 
-.audioSleepTimerLabel {
-  line-height: 1;
-  font-size: calc(var(--th-icon-size, 24px) * (5/12));
-  font-variant-numeric: tabular-nums;
-  font-weight: bold;
-}
 
 .audioSleepTimerListbox {
   display: flex;
