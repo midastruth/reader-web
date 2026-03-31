@@ -237,7 +237,7 @@ You can enable collapsibility i.e. an overflow menu will be used based on your c
 The `keys` object contains the configuration for each `action`, with optional properties that can be used when the action’s is not just a trigger, but also has a sheet/container:
 
 - `sheet` to specify the type of sheet the action’s container should use:
-  - as a `defaultSheet` (`fullscreen`, `popover`, or `bottomSheet`);
+  - as a `defaultSheet` (`fullscreen`, `modal`, `popover`, or `bottomSheet`);
   - as an override of this default for specific breakpoints in a `breakpoints` object (value is a key of `ThSheetTypes` enum).
 - `docked`: the configuration for docking. See the [docking doc](./Docking.md) for further details.
 - `snapped`: the configuration for snap points. See the [snap points doc](Snappoints.md) for further details.

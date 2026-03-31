@@ -58,6 +58,8 @@ This document outlines the available styling classes and custom properties for t
 ### Sheet Types
 
 - `.thorium_web_sheets_fullscreen` - Fullscreen sheet
+- `.thorium_web_sheets_modal` - Centered modal sheet
+- `.thorium_web_sheets_modalDialog` - Inner dialog container of the modal sheet
 - `.thorium_web_sheets_popover` - Popover-style sheet
 - `.thorium_web_sheets_draggable` - Draggable bottom sheet
 - `.thorium_web_sheets_docked` - Docked sidesheet
