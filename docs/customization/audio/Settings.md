@@ -66,11 +66,13 @@ settings: {
 - `ThSettingsTimerVariant.presetList`: displays a list of preset durations (in minutes)
 - `ThSettingsTimerVariant.durationField`: displays a duration input field with an optional `maxHours` cap
 
+The `presets` array accepts numbers (minutes) or the special `"endOfResource"` string, which pauses playback at the end of the current track.
+
 ```typescript
 // Preset list
 [ThAudioKeys.sleepTimer]: {
   variant: ThSettingsTimerVariant.presetList,
-  presets: [15, 30, 45, 60, 90]
+  presets: [15, 30, 45, 60, 90, "endOfResource"]
 }
 
 // Duration field
