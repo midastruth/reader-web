@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState, useMemo, useCallback } from "react";
+import { useLayoutEffect, useState, useMemo, useCallback, useRef, useEffect } from "react";
 
 import audioLayoutStyles from "./assets/styles/thorium-web.audio.app.module.css";
 import audioStyles from "./assets/styles/thorium-web.audioPlayer.module.css";
@@ -54,6 +54,7 @@ import {
 } from "@/lib/playerReducer";
 
 import { createAudioDefaultPlugin } from "../Plugins/helpers/createAudioDefaultPlugin";
+import debounce from "debounce";
 
 export interface StatefulPlayerProps {
   publication: Publication;
@@ -98,6 +99,10 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const { preferences } = useAudioPreferences();
   const { t } = useI18n();
 
+  const wrapperRef = useRef<HTMLElement>(null);
+  const compactMinHeight = useRef<number>(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const sleepOnTrackEnd = useAppSelector(state => state.player.sleepOnTrackEnd);
   const volume = useAppSelector(state => state.audioSettings.volume);
   const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
@@ -121,7 +126,6 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     enableMediaSession,
     sleepOnTrackEnd
   );
-
 
   const dispatch = useAppDispatch();
 
@@ -219,7 +223,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     onNavigatorLoaded: () => dispatch(setLoading(false)),
   });
 
-  const playerOrder = preferences.theming.layout.order;
+  const { compact, expanded } = preferences.theming.layout;
 
   const renderPlayerComponent = useCallback((component: ThAudioPlayerComponent) => {
     switch (component) {
@@ -236,6 +240,59 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     }
   }, [coverUrl, publication, timeline]);
 
+  const renderCompactComponents = useCallback(() => {
+    const coverIdx = compact.order.indexOf(ThAudioPlayerComponent.cover);
+    const metaIdx = compact.order.indexOf(ThAudioPlayerComponent.metadata);
+    const adjacent = coverIdx !== -1 && metaIdx !== -1 && Math.abs(coverIdx - metaIdx) === 1;
+
+    if (!adjacent) {
+      return compact.order.map(renderPlayerComponent);
+    }
+
+    const groupStart = Math.min(coverIdx, metaIdx);
+    const nodes: React.ReactNode[] = [];
+    for (let i = 0; i < compact.order.length; i++) {
+      if (i === groupStart) {
+        nodes.push(
+          <div key="cover-metadata-group" className={ audioStyles.coverMetadataGroup }>
+            { renderPlayerComponent(compact.order[i]) }
+            { renderPlayerComponent(compact.order[i + 1]) }
+          </div>
+        );
+        i++;
+      } else {
+        nodes.push(renderPlayerComponent(compact.order[i]));
+      }
+    }
+    return nodes;
+  }, [compact.order, renderPlayerComponent]);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const check = debounce(() => {
+      if (!isExpanded) {
+        if (el.scrollHeight > el.clientHeight) {
+          compactMinHeight.current = el.scrollHeight;
+          setIsExpanded(true);
+        }
+      } else {
+        if (el.clientHeight > compactMinHeight.current) {
+          setIsExpanded(false);
+        }
+      }
+    }, 100);
+
+    const observer = new ResizeObserver(check);
+
+    observer.observe(el);
+    return () => {
+      check.clear();
+      observer.disconnect();
+    };
+  }, [isExpanded]);
+
   return (
     <>
     <I18nProvider locale={ preferences.locale }>
@@ -248,8 +305,21 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
               actionsOrder={ preferences.actions.secondary.displayOrder as string[] }
             />
 
-            <article className={ audioStyles.audioPlayerWrapper } aria-label={ t("reader.app.publicationWrapper") }>
-              { playerOrder.map(renderPlayerComponent) }
+            <article
+              ref={ wrapperRef }
+              className={ isExpanded ? audioStyles.audioPlayerWrapperExpanded : audioStyles.audioPlayerWrapper }
+              aria-label={ t("reader.app.publicationWrapper") }
+            >
+              { isExpanded ? (
+                <>
+                  <div className={ audioStyles.audioPlayerExpandedStart }>
+                    { expanded.start.map(renderPlayerComponent) }
+                  </div>
+                  <div className={ audioStyles.audioPlayerExpandedEnd }>
+                    { expanded.end.map(renderPlayerComponent) }
+                  </div>
+                </>
+              ) : renderCompactComponents() }
             </article>
           </div>
         </StatefulDockingWrapper>

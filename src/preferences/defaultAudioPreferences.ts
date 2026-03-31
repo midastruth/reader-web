@@ -43,13 +43,26 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
         tooltipOffset: 10
       },
       layout: {
-        order: [
-          ThAudioPlayerComponent.cover,
-          ThAudioPlayerComponent.metadata,
-          ThAudioPlayerComponent.playbackControls,
-          ThAudioPlayerComponent.progressBar,
-          ThAudioPlayerComponent.mediaActions
-        ],
+        compact: {
+          order: [
+            ThAudioPlayerComponent.cover,
+            ThAudioPlayerComponent.metadata,
+            ThAudioPlayerComponent.playbackControls,
+            ThAudioPlayerComponent.progressBar,
+            ThAudioPlayerComponent.mediaActions
+          ]
+        },
+        expanded: {
+          start: [
+            ThAudioPlayerComponent.cover,
+            ThAudioPlayerComponent.metadata
+          ],
+          end: [
+            ThAudioPlayerComponent.playbackControls,
+            ThAudioPlayerComponent.progressBar,
+            ThAudioPlayerComponent.mediaActions
+          ]
+        },
         radius: 5,
         spacing: 20,
         defaults: {

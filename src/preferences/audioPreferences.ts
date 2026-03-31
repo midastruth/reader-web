@@ -125,8 +125,16 @@ export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
       tooltipDelay?: number;
     };
     layout: {
-      /** Ordered list of player components to render. */
-      order: Array<ThAudioPlayerComponent>;
+      compact: {
+        /** Ordered list of player components in the single-column layout. */
+        order: Array<ThAudioPlayerComponent>;
+      };
+      expanded: {
+        /** Components in the inline-start column of the two-column layout. */
+        start: Array<ThAudioPlayerComponent>;
+        /** Components in the inline-end column of the two-column layout. */
+        end: Array<ThAudioPlayerComponent>;
+      };
       radius: number;
       spacing: number;
       defaults: {

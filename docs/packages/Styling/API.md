@@ -211,11 +211,15 @@ This document outlines the available styling classes and custom properties for t
 
 ### Player
 
-- `.thorium_web_audioPlayer_audioPlayerWrapper` - Root wrapper for the audio player
+- `.thorium_web_audioPlayer_audioPlayerWrapper` - Root wrapper for the audio player in compact (single-column) layout
+- `.thorium_web_audioPlayer_audioPlayerWrapperExpanded` - Root wrapper for the audio player in expanded (two-column) layout, activated when compact overflows
+- `.thorium_web_audioPlayer_audioPlayerExpandedStart` - Inline-start column in the expanded layout
+- `.thorium_web_audioPlayer_audioPlayerExpandedEnd` - Inline-end column in the expanded layout
+- `.thorium_web_audioPlayer_coverMetadataGroup` - Flex group wrapping cover and metadata when they are adjacent in the compact player order
 
 ### Cover
 
-- `.thorium_web_audioCover_audioCoverSection` - Cover image section container
+- `.thorium_web_audioCover_audioCoverSection` - Cover figure; grows to fill remaining player space and constrains itself to a 1:1 aspect ratio
 - `.thorium_web_audioCover_audioCoverImage` - Cover image element
 - `.thorium_web_audioCover_audioCoverPlaceholder` - Placeholder shown when no cover is available
 - `.thorium_web_audioCover_audioCoverSyncOverlay` - Overlay shown on top of the cover image when the track is not ready or stalled

@@ -3,19 +3,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex: 1 1 0;
+  min-height: 100px;
+  width: 100%;
+  margin: 0;
 }
 
 .audioCoverImage {
-  width: 200px;
-  height: 200px;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--th-layout-radius);
   filter: drop-shadow(var(--th-theme-elevate));
 }
 
 .audioCoverPlaceholder {
-  width: 200px;
-  height: 200px;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,7 +42,13 @@
 
 .audioCoverSyncOverlay {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;

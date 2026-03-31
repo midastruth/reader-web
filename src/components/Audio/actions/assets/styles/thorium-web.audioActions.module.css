@@ -6,6 +6,12 @@
   --audio-icon-base: var(--th-icon-size, 24px);
 }
 
+@container (max-width: 300px) {
+  .audioMediaActions {
+    --th-icon-size: 18px;
+  }
+}
+
 .audioVolumeButton,
 .audioPlaybackRateButton,
 .audioSleepTimerButton,
