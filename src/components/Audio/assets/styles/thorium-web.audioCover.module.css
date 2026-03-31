@@ -13,8 +13,7 @@
   height: 100%;
   width: auto;
   max-width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: var(--th-layout-radius);
   filter: drop-shadow(var(--th-theme-elevate));
 }
