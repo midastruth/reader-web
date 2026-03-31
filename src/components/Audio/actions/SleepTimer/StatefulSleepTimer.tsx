@@ -103,7 +103,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
         ? {
             id: "endOfResource",
             value: "endOfResource",
-            label: t("audio.settings.sleepTimer.endOfResource"),
+            label: t("reader.playback.preferences.sleepTimer.presets.endOfResource"),
           }
         : {
             id: String(preset),
@@ -119,7 +119,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
       return (
         <div className={ audioStyles.audioSleepTimerDurationField }>
           <ThRadioGroup
-            aria-label={ t("audio.settings.sleepTimer._") }
+            aria-label={ t("reader.playback.preferences.sleepTimer.descriptive") }
             value={ activeValue }
             onChange={ handlePresetSelect }
             items={ items }
@@ -145,7 +145,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
       return (
         <div className={ audioStyles.audioSleepTimerDurationField }>
           <p className={ audioStyles.audioSleepTimerRemaining }>
-            { t("audio.settings.sleepTimer.remaining") } { formatRemaining(remainingSeconds) }
+            { t("audio.settings.sleepTimer.remaining", { remaining: formatRemaining(remainingSeconds) }) }
           </p>
           <Button
             className={ audioStyles.audioSleepTimerActionButton }
@@ -209,7 +209,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
     <>
       <StatefulActionIcon
         ref={ triggerRef }
-        tooltipLabel={ t("audio.settings.sleepTimer._") }
+        tooltipLabel={ t("reader.playback.preferences.sleepTimer.descriptive") }
         placement="top"
         onPress={ () => dispatch(toggleActionOpen({ key: ThAudioActionKeys.sleepTimer })) }
         isDisabled={ isDisabled }
@@ -218,7 +218,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
         <SnoozeIcon aria-hidden="true" focusable="false" />
         { isActive && (
           <span className={ audioStyles.audioSleepTimerLabel } aria-hidden="true">
-            { sleepOnTrackEnd ? t("audio.settings.sleepTimer.endOfResource") : formatBadge(remainingSeconds!) }
+            { sleepOnTrackEnd ? t("reader.playback.preferences.sleepTimer.presets.endOfResource") : formatBadge(remainingSeconds!) }
           </span>
         ) }
       </StatefulActionIcon>
@@ -229,7 +229,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
         placement="top"
         className={ audioStyles.audioControlPopover }
       >
-        <Dialog aria-label={ t("audio.settings.sleepTimer._") } className={ audioStyles.audioControlPopoverDialog }>
+        <Dialog aria-label={ t("reader.playback.preferences.sleepTimer") } className={ audioStyles.audioControlPopoverDialog }>
           <FocusScope contain>
             { renderContent() }
           </FocusScope>

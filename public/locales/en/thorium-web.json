@@ -114,14 +114,12 @@
     },
     "settings": {
       "sleepTimer": {
-        "_": "Sleep Timer",
         "hours": "h",
         "minutes": "min",
         "seconds": "s",
         "start": "Start",
         "instruction": "Playback will pause after the set duration.",
-        "remaining": "Pausing in:",
-        "endOfResource": "End of track"
+        "remaining": "Pausing in {{ remaining }}"
       }
     }
   }

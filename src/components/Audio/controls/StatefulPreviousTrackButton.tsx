@@ -18,8 +18,8 @@ export const StatefulPreviousTrackButton = ({ isDisabled }: { isDisabled?: boole
     <StatefulActionIcon
       onPress={ () => goBackward(false, () => {}) }
       isDisabled={ isDisabled || atStart }
-      aria-label={ t("reader.actions.goBackward") }
-      tooltipLabel={ t("reader.actions.goBackward") }
+      aria-label={ t("reader.actions.goToPreviousResource.descriptive") }
+      tooltipLabel={ t("reader.actions.goToPreviousResource.descriptive") }
       className={ audioStyles.audioPreviousTrackButton }
     >
       <SkipPreviousIcon aria-hidden="true" focusable="false" />
