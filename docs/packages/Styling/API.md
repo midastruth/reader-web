@@ -216,6 +216,8 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_audioCover_audioCoverSection` - Cover image section container
 - `.thorium_web_audioCover_audioCoverImage` - Cover image element
 - `.thorium_web_audioCover_audioCoverPlaceholder` - Placeholder shown when no cover is available
+- `.thorium_web_audioCover_audioCoverSyncOverlay` - Overlay shown on top of the cover image when the track is not ready or stalled
+- `.thorium_web_audioCover_audioCoverSyncIcon` - Spinning sync icon shown inside the overlay (or replacing the placeholder icon) when the track is not ready or stalled
 
 ### Metadata
 

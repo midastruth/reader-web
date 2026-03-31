@@ -1,4 +1,5 @@
 .audioCoverSection {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -28,4 +29,26 @@
   width: 50%;
   height: 50%;
   fill: var(--th-theme-text);
+}
+
+.audioCoverSyncOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--th-layout-radius);
+  background-color: color-mix(in srgb, var(--th-theme-background) 60%, transparent);
+}
+
+.audioCoverSyncIcon {
+  width: calc(var(--th-icon-size, 24px) * 2);
+  height: calc(var(--th-icon-size, 24px) * 2);
+  fill: var(--th-theme-text);
+  animation: audioCoverSpin 1.2s linear infinite;
+}
+
+@keyframes audioCoverSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
