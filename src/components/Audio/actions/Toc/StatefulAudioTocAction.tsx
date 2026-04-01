@@ -93,6 +93,8 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
         isOpen={ isOpen }
         onOpenChange={ setOpen }
         onClosePress={ () => setOpen(false) }
+        resetFocus={ tocEntry } 
+        focusWithinRef={ treeRef }
       >
         <TocContent
           filterValue={ filterValue }
