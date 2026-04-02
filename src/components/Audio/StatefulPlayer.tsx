@@ -42,6 +42,7 @@ import {
   setPublicationStart,
   setPublicationEnd,
   setTocEntry,
+  setAdjacentTimelineItems,
 } from "@/lib/publicationReducer";
 import { findTocItemByHref, TocItem } from "@/helpers/buildTocTree";
 import { TimelineItem } from "@readium/shared";
@@ -148,12 +149,20 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     timelineItemChanged: (item: TimelineItem | undefined) => {
       if (!item) {
         dispatch(setTocEntry(null));
+        dispatch(setAdjacentTimelineItems({ previous: null, next: null }));
         return;
       }
-      const link = publication.timeline.linkFor(item);
-      if (!link) return;
-      const matched = findTocItemByHref(tocTreeRef.current || [], link.href);
-      dispatch(setTocEntry(matched || null));
+      const tl = publication.timeline;
+      const link = tl.linkFor(item);
+      if (link) {
+        const matched = findTocItemByHref(tocTreeRef.current || [], link.href);
+        dispatch(setTocEntry(matched || null));
+      }
+      const { previous, next } = tl.adjacentTo(item);
+      dispatch(setAdjacentTimelineItems({
+        previous: previous ? { title: previous.title, href: tl.linkFor(previous)?.href ?? "" } : null,
+        next: next ? { title: next.title, href: tl.linkFor(next)?.href ?? "" } : null,
+      }));
     },
     positionChanged: (locator) => {
       setLocalData(locator);

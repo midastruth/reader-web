@@ -31,6 +31,11 @@ export type AudioCustomizableKeys = {
   theme?: string;
 };
 
+export enum ThAudioAffordance {
+  "timeline" = "timeline",
+  "readingOrder" = "readingOrder"
+};
+
 export type ThAudioThemeKeys = ThThemeKeys.light | ThThemeKeys.dark;
 
 export type ThAudioThemeKey<K extends AudioCustomizableKeys = {}> =
@@ -164,6 +169,11 @@ export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
   };
 
   contentProtection?: AudioContentProtectionConfig;
+
+  affordances: {
+    previous: ThAudioAffordance;
+    next: ThAudioAffordance;
+  };
 
   shortcuts: {
     representation: UnstableShortcutRepresentation;

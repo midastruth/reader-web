@@ -2,10 +2,10 @@
 
 import { useCallback, useRef } from "react";
 
-import { 
-  Link, 
-  Locator, 
-  Publication 
+import {
+  Link,
+  Locator,
+  Publication
 } from "@readium/shared";
 import {
   AudioNavigator,
@@ -146,7 +146,7 @@ export const useAudioNavigator = () => {
     return navigatorInstance?.currentTime || 0;
   }, []);
 
-  return { 
+  return {
     AudioNavigatorLoad, 
     AudioNavigatorDestroy, 
     play,
@@ -171,6 +171,6 @@ export const useAudioNavigator = () => {
     currentTime,
     preferencesEditor: navigatorInstance?.preferencesEditor,
     getSetting,
-    submitPreferences
+    submitPreferences,
   }
 }

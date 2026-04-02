@@ -26,7 +26,7 @@ import {
   defaultAudioSleepTimer,
   defaultAudioSleepTimerPresetList,
 } from "./models";
-import { createAudioPreferences, ThAudioPreferences, AudioDefaultKeys } from "./audioPreferences";
+import { createAudioPreferences, ThAudioPreferences, AudioDefaultKeys, ThAudioAffordance } from "./audioPreferences";
 
 export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
   createAudioPreferences<AudioDefaultKeys>({
@@ -141,6 +141,11 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
     },
 
     contentProtection: defaultAudioContentProtectionConfig,
+
+    affordances: {
+      previous: ThAudioAffordance.timeline,
+      next: ThAudioAffordance.timeline
+    },
 
     shortcuts: {
       representation: UnstableShortcutRepresentation.symbol,

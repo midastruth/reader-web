@@ -4,6 +4,11 @@ import { Locator } from "@readium/shared";
 import { UnstableTimeline } from "@/core/Hooks/useTimeline";
 import { TocItem, toEntryRef } from "@/helpers/buildTocTree";
 
+export interface AdjacentTimelineItem {
+  title: string;
+  href: string;
+}
+
 export interface PublicationReducerState {
   fontLanguage: string;
   isFXL: boolean;
@@ -13,6 +18,10 @@ export interface PublicationReducerState {
   atPublicationStart: boolean;
   atPublicationEnd: boolean;
   unstableTimeline?: UnstableTimeline;
+  adjacentTimelineItems: {
+    previous: AdjacentTimelineItem | null;
+    next: AdjacentTimelineItem | null;
+  };
 }
 
 const initialState: PublicationReducerState = {
@@ -23,7 +32,8 @@ const initialState: PublicationReducerState = {
   positionsList: [],
   atPublicationStart: false,
   atPublicationEnd: false,
-  unstableTimeline: undefined
+  unstableTimeline: undefined,
+  adjacentTimelineItems: { previous: null, next: null }
 }
 
 export const publicationSlice = createSlice({
@@ -68,6 +78,9 @@ export const publicationSlice = createSlice({
         state.unstableTimeline.toc = { tree: action.payload, currentEntry: undefined };
       }
     },
+    setAdjacentTimelineItems: (state, action: { payload: { previous: AdjacentTimelineItem | null; next: AdjacentTimelineItem | null } }) => {
+      state.adjacentTimelineItems = action.payload;
+    },
     setTocEntry: (state, action: { payload: TocItem | null }) => {
       const entry = action.payload ? toEntryRef(action.payload) : null;
       if (!state.unstableTimeline) {
@@ -84,7 +97,7 @@ export const publicationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { 
+export const {
   setFontLanguage,
   setFXL,
   setRTL,
@@ -93,8 +106,9 @@ export const {
   setPublicationStart,
   setPublicationEnd,
   setTimeline,
-  setTocTree, 
+  setTocTree,
   setTocEntry,
+  setAdjacentTimelineItems,
 } = publicationSlice.actions;
 
 export default publicationSlice.reducer;
