@@ -21,6 +21,7 @@ import { isActiveElement } from "@/core/Helpers/focusUtilities";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setActionOpen, toggleActionOpen } from "@/lib/actionsReducer";
 import { setTocEntry } from "@/lib/publicationReducer";
+import { findTocItemById } from "@/helpers/buildTocTree";
 import { setImmersive, setUserNavigated } from "@/lib/readerReducer";
 
 import { Selection } from "react-aria-components";
@@ -35,6 +36,7 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.toc]?.isOpen ?? false);
   const unstableTimeline = useAppSelector(state => state.publication.unstableTimeline);
   const tocEntry = unstableTimeline?.toc?.currentEntry ?? undefined;
+  const tocEntryId = tocEntry?.id;
   const tocTree = unstableTimeline?.toc?.tree;
 
   const direction = useAppSelector(state => state.reader.direction);
@@ -45,7 +47,7 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
   }, [dispatch]);
 
   const { expandedKeys, setExpandedKeys, filterValue, setFilterValue, displayedTocTree, treeRef, searchInputRef } =
-    useTocContent({ isOpen, tocTree, tocEntry });
+    useTocContent({ isOpen, tocTree, tocEntry: tocEntryId });
 
   useEffect(() => {
     if (isOpen) {
@@ -65,8 +67,9 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
     const el = document.querySelector(`[data-key=${key}]`);
     const href = el?.getAttribute("data-href");
     if (!href) return;
+    const matched = findTocItemById(tocTree || [], key as string);
     goLink(new Link({ href }), true, () => {
-      dispatch(setTocEntry(key));
+      dispatch(setTocEntry(matched || null));
       dispatch(setImmersive(true));
       dispatch(setUserNavigated(true));
       setOpen(false);
@@ -93,7 +96,7 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
         isOpen={ isOpen }
         onOpenChange={ setOpen }
         onClosePress={ () => setOpen(false) }
-        resetFocus={ tocEntry } 
+        resetFocus={ tocEntryId }
         focusWithinRef={ treeRef }
       >
         <TocContent
@@ -101,7 +104,7 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
           onFilterChange={ setFilterValue }
           displayedTocTree={ displayedTocTree }
           tocTree={ tocTree }
-          tocEntry={ tocEntry }
+          tocEntry={ tocEntryId }
           expandedKeys={ expandedKeys }
           onExpandedChange={ setExpandedKeys }
           onSelectionChange={ handleAction }

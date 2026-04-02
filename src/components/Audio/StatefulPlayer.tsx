@@ -31,19 +31,20 @@ import { useAudioNavigator } from "@/core/Hooks/Audio/useAudioNavigator";
 import { useAudioStatelessCache } from "./Hooks/useAudioStatelessCache";
 import { useI18n } from "@/i18n/useI18n";
 import { resolveAudioContentProtectionConfig } from "@/preferences/models/protection";
-import { useTimeline } from "@/core/Hooks/useTimeline";
 import { usePositionStorage } from "@/hooks/usePositionStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useAudioPlayerInit } from "./Hooks/useAudioPlayerInit";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
-import { 
+import {
   setLoading
 } from "@/lib/readerReducer";
 import {
-  setTimeline,
   setPublicationStart,
-  setPublicationEnd
+  setPublicationEnd,
+  setTocEntry,
 } from "@/lib/publicationReducer";
+import { findTocItemByHref, TocItem } from "@/helpers/buildTocTree";
+import { TimelineItem } from "@readium/shared";
 import { 
   setStatus, 
   setSeeking, 
@@ -132,27 +133,28 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const audioNavigator = useAudioNavigator();
   const { canGoBackward, canGoForward, submitPreferences } = audioNavigator;
 
-  const { setLocalData, getLocalData, localData } = usePositionStorage(localDataKey, positionStorage);
+  const { setLocalData, getLocalData } = usePositionStorage(localDataKey, positionStorage);
 
-  const handleTimelineChange = useCallback((timeline: any) => {
-    dispatch(setTimeline(timeline));
-  }, [dispatch]);
-
-  const emptyPositions = useMemo(() => [], []);
-
-  const timeline = useTimeline({
-    publication: publication,
-    currentLocation: localData,
-    currentPositions: emptyPositions,
-    positionsList: undefined,
-    onChange: handleTimelineChange,
-  });
-
-  const documentTitle = timeline?.title;
-
+  const documentTitle = publication?.metadata?.title?.getTranslation("en");
   useDocumentTitle(documentTitle);
 
+  const tocTree = useAppSelector(state => state.publication.unstableTimeline?.toc?.tree);
+  const tocTreeRef = useRef<TocItem[] | undefined>(undefined);
+  useEffect(() => {
+    tocTreeRef.current = tocTree;
+  }, [tocTree]);
+
   const listeners: AudioNavigatorListeners = useMemo(() => ({
+    timelineItemChanged: (item: TimelineItem | undefined) => {
+      if (!item) {
+        dispatch(setTocEntry(null));
+        return;
+      }
+      const link = publication.timeline.linkFor(item);
+      if (!link) return;
+      const matched = findTocItemByHref(tocTreeRef.current || [], link.href);
+      dispatch(setTocEntry(matched || null));
+    },
     positionChanged: (locator) => {
       setLocalData(locator);
 
@@ -209,7 +211,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     contentProtection: (_type: string, _detail: SuspiciousActivityEvent) => {},
     peripheral: (_data: KeyboardEventData) => {},
     contextMenu: (_data: ContextMenuEvent) => {}
-  }), [setLocalData, canGoBackward, canGoForward, dispatch, cache, submitPreferences]);
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, cache, submitPreferences, publication]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
@@ -234,11 +236,11 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       case ThAudioPlayerComponent.playbackControls:
         return <StatefulAudioPlaybackControls key={ component } />;
       case ThAudioPlayerComponent.progressBar:
-        return <StatefulAudioProgressBar key={ component } currentChapter={ timeline?.progression?.currentChapter } />;
+        return <StatefulAudioProgressBar key={ component } />;
       case ThAudioPlayerComponent.mediaActions:
         return <StatefulAudioMediaActions key={ component } />;
     }
-  }, [coverUrl, publication, timeline]);
+  }, [coverUrl, publication]);
 
   const renderCompactComponents = useCallback(() => {
     const coverIdx = compact.order.indexOf(ThAudioPlayerComponent.cover);

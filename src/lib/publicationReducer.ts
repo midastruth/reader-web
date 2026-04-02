@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 import { Locator } from "@readium/shared";
 import { UnstableTimeline } from "@/core/Hooks/useTimeline";
+import { TocItem, toEntryRef } from "@/helpers/buildTocTree";
 
 export interface PublicationReducerState {
   fontLanguage: string;
@@ -67,15 +68,16 @@ export const publicationSlice = createSlice({
         state.unstableTimeline.toc = { tree: action.payload, currentEntry: undefined };
       }
     },
-    setTocEntry: (state, action) => {
+    setTocEntry: (state, action: { payload: TocItem | null }) => {
+      const entry = action.payload ? toEntryRef(action.payload) : null;
       if (!state.unstableTimeline) {
         state.unstableTimeline = {
-          toc: { tree: undefined, currentEntry: action.payload }
+          toc: { tree: undefined, currentEntry: entry }
         };
       } else if (state.unstableTimeline.toc) {
-        state.unstableTimeline.toc.currentEntry = action.payload;
+        state.unstableTimeline.toc.currentEntry = entry;
       } else {
-        state.unstableTimeline.toc = { tree: undefined, currentEntry: action.payload };
+        state.unstableTimeline.toc = { tree: undefined, currentEntry: entry };
       }
     }
   }

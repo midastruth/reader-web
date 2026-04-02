@@ -10,9 +10,12 @@ import { useNavigator } from "@/core/Navigator";
 import { useAppSelector } from "@/lib";
 import { useI18n } from "@/i18n/useI18n";
 
-export const StatefulAudioProgressBar = ({ currentChapter }: { currentChapter?: string }) => {
+export const StatefulAudioProgressBar = () => {
   const { t } = useI18n();
-  
+
+  const tocEntry = useAppSelector(state => state.publication.unstableTimeline?.toc?.currentEntry);
+  const currentChapter = tocEntry?.title;
+
   const isStalled = useAppSelector(state => state.player.isStalled);
   const isTrackReady = useAppSelector(state => state.player.isTrackReady);
   const seekableRanges = useAppSelector(state => state.player.seekableRanges);
