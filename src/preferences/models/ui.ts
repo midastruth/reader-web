@@ -106,3 +106,8 @@ export enum ThAudioPlayerComponent {
   progressBar = "progressBar",
   mediaActions = "mediaActions"
 }
+
+export enum ThAudioProgressBarVariant {
+  normal = "normal",
+  segmented = "segmented"
+}

@@ -7,6 +7,7 @@ import {
   ThAudioActionKeys,
   ThAudioKeys,
   ThAudioPlayerComponent,
+  ThAudioProgressBarVariant,
   ThBreakpoints,
   ThDockingKeys,
   ThDockingTypes,
@@ -65,6 +66,9 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
         },
         radius: 5,
         spacing: 20,
+        progressBar: {
+          variant: ThAudioProgressBarVariant.segmented
+        },
         defaults: {
           dockingWidth: 340,
           scrim: "rgba(0, 0, 0, 0.2)"

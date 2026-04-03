@@ -19,6 +19,12 @@ export interface SeekableRange {
   end: number;
 }
 
+export interface TimelineSegment {
+  title?: string;
+  timestamp: number;
+  percentage: number;
+}
+
 export interface ThAudioProgressProps {
   isDisabled?: boolean;
   currentTime: number;
@@ -28,6 +34,7 @@ export interface ThAudioProgressProps {
   seekableRanges?: SeekableRange[];
   hoverLabel?: string;
   onHoverProgression?: (progression: number | null) => void;
+  segments?: TimelineSegment[];
   compounds?: {
     wrapper?: React.HTMLAttributes<HTMLDivElement>;
     chapter?: React.HTMLAttributes<HTMLDivElement>;
@@ -37,6 +44,7 @@ export interface ThAudioProgressProps {
     elapsedTime?: React.HTMLAttributes<HTMLSpanElement>;
     remainingTime?: React.HTMLAttributes<HTMLSpanElement>;
     seekableRange?: React.HTMLAttributes<HTMLDivElement>;
+    segmentTick?: React.HTMLAttributes<HTMLDivElement>;
     tooltip?: WithRef<PositionProps & React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
     overlayContainer?: OverlayContainerProps;
   };
@@ -51,6 +59,7 @@ export const ThAudioProgress = ({
   seekableRanges,
   hoverLabel,
   onHoverProgression,
+  segments,
   compounds
 }: ThAudioProgressProps) => {
   const anchorRef = useRef<HTMLSpanElement>(null);
@@ -132,6 +141,17 @@ export const ThAudioProgress = ({
                 left: `${ (range.start / duration) * 100 }%`,
                 width: `${ ((range.end - range.start) / duration) * 100 }%`,
                 ...compounds?.seekableRange?.style,
+              }}
+            />
+          )) }
+          { segments?.map((segment, i) => (
+            <div
+              key={ `segment-${ i }` }
+              { ...compounds?.segmentTick }
+              style={{
+                position: "absolute",
+                left: `${ segment.percentage }%`,
+                ...compounds?.segmentTick?.style,
               }}
             />
           )) }

@@ -18,6 +18,7 @@ import {
   ThBackLinkPref,
   ThDockingPref,
   ThAudioPlayerComponent,
+  ThAudioProgressBarVariant,
 } from "./models";
 import { AudioContentProtectionConfig } from "./models/protection";
 import {
@@ -142,6 +143,9 @@ export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
       };
       radius: number;
       spacing: number;
+      progressBar?: {
+        variant?: ThAudioProgressBarVariant;
+      };
       defaults: {
         dockingWidth: number;
         scrim: string;

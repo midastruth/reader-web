@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 
 import audioStyles from "./assets/styles/thorium-web.audioProgressBar.module.css";
 
@@ -10,6 +10,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useAppSelector } from "@/lib";
 import { useI18n } from "@/i18n/useI18n";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
+import { ThAudioProgressBarVariant } from "@/preferences/models/ui";
 
 export const StatefulAudioProgressBar = () => {
   const { t } = useI18n();
@@ -45,6 +46,37 @@ export const StatefulAudioProgressBar = () => {
     setHoverLabel(item?.title);
   }, [currentLocator, timeline, total]);
 
+  // Parse timestamp from fragment href (e.g., "file.mp3#t=123.45")
+  const parseTimestamp = (href: string): number => {
+    const match = href.match(/#t=(\d+(?:\.\d+)?)$/);
+    return match ? parseFloat(match[1]) : 0;
+  };
+
+  // Get timeline segments for fragmented progress bar
+  const segments = useMemo(() => {
+    const locator = currentLocator();
+    const tl = timeline();
+    if (!locator || !tl || preferences.theming.layout.progressBar?.variant !== ThAudioProgressBarVariant.segmented) return [];
+    
+    const segments = tl.segmentsForHref(locator.href);
+    if (!segments || !Array.isArray(segments)) return [];
+    
+    return segments.map((segment) => {
+      // Parse timestamp from first reference href (e.g., "track1.mp3#t=60")
+      const referenceHref = segment.references?.[0] || "";
+      const timestamp = parseTimestamp(referenceHref);
+      
+      // Calculate percentage based on timestamp and total duration
+      const percentage = total > 0 ? (timestamp / total) * 100 : 0;
+      
+      return {
+        title: segment.title,
+        timestamp,
+        percentage
+      };
+    });
+  }, [currentLocator, timeline, total, preferences.theming.layout.progressBar?.variant]);
+
   return (
     <ThAudioProgress
       currentTime={ current }
@@ -55,6 +87,7 @@ export const StatefulAudioProgressBar = () => {
       seekableRanges={ seekableRanges }
       hoverLabel={ hoverLabel }
       onHoverProgression={ handleHoverProgression }
+      segments={ segments }
       compounds={{
         wrapper: {
           className: audioStyles.audioProgressControl,
@@ -83,6 +116,9 @@ export const StatefulAudioProgressBar = () => {
         },
         seekableRange: {
           className: audioStyles.audioProgressSeekableRange
+        },
+        segmentTick: {
+          className: audioStyles.audioProgressSegmentTick
         },
         tooltip: {
           className: audioStyles.audioProgressTooltip,
