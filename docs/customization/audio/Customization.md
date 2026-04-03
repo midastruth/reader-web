@@ -7,7 +7,7 @@ This document covers customization options available for the `StatefulPlayer` au
 > - **Layout mode** (`ThLayoutUI`, `stacked`, `layered`): audio has its own fixed layout.
 > - **Immersive mode** / **hovering state**: not applicable to audio.
 > - **Scroll / paged mode**: not applicable to audio.
-> - **Typography**, **affordances**, **pagination arrows**: not applicable to audio.
+> - **Typography**, **pagination arrows**: not applicable to audio.
 
 ## Direction
 
@@ -21,18 +21,17 @@ Set `locale` so React Aria derives the correct direction and language context.
 
 Audio shares the same theming system as the reader. You can configure themes, breakpoints, icon size, and spacing in `theming`. See the [Theming doc](../Theming.md) for details.
 
-## Player Layout
+## Layout
 
-The player supports two layouts that switch automatically:
+Audio layout is configured under `theming.layout` with the following structure:
 
-- **Compact** — single-column, used when there is enough vertical space.
-- **Expanded** — two-column (`start` / `end`), activated when compact no longer fits (detected via overflow). Uses logical properties so it is RTL-friendly.
+### Component Ordering
 
-Both layouts are configured independently under `theming.layout`. Available components come from `ThAudioPlayerComponent`:
+Configure component order for each layout type using `ThAudioPlayerComponent`:
 
-- `cover`: the cover image
+- `cover`: cover image
 - `metadata`: title and author
-- `progressBar`: the seekable progress bar
+- `progressBar`: seekable progress bar
 - `playbackControls`: previous, skip backward, play/pause, skip forward, next
 - `mediaActions`: the primary actions bar (volume, playback rate, and other primary actions)
 
@@ -51,12 +50,10 @@ theming: {
       ]
     },
     expanded: {
-      // inline-start column (left in LTR, right in RTL)
       start: [
         ThAudioPlayerComponent.cover,
         ThAudioPlayerComponent.metadata
       ],
-      // inline-end column
       end: [
         ThAudioPlayerComponent.playbackControls,
         ThAudioPlayerComponent.progressBar,
@@ -67,7 +64,35 @@ theming: {
 }
 ```
 
-`compact.order` and `expanded.start`/`expanded.end` are fully independent — components can appear in a different sequence or grouping between the two layouts.
+### Layout Properties
+
+Additional layout configuration options:
+
+- `radius`: Border radius for layout elements
+- `spacing`: Spacing between components
+- `progressBar`: Progress bar variant configuration
+- `defaults`: Default layout values (dockingWidth, scrim)
+- `constraints`: Size constraints for different sheet types
+
+#### Progress Bar Configuration
+
+Configure progress bar appearance using the `progressBar` property:
+
+```typescript
+import { ThAudioProgressBarVariant } from "@edrlab/thorium-web/audio";
+
+theming: {
+  layout: {
+    progressBar: {
+      variant: ThAudioProgressBarVariant.segmented
+    }
+  }
+}
+```
+
+Available progress bar variants:
+- `ThAudioProgressBarVariant.normal`: Standard progress bar
+- `ThAudioProgressBarVariant.segmented`: Progress bar with timeline segment ticks and hover tooltips
 
 ## Actions
 
@@ -79,9 +104,23 @@ Primary actions appear in the media actions bar (volume, playback rate, TOC, sle
 
 Secondary actions appear in the top header bar. Configure their display order, visibility, collapsibility, sheets, docking, and shortcuts in `actions.secondary`. See the main [Customization doc](../Customization.md#actions) for the shared action configuration options.
 
-## Settings
+## Affordances
 
-Audio settings are configured through `settings.keys` and `settings.order`. See the [Settings doc](./Settings.md) for details.
+Configure navigation behavior for previous/next track buttons using the `affordances` property:
+
+```typescript
+import { ThAudioAffordance } from "@edrlab/thorium-web/audio";
+
+// In your createAudioPreferences call:
+affordances: {
+  previous: ThAudioAffordance.timeline,    // Navigate within timeline segments
+  next: ThAudioAffordance.readingOrder     // Navigate by reading order (tracks)
+}
+```
+
+Available affordance types:
+- `ThAudioAffordance.timeline`: Navigate within timeline segments (chapters, sections)
+- `ThAudioAffordance.readingOrder`: Navigate by reading order (individual audio tracks)
 
 ## Docking
 
