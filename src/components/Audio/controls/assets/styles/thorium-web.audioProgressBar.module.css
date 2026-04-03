@@ -9,11 +9,22 @@
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   gap: 0.5rem;
+  container-type: inline-size;
 }
 
 .audioProgressChapter {
   grid-area: chapter;
   text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@container (min-width: 400px) {
+  .audioProgressChapter {
+    -webkit-line-clamp: 1;
+  }
 }
 
 .audioProgressSlider {
