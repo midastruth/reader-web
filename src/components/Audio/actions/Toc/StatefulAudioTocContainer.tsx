@@ -1,34 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 
 import { Link } from "@readium/shared";
 import { ThAudioActionKeys, ThLayoutDirection } from "@/preferences/models";
 
-import TocIcon from "@/components/Actions/Toc/assets/icons/toc.svg";
 import { useTocContent } from "@/components/Actions/Toc/useTocContent";
 import { TocContent } from "@/components/Actions/Toc/TocContent";
 
-import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 import { StatefulModalSheet } from "@/components/Sheets";
-
-import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
+import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 
 import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 import { isActiveElement } from "@/core/Helpers/focusUtilities";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { setActionOpen, toggleActionOpen } from "@/lib/actionsReducer";
+import { setActionOpen } from "@/lib/actionsReducer";
 import { setTocEntry } from "@/lib/publicationReducer";
 import { findTocItemById } from "@/helpers/buildTocTree";
 import { setImmersive, setUserNavigated } from "@/lib/readerReducer";
 
 import { Selection } from "react-aria-components";
 
-export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) => {
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
+export const StatefulAudioTocContainer = ({ triggerRef }: StatefulActionContainerProps) => {
   const { t } = useI18n();
   const { goLink } = useNavigator().unified;
   const dispatch = useAppDispatch();
@@ -77,42 +72,30 @@ export const StatefulAudioTocAction = ({ isDisabled }: { isDisabled: boolean }) 
   };
 
   return (
-    <>
-      <StatefulActionIcon
-        ref={ triggerRef }
-        tooltipLabel={ t("reader.tableOfContents.title") }
-        placement="top"
-        onPress={ () => dispatch(toggleActionOpen({ key: ThAudioActionKeys.toc })) }
-        isDisabled={ isDisabled }
-        className={ audioStyles.audioTocButton }
-      >
-        <TocIcon aria-hidden="true" focusable="false" />
-      </StatefulActionIcon>
-      <StatefulModalSheet
-        id={ ThAudioActionKeys.toc }
-        triggerRef={ triggerRef }
-        heading={ t("reader.tableOfContents.title") }
-        className=""
-        isOpen={ isOpen }
-        onOpenChange={ setOpen }
-        onClosePress={ () => setOpen(false) }
-        resetFocus={ tocEntryId }
-        focusWithinRef={ treeRef }
-      >
-        <TocContent
-          filterValue={ filterValue }
-          onFilterChange={ setFilterValue }
-          displayedTocTree={ displayedTocTree }
-          tocTree={ tocTree }
-          tocEntry={ tocEntryId }
-          expandedKeys={ expandedKeys }
-          onExpandedChange={ setExpandedKeys }
-          onSelectionChange={ handleAction }
-          isRTL={ isRTL }
-          treeRef={ treeRef }
-          searchInputRef={ searchInputRef }
-        />
-      </StatefulModalSheet>
-    </>
+    <StatefulModalSheet
+      id={ ThAudioActionKeys.toc }
+      triggerRef={ triggerRef }
+      heading={ t("reader.tableOfContents.title") }
+      className=""
+      isOpen={ isOpen }
+      onOpenChange={ setOpen }
+      onClosePress={ () => setOpen(false) }
+      resetFocus={ tocEntryId }
+      focusWithinRef={ treeRef }
+    >
+      <TocContent
+        filterValue={ filterValue }
+        onFilterChange={ setFilterValue }
+        displayedTocTree={ displayedTocTree }
+        tocTree={ tocTree }
+        tocEntry={ tocEntryId }
+        expandedKeys={ expandedKeys }
+        onExpandedChange={ setExpandedKeys }
+        onSelectionChange={ handleAction }
+        isRTL={ isRTL }
+        treeRef={ treeRef }
+        searchInputRef={ searchInputRef }
+      />
+    </StatefulModalSheet>
   );
 };

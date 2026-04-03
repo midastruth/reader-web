@@ -47,12 +47,12 @@ import {
 import { findTocItemByHref, TocItem } from "@/helpers/buildTocTree";
 import { TimelineItem } from "@readium/shared";
 import { 
-  setStatus, 
-  setSeeking, 
-  setStalled, 
-  setTrackReady, 
-  setSleepOnTrackEnd, 
-  setSeekableRanges 
+  setStatus,
+  setSeeking,
+  setStalled,
+  setTrackReady,
+  setSleepTimerOnTrackEnd,
+  setSeekableRanges
 } from "@/lib/playerReducer";
 
 import { createAudioDefaultPlugin } from "../Plugins/helpers/createAudioDefaultPlugin";
@@ -105,7 +105,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const compactMinHeight = useRef<number>(0);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const sleepOnTrackEnd = useAppSelector(state => state.player.sleepOnTrackEnd);
+  const sleepOnTrackEnd = useAppSelector(state => state.player.sleepTimer.onTrackEnd);
   const volume = useAppSelector(state => state.audioSettings.volume);
   const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
   const preservePitch = useAppSelector(state => state.audioSettings.preservePitch);
@@ -185,15 +185,15 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       dispatch(setStatus("paused"));
     },
     trackEnded: () => {
-      if (cache.current.sleepOnTrackEnd) {
+      if (cache.current.sleepTimerOnTrackEnd) {
         submitPreferences({ autoPlay: false });
       }
     },
     metadataLoaded: () => {},
     play: () => {
-      if (cache.current.sleepOnTrackEnd) {
+      if (cache.current.sleepTimerOnTrackEnd) {
         submitPreferences({ autoPlay: cache.current.settings.autoPlay });
-        dispatch(setSleepOnTrackEnd(false));
+        dispatch(setSleepTimerOnTrackEnd(false));
       }
       dispatch(setStatus("playing"));
     },

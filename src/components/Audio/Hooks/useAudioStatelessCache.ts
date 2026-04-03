@@ -4,7 +4,7 @@ import { useMemo, useRef } from "react";
 import { AudioSettingsCache, useAudioSettingsCache } from "@/core/Hooks/Audio/useAudioSettingsCache";
 
 export interface AudioStatelessCache extends AudioSettingsCache {
-  sleepOnTrackEnd: boolean;
+  sleepTimerOnTrackEnd: boolean;
 }
 
 export const useAudioStatelessCache = (
@@ -17,7 +17,7 @@ export const useAudioStatelessCache = (
   pollInterval: number,
   autoPlay: boolean,
   enableMediaSession: boolean,
-  sleepOnTrackEnd: boolean
+  sleepTimerOnTrackEnd: boolean
 ) => {
   const settingsCache = useAudioSettingsCache(
     volume,
@@ -33,13 +33,13 @@ export const useAudioStatelessCache = (
 
   const cache = useRef<AudioStatelessCache>({
     ...settingsCache.current,
-    sleepOnTrackEnd,
+    sleepTimerOnTrackEnd,
   });
 
   const memoizedCache = useMemo(() => ({
     ...settingsCache.current,
-    sleepOnTrackEnd,
-  }), [settingsCache, sleepOnTrackEnd]);
+    sleepTimerOnTrackEnd,
+  }), [settingsCache, sleepTimerOnTrackEnd]);
 
   cache.current = memoizedCache;
 

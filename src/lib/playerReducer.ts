@@ -7,12 +7,17 @@ export interface SeekableRange {
   end: number;
 }
 
+export interface SleepTimerState {
+  remainingSeconds: number | null;
+  onTrackEnd: boolean;
+}
+
 export interface PlayerReducerState {
   status: PlayerStatus;
   isSeeking: boolean;
   isStalled: boolean;
   isTrackReady: boolean;
-  sleepOnTrackEnd: boolean;
+  sleepTimer: SleepTimerState;
   seekableRanges: SeekableRange[];
 }
 
@@ -21,7 +26,7 @@ const initialState: PlayerReducerState = {
   isSeeking: false,
   isStalled: false,
   isTrackReady: false,
-  sleepOnTrackEnd: false,
+  sleepTimer: { remainingSeconds: null, onTrackEnd: false },
   seekableRanges: [],
 };
 
@@ -41,8 +46,11 @@ export const playerSlice = createSlice({
     setTrackReady: (state, action: { payload: boolean }) => {
       state.isTrackReady = action.payload;
     },
-    setSleepOnTrackEnd: (state, action: { payload: boolean }) => {
-      state.sleepOnTrackEnd = action.payload;
+    setSleepTimerRemainingSeconds: (state, action: { payload: number | null }) => {
+      state.sleepTimer.remainingSeconds = action.payload;
+    },
+    setSleepTimerOnTrackEnd: (state, action: { payload: boolean }) => {
+      state.sleepTimer.onTrackEnd = action.payload;
     },
     setSeekableRanges: (state, action: { payload: SeekableRange[] }) => {
       state.seekableRanges = action.payload;
@@ -50,13 +58,14 @@ export const playerSlice = createSlice({
   },
 });
 
-export const { 
-  setStatus, 
-  setSeeking, 
-  setStalled, 
-  setTrackReady, 
-  setSleepOnTrackEnd, 
-  setSeekableRanges 
+export const {
+  setStatus,
+  setSeeking,
+  setStalled,
+  setTrackReady,
+  setSleepTimerRemainingSeconds,
+  setSleepTimerOnTrackEnd,
+  setSeekableRanges
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

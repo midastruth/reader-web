@@ -1,16 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button, Dialog, Popover } from "react-aria-components";
 import { FocusScope } from "react-aria";
 
-import SnoozeIcon from "../assets/icons/snooze.svg";
-
 import { ThAudioActionKeys, ThAudioKeys, ThSettingsTimerVariant } from "@/preferences/models";
-import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import { ThRadioGroup } from "@/core/Components/Settings/ThRadioGroup";
+import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
@@ -19,25 +17,19 @@ import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { toggleActionOpen, setActionOpen } from "@/lib/actionsReducer";
-import { setSleepOnTrackEnd } from "@/lib/playerReducer";
+import { setActionOpen } from "@/lib/actionsReducer";
+import { setSleepTimerOnTrackEnd, setSleepTimerRemainingSeconds } from "@/lib/playerReducer";
 
-export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => {
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+export const StatefulAudioSleepTimerContainer = ({ triggerRef }: StatefulActionContainerProps) => {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
 
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.sleepTimer]?.isOpen ?? false);
-  const sleepOnTrackEnd = useAppSelector(state => state.player.sleepOnTrackEnd);
+  const remainingSeconds = useAppSelector(state => state.player.sleepTimer.remainingSeconds);
+  const onTrackEnd = useAppSelector(state => state.player.sleepTimer.onTrackEnd);
   const dispatch = useAppDispatch();
 
   const { t } = useI18n();
-
-  const formatBadge = (seconds: number): string => {
-    if (seconds < 60) return `${ seconds }${ t("audio.settings.sleepTimer.seconds") }`;
-    return `${ Math.ceil(seconds / 60) }${ t("audio.settings.sleepTimer.minutes") }`;
-  };
 
   const formatRemaining = (seconds: number): string => {
     const h = Math.floor(seconds / 3600);
@@ -53,8 +45,6 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
 
   const { preferences } = useAudioPreferences();
   const { pause } = useNavigator().media;
-  const pauseRef = useRef(pause);
-  pauseRef.current = pause;
 
   const config = preferences.settings.keys[ThAudioKeys.sleepTimer];
   const variant = config.variant;
@@ -62,39 +52,39 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
   useEffect(() => {
     if (remainingSeconds === null) return;
     if (remainingSeconds <= 0) {
-      pauseRef.current();
-      setRemainingSeconds(null);
+      pause();
+      dispatch(setSleepTimerRemainingSeconds(null));
       return;
     }
     const id = setTimeout(() => {
-      setRemainingSeconds(prev => prev !== null ? prev - 1 : null);
+      dispatch(setSleepTimerRemainingSeconds(remainingSeconds - 1));
     }, 1000);
     return () => clearTimeout(id);
-  }, [remainingSeconds]);
+  }, [remainingSeconds, pause, dispatch]);
 
   const handleCancel = useCallback(() => {
-    setRemainingSeconds(null);
-    dispatch(setSleepOnTrackEnd(false));
+    dispatch(setSleepTimerRemainingSeconds(null));
+    dispatch(setSleepTimerOnTrackEnd(false));
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [dispatch]);
 
   const handleStart = useCallback(() => {
     const totalSeconds = hours * 3600 + minutes * 60;
     if (totalSeconds <= 0) return;
-    setRemainingSeconds(totalSeconds);
+    dispatch(setSleepTimerRemainingSeconds(totalSeconds));
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [hours, minutes, dispatch]);
 
   const handlePresetSelect = useCallback((value: string) => {
     if (value === "endOfResource") {
-      dispatch(setSleepOnTrackEnd(true));
+      dispatch(setSleepTimerOnTrackEnd(true));
     } else {
-      setRemainingSeconds(Number(value) * 60);
+      dispatch(setSleepTimerRemainingSeconds(Number(value) * 60));
     }
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
   }, [dispatch]);
 
-  const isActive = remainingSeconds !== null || sleepOnTrackEnd;
+  const isActive = remainingSeconds !== null || onTrackEnd;
   const maxHours = (config.variant === ThSettingsTimerVariant.durationField ? config.maxHours : undefined) ?? 23;
 
   const renderContent = () => {
@@ -112,7 +102,7 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
           }
       );
 
-      const activeValue = sleepOnTrackEnd
+      const activeValue = onTrackEnd
         ? "endOfResource"
         : remainingSeconds !== null ? String(remainingSeconds / 60) : "";
 
@@ -206,35 +196,18 @@ export const StatefulSleepTimer = ({ isDisabled }: { isDisabled?: boolean }) => 
   };
 
   return (
-    <>
-      <StatefulActionIcon
-        ref={ triggerRef }
-        tooltipLabel={ t("reader.playback.preferences.sleepTimer.descriptive") }
-        placement="top"
-        onPress={ () => dispatch(toggleActionOpen({ key: ThAudioActionKeys.sleepTimer })) }
-        isDisabled={ isDisabled }
-        className={ audioStyles.audioSleepTimerButton }
-      >
-        <SnoozeIcon aria-hidden="true" focusable="false" />
-        { isActive && (
-          <span className={ audioStyles.audioSleepTimerLabel } aria-hidden="true">
-            { sleepOnTrackEnd ? t("reader.playback.preferences.sleepTimer.presets.endOfResource") : formatBadge(remainingSeconds!) }
-          </span>
-        ) }
-      </StatefulActionIcon>
-      <Popover
-        triggerRef={ triggerRef }
-        isOpen={ isOpen }
-        onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: open })) }
-        placement="top"
-        className={ audioStyles.audioControlPopover }
-      >
-        <Dialog aria-label={ t("reader.playback.preferences.sleepTimer") } className={ audioStyles.audioControlPopoverDialog }>
-          <FocusScope contain>
-            { renderContent() }
-          </FocusScope>
-        </Dialog>
-      </Popover>
-    </>
+    <Popover
+      triggerRef={ triggerRef }
+      isOpen={ isOpen }
+      onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: open })) }
+      placement="top"
+      className={ audioStyles.audioControlPopover }
+    >
+      <Dialog aria-label={ t("reader.playback.preferences.sleepTimer") } className={ audioStyles.audioControlPopoverDialog }>
+        <FocusScope contain>
+          { renderContent() }
+        </FocusScope>
+      </Dialog>
+    </Popover>
   );
 };
