@@ -22,6 +22,7 @@ import { StatefulAudioTocTrigger } from "../../Audio/actions/Toc/StatefulAudioTo
 import { StatefulAudioTocContainer } from "../../Audio/actions/Toc/StatefulAudioTocContainer";
 import { StatefulAudioSleepTimerTrigger } from "../../Audio/actions/SleepTimer/StatefulAudioSleepTimerTrigger";
 import { StatefulAudioSleepTimerContainer } from "../../Audio/actions/SleepTimer/StatefulAudioSleepTimerContainer";
+import { StatefulAudioRemotePlaybackTrigger } from "../../Audio/actions/RemotePlayback/StatefulAudioRemotePlaybackTrigger";
 
 export const createAudioDefaultPlugin = (): ThPlugin => {
   return {
@@ -41,6 +42,9 @@ export const createAudioDefaultPlugin = (): ThPlugin => {
         },
         [ThActionsKeys.fullscreen]: {
           Trigger: StatefulFullscreenTrigger
+        },
+        [ThAudioActionKeys.remotePlayback]: {
+          Trigger: StatefulAudioRemotePlaybackTrigger
         }
       },
       primaryAudioActions: {

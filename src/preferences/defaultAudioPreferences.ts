@@ -10,7 +10,6 @@ import {
   ThAudioProgressBarVariant,
   ThBreakpoints,
   ThDockingKeys,
-  ThDockingTypes,
   ThSheetTypes,
   ThThemeKeys,
   ThBackLinkVariant,
@@ -19,13 +18,13 @@ import {
   defaultSettingsAction,
   defaultAudioTocAction,
   defaultAudioSleepTimerAction,
+  defaultAudioRemotePlaybackAction,
   defaultAudioContentProtectionConfig,
   defaultAudioVolume,
   defaultAudioPlaybackRate,
   defaultAudioSkipBackwardInterval,
   defaultAudioSkipForwardInterval,
   defaultAudioSleepTimer,
-  defaultAudioSleepTimerPresetList,
 } from "./models";
 import { createAudioPreferences, ThAudioPreferences, AudioDefaultKeys, ThAudioAffordance } from "./audioPreferences";
 
@@ -114,6 +113,7 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
       },
       secondary: {
         displayOrder: [
+          ThAudioActionKeys.remotePlayback,
           ThActionsKeys.settings
         ],
         collapse: {
@@ -123,7 +123,8 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
         keys: {
           [ThActionsKeys.settings]: defaultSettingsAction,
           [ThAudioActionKeys.toc]: defaultAudioTocAction,
-          [ThAudioActionKeys.sleepTimer]: defaultAudioSleepTimerAction
+          [ThAudioActionKeys.sleepTimer]: defaultAudioSleepTimerAction,
+          [ThAudioActionKeys.remotePlayback]: defaultAudioRemotePlaybackAction
         }
       }
     },

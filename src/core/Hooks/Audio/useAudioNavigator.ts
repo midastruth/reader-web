@@ -171,6 +171,7 @@ export const useAudioNavigator = () => {
     duration,
     currentTime,
     preferencesEditor: navigatorInstance?.preferencesEditor,
+    remotePlayback: (navigatorInstance as any)?.remotePlayback as RemotePlayback | undefined,
     getSetting,
     submitPreferences,
     timeline: useCallback((): Timeline | undefined => navigatorInstance?.timeline, []),

@@ -52,6 +52,7 @@ import {
   setStalled,
   setTrackReady,
   setSleepTimerOnTrackEnd,
+  setRemotePlaybackState,
   setSeekableRanges
 } from "@/lib/playerReducer";
 
@@ -216,6 +217,9 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     error: (error, locator) => {
       console.error("[AudioNavigator] playback error", error, locator);
       dispatch(setStatus("paused"));
+    },
+    remotePlaybackStateChanged: (state) => {
+      dispatch(setRemotePlaybackState(state));
     },
     contentProtection: (_type: string, _detail: SuspiciousActivityEvent) => {},
     peripheral: (_data: KeyboardEventData) => {},

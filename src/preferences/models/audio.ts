@@ -9,6 +9,7 @@ export enum ThAudioActionKeys {
   volume = "audio.volume",
   playbackRate = "audio.playbackRate",
   sleepTimer = "audio.sleepTimer",
+  remotePlayback = "audio.remotePlayback",
 }
 
 export enum ThAudioKeys {
@@ -100,6 +101,11 @@ export const defaultAudioSleepTimerAction: ThActionsTokens = {
     breakpoints: {}
   },
   docked: { dockable: ThDockingTypes.none }
+};
+
+export const defaultAudioRemotePlaybackAction: ThActionsTokens = {
+  visibility: ThCollapsibilityVisibility.always,
+  shortcut: null
 };
 
 export const defaultAudioTocAction: ThActionsTokens = {
