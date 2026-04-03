@@ -59,6 +59,7 @@ export const StatefulAudioRemotePlaybackTrigger = ({ variant }: StatefulActionTr
     }
   }, [remotePlayback, remotePlaybackState, dispatch]);
 
+  if (preferences.contentProtection?.disableRemotePlayback) return null;
   if (!remotePlayback || isAvailable === false) return null;
 
   const isConnected = remotePlaybackState === "connected" || remotePlaybackState === "connecting";
