@@ -9,9 +9,11 @@ import { ThAudioProgress } from "@/core/Components/Audio/ThAudioProgress";
 import { useNavigator } from "@/core/Navigator";
 import { useAppSelector } from "@/lib";
 import { useI18n } from "@/i18n/useI18n";
+import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 
 export const StatefulAudioProgressBar = () => {
   const { t } = useI18n();
+  const { preferences } = useAudioPreferences();
 
   const tocEntry = useAppSelector(state => state.publication.unstableTimeline?.toc?.currentEntry);
   const currentChapter = tocEntry?.title;
@@ -83,7 +85,8 @@ export const StatefulAudioProgressBar = () => {
           className: audioStyles.audioProgressSeekableRange
         },
         tooltip: {
-          className: audioStyles.audioProgressTooltip
+          className: audioStyles.audioProgressTooltip,
+          offset: preferences.theming.icon.tooltipOffset
         }
       }}
     />

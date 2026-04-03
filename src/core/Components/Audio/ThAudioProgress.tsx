@@ -10,7 +10,7 @@ import {
   SliderTrack,
   SliderTrackProps
 } from "react-aria-components";
-import { useOverlayPosition, OverlayContainer } from "react-aria";
+import { useOverlayPosition, OverlayContainer, OverlayContainerProps, PositionProps, useObjectRef } from "react-aria";
 
 import { WithRef } from "../customTypes";
 
@@ -37,7 +37,8 @@ export interface ThAudioProgressProps {
     elapsedTime?: React.HTMLAttributes<HTMLSpanElement>;
     remainingTime?: React.HTMLAttributes<HTMLSpanElement>;
     seekableRange?: React.HTMLAttributes<HTMLDivElement>;
-    tooltip?: React.HTMLAttributes<HTMLDivElement>;
+    tooltip?: WithRef<PositionProps & React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+    overlayContainer?: OverlayContainerProps;
   };
 }
 
@@ -53,14 +54,18 @@ export const ThAudioProgress = ({
   compounds
 }: ThAudioProgressProps) => {
   const anchorRef = useRef<HTMLSpanElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useObjectRef(compounds?.tooltip?.ref);
   const [isOpen, setIsOpen] = useState(false);
+
+  const overlayConfig = compounds?.tooltip || {};
+  const placement = overlayConfig.placement || "top";
+  const offset = overlayConfig.offset !== undefined ? overlayConfig.offset : 8;
 
   const { overlayProps, updatePosition } = useOverlayPosition({
     targetRef: anchorRef,
     overlayRef,
-    placement: "top",
-    offset: 8,
+    placement,
+    offset,
     isOpen
   });
 
@@ -139,11 +144,11 @@ export const ThAudioProgress = ({
         </SliderTrack>
       </Slider>
       { isOpen && hoverLabel && (
-        <OverlayContainer>
+        <OverlayContainer { ...compounds?.overlayContainer }>
           <div
             ref={ overlayRef }
-            { ...compounds?.tooltip }
-            style={{ ...overlayProps.style, ...compounds?.tooltip?.style }}
+            { ...overlayConfig }
+            style={{ ...overlayProps.style, ...overlayConfig.style }}
           >
             { hoverLabel }
           </div>
