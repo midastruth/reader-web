@@ -5,7 +5,8 @@ import { useCallback, useRef } from "react";
 import {
   Link,
   Locator,
-  Publication
+  Publication,
+  Timeline
 } from "@readium/shared";
 import {
   AudioNavigator,
@@ -172,5 +173,6 @@ export const useAudioNavigator = () => {
     preferencesEditor: navigatorInstance?.preferencesEditor,
     getSetting,
     submitPreferences,
+    timeline: useCallback((): Timeline | undefined => navigatorInstance?.timeline, []),
   }
 }

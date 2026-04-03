@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
 import audioStyles from "./assets/styles/thorium-web.audioProgressBar.module.css";
 
@@ -20,14 +20,28 @@ export const StatefulAudioProgressBar = () => {
   const isTrackReady = useAppSelector(state => state.player.isTrackReady);
   const seekableRanges = useAppSelector(state => state.player.seekableRanges);
 
-  const { currentTime, duration, seek } = useNavigator().media;
+  const { currentTime, duration, seek, currentLocator, timeline } = useNavigator().media;
 
   const current = currentTime();
   const total = duration();
 
+  const [hoverLabel, setHoverLabel] = useState<string | undefined>(undefined);
+
   const handleSeek = useCallback((time: number) => {
     seek(time);
   }, [seek]);
+
+  const handleHoverProgression = useCallback((progression: number | null) => {
+    if (progression === null) {
+      setHoverLabel(undefined);
+      return;
+    }
+    const locator = currentLocator();
+    const tl = timeline();
+    if (!locator || !tl) return;
+    const item = tl.itemAtProgression(locator.href, progression, total);
+    setHoverLabel(item?.title);
+  }, [currentLocator, timeline, total]);
 
   return (
     <ThAudioProgress
@@ -37,6 +51,8 @@ export const StatefulAudioProgressBar = () => {
       currentChapter={ currentChapter || "​" } // Zero-width space to prevent shift
       isDisabled={ !isTrackReady || isStalled }
       seekableRanges={ seekableRanges }
+      hoverLabel={ hoverLabel }
+      onHoverProgression={ handleHoverProgression }
       compounds={{
         wrapper: {
           className: audioStyles.audioProgressControl,
@@ -65,6 +81,9 @@ export const StatefulAudioProgressBar = () => {
         },
         seekableRange: {
           className: audioStyles.audioProgressSeekableRange
+        },
+        tooltip: {
+          className: audioStyles.audioProgressTooltip
         }
       }}
     />
