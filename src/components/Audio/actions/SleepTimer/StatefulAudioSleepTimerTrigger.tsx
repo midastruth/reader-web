@@ -1,6 +1,6 @@
 "use client";
 
-import SnoozeIcon from "../assets/icons/snooze.svg";
+import SnoozeIcon from "./assets/icons/snooze.svg";
 
 import { ThAudioActionKeys } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";

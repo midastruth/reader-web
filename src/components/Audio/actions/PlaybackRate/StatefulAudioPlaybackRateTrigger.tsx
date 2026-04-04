@@ -1,6 +1,6 @@
 "use client";
 
-import SpeedIcon from "../assets/icons/speed.svg";
+import SpeedIcon from "./assets/icons/speed.svg";
 
 import { ThAudioActionKeys } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";

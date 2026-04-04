@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import CastIcon from "../assets/icons/cast.svg";
-import CastConnectedIcon from "../assets/icons/cast_connected.svg";
-import CastWarningIcon from "../assets/icons/cast_warning.svg";
+import CastIcon from "./assets/icons/cast.svg";
+import CastConnectedIcon from "./assets/icons/cast_connected.svg";
+import CastWarningIcon from "./assets/icons/cast_warning.svg";
 
 import { ThAudioActionKeys } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";

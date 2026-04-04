@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 
-import VolumeUpIcon from "../assets/icons/volume_up.svg";
-import VolumeDownIcon from "../assets/icons/volume_down.svg";
-import VolumeMuteIcon from "../assets/icons/volume_mute.svg";
-import VolumeOffIcon from "../assets/icons/volume_off.svg";
+import VolumeUpIcon from "./assets/icons/volume_up.svg";
+import VolumeDownIcon from "./assets/icons/volume_down.svg";
+import VolumeMuteIcon from "./assets/icons/volume_mute.svg";
+import VolumeOffIcon from "./assets/icons/volume_off.svg";
 
 import { ThAudioKeys, ThAudioActionKeys } from "@/preferences/models";
 import { StatefulActionIcon } from "../../../Actions/Triggers/StatefulActionIcon";
