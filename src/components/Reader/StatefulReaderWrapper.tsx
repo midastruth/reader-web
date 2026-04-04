@@ -153,7 +153,7 @@ const StatefulAudioContent = ({ publication, localDataKey, positionStorage, cove
       ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
       ...propsToCSSVars(preferences.theming.layout, {
         prefix: prefixString("layout"),
-        exclude: ["ui", "order", "defaults", "constraints"]
+        exclude: ["ui", "compact", "expanded", "progressBar"]
       })
     },
     onCoverThemeGenerated: (themeTokens) => dispatch(setCoverTheme(themeTokens)),
