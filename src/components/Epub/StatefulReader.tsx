@@ -999,7 +999,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
         <HighlightManager
           ref={setHighlightManagerHandle}
 
-          bookId={selfHref}
+          bookId={localDataKey ?? publication.manifest.selfLink?.href ?? ""}
           bookTitle={typeof publication.metadata.title === 'string' ? publication.metadata.title : publication.metadata.title?.toString()}
           iframeRef={iframeRef}
         />
