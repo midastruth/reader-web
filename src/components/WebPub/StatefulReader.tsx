@@ -1,21 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-
-import { ThemeKeyType, useTheming } from "../../preferences";
+import { useState, useRef, useCallback, useMemo, useLayoutEffect } from "react";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 
-import { StatefulReaderProps } from "../Epub/StatefulReader";
+import { StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 
 import { 
   ThActionsKeys, 
   ThLayoutUI,
   ThDocumentTitleFormat,
   ThProgressionFormat, 
-  ThThemeKeys,
-  ThLineHeightOptions,
-  ThTextAlignOptions,
   ThSpacingSettingsKeys,
   ThSettingsKeys
 } from "@/preferences/models";
@@ -30,28 +25,26 @@ import {
   BasicTextSelection,
   FrameClickEvent,
 } from "@readium/navigator-html-injectables";
-import { IInjectablesConfig, IWebPubPreferences, TextAlignment, WebPubNavigatorListeners } from "@readium/navigator";
+import { WebPubNavigatorListeners } from "@readium/navigator";
 import { 
-  Locator, 
-  Manifest, 
-  Publication, 
-  Fetcher, 
-  HttpFetcher, 
-  ReadingProgression,
-  Feature
+  Locator,  
+  Publication
 } from "@readium/shared";
 
 import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
+import { PositionStorage } from "../Reader/StatefulReaderWrapper";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 import { useWebPubNavigator } from "@/core/Hooks/WebPub";
+import { useWebPubSettingsCache } from "@/core/Hooks/WebPub/useWebPubSettingsCache";
+import { useWebPubReaderInit } from "./Hooks/useReaderInit";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useI18n } from "@/i18n/useI18n";
 import { useTimeline } from "@/core/Hooks/useTimeline";
-import { useLocalStorage } from "@/core/Hooks/useLocalStorage";
+import { usePositionStorage } from "@/hooks/usePositionStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
@@ -60,69 +53,32 @@ import { useFonts } from "@/core/Hooks/fonts/useFonts";
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
 import { 
-  setBreakpoint, 
-  setColorScheme, 
-  setContrast, 
-  setForcedColors, 
-  setMonochrome, 
-  setReducedMotion, 
-  setReducedTransparency 
-} from "@/lib/themeReducer";
-import { 
   setLoading,
   setHovering, 
   toggleImmersive, 
-  setPlatformModifier, 
-  setDirection, 
   setFullscreen,
-  setReaderProfile
 } from "@/lib/readerReducer";
 import { 
-  setRTL, 
   setTimeline,
   setPublicationStart,
-  setPublicationEnd,
-  setHasDisplayTransformability,
-  setFontLanguage
+  setPublicationEnd
 } from "@/lib/publicationReducer";
-import { FontFamilyStateObject } from "@/lib/settingsReducer";
 
 import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import Peripherals from "../../helpers/peripherals";
-import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
-import { propsToCSSVars } from "@/core/Helpers/propsToCSSVars";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
-import { prefixString } from "@/core/Helpers/prefixString";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
 
-export interface WebPubCSSSettings {
-  fontFamily: FontFamilyStateObject;
-  fontWeight: number;
-  hyphens: boolean | null;
-  letterSpacing: number | null;
-  lineHeight: ThLineHeightOptions | null;
-  paragraphIndent: number | null;
-  paragraphSpacing: number | null;
-  publisherStyles: boolean;
-  textAlign: ThTextAlignOptions | null;
-  textNormalization: boolean;
-  wordSpacing: number | null;
-  zoom: number;
-}
-
-export interface WebPubStatelessCache {
-  settings: WebPubCSSSettings;
-}
-
 export const ExperimentalWebPubStatefulReader = ({
-  rawManifest,
-  selfHref,
-  plugins
+  publication,
+  localDataKey,
+  plugins,
+  positionStorage
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (plugins && plugins.length > 0) {
       plugins.forEach(plugin => {
         ThPluginRegistry.register(plugin);
@@ -140,14 +96,14 @@ export const ExperimentalWebPubStatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <WebPubStatefulReaderInner rawManifest={ rawManifest } selfHref={ selfHref } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } />
       </ThPluginProvider>
     </>
   );
 };
 
-const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: object; selfHref: string }) => {
-  const { preferences, resolveFontLanguage, getFontMetadata, getFontInjectables } = usePreferences();
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
+  const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { injectFontResources, removeFontResources } = useFonts();
@@ -159,10 +115,7 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     componentType: "text"
   });
 
-  const [publication, setPublication] = useState<Publication | null>(null);
-
   const container = useRef<HTMLDivElement>(null);
-  const localDataKey = useRef(`${selfHref}-current-location`);
 
   const textAlign = useAppSelector(state => state.webPubSettings.textAlign);
   const fontFamily = useAppSelector(state => state.webPubSettings.fontFamily);
@@ -175,35 +128,28 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
   const publisherStyles = useAppSelector(state => state.webPubSettings.publisherStyles);
   const textNormalization = useAppSelector(state => state.webPubSettings.textNormalization);
   const wordSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.wordSpacing);
-  const theme = ThThemeKeys.light;
   const zoom = useAppSelector(state => state.webPubSettings.zoom);
+  const fontLanguage = useAppSelector(state => state.publication.fontLanguage);
+  const hasDisplayTransformability = useAppSelector(state => state.publication.hasDisplayTransformability);
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
 
-  const layoutUI = preferences.theming.layout.ui?.webPub || ThLayoutUI.stacked;
+  const cache = useWebPubSettingsCache(
+    fontFamily,
+    fontWeight,
+    hyphens,
+    letterSpacing,
+    lineHeight,
+    paragraphIndent,
+    paragraphSpacing,
+    publisherStyles,
+    textAlign,
+    textNormalization,
+    wordSpacing,
+    zoom
+  );
 
-  // Init theming (breakpoints, theme, media queries…)
-  useTheming<ThemeKeyType>({ 
-    theme: theme,
-    themeKeys: preferences.theming.themes.keys,
-    systemKeys: preferences.theming.themes.systemThemes,
-    breakpointsMap: preferences.theming.breakpoints,
-    initProps: {
-      ...propsToCSSVars(preferences.theming.arrow, { prefix: prefixString("arrow") }), 
-      ...propsToCSSVars(preferences.theming.icon, { prefix: prefixString("icon") }),
-      ...propsToCSSVars(preferences.theming.layout, { 
-        prefix: prefixString("layout"),
-        exclude: ["ui"]
-      })
-    },
-    onBreakpointChange: (breakpoint) => dispatch(setBreakpoint(breakpoint)),
-    onColorSchemeChange: (colorScheme) => dispatch(setColorScheme(colorScheme)),
-    onContrastChange: (contrast) => dispatch(setContrast(contrast)),
-    onForcedColorsChange: (forcedColors) => dispatch(setForcedColors(forcedColors)),
-    onMonochromeChange: (isMonochrome) => dispatch(setMonochrome(isMonochrome)),
-    onReducedMotionChange: (reducedMotion) => dispatch(setReducedMotion(reducedMotion)),
-    onReducedTransparencyChange: (reducedTransparency) => dispatch(setReducedTransparency(reducedTransparency))
-  });
+  const layoutUI = preferences.theming.layout.ui?.webPub || ThLayoutUI.stacked;
 
   const dispatch = useAppDispatch();
 
@@ -214,14 +160,12 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
 
   const webPubNavigator = useWebPubNavigator();
   const { 
-    WebPubNavigatorLoad, 
-    WebPubNavigatorDestroy,
     currentPositions,
     canGoBackward,
     canGoForward,
   } = webPubNavigator;
 
-  const { setLocalData, getLocalData, localData } = useLocalStorage(localDataKey.current);
+  const { setLocalData, getLocalData, localData } = usePositionStorage(localDataKey, positionStorage);
 
   const timeline = useTimeline({
     publication: publication,
@@ -270,30 +214,15 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
 
   useDocumentTitle(documentTitle);
 
-  const cache = useRef<WebPubStatelessCache>({
-    settings: {
-      fontFamily: fontFamily,
-      fontWeight: fontWeight,
-      hyphens: hyphens,
-      letterSpacing: letterSpacing,
-      lineHeight: lineHeight,
-      paragraphIndent: paragraphIndent,
-      paragraphSpacing: paragraphSpacing,
-      publisherStyles: publisherStyles,
-      textAlign: textAlign,
-      textNormalization: textNormalization,
-      wordSpacing: wordSpacing,
-      zoom: zoom
-    }
-  });
-
   const toggleIsImmersive = useCallback(() => {
     // If tap/click in iframe, then header/footer no longer hoovering 
     dispatch(setHovering(false));
     dispatch(toggleImmersive());
   }, [dispatch]);
 
-  const p = new Peripherals(useAppStore(), preferences.actions, {
+  const appStore = useAppStore();
+
+  const p = useMemo(() => new Peripherals(appStore, preferences.actions, {
     moveTo: () => {},
     goProgression: () => {},
     toggleAction: (actionKey) => {
@@ -311,14 +240,14 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
           break
       }
     }
-  });
+  }), [appStore, preferences.actions, fs, dispatch]);
 
-  const listeners: WebPubNavigatorListeners = {
+  const listeners: WebPubNavigatorListeners = useMemo(() => ({
     frameLoaded: async function (_wnd: Window): Promise<void> {
       p.observe(window);
     },
     positionChanged: async function (locator: Locator): Promise<void> {
-      setLocalData(locator)
+      setLocalData(locator);
 
       if (canGoBackward()) {
         dispatch(setPublicationStart(false));
@@ -361,132 +290,37 @@ const WebPubStatefulReaderInner = ({ rawManifest, selfHref }: { rawManifest: obj
     contentProtection: function (_type: string, _data: unknown): void {},
     contextMenu: function (_data: unknown): void {},
     peripheral: function (_data: unknown): void {},
-  };
+  }), [p, setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive]);
 
-  useEffect(() => {
-    cache.current.settings.fontFamily = fontFamily;
-  }, [fontFamily]);
-  useEffect(() => {
-    cache.current.settings.fontWeight = fontWeight;
-  }, [fontWeight]);
-  useEffect(() => {
-    cache.current.settings.hyphens = hyphens;
-  }, [hyphens]);
-  useEffect(() => {
-    cache.current.settings.letterSpacing = letterSpacing;
-  }, [letterSpacing]);
-  useEffect(() => {
-    cache.current.settings.lineHeight = lineHeight;
-  }, [lineHeight]);
-  useEffect(() => {
-    cache.current.settings.paragraphIndent = paragraphIndent;
-  }, [paragraphIndent]);
-  useEffect(() => {
-    cache.current.settings.paragraphSpacing = paragraphSpacing;
-  }, [paragraphSpacing]);
-  useEffect(() => {
-    cache.current.settings.textAlign = textAlign;
-  }, [textAlign]);
+  const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
-  useEffect(() => {
-    cache.current.settings.textNormalization = textNormalization;
-  }, [textNormalization]);
-  useEffect(() => {
-    cache.current.settings.wordSpacing = wordSpacing;
-  }, [wordSpacing]);
-  useEffect(() => {
-    cache.current.settings.zoom = zoom;
-  }, [zoom]);
-
-  useEffect(() => {
-    preferences.direction && dispatch(setDirection(preferences.direction));
-    dispatch(setPlatformModifier(getPlatformModifier()));
-  }, [preferences.direction, dispatch]);
-
-  useEffect(() => {
-    const fetcher: Fetcher = new HttpFetcher(undefined, selfHref);
-    const manifest = Manifest.deserialize(rawManifest)!;
-    manifest.setSelfLink(selfHref);
-
-    setPublication(new Publication({
-      manifest: manifest,
-      fetcher: fetcher
-    }));
-
-    dispatch(setReaderProfile("webPub"));
-  }, [rawManifest, selfHref, dispatch]);
-
-  useEffect(() => {
-    if (!publication) return;
-
-    dispatch(setRTL(publication.metadata.effectiveReadingProgression === ReadingProgression.rtl));
-    const resolvedMainLanguage = resolveFontLanguage(publication.metadata.languages?.[0], publication.metadata.effectiveReadingProgression);
-    dispatch(setFontLanguage(resolvedMainLanguage));
-
-    const displayTransformability = publication.metadata.accessibility?.feature?.some(feature =>  feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value);
-    dispatch(setHasDisplayTransformability(displayTransformability));
-
-    const initialPosition: Locator | null = getLocalData();
-
-    const webPubPreferences: IWebPubPreferences = {
-      zoom: cache.current.settings.zoom
-    };
-
-    let injectables: IInjectablesConfig | undefined = undefined;
-
-    if (displayTransformability) {
-      webPubPreferences.fontFamily = getFontMetadata(cache.current.settings.fontFamily[resolvedMainLanguage] ?? "")?.fontStack || null;
-      webPubPreferences.fontWeight = cache.current.settings.fontWeight;
-      webPubPreferences.hyphens = cache.current.settings.hyphens;
-      webPubPreferences.letterSpacing = cache.current.settings.letterSpacing;
-      webPubPreferences.lineHeight = cache.current.settings.lineHeight === null 
-        ? null 
-        : lineHeightOptions[cache.current.settings.lineHeight];
-      webPubPreferences.paragraphIndent = cache.current.settings.paragraphIndent;
-      webPubPreferences.paragraphSpacing = cache.current.settings.paragraphSpacing;
-      webPubPreferences.textAlign = cache.current.settings.textAlign as TextAlignment | null | undefined;
-      webPubPreferences.textNormalization = cache.current.settings.textNormalization;
-      webPubPreferences.wordSpacing = cache.current.settings.wordSpacing;
-        
-      // Only inject font resources if font family component is being used
-      if (isFontFamilyUsed) {
-        const fontResources = getFontInjectables({ language: resolvedMainLanguage });
-        if (fontResources) {
-          injectFontResources(getFontInjectables(undefined, true));
-          injectables = {
-            allowedDomains: fontResources.allowedDomains,
-            rules: [{
-              resources: [/\.xhtml$/, /\.html$/],
-              prepend: fontResources.prepend,
-              append: fontResources.append
-            }]
-          };
-        }
-      }
-    }
-    
-    WebPubNavigatorLoad({
-      container: container.current,
-      publication: publication,
-      listeners: listeners,
-      initialPosition: initialPosition ? new Locator(initialPosition) : undefined,
-      preferences: webPubPreferences,
-      defaults: {
-        experiments: preferences.experiments?.webPub || null
-      },
-      injectables: injectables,
-      contentProtection: resolveContentProtectionConfig(preferences.contentProtection, t)
-    }, () => {
+  // Initialize reader using the new composite hook
+  const { navigatorReady } = useWebPubReaderInit({
+    container,
+    publication,
+    initialPosition,
+    listeners,
+    preferences,
+    cache,
+    isFontFamilyUsed,
+    fontLanguage,
+    hasDisplayTransformability,
+    getFontMetadata,
+    injectFontResources,
+    removeFontResources,
+    getFontInjectables,
+    lineHeightOptions,
+    contentProtectionConfig: resolveContentProtectionConfig(preferences.contentProtection, t),
+    onNavigatorReady: () => {
+      dispatch(setLoading(false));
+    },
+    onNavigatorLoaded: () => {
       p.observe(window);
-    });
-
-    dispatch(setLoading(false));
-
-    return () => {
-      WebPubNavigatorDestroy(() => p.destroy());
-      removeFontResources();
-    };
-  }, [publication, preferences, isFontFamilyUsed, injectFontResources, removeFontResources]);
+    },
+    onCleanup: () => {
+      p.destroy();
+    },
+  });
 
   return (
     <>
