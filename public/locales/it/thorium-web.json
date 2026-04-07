@@ -57,7 +57,8 @@
                 "serverError": "Errore del server. Si prega di riprovare.",
                 "clientError": "Richiesta non valida.",
                 "generic": "Impossible caricare la pubblicazione."
-            }
+            },
+            "printingDisabled": "La stampa è stata disabilitata"
         },
         "navigation": {
             "scroll": {
