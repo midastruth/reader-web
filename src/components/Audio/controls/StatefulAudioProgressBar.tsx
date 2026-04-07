@@ -22,6 +22,7 @@ export const StatefulAudioProgressBar = () => {
   const isStalled = useAppSelector(state => state.player.isStalled);
   const isTrackReady = useAppSelector(state => state.player.isTrackReady);
   const seekableRanges = useAppSelector(state => state.player.seekableRanges);
+  const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
 
   const { currentTime, duration, seek, currentLocator, timeline } = useNavigator().media;
 
@@ -81,6 +82,7 @@ export const StatefulAudioProgressBar = () => {
     <ThAudioProgress
       currentTime={ current }
       duration={ total }
+      playbackRate={ playbackRate }
       onSeek={ handleSeek }
       currentChapter={ currentChapter || "​" } // Zero-width space to prevent shift
       isDisabled={ !isTrackReady || isStalled }

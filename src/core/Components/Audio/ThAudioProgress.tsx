@@ -29,6 +29,7 @@ export interface ThAudioProgressProps {
   isDisabled?: boolean;
   currentTime: number;
   duration: number;
+  playbackRate?: number;
   onSeek: (time: number) => void;
   currentChapter?: string;
   seekableRanges?: SeekableRange[];
@@ -54,6 +55,7 @@ export const ThAudioProgress = ({
   isDisabled,
   currentTime,
   duration,
+  playbackRate = 1,
   onSeek,
   currentChapter,
   seekableRanges,
@@ -78,8 +80,8 @@ export const ThAudioProgress = ({
     isOpen
   });
 
-  const defaultElapsedTime = formatTime(currentTime);
-  const defaultRemainingTime = formatTime(Math.max(0, duration - currentTime));
+  const defaultElapsedTime = formatTime(currentTime / playbackRate);
+  const defaultRemainingTime = formatTime(Math.max(0, (duration - currentTime) / playbackRate));
 
   function formatTime(seconds: number) {
     if (isNaN(seconds) || !isFinite(seconds)) return "0:00";
