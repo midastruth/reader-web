@@ -53,7 +53,7 @@ export const defaultAudioPlaybackRate: ThSettingsRangePrefRequired = {
   range: [0.5, 4],
   step: 0.05,
   placeholder: ThSettingsRangePlaceholder.range,
-  presets: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 3.5, 4]
+  presets: [0.75, 1, 1.25, 1.5, 1.75, 2]
 }
 
 export const defaultAudioSkipBackwardInterval: ThSettingsRangePrefRequired = {
