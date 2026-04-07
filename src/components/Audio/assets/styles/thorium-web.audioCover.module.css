@@ -3,8 +3,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-height: 100px;
+  max-height: var(--th-layout-constraints-cover, 300px);
   width: 100%;
   margin: 0;
 }
@@ -19,7 +20,7 @@
 }
 
 .audioCoverPlaceholder {
-  height: 100%;
+  max-height: var(--th-layout-constraints-cover, 300px);
   width: auto;
   max-width: 100%;
   aspect-ratio: 1 / 1;
@@ -44,7 +45,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  height: 100%;
+  max-height: var(--th-layout-constraints-cover, 300px);
   width: auto;
   max-width: 100%;
   aspect-ratio: 1 / 1;

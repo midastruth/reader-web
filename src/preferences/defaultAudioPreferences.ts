@@ -82,6 +82,7 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
           [ThSheetTypes.bottomSheet]: 600,
           [ThSheetTypes.popover]: 600,
           [ThSheetTypes.modal]: 600,
+          cover: 300,
         }
       },
       breakpoints: {
