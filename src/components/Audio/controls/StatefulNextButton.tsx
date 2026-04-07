@@ -10,6 +10,7 @@ import { useAppSelector } from "@/lib/hooks";
 import { useI18n } from "@/i18n/useI18n";
 import { useAudioPreferences } from "@/preferences";
 import { ThAudioAffordance } from "@/preferences/audioPreferences";
+import { useAdjacentTocItems } from "./hooks/useAdjacentTocItems";
 import { Link } from "@readium/shared";
 
 export const StatefulNextButton = ({ isDisabled }: { isDisabled?: boolean }) => {
@@ -17,21 +18,27 @@ export const StatefulNextButton = ({ isDisabled }: { isDisabled?: boolean }) => 
   const { preferences } = useAudioPreferences();
   const { goForward, goLink } = useNavigator().media;
   const atEnd = useAppSelector(state => state.publication.atPublicationEnd);
-  const nextItem = useAppSelector(state => state.publication.adjacentTimelineItems.next);
+  const nextTimelineItem = useAppSelector(state => state.publication.adjacentTimelineItems.next);
+  const { next: nextTocItem } = useAdjacentTocItems();
 
-  const isTimeline = preferences.affordances.next === ThAudioAffordance.timeline;
-  const label = isTimeline && nextItem?.title
+  const affordance = preferences.affordances.next;
+  const isTimeline = affordance === ThAudioAffordance.timeline;
+  const isToc = affordance === ThAudioAffordance.toc;
+
+  const nextItem = isToc ? nextTocItem : nextTimelineItem;
+
+  const label = (isTimeline || isToc) && nextItem?.title
     ? nextItem.title
     : t("reader.actions.goToNextResource.descriptive");
 
-  const handlePress = () => isTimeline
+  const handlePress = () => (isTimeline || isToc)
     ? nextItem && goLink(new Link({ href: nextItem.href }), false, () => {})
     : goForward(false, () => {});
 
   return (
     <StatefulActionIcon
       onPress={ handlePress }
-      isDisabled={ isDisabled || (isTimeline ? !nextItem : atEnd) }
+      isDisabled={ isDisabled || ((isTimeline || isToc) ? !nextItem : atEnd) }
       aria-label={ label }
       tooltipLabel={ label }
       className={ audioStyles.audioNextButton }

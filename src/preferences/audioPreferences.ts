@@ -34,7 +34,8 @@ export type AudioCustomizableKeys = {
 
 export enum ThAudioAffordance {
   "timeline" = "timeline",
-  "readingOrder" = "readingOrder"
+  "readingOrder" = "readingOrder",
+  "toc" = "toc"
 };
 
 export type ThAudioThemeKeys = ThThemeKeys.light | ThThemeKeys.dark;

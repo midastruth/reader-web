@@ -148,8 +148,8 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
     contentProtection: defaultAudioContentProtectionConfig,
 
     affordances: {
-      previous: ThAudioAffordance.timeline,
-      next: ThAudioAffordance.timeline
+      previous: ThAudioAffordance.toc,
+      next: ThAudioAffordance.toc
     },
 
     shortcuts: {
