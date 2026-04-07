@@ -36,7 +36,7 @@ Configure component order for each layout type using `ThAudioPlayerComponent`:
 - `mediaActions`: the primary actions bar (volume, playback rate, and other primary actions)
 
 ```typescript
-import { ThAudioPlayerComponent } from "@edrlab/thorium-web/audio";
+import { ThAudioPlayerComponent } from "@edrlab/thorium-web/preferences";
 
 theming: {
   layout: {
@@ -63,6 +63,39 @@ theming: {
   }
 }
 ```
+
+### Publication Metadata Ordering
+
+Configure the order and visibility of publication metadata components (title, subtitle, authors) using `publicationMetadata.order`:
+
+```typescript
+import { ThAudioPublicationMetadataComponent } from "@edrlab/thorium-web/preferences";
+
+theming: {
+  layout: {
+    publicationMetadata: {
+      order: [
+        ThAudioPublicationMetadataComponent.titleWithSubtitle
+      ]
+    }
+  }
+}
+```
+
+Available metadata components:
+- `title`: Title only (no subtitle)
+- `titleWithSubtitle`: Title with subtitle (default)
+- `subtitleWithTitle`: Subtitle with title (subtitle rendered first)
+- `authors`: Authors list
+
+**Type Safety**: The type system enforces that only one title variant can be used. Invalid combinations like `[subtitleWithTitle, title]` will throw a TypeScript error.
+
+**Runtime Validation**: If invalid combinations are provided at runtime, the system will deduplicate by keeping only the first title variant and logging a warning.
+
+Valid combinations:
+- Single title variant: `[title]`, `[titleWithSubtitle]`, `[subtitleWithTitle]`
+- With authors: `[title, authors]`, `[titleWithSubtitle, authors]`, `[subtitleWithTitle, authors]`, `[authors, title]`, etc.
+- Authors only: `[authors]`
 
 ### Layout Properties
 
@@ -109,7 +142,7 @@ Secondary actions appear in the top header bar. Configure their display order, v
 Configure navigation behavior for previous/next track buttons using the `affordances` property:
 
 ```typescript
-import { ThAudioAffordance } from "@edrlab/thorium-web/audio";
+import { ThAudioAffordance } from "@edrlab/thorium-web/preferences";
 
 // In your createAudioPreferences call:
 affordances: {

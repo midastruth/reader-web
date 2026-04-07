@@ -8,6 +8,7 @@ import {
   ThAudioKeys,
   ThAudioPlayerComponent,
   ThAudioProgressBarVariant,
+  ThAudioPublicationMetadataComponent,
   ThBreakpoints,
   ThDockingKeys,
   ThSheetTypes,
@@ -61,6 +62,11 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
             ThAudioPlayerComponent.playbackControls,
             ThAudioPlayerComponent.progressBar,
             ThAudioPlayerComponent.mediaActions
+          ]
+        },
+        publicationMetadata: {
+          order: [
+            ThAudioPublicationMetadataComponent.titleWithSubtitle
           ]
         },
         radius: 5,
