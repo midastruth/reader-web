@@ -27,6 +27,7 @@ export const StatefulAudioSleepTimerContainer = ({ triggerRef }: StatefulActionC
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.sleepTimer]?.isOpen ?? false);
   const remainingSeconds = useAppSelector(state => state.player.sleepTimer.remainingSeconds);
   const onTrackEnd = useAppSelector(state => state.player.sleepTimer.onTrackEnd);
+  const playerStatus = useAppSelector(state => state.player.status);
   const dispatch = useAppDispatch();
 
   const { t } = useI18n();
@@ -56,11 +57,12 @@ export const StatefulAudioSleepTimerContainer = ({ triggerRef }: StatefulActionC
       dispatch(setSleepTimerRemainingSeconds(null));
       return;
     }
+    if (playerStatus !== "playing") return;
     const id = setTimeout(() => {
       dispatch(setSleepTimerRemainingSeconds(remainingSeconds - 1));
     }, 1000);
     return () => clearTimeout(id);
-  }, [remainingSeconds, pause, dispatch]);
+  }, [remainingSeconds, playerStatus, pause, dispatch]);
 
   const handleCancel = useCallback(() => {
     dispatch(setSleepTimerRemainingSeconds(null));
