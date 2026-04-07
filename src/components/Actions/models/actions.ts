@@ -15,4 +15,5 @@ export interface StatefulActionTriggerProps {
 
 export interface StatefulActionContainerProps {
   triggerRef: RefObject<HTMLElement | null>;
+  placement?: "top" | "bottom";
 }

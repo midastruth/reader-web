@@ -129,13 +129,16 @@ Available progress bar variants:
 
 ## Actions
 
-### Primary Media Actions
+Audio actions are split into two zones.
 
-Primary actions appear in the media actions bar (volume, playback rate, TOC, sleep timer, etc.). Configure their display order in `actions.primary.displayOrder` using enum `ThAudioActionKeys`.
+**Primary** (`actions.primary`) appears in the media actions bar. It uses `compactPopover` in place of `popover` — `popover` is not available. Built-in keys: `volume`, `playbackRate`, `toc`, `sleepTimer`.
 
-### Secondary Actions (Header)
+> [!WARNING]
+> If a primary action's content includes an input (text field, number field, etc.), we cannot guarantee it will not be hidden behind the virtual keyboard when using `compactPopover`. The React Aria Popover component has no concept of viewport resizing, so it will not reposition when the software keyboard appears.
 
-Secondary actions appear in the top header bar. Configure their display order, visibility, collapsibility, sheets, docking, and shortcuts in `actions.secondary`. See the main [Customization doc](../Customization.md#actions) for the shared action configuration options.
+**Secondary** (`actions.secondary`) appears in the header bar and works exactly like reader actions — `compactPopover` is not available. Built-in keys: `remotePlayback`, `settings`.
+
+See the main [Customization doc](../Customization.md#actions) for the shared action token options (visibility, shortcut, sheet, docking, snapping).
 
 ## Affordances
 

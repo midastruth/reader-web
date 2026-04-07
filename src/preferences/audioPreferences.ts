@@ -12,6 +12,7 @@ import {
   ThSheetTypes,
   ThThemeKeys,
   ThActionsTokens,
+  ThAudioActionsTokens,
   ThSettingsRangePrefRequired,
   ThSettingsRangeVariant,
   ThSettingsTimerPref,
@@ -108,6 +109,7 @@ export type ThAudioActionKey<K extends AudioCustomizableKeys = {}> =
 export interface ThAudioActionsPref<K extends AudioCustomizableKeys = {}> {
   primary: {
     displayOrder: Array<ThAudioActionKey<K>>;
+    keys: Record<string, ThAudioActionsTokens>;
   };
   secondary: {
     displayOrder: Array<ActionKey<{ action: ThAudioActionKey<K> }> | ThAudioActionKey<K>>;

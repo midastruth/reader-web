@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { Button, Dialog, Popover } from "react-aria-components";
+import { Button } from "react-aria-components";
 import { FocusScope } from "react-aria";
 
 import { ThAudioActionKeys, ThAudioKeys, ThSettingsTimerVariant } from "@/preferences/models";
@@ -15,12 +15,14 @@ import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 import { useNavigator } from "@/core/Navigator";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
+import { useDocking } from "../../../Docking/hooks/useDocking";
+import { StatefulSheetWrapper } from "@/components/Sheets/StatefulSheetWrapper";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setActionOpen } from "@/lib/actionsReducer";
 import { setSleepTimerOnTrackEnd, setSleepTimerRemainingSeconds } from "@/lib/playerReducer";
 
-export const StatefulAudioSleepTimerContainer = ({ triggerRef }: StatefulActionContainerProps) => {
+export const StatefulAudioSleepTimerContainer = ({ triggerRef, placement = "top" }: StatefulActionContainerProps) => {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
 
@@ -84,6 +86,12 @@ export const StatefulAudioSleepTimerContainer = ({ triggerRef }: StatefulActionC
       dispatch(setSleepTimerRemainingSeconds(Number(value) * 60));
     }
     dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: false }));
+  }, [dispatch]);
+
+  const docking = useDocking(ThAudioActionKeys.sleepTimer);
+
+  const setOpen = useCallback((open: boolean) => {
+    dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: open }));
   }, [dispatch]);
 
   const isActive = remainingSeconds !== null || onTrackEnd;
@@ -198,18 +206,24 @@ export const StatefulAudioSleepTimerContainer = ({ triggerRef }: StatefulActionC
   };
 
   return (
-    <Popover
-      triggerRef={ triggerRef }
-      isOpen={ isOpen }
-      onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.sleepTimer, isOpen: open })) }
-      placement="top"
-      className={ audioStyles.audioControlPopover }
+    <StatefulSheetWrapper
+      sheetType={ docking.sheetType }
+      sheetProps={ {
+        id: ThAudioActionKeys.sleepTimer,
+        triggerRef,
+        heading: t("reader.playback.preferences.sleepTimer.descriptive"),
+        className: audioStyles.audioControlPopover,
+        headerClassName: audioStyles.audioControlPopoverHeader,
+        placement,
+        isOpen,
+        onOpenChange: setOpen,
+        onClosePress: () => setOpen(false),
+        docker: docking.getDocker(),
+      } }
     >
-      <Dialog aria-label={ t("reader.playback.preferences.sleepTimer") } className={ audioStyles.audioControlPopoverDialog }>
-        <FocusScope contain>
-          { renderContent() }
-        </FocusScope>
-      </Dialog>
-    </Popover>
+      <FocusScope contain>
+        { renderContent() }
+      </FocusScope>
+    </StatefulSheetWrapper>
   );
 };

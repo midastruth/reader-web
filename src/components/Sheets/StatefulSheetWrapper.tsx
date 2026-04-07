@@ -10,8 +10,10 @@ import { StatefulModalSheet, StatefulModalSheetProps } from "./StatefulModalShee
 import { StatefulBottomSheet, StatefulBottomSheetProps } from "./StatefulBottomSheet";
 import { StatefulFullScreenSheet, StatefulFullScreenSheetProps } from "./StatefulFullScreenSheet";
 import { StatefulDockedSheet, StatefulDockedSheetProps } from "./StatefulDockedSheet";
+import { StatefulCompactPopoverSheet } from "./StatefulCompactPopoverSheet";
 
 const componentMap = {
+  [ThSheetTypes.compactPopover]: StatefulCompactPopoverSheet,
   [ThSheetTypes.popover]: StatefulPopoverSheet,
   [ThSheetTypes.modal]: StatefulModalSheet,
   [ThSheetTypes.bottomSheet]: StatefulBottomSheet,

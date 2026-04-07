@@ -1,10 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
-import { Dialog, Popover } from "react-aria-components";
-
-import { ThAudioKeys, ThAudioActionKeys } from "@/preferences/models";
+import { ThAudioKeys, ThAudioActionKeys, ThSheetTypes } from "@/preferences/models";
 import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
@@ -15,13 +13,14 @@ import { useNavigator } from "@/core/Navigator";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
 import { useEffectiveRange } from "../../../Settings/hooks/useEffectiveRange";
+import { useDocking } from "../../../Docking/hooks/useDocking";
+import { StatefulSheetWrapper } from "@/components/Sheets/StatefulSheetWrapper";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setVolume } from "@/lib/audioSettingsReducer";
 import { setActionOpen } from "@/lib/actionsReducer";
-import { useRef } from "react";
 
-export const StatefulAudioVolumeContainer = ({ triggerRef }: StatefulActionContainerProps) => {
+export const StatefulAudioVolumeContainer = ({ triggerRef, placement = "top" }: StatefulActionContainerProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const volume = useAppSelector(state => state.audioSettings.volume);
@@ -49,31 +48,47 @@ export const StatefulAudioVolumeContainer = ({ triggerRef }: StatefulActionConta
     action: { type: "focus" }
   });
 
+  const docking = useDocking(ThAudioActionKeys.volume);
+
+  const sliderOrientation = (docking.sheetType === ThSheetTypes.popover || docking.sheetType === ThSheetTypes.compactPopover)
+    ? "vertical"
+    : "horizontal";
+
+  const setOpen = useCallback((open: boolean) => {
+    dispatch(setActionOpen({ key: ThAudioActionKeys.volume, isOpen: open }));
+  }, [dispatch]);
+
   return (
-    <Popover
-      triggerRef={ triggerRef }
-      isOpen={ isOpen }
-      onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.volume, isOpen: open })) }
-      placement="top"
-      className={ audioStyles.audioControlPopover }
+    <StatefulSheetWrapper
+      sheetType={ docking.sheetType }
+      sheetProps={ {
+        id: ThAudioActionKeys.volume,
+        triggerRef,
+        heading: t("reader.playback.preferences.audio.volume"),
+        className: audioStyles.audioControlPopover,
+        headerClassName: audioStyles.audioControlPopoverHeader,
+        placement,
+        isOpen,
+        onOpenChange: setOpen,
+        onClosePress: () => setOpen(false),
+        docker: docking.getDocker(),
+      } }
     >
-      <Dialog aria-label={ t("reader.playback.preferences.audio.volume") } className={ audioStyles.audioControlPopoverDialog }>
-        <ThSlider
-          aria-label={ t("reader.playback.preferences.audio.volume") }
-          className={ audioStyles.audioVolumeSlider }
-          orientation="vertical"
-          range={ range }
-          step={ config.step }
-          value={ volume }
-          onChange={ updatePreference }
-          compounds={ {
-            wrapper: { ref: contentRef },
-            track: { className: audioStyles.audioVolumeSliderTrack },
-            thumb: { className: audioStyles.audioVolumeSliderThumb },
-            output: { style: () => ({ display: "none" }) }
-          } }
-        />
-      </Dialog>
-    </Popover>
+      <ThSlider
+        aria-label={ t("reader.playback.preferences.audio.volume") }
+        className={ audioStyles.audioVolumeSlider }
+        orientation={ sliderOrientation }
+        range={ range }
+        step={ config.step }
+        value={ volume }
+        onChange={ updatePreference }
+        compounds={ {
+          wrapper: { ref: contentRef },
+          track: { className: audioStyles.audioVolumeSliderTrack },
+          thumb: { className: audioStyles.audioVolumeSliderThumb },
+          output: { style: () => ({ display: "none" }) }
+        } }
+      />
+    </StatefulSheetWrapper>
   );
 };

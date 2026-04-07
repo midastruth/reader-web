@@ -2,15 +2,12 @@
 
 import { useCallback, useRef } from "react";
 
-import { Dialog, Popover } from "react-aria-components";
-
-import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
-
 import { ThAudioKeys, ThAudioActionKeys, ThSettingsRangeVariant } from "@/preferences/models";
 import { StatefulSliderWithPresets } from "../../../Settings/StatefulSliderWithPresets";
 import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
+import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 
@@ -18,12 +15,14 @@ import { useNavigator } from "@/core/Navigator/hooks";
 import { useEffectiveRange } from "../../../Settings/hooks/useEffectiveRange";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useI18n } from "@/i18n/useI18n";
+import { useDocking } from "../../../Docking/hooks/useDocking";
+import { StatefulSheetWrapper } from "@/components/Sheets/StatefulSheetWrapper";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setPlaybackRate } from "@/lib/audioSettingsReducer";
 import { setActionOpen } from "@/lib/actionsReducer";
 
-export const StatefulAudioPlaybackRateContainer = ({ triggerRef }: StatefulActionContainerProps) => {
+export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "top" }: StatefulActionContainerProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.playbackRate]?.isOpen ?? false);
@@ -47,6 +46,12 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef }: StatefulActio
     await submitPreferences({ playbackRate: value });
     dispatch(setPlaybackRate(getSetting("playbackRate")));
   }, [submitPreferences, getSetting, dispatch]);
+
+  const docking = useDocking(ThAudioActionKeys.playbackRate);
+
+  const setOpen = useCallback((open: boolean) => {
+    dispatch(setActionOpen({ key: ThAudioActionKeys.playbackRate, isOpen: open }));
+  }, [dispatch]);
 
   const renderContent = () => {
     if (config.variant === ThSettingsRangeVariant.slider) {
@@ -89,23 +94,29 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef }: StatefulActio
           onChange={ (v) => updatePreference(Array.isArray(v) ? v[0] : v) }
           range={ range }
           step={ config.step }
-          onEscape={ () => dispatch(setActionOpen({ key: ThAudioActionKeys.playbackRate, isOpen: false })) }
+          onEscape={ () => setOpen(false) }
         />
       </div>
     );
   };
 
   return (
-    <Popover
-      triggerRef={ triggerRef }
-      isOpen={ isOpen }
-      onOpenChange={ (open) => dispatch(setActionOpen({ key: ThAudioActionKeys.playbackRate, isOpen: open })) }
-      placement="top"
-      className={ audioStyles.audioControlPopover }
+    <StatefulSheetWrapper
+      sheetType={ docking.sheetType }
+      sheetProps={ {
+        id: ThAudioActionKeys.playbackRate,
+        triggerRef,
+        heading: t("reader.playback.preferences.playbackRate.descriptive"),
+        className: audioStyles.audioControlPopover,
+        headerClassName: audioStyles.audioControlPopoverHeader,
+        placement,
+        isOpen,
+        onOpenChange: setOpen,
+        onClosePress: () => setOpen(false),
+        docker: docking.getDocker(),
+      } }
     >
-      <Dialog aria-label={ t("reader.playback.preferences.playbackRate.descriptive") } className={ audioStyles.audioControlPopoverDialog }>
-        { renderContent() }
-      </Dialog>
-    </Popover>
+      { renderContent() }
+    </StatefulSheetWrapper>
   );
 };

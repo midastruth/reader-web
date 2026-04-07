@@ -1,7 +1,8 @@
 "use client";
 
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
-import { ThActionsTokens, ThDockingTypes, ThSheetTypes } from "./actions";
+import { ThActionsTokens, ThAudioActionsTokens, ThDockingTypes, ThSheetTypes } from "./actions";
+import { ThBreakpoints } from "./ui";
 import { ThSettingsRangePrefRequired, ThSettingsRangeVariant, ThSettingsRangePlaceholder } from "./settings";
 
 export enum ThAudioActionKeys {
@@ -90,15 +91,41 @@ export const defaultAudioSleepTimerPresetList: ThSettingsTimerPref = {
   presets: [15, 30, 45, 60, 90, "endOfResource"],
 };
 
-// Action tokens for ThAudioActionKeys used in the secondary zone (e.g. header bar).
-// Visibility applies here (secondary collapsibility). Primary zone never uses these tokens.
-// Volume and playback rate are primary-only and have no secondary tokens.
-export const defaultAudioSleepTimerAction: ThActionsTokens = {
+// Action tokens for ThAudioActionKeys.
+// Primary-zone tokens (volume, playbackRate) live in actions.primary.keys and must use compactPopover
+// Secondary-zone tokens (toc, sleepTimer, remotePlayback) live in actions.secondary.keys and must use regular popover
+export const defaultAudioVolumeAction: ThAudioActionsTokens = {
+  visibility: ThCollapsibilityVisibility.always,
+  shortcut: null,
+  sheet: {
+    defaultSheet: ThSheetTypes.compactPopover,
+    breakpoints: {}
+  },
+  docked: { dockable: ThDockingTypes.none }
+};
+
+export const defaultAudioPlaybackRateAction: ThAudioActionsTokens = {
+  visibility: ThCollapsibilityVisibility.always,
+  shortcut: null,
+  sheet: {
+    defaultSheet: ThSheetTypes.compactPopover,
+    breakpoints: { [ThBreakpoints.compact]: ThSheetTypes.bottomSheet }
+  },
+  snapped: {
+    minHeight: "content-height"
+  },
+  docked: { dockable: ThDockingTypes.none }
+};
+
+export const defaultAudioSleepTimerAction: ThAudioActionsTokens = {
   visibility: ThCollapsibilityVisibility.partially,
   shortcut: null,
   sheet: {
-    defaultSheet: ThSheetTypes.popover,
-    breakpoints: {}
+    defaultSheet: ThSheetTypes.compactPopover,
+    breakpoints: { [ThBreakpoints.compact]: ThSheetTypes.bottomSheet }
+  },
+  snapped: {
+    minHeight: "content-height"
   },
   docked: { dockable: ThDockingTypes.none }
 };
@@ -108,12 +135,15 @@ export const defaultAudioRemotePlaybackAction: ThActionsTokens = {
   shortcut: null
 };
 
-export const defaultAudioTocAction: ThActionsTokens = {
+export const defaultAudioTocAction: ThAudioActionsTokens = {
   visibility: ThCollapsibilityVisibility.partially,
   shortcut: null,
   sheet: {
-    defaultSheet: ThSheetTypes.popover,
-    breakpoints: {}
+    defaultSheet: ThSheetTypes.modal,
+    breakpoints: {
+      [ThBreakpoints.compact]: ThSheetTypes.fullscreen,
+      [ThBreakpoints.medium]: ThSheetTypes.fullscreen
+    }
   },
-  docked: { dockable: ThDockingTypes.none }
+  docked: { dockable: ThDockingTypes.both }
 };

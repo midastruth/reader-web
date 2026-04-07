@@ -17,7 +17,7 @@ const AudioActionPair = ({ action }: { action: ActionComponent }) => {
   return (
     <Fragment>
       <Trigger ref={ triggerRef } variant={ ThActionsTriggerVariant.button } />
-      { Target && <Target triggerRef={ triggerRef } /> }
+      { Target && <Target triggerRef={ triggerRef } placement="top" /> }
     </Fragment>
   );
 };

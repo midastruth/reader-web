@@ -17,6 +17,8 @@ import {
   lightTheme,
   darkTheme,
   defaultSettingsAction,
+  defaultAudioVolumeAction,
+  defaultAudioPlaybackRateAction,
   defaultAudioTocAction,
   defaultAudioSleepTimerAction,
   defaultAudioRemotePlaybackAction,
@@ -116,7 +118,13 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
           ThAudioActionKeys.playbackRate,
           ThAudioActionKeys.toc,
           ThAudioActionKeys.sleepTimer
-        ]
+        ],
+        keys: {
+          [ThAudioActionKeys.volume]: defaultAudioVolumeAction,
+          [ThAudioActionKeys.playbackRate]: defaultAudioPlaybackRateAction,
+          [ThAudioActionKeys.toc]: defaultAudioTocAction,
+          [ThAudioActionKeys.sleepTimer]: defaultAudioSleepTimerAction,
+        }
       },
       secondary: {
         displayOrder: [
@@ -128,10 +136,8 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
           [ThBreakpoints.medium]: 3
         },
         keys: {
+          [ThAudioActionKeys.remotePlayback]: defaultAudioRemotePlaybackAction,
           [ThActionsKeys.settings]: defaultSettingsAction,
-          [ThAudioActionKeys.toc]: defaultAudioTocAction,
-          [ThAudioActionKeys.sleepTimer]: defaultAudioSleepTimerAction,
-          [ThAudioActionKeys.remotePlayback]: defaultAudioRemotePlaybackAction
         }
       }
     },
@@ -170,8 +176,8 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
         ThDockingKeys.start,
         ThDockingKeys.end
       ],
-      // Audio secondary actions are all dockable:none — disable panels entirely
-      dock: false,
+      // Only toc is dockable; others have dockable:none so dock panels are TOC-only
+      dock: {},
       collapse: true,
       keys: {
         [ThDockingKeys.start]: { visibility: ThCollapsibilityVisibility.overflow, shortcut: null },

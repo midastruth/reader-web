@@ -12,7 +12,7 @@ import { ThModal } from "@/core/Components/Containers/ThModal";
 import { ThContainerHeader } from "@/core/Components/Containers/ThContainerHeader";
 import { ThContainerBody } from "@/core/Components/Containers/ThContainerBody";
 import { ThNavigationButton } from "@/core/Components/Buttons/ThNavigationButton";
-import { ThCloseButton } from "@/core/Components/Buttons/ThCloseButton";
+import { StatefulDocker } from "../Docking/StatefulDocker";
 
 import { useI18n } from "@/i18n";
 import { useWebkitPatch } from "./hooks/useWebkitPatch";
@@ -28,6 +28,7 @@ export interface StatefulModalBaseProps extends StatefulSheet {
 };
 
 export const StatefulModalBase = ({
+    id,
     heading,
     headerVariant,
     className,
@@ -36,6 +37,7 @@ export const StatefulModalBase = ({
     isOpen,
     onOpenChange,
     onClosePress,
+    docker,
     children,
     resetFocus,
     focusWithinRef,
@@ -111,11 +113,11 @@ export const StatefulModalBase = ({
                 aria-label={ t("reader.app.back.trigger") }
                 onPress={ onClosePress }
               />
-              : <ThCloseButton
+              : <StatefulDocker
+                id={ id }
+                keys={ docker || [] }
                 ref={ sheetCloseRef }
-                className={ readerSharedUI.closeButton }
-                aria-label={ t("common.actions.close") }
-                onPress={ onClosePress }
+                onClose={ onClosePress }
               />
             }
         </ThContainerHeader>

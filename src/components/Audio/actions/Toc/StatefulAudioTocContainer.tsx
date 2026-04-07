@@ -3,17 +3,18 @@
 import { useCallback, useEffect } from "react";
 
 import { Link } from "@readium/shared";
-import { ThAudioActionKeys, ThLayoutDirection } from "@/preferences/models";
+import { ThAudioActionKeys, ThSheetTypes, ThLayoutDirection } from "@/preferences/models";
 
 import { useTocContent } from "@/components/Actions/Toc/useTocContent";
 import { TocContent } from "@/components/Actions/Toc/TocContent";
 
-import { StatefulModalSheet } from "@/components/Sheets";
+import { StatefulSheetWrapper } from "@/components/Sheets/StatefulSheetWrapper";
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 
 import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 import { isActiveElement } from "@/core/Helpers/focusUtilities";
+import { useDocking } from "../../../Docking/hooks/useDocking";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setActionOpen } from "@/lib/actionsReducer";
@@ -36,6 +37,9 @@ export const StatefulAudioTocContainer = ({ triggerRef }: StatefulActionContaine
 
   const direction = useAppSelector(state => state.reader.direction);
   const isRTL = direction === ThLayoutDirection.rtl;
+
+  const docking = useDocking(ThAudioActionKeys.toc);
+  const sheetType = docking.sheetType;
 
   const setOpen = useCallback((value: boolean) => {
     dispatch(setActionOpen({ key: ThAudioActionKeys.toc, isOpen: value }));
@@ -63,25 +67,38 @@ export const StatefulAudioTocContainer = ({ triggerRef }: StatefulActionContaine
     const href = el?.getAttribute("data-href");
     if (!href) return;
     const matched = findTocItemById(tocTree || [], key as string);
-    goLink(new Link({ href }), true, () => {
-      dispatch(setTocEntry(matched || null));
-      dispatch(setImmersive(true));
-      dispatch(setUserNavigated(true));
-      setOpen(false);
-    });
+
+    const cb = isOpen && (sheetType === ThSheetTypes.dockedStart || sheetType === ThSheetTypes.dockedEnd)
+      ? () => {
+          dispatch(setTocEntry(matched || null));
+          dispatch(setImmersive(true));
+          dispatch(setUserNavigated(true));
+        }
+      : () => {
+          dispatch(setTocEntry(matched || null));
+          dispatch(setImmersive(true));
+          dispatch(setUserNavigated(true));
+          setOpen(false);
+        };
+
+    goLink(new Link({ href }), true, cb);
   };
 
   return (
-    <StatefulModalSheet
-      id={ ThAudioActionKeys.toc }
-      triggerRef={ triggerRef }
-      heading={ t("reader.tableOfContents.title") }
-      className=""
-      isOpen={ isOpen }
-      onOpenChange={ setOpen }
-      onClosePress={ () => setOpen(false) }
-      resetFocus={ tocEntryId }
-      focusWithinRef={ treeRef }
+    <StatefulSheetWrapper
+      sheetType={ sheetType }
+      sheetProps={ {
+        id: ThAudioActionKeys.toc,
+        triggerRef,
+        heading: t("reader.tableOfContents.title"),
+        className: "",
+        isOpen,
+        onOpenChange: setOpen,
+        onClosePress: () => setOpen(false),
+        docker: docking.getDocker(),
+        resetFocus: tocEntryId,
+        focusWithinRef: treeRef,
+      } }
     >
       <TocContent
         filterValue={ filterValue }
@@ -96,6 +113,6 @@ export const StatefulAudioTocContainer = ({ triggerRef }: StatefulActionContaine
         treeRef={ treeRef }
         searchInputRef={ searchInputRef }
       />
-    </StatefulModalSheet>
+    </StatefulSheetWrapper>
   );
 };
