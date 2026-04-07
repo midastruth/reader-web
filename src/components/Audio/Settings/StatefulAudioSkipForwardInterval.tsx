@@ -9,6 +9,7 @@ import { ThActionsKeys, ThAudioKeys } from "@/preferences/models";
 import { StatefulNumberField } from "../../Settings/StatefulNumberField";
 import { StatefulSlider } from "../../Settings/StatefulSlider";
 import { StatefulSliderWithPresets } from "../../Settings/StatefulSliderWithPresets";
+import { StatefulPresetsGroup } from "../../Settings/StatefulPresetsGroup";
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { usePlaceholder } from "../../Settings/hooks/usePlaceholder";
@@ -74,6 +75,20 @@ export const StatefulAudioSkipForwardInterval = ({
         formatOptions={{ style: "unit", unit: "second" }}
         isWheelDisabled={ true }
         isVirtualKeyboardDisabled={ true }
+      />
+    );
+  }
+
+  if (skipForwardIntervalRangeConfig.variant === ThSettingsRangeVariant.presetsGroup) {
+    return (
+      <StatefulPresetsGroup
+        standalone={ standalone }
+        label={ t("reader.playback.preferences.audio.skipForwardInterval") }
+        presets={ presets || [] }
+        formatOptions={{ style: "unit", unit: "second" }}
+        onEscape={ () => dispatch(setActionOpen({ key: ThActionsKeys.settings, isOpen: false })) }
+        value={ skipForwardInterval }
+        onChange={ (v) => updatePreference(v) }
       />
     );
   }

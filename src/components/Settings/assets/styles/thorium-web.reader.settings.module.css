@@ -274,6 +274,7 @@
   gap: var(--th-layout-spacing);
 }
 
+
 /* Let the slider fill the full width of the wrapper */
 .sliderWithPresetsWrapper .sliderWrapper {
   width: 100%;

@@ -57,7 +57,7 @@ export const defaultAudioPlaybackRate: ThSettingsRangePrefRequired = {
 }
 
 export const defaultAudioSkipBackwardInterval: ThSettingsRangePrefRequired = {
-  variant: ThSettingsRangeVariant.sliderWithPresets,
+  variant: ThSettingsRangeVariant.presetsGroup,
   range: [5, 60],
   step: 5,
   placeholder: ThSettingsRangePlaceholder.range,
@@ -65,7 +65,7 @@ export const defaultAudioSkipBackwardInterval: ThSettingsRangePrefRequired = {
 }
 
 export const defaultAudioSkipForwardInterval: ThSettingsRangePrefRequired = {
-  variant: ThSettingsRangeVariant.sliderWithPresets,
+  variant: ThSettingsRangeVariant.presetsGroup,
   range: [5, 60],
   step: 5,
   placeholder: ThSettingsRangePlaceholder.range,
@@ -73,7 +73,7 @@ export const defaultAudioSkipForwardInterval: ThSettingsRangePrefRequired = {
 }
 
 export const defaultAudioSkipInterval: ThSettingsRangePrefRequired = {
-  variant: ThSettingsRangeVariant.sliderWithPresets,
+  variant: ThSettingsRangeVariant.presetsGroup,
   range: [5, 60],
   step: 5,
   placeholder: ThSettingsRangePlaceholder.range,

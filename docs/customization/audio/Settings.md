@@ -29,11 +29,13 @@ The `settings.keys` object configures each audio setting. `ThAudioKeys.volume` a
 
 `volume`, `playbackRate`, `skipInterval`, `skipBackwardInterval`, and `skipForwardInterval` accept a `ThSettingsRangePrefRequired` object:
 
-- `variant`: from enum `ThSettingsRangeVariant` (`slider`, `sliderWithPresets`, or `numberField`)
+- `variant`: from enum `ThSettingsRangeVariant` (`slider`, `incrementedSlider`, `sliderWithPresets`, `presetsGroup`, or `numberField`)
 - `range`: the min and max values, as `[number, number]`
 - `step`: the step value, as `number`
 - `placeholder` (optional): from enum `ThSettingsRangePlaceholder`, or a `string`, or an object with `key` and `fallback` properties
-- `presets` (optional, required for `sliderWithPresets`): array of preset values reachable within the configured `range` and `step`
+- `presets` (optional, required for `sliderWithPresets` and `presetsGroup`): array of preset values reachable within the configured `range` and `step`
+
+`presetsGroup` renders only the preset buttons without a slider, which is the default for `skipInterval`, `skipBackwardInterval`, and `skipForwardInterval`.
 
 For instance:
 
@@ -47,7 +49,7 @@ settings: {
       presets: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
     },
     [ThAudioKeys.skipInterval]: {
-      variant: ThSettingsRangeVariant.sliderWithPresets,
+      variant: ThSettingsRangeVariant.presetsGroup,
       range: [5, 60],
       step: 5,
       presets: [5, 10, 30]
