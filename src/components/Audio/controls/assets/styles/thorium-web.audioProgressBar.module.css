@@ -15,16 +15,9 @@
 .audioProgressChapter {
   grid-area: chapter;
   text-align: center;
+  white-space: nowrap;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-@container (min-width: 400px) {
-  .audioProgressChapter {
-    -webkit-line-clamp: 1;
-  }
+  text-overflow: ellipsis;
 }
 
 .audioProgressSlider {
