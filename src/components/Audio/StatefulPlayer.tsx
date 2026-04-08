@@ -29,6 +29,7 @@ import { StatefulAudioProgressBar } from "./controls/StatefulAudioProgressBar";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
 import { useAudioNavigator } from "@/core/Hooks/Audio/useAudioNavigator";
 import { useAudioStatelessCache } from "./Hooks/useAudioStatelessCache";
+import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 import { resolveAudioContentProtectionConfig } from "@/preferences/models/protection";
 import { usePositionStorage } from "@/hooks/usePositionStorage";
@@ -53,6 +54,7 @@ import {
   setStalled,
   setTrackReady,
   setSleepTimerOnTrackEnd,
+  setSleepTimerOnFragmentEnd,
   setRemotePlaybackState,
   setSeekableRanges
 } from "@/lib/playerReducer";
@@ -108,6 +110,8 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
   const [isExpanded, setIsExpanded] = useState(false);
 
   const sleepOnTrackEnd = useAppSelector(state => state.player.sleepTimer.onTrackEnd);
+  const sleepOnFragmentEnd = useAppSelector(state => state.player.sleepTimer.onFragmentEnd);
+  const adjacentTimelineItems = useAppSelector(state => state.publication.adjacentTimelineItems);
   const volume = useAppSelector(state => state.audioSettings.volume);
   const playbackRate = useAppSelector(state => state.audioSettings.playbackRate);
   const preservePitch = useAppSelector(state => state.audioSettings.preservePitch);
@@ -128,13 +132,15 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     pollInterval,
     autoPlay,
     enableMediaSession,
-    sleepOnTrackEnd
+    sleepOnTrackEnd,
+    sleepOnFragmentEnd,
+    adjacentTimelineItems
   );
 
   const dispatch = useAppDispatch();
 
   const audioNavigator = useAudioNavigator();
-  const { canGoBackward, canGoForward, submitPreferences } = audioNavigator;
+  const { canGoBackward, canGoForward, submitPreferences, pause } = audioNavigator;
 
   const { setLocalData, getLocalData } = usePositionStorage(localDataKey, positionStorage);
 
@@ -147,6 +153,47 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     tocTreeRef.current = tocTree;
   }, [tocTree]);
 
+  // Callback to handle timeline navigation state updates
+  const handleTimelineNavigation = useCallback((item: TimelineItem) => {
+    const tl = publication.timeline;
+    const link = tl.linkFor(item);
+    if (link) {
+      const matched = findTocItemByHref(tocTreeRef.current || [], link.href);
+      dispatch(setTocEntry(matched || null));
+    }
+    const { previous, next } = tl.adjacentTo(item);
+    dispatch(setAdjacentTimelineItems({
+      previous: previous ? { title: previous.title, href: tl.linkFor(previous)?.href ?? "" } : null,
+      next: next ? { title: next.title, href: tl.linkFor(next)?.href ?? "" } : null,
+    }));
+    return { previous, next };
+  }, [dispatch, publication]);
+
+  // Callback to check if affordance is timeline or toc (fragment-based)
+  const isFragmentAffordance = useCallback((affordance: string) => {
+    return affordance === "timeline" || affordance === "toc";
+  }, []);
+
+  // Callback to handle sleep timer endOfFragment logic
+  const handleSleepTimerEndOfFragment = useCallback((isTransitionToNext: boolean) => {
+    if (!cache.current.sleepTimerOnFragmentEnd || !isTransitionToNext) return;
+    
+    const nextAffordance = preferences.affordances.next;
+    if (isFragmentAffordance(nextAffordance)) {
+      pause();
+      dispatch(setSleepTimerOnFragmentEnd(false));
+    }
+  }, [cache, preferences.affordances.next, isFragmentAffordance, pause, dispatch]);
+
+  // Callback to handle continuous play logic
+  const handleContinuousPlay = useCallback((isTransitionToNext: boolean) => {
+    if (!cache.current.settings.autoPlay && isTransitionToNext) {
+      if (isFragmentAffordance(preferences.affordances.next)) {
+        pause();
+      }
+    }
+  }, [cache, preferences.affordances.next, isFragmentAffordance, pause]);
+
   const listeners: AudioNavigatorListeners = useMemo(() => ({
     timelineItemChanged: (item: TimelineItem | undefined) => {
       if (!item) {
@@ -154,17 +201,20 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
         dispatch(setAdjacentTimelineItems({ previous: null, next: null }));
         return;
       }
-      const tl = publication.timeline;
-      const link = tl.linkFor(item);
-      if (link) {
-        const matched = findTocItemByHref(tocTreeRef.current || [], link.href);
-        dispatch(setTocEntry(matched || null));
-      }
-      const { previous, next } = tl.adjacentTo(item);
-      dispatch(setAdjacentTimelineItems({
-        previous: previous ? { title: previous.title, href: tl.linkFor(previous)?.href ?? "" } : null,
-        next: next ? { title: next.title, href: tl.linkFor(next)?.href ?? "" } : null,
-      }));
+
+      // Capture the previous "next" item from cache BEFORE handleTimelineNavigation updates Redux state
+      const previousNextItem = cache.current.adjacentTimelineItems.next;
+      const currentItemHref = publication.timeline.linkFor(item)?.href ?? "";
+
+      // Update TOC entry and adjacent items (this updates Redux state)
+      handleTimelineNavigation(item);
+
+      // Check if we're transitioning to the next fragment by comparing current item href with previous next item href
+      const isTransitionToNext = previousNextItem !== null &&
+        previousNextItem.href === currentItemHref;
+
+      handleSleepTimerEndOfFragment(isTransitionToNext);
+      handleContinuousPlay(isTransitionToNext);
     },
     positionChanged: (locator) => {
       setLocalData(locator);
@@ -189,6 +239,10 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     trackEnded: () => {
       if (cache.current.sleepTimerOnTrackEnd) {
         submitPreferences({ autoPlay: false });
+      }
+      if (cache.current.sleepTimerOnFragmentEnd) {
+        submitPreferences({ autoPlay: false });
+        dispatch(setSleepTimerOnFragmentEnd(false));
       }
     },
     metadataLoaded: () => {},
@@ -226,7 +280,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     contentProtection: (_type: string, _detail: SuspiciousActivityEvent) => {},
     peripheral: (_data: KeyboardEventData) => {},
     contextMenu: (_data: ContextMenuEvent) => {}
-  }), [setLocalData, canGoBackward, canGoForward, dispatch, cache, submitPreferences, publication]);
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, cache, submitPreferences, publication, handleTimelineNavigation, handleSleepTimerEndOfFragment, handleContinuousPlay]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

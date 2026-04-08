@@ -137,7 +137,8 @@
                     "descriptive": "Sleep timer",
                     "presets": {
                         "endOfChapter": "End of chapter",
-                        "endOfResource": "End of resource"
+                        "endOfResource": "End of resource",
+                        "endOfFragment": "End of fragment"
                     }
                 }
             }
