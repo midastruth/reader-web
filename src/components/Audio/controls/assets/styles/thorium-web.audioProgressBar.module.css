@@ -130,3 +130,9 @@
   font-size: 0.875rem;
   color: var(--th-theme-text);
 }
+
+@container (max-width: 300px) {
+  .audioProgressChapter {
+    font-size: 0.875rem;
+  }
+}
