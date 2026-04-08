@@ -50,14 +50,14 @@ export const StatefulAudioRemotePlaybackTrigger = ({ variant }: StatefulActionTr
   }, [remotePlayback]);
 
   const handlePress = useCallback(async () => {
-    if (!remotePlayback || remotePlaybackState === "connected") return;
+    if (!remotePlayback) return;
     try {
       await remotePlayback.prompt();
     } catch (err: unknown) {
       if (err instanceof DOMException && (err.name === "AbortError" || err.name === "NotAllowedError")) return;
       dispatch(setRemotePlaybackState("error"));
     }
-  }, [remotePlayback, remotePlaybackState, dispatch]);
+  }, [remotePlayback, dispatch]);
 
   if (preferences.contentProtection?.disableRemotePlayback) return null;
   if (!remotePlayback || isAvailable === false) return null;
