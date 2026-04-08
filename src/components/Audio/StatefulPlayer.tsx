@@ -45,6 +45,7 @@ import {
   setAdjacentTimelineItems,
 } from "@/lib/publicationReducer";
 import { findTocItemByHref, TocItem } from "@/helpers/buildTocTree";
+import { isWebKit } from "@/helpers/browser";
 import { TimelineItem } from "@readium/shared";
 import { 
   setStatus,
@@ -219,6 +220,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
       dispatch(setStatus("paused"));
     },
     remotePlaybackStateChanged: (state) => {
+      if (isWebKit) return;
       dispatch(setRemotePlaybackState(state));
     },
     contentProtection: (_type: string, _detail: SuspiciousActivityEvent) => {},
