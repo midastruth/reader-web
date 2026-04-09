@@ -309,7 +309,7 @@
   border: 2px solid var(--th-theme-subdue);
 }
 
-.sliderWithPresetsRadio[data-hovered]:not([data-selected]) {
+.sliderWithPresetsRadio[data-hovered] {
   background-color: var(--th-theme-hover);
   color: var(--th-theme-onHover);
 }
