@@ -9,7 +9,7 @@
 }
 
 .link svg {
-  fill: var(--th-theme-text);
+  fill: currentColor;
   max-width: 100%;
   height: 100%;
 }
@@ -30,8 +30,4 @@
 
 .link[data-disabled] {
   color: var(--th-theme-disable)
-}
-
-.link[data-disabled] svg {
-  fill: var(--th-theme-disable);
 }

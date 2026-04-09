@@ -57,6 +57,7 @@
 .audioControlPopover {
   /* Override the default popover width — audio controls are more compact */
   width: auto;
+  max-width: 95%;
 }
 
 .audioControlPopoverHeader {
@@ -102,6 +103,7 @@
 
 .audioSleepTimerListboxItem[data-hovered]:not([data-selected]) {
   background-color: var(--th-theme-hover);
+  color: var(--th-theme-onHover);
 }
 
 .audioSleepTimerListboxItem[data-focus-visible] {
@@ -177,6 +179,7 @@
 
 .audioSleepTimerActionButton[data-hovered] {
   background-color: var(--th-theme-hover);
+  color: var(--th-theme-onHover)
 }
 
 .audioSleepTimerActionButton[data-focus-visible] {

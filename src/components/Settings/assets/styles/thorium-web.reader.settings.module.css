@@ -440,6 +440,7 @@
 
 .dropdownListboxItem[data-hovered] {
   background-color: var(--th-theme-hover);
+  color: var(--th-theme-onHover);
 }
 
 .dropdownListboxItem[data-focus-visible] {
