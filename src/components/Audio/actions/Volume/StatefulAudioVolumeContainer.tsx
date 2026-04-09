@@ -8,6 +8,7 @@ import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFo
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
+import volumeStyles from "./assets/styles/thorium-web.volume.module.css";
 
 import { useNavigator } from "@/core/Navigator";
 import { useAudioPreferences } from "@/preferences/hooks/useAudioPreferences";
@@ -65,8 +66,7 @@ export const StatefulAudioVolumeContainer = ({ triggerRef, placement = "top" }: 
         id: ThAudioActionKeys.volume,
         triggerRef,
         heading: t("reader.playback.preferences.audio.volume"),
-        className: audioStyles.audioControlPopover,
-        headerClassName: audioStyles.audioControlPopoverHeader,
+        className: audioStyles.popover,
         placement,
         isOpen,
         onOpenChange: setOpen,
@@ -76,7 +76,7 @@ export const StatefulAudioVolumeContainer = ({ triggerRef, placement = "top" }: 
     >
       <ThSlider
         aria-label={ t("reader.playback.preferences.audio.volume") }
-        className={ audioStyles.audioVolumeSlider }
+        className={ volumeStyles.slider }
         orientation={ sliderOrientation }
         range={ range }
         step={ config.step }
@@ -84,8 +84,8 @@ export const StatefulAudioVolumeContainer = ({ triggerRef, placement = "top" }: 
         onChange={ updatePreference }
         compounds={ {
           wrapper: { ref: contentRef },
-          track: { className: audioStyles.audioVolumeSliderTrack },
-          thumb: { className: audioStyles.audioVolumeSliderThumb },
+          track: { className: volumeStyles.sliderTrack },
+          thumb: { className: volumeStyles.sliderThumb },
           output: { style: () => ({ display: "none" }) }
         } }
       />

@@ -9,7 +9,7 @@
 }
 
 .link svg {
-  fill: currentColor;
+  fill: var(--th-theme-text);
   max-width: 100%;
   height: 100%;
 }

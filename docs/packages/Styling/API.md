@@ -164,6 +164,9 @@ This document outlines the available styling classes and custom properties for t
 - `.thorium_web_reader_settings_sliderOutput` - Slider value display
 - `.thorium_web_reader_settings_sliderPlaceholder` - Slider placeholder
 - `.thorium_web_reader_settings_sliderWrapper` - Slider container
+- `.thorium_web_reader_settings_sliderWithPresetsWrapper` - Slider with presets container
+- `.thorium_web_reader_settings_sliderWithPresetsRadioGroup` - Radio button group for slider presets
+- `.thorium_web_reader_settings_sliderWithPresetsRadio` - Individual radio button preset for slider
 - `.thorium_web_reader_settings_numberField` - Number input
 - `.thorium_web_reader_settings_numberFieldWrapper` - Number input wrapper
 - `.thorium_web_reader_settings_dropdown` - Dropdown menu
@@ -243,34 +246,42 @@ This document outlines the available styling classes and custom properties for t
 
 ### Media Actions
 
-- `.thorium_web_audioActions_audioMediaActions` - Media actions bar container
-- `.thorium_web_audioActions_audioVolumeButton` - Volume button
-- `.thorium_web_audioActions_audioVolumeSlider` - Volume slider
-- `.thorium_web_audioActions_audioVolumeSliderTrack` - Volume slider track
-- `.thorium_web_audioActions_audioVolumeSliderThumb` - Volume slider thumb
-- `.thorium_web_audioActions_audioPlaybackRateButton` - Playback rate button
-- `.thorium_web_audioActions_audioPlaybackRateLabel` - Playback rate label (e.g. `1×`)
-- `.thorium_web_audioActions_audioPlaybackRateSliderContent` - Playback rate slider popover content
-- `.thorium_web_audioActions_audioPlaybackRateNumberField` - Playback rate number field (number field variant)
-- `.thorium_web_audioActions_audioTocButton` - Table of contents button
-- `.thorium_web_audioActions_audioTocContent` - TOC popover content
-- `.thorium_web_audioActions_audioTocTree` - TOC tree within the popover
-- `.thorium_web_audioActions_audioSleepTimerButton` - Sleep timer button
-- `.thorium_web_audioActions_audioSleepTimerLabel` - Sleep timer label
-- `.thorium_web_audioActions_audioSleepTimerListbox` - Sleep timer preset listbox
-- `.thorium_web_audioActions_audioSleepTimerListboxItem` - Sleep timer preset item
-- `.thorium_web_audioActions_audioSleepTimerDurationField` - Sleep timer duration input group
-- `.thorium_web_audioActions_audioSleepTimerInstruction` - Sleep timer instruction text
-- `.thorium_web_audioActions_audioSleepTimerInputs` - Sleep timer inputs container
-- `.thorium_web_audioActions_audioSleepTimerFieldGroup` - Sleep timer field group
-- `.thorium_web_audioActions_audioSleepTimerFieldInput` - Sleep timer field input
-- `.thorium_web_audioActions_audioSleepTimerUnitLabel` - Sleep timer unit label
-- `.thorium_web_audioActions_audioSleepTimerRemaining` - Remaining sleep time display
-- `.thorium_web_audioActions_audioSleepTimerPresetCancelButton` - Sleep timer cancel button
-- `.thorium_web_audioActions_audioSleepTimerActionButton` - Sleep timer action button
-- `.thorium_web_audioActions_audioControlPopover` - Control popover container
-- `.thorium_web_audioActions_audioControlPopoverDialog` - Control popover dialog
-- `.thorium_web_audioActions_audioControlPopoverHeading` - Control popover heading
+- `.thorium_web_audioActions_wrapper` - Media actions bar container
+- `.thorium_web_audioActions_popover` - Control popover container
+
+#### Volume
+
+- `.thorium_web_volume.button` - Volume button
+- `.thorium_web_volume.slider` - Volume slider
+- `.thorium_web_volume.sliderTrack` - Volume slider track
+- `.thorium_web_volume.sliderThumb` - Volume slider thumb
+
+#### Playback Rate
+
+- `.thorium_web_playbackRate_button` - Playback rate button
+- `.thorium_web_playbackRate_label` - Playback rate label (e.g. `1×`)
+- `.thorium_web_playbackRate_slider` - Playback rate slider popover content
+- `.thorium_web_playbackRate_numberField` - Playback rate number field (number field variant)
+
+#### TOC
+
+- `.thorium_web_audioToc.button` - Table of contents button
+
+#### Sleep Timer
+
+- `.thorium_web_sleepTimer_button` - Sleep timer button
+- `.thorium_web_sleepTimer_label` - Sleep timer label
+- `.thorium_web_sleepTimer_listbox` - Sleep timer preset listbox
+- `.thorium_web_sleepTimer_listboxItem` - Sleep timer preset item
+- `.thorium_web_sleepTimer_durationField` - Sleep timer duration input group
+- `.thorium_web_sleepTimer_instruction` - Sleep timer instruction text
+- `.thorium_web_sleepTimer_inputs` - Sleep timer inputs container
+- `.thorium_web_sleepTimer_fieldGroup` - Sleep timer field group
+- `.thorium_web_sleepTimer_fieldInput` - Sleep timer field input
+- `.thorium_web_sleepTimer_unitLabel` - Sleep timer unit label
+- `.thorium_web_sleepTimer_remaining` - Remaining sleep time display
+- `.thorium_web_sleepTimer_cancelButton` - Sleep timer cancel button
+- `.thorium_web_sleepTimer_startButton` - Sleep timer action button
 
 ### Progress Bar
 

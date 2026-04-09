@@ -34,7 +34,7 @@ export const darkTheme = {
   subdue: "#808080",
   disable: "#808080",
   hover: "#404040",
-  onHover: "#FEFEFE",
+  onHover: "red",
   select: "#b4d8fe",
   onSelect: "inherit",
   focus: "#0067f4",

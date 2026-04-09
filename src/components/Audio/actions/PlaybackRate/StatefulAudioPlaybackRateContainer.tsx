@@ -10,6 +10,7 @@ import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
+import playbackStyles from "./assets/styles/thorium-web.playbackRate.module.css";
 
 import { useNavigator } from "@/core/Navigator/hooks";
 import { useEffectiveRange } from "../../../Settings/hooks/useEffectiveRange";
@@ -56,7 +57,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
   const renderContent = () => {
     if (config.variant === ThSettingsRangeVariant.slider) {
       return (
-        <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
+        <div ref={ contentRef } className={ playbackStyles.slider }>
           <ThSlider
             aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
             range={ range }
@@ -70,7 +71,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
 
     if (config.variant === ThSettingsRangeVariant.numberField) {
       return (
-        <div ref={ contentRef } className={ audioStyles.audioPlaybackRateNumberField }>
+        <div ref={ contentRef } className={ playbackStyles.numberField }>
           <ThNumberField
             aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
             range={ range }
@@ -84,7 +85,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
 
     // Default: sliderWithPresets
     return (
-      <div ref={ contentRef } className={ audioStyles.audioPlaybackRateSliderContent }>
+      <div ref={ contentRef } className={ playbackStyles.slider }>
         <StatefulSliderWithPresets
           standalone
           label={ t("reader.playback.preferences.playbackRate.descriptive") }
@@ -107,8 +108,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
         id: ThAudioActionKeys.playbackRate,
         triggerRef,
         heading: t("reader.playback.preferences.playbackRate.descriptive"),
-        className: audioStyles.audioControlPopover,
-        headerClassName: audioStyles.audioControlPopoverHeader,
+        className: audioStyles.popover,
         placement,
         isOpen,
         onOpenChange: setOpen,
