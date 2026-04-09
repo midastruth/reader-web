@@ -24,10 +24,18 @@
   color: var(--th-theme-onHover);
 }
 
+.link[data-hovered] svg {
+  fill: var(--th-theme-onHover)
+}
+
 .link[data-focus-visible] {
   outline: 2px solid var(--th-theme-focus);
 }
 
 .link[data-disabled] {
   color: var(--th-theme-disable)
+}
+
+.link[data-disabled] svg {
+  fill: var(--th-theme-disable)
 }
