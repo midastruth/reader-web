@@ -10,7 +10,7 @@ import {
   SliderTrack,
   SliderTrackProps
 } from "react-aria-components";
-import { useOverlayPosition, OverlayContainer, OverlayContainerProps, PositionProps, useObjectRef } from "react-aria";
+import { useOverlayPosition, useLocale, OverlayContainer, OverlayContainerProps, PositionProps, useObjectRef } from "react-aria";
 
 import { WithRef } from "../customTypes";
 
@@ -64,6 +64,7 @@ export const ThAudioProgress = ({
   segments,
   compounds
 }: ThAudioProgressProps) => {
+  const { direction } = useLocale();
   const anchorRef = useRef<HTMLSpanElement>(null);
   const overlayRef = useObjectRef(compounds?.tooltip?.ref);
   const [isOpen, setIsOpen] = useState(false);
@@ -99,9 +100,13 @@ export const ThAudioProgress = ({
 
   const handleTrackMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const raw = (e.clientX - rect.left) / rect.width;
+    const x = Math.max(0, Math.min(1, direction === "rtl" ? 1 - raw : raw));
     if (anchorRef.current) {
-      anchorRef.current.style.left = `${ x * 100 }%`;
+      const side = direction === "rtl" ? "right" : "left";
+      anchorRef.current.style.left = "";
+      anchorRef.current.style.right = "";
+      anchorRef.current.style[side] = `${ x * 100 }%`;
       updatePosition();
     }
     if (!isOpen) setIsOpen(true);
@@ -140,7 +145,7 @@ export const ThAudioProgress = ({
               key={ i }
               { ...compounds?.seekableRange }
               style={{
-                left: `${ (range.start / duration) * 100 }%`,
+                [direction === "rtl" ? "right" : "left"]: `${ (range.start / duration) * 100 }%`,
                 width: `${ ((range.end - range.start) / duration) * 100 }%`,
                 ...compounds?.seekableRange?.style,
               }}
@@ -152,14 +157,14 @@ export const ThAudioProgress = ({
               { ...compounds?.segmentTick }
               style={{
                 position: "absolute",
-                left: `${ segment.percentage }%`,
+                [direction === "rtl" ? "right" : "left"]: `${ segment.percentage }%`,
                 ...compounds?.segmentTick?.style,
               }}
             />
           )) }
           <span
             ref={ anchorRef }
-            style={{ position: "absolute", left: "0%", width: 0, height: "100%", top: 0 }}
+            style={{ position: "absolute", [direction === "rtl" ? "right" : "left"]: "0%", width: 0, height: "100%", top: 0 }}
             aria-hidden="true"
           />
           <SliderThumb { ...compounds?.thumb } />
