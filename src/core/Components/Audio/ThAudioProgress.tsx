@@ -38,14 +38,14 @@ export interface ThAudioProgressProps {
   segments?: TimelineSegment[];
   compounds?: {
     wrapper?: React.HTMLAttributes<HTMLDivElement>;
-    chapter?: React.HTMLAttributes<HTMLDivElement>;
+    current?: React.HTMLAttributes<HTMLDivElement>;
     slider?: WithRef<SliderProps, HTMLDivElement>;
     track?: WithRef<SliderTrackProps, HTMLDivElement>;
     thumb?: WithRef<SliderThumbProps, HTMLDivElement>;
     elapsedTime?: React.HTMLAttributes<HTMLSpanElement>;
     remainingTime?: React.HTMLAttributes<HTMLSpanElement>;
     seekableRange?: React.HTMLAttributes<HTMLDivElement>;
-    segmentTick?: React.HTMLAttributes<HTMLDivElement>;
+    fragmentTick?: React.HTMLAttributes<HTMLDivElement>;
     tooltip?: WithRef<PositionProps & React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
     overlayContainer?: OverlayContainerProps;
   };
@@ -123,7 +123,7 @@ export const ThAudioProgress = ({
   return (
     <div { ...compounds?.wrapper }>
       { currentChapter && (
-        <div { ...compounds?.chapter }>
+        <div { ...compounds?.current }>
           { currentChapter }
         </div>
       ) }
@@ -154,11 +154,11 @@ export const ThAudioProgress = ({
           { segments?.map((segment, i) => (
             <div
               key={ `segment-${ i }` }
-              { ...compounds?.segmentTick }
+              { ...compounds?.fragmentTick }
               style={{
                 position: "absolute",
                 [direction === "rtl" ? "right" : "left"]: `${ segment.percentage }%`,
-                ...compounds?.segmentTick?.style,
+                ...compounds?.fragmentTick?.style,
               }}
             />
           )) }

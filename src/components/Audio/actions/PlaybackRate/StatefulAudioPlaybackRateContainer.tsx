@@ -8,7 +8,6 @@ import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 
-import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 import playbackStyles from "./assets/styles/thorium-web.playbackRate.module.css";
 
 import { useNavigator } from "@/core/Navigator/hooks";
@@ -99,7 +98,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
         id: ThAudioActionKeys.playbackRate,
         triggerRef,
         heading: t("reader.playback.preferences.playbackRate.descriptive"),
-        className: audioStyles.popover,
+        className: playbackStyles.wrapper,
         placement,
         isOpen,
         onOpenChange: setOpen,

@@ -6,7 +6,6 @@ import { ThAudioKeys, ThAudioActionKeys, ThSheetTypes } from "@/preferences/mode
 import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
 
-import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 import volumeStyles from "./assets/styles/thorium-web.volume.module.css";
 
 import { useNavigator } from "@/core/Navigator";
@@ -57,7 +56,7 @@ export const StatefulAudioVolumeContainer = ({ triggerRef, placement = "top" }: 
         id: ThAudioActionKeys.volume,
         triggerRef,
         heading: t("reader.playback.preferences.audio.volume"),
-        className: audioStyles.popover,
+        className: volumeStyles.wrapper,
         placement,
         isOpen,
         onOpenChange: setOpen,
