@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 
 import { ThAudioKeys, ThAudioActionKeys, ThSettingsRangeVariant } from "@/preferences/models";
 import { StatefulSliderWithPresets } from "../../../Settings/StatefulSliderWithPresets";
 import { ThSlider } from "@/core/Components/Settings/ThSlider";
 import { ThNumberField } from "@/core/Components/Settings/ThNumberField";
 import { StatefulActionContainerProps } from "../../../Actions/models/actions";
-import { useFirstFocusable } from "@/core/Components/Containers/hooks/useFirstFocusable";
 
 import audioStyles from "../assets/styles/thorium-web.audioActions.module.css";
 import playbackStyles from "./assets/styles/thorium-web.playbackRate.module.css";
@@ -24,15 +23,7 @@ import { setPlaybackRate } from "@/lib/audioSettingsReducer";
 import { setActionOpen } from "@/lib/actionsReducer";
 
 export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "top" }: StatefulActionContainerProps) => {
-  const contentRef = useRef<HTMLDivElement>(null);
-
   const isOpen = useAppSelector(state => state.actions.keys[ThAudioActionKeys.playbackRate]?.isOpen ?? false);
-
-  useFirstFocusable({
-    withinRef: contentRef,
-    trackedState: isOpen,
-    action: { type: "focus" }
-  });
 
   const { t } = useI18n();
   const { preferences } = useAudioPreferences();
@@ -57,7 +48,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
   const renderContent = () => {
     if (config.variant === ThSettingsRangeVariant.slider) {
       return (
-        <div ref={ contentRef } className={ playbackStyles.slider }>
+        <div className={ playbackStyles.slider }>
           <ThSlider
             aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
             range={ range }
@@ -71,7 +62,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
 
     if (config.variant === ThSettingsRangeVariant.numberField) {
       return (
-        <div ref={ contentRef } className={ playbackStyles.numberField }>
+        <div className={ playbackStyles.numberField }>
           <ThNumberField
             aria-label={ t("reader.playback.preferences.playbackRate.descriptive") }
             range={ range }
@@ -85,7 +76,7 @@ export const StatefulAudioPlaybackRateContainer = ({ triggerRef, placement = "to
 
     // Default: sliderWithPresets
     return (
-      <div ref={ contentRef } className={ playbackStyles.slider }>
+      <div className={ playbackStyles.slider }>
         <StatefulSliderWithPresets
           standalone
           label={ t("reader.playback.preferences.playbackRate.descriptive") }

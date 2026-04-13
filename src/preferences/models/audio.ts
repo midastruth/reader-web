@@ -122,7 +122,10 @@ export const defaultAudioSleepTimerAction: ThAudioActionsTokens = {
   shortcut: null,
   sheet: {
     defaultSheet: ThSheetTypes.compactPopover,
-    breakpoints: { [ThBreakpoints.compact]: ThSheetTypes.bottomSheet }
+    breakpoints: { 
+      [ThBreakpoints.compact]: ThSheetTypes.bottomSheet,
+      [ThBreakpoints.medium]: ThSheetTypes.bottomSheet
+    }
   },
   snapped: {
     minHeight: "content-height"
