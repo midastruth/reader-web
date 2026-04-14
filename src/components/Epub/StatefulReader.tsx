@@ -105,7 +105,8 @@ export const StatefulReader = ({
   publication,
   localDataKey,
   plugins,
-  positionStorage
+  positionStorage,
+  containerRefSetter
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
@@ -127,13 +128,13 @@ export const StatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } containerRefSetter={ containerRefSetter } />
       </ThPluginProvider>
     </>
   );
 };
 
-const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage, containerRefSetter }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; containerRefSetter?: (el: Element | null) => void }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = usePreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
@@ -621,8 +622,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
     <NavigatorProvider visualNavigator={ epubNavigator }>
       <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
-          <div 
-            className={ 
+          <div
+            ref={ containerRefSetter }
+            className={
               getReaderClassNames({
                 isScroll,
                 isImmersive,

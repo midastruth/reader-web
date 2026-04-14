@@ -22,7 +22,7 @@ export const StatefulCollapsibleActionsBar = ({
   ...props
 }: StatefulCollapsibleActionsBarProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
-  const breakpoint = useAppSelector(state => state.theming.breakpoint);
+  const breakpoint = useAppSelector(state => state.theming.containerBreakpoint);
 
   const compounds = useMemo(() => ({
     menu: (

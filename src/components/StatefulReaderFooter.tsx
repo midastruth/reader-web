@@ -40,7 +40,7 @@ export const StatefulReaderFooter = ({
   const scroll = useAppSelector(state => state.settings.scroll);
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const isScroll = scroll && !isFXL;
-  const breakpoint = useAppSelector(state => state.theming.breakpoint);
+  const breakpoint = useAppSelector(state => state.theming.containerBreakpoint);
   const reducedMotion = useAppSelector(state => state.theming.prefersReducedMotion);
   const timeline = useAppSelector(state => state.publication.unstableTimeline);
 

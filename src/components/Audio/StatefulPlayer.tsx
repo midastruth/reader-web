@@ -67,6 +67,7 @@ export interface StatefulPlayerProps {
   plugins?: any[];
   positionStorage?: PositionStorage;
   coverUrl?: string;
+  containerRefSetter?: (el: Element | null) => void;
 }
 
 export const StatefulPlayer = ({
@@ -74,7 +75,8 @@ export const StatefulPlayer = ({
   localDataKey,
   plugins,
   positionStorage,
-  coverUrl
+  coverUrl,
+  containerRefSetter
 }: StatefulPlayerProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
@@ -95,12 +97,12 @@ export const StatefulPlayer = ({
 
   return (
     <ThPluginProvider>
-      <StatefulPlayerInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } coverUrl={ coverUrl } />
+      <StatefulPlayerInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } coverUrl={ coverUrl } containerRefSetter={ containerRefSetter } />
     </ThPluginProvider>
   );
 };
 
-const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, coverUrl }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; coverUrl?: string }) => {
+const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, coverUrl, containerRefSetter }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; coverUrl?: string; containerRefSetter?: (el: Element | null) => void }) => {
   const { preferences } = useAudioPreferences();
   const { t } = useI18n();
 
@@ -383,7 +385,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
     <NavigatorProvider mediaNavigator={ audioNavigator }>
       <main className={ audioLayoutStyles.main }>
         <StatefulDockingWrapper>
-          <div className={ audioLayoutStyles.shell }>
+          <div ref={ containerRefSetter } className={ audioLayoutStyles.shell }>
             <StatefulPlayerHeader
               actionKeys={ preferences.actions.secondary.displayOrder as string[] }
               actionsOrder={ preferences.actions.secondary.displayOrder as string[] }

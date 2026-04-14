@@ -77,7 +77,8 @@ export const ExperimentalWebPubStatefulReader = ({
   publication,
   localDataKey,
   plugins,
-  positionStorage
+  positionStorage,
+  containerRefSetter
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
@@ -99,13 +100,13 @@ export const ExperimentalWebPubStatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } containerRefSetter={ containerRefSetter } />
       </ThPluginProvider>
     </>
   );
 };
 
-const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage, containerRefSetter }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; containerRefSetter?: (el: Element | null) => void }) => {
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
@@ -331,8 +332,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
     <NavigatorProvider visualNavigator={ webPubNavigator }>
       <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
-          <div 
-            className={ 
+          <div
+            ref={ containerRefSetter }
+            className={
               classNames(
                 getReaderClassNames({
                   isScroll: true,
