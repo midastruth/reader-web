@@ -12,6 +12,7 @@ import { ActionsStateKeys } from "@/lib/actionsReducer";
 
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
 import { useResizablePanel } from "./hooks/useResizablePanel";
+import { useDockCleanup } from "./hooks/useDockCleanup";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -195,6 +196,10 @@ export const StatefulDockingWrapper = ({
 }) => {
   const preferences = useActionsPreferences();
   const profile = useAppSelector(state => state.reader.profile);
+  
+  // Clean up stale docked actions
+  useDockCleanup(profile);
+  
   const dockingStart = useAppSelector(state => profile && state.actions.dock[profile] ? state.actions.dock[profile][ThDockingKeys.start] : undefined);
   const dockingEnd = useAppSelector(state => profile && state.actions.dock[profile] ? state.actions.dock[profile][ThDockingKeys.end] : undefined)
   const startPanel = useResizablePanel(dockingStart);

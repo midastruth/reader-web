@@ -11,6 +11,7 @@ import { dockAction, setActionOpen } from "@/lib/actionsReducer";
 
 import { usePrevious } from "@/core/Hooks/usePrevious";
 import { useActions } from "@/core/Components/Actions/hooks/useActions";
+import { useActionComponentStatus } from "@/core/Components/Actions/hooks/useActionComponentStatus";
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
 
 let dockingMap: Required<BreakpointsMap<ThDockingTypes>> | null = null;
@@ -25,6 +26,12 @@ export const useDocking = <T extends string>(key: T) => {
   const dispatch = useAppDispatch();
 
   const actions = useActions(actionsMap);
+  
+  // Check if docked actions still exist in plugin registry
+  const startActionKey = dock?.[ThDockingKeys.start]?.actionKey;
+  const endActionKey = dock?.[ThDockingKeys.end]?.actionKey;
+  const startStatus = useActionComponentStatus({ actionKey: startActionKey || "" });
+  const endStatus = useActionComponentStatus({ actionKey: endActionKey || "" });
 
   if (!dockingMap) {
     dockingMap = makeBreakpointsMap<ThDockingTypes>({
@@ -312,6 +319,27 @@ export const useDocking = <T extends string>(key: T) => {
       }
     }
   }, [profile, dock, actionState?.docking, actionState?.isOpen, key, dispatch]);
+
+  // Clean up stale docked actions that no longer exist in plugin registry
+  useEffect(() => {
+    if (!profile || !dock) return;
+
+    if (startActionKey && !startStatus.isComponentRegistered) {
+      dispatch(dockAction({
+        key: startActionKey,
+        dockingKey: ThDockingKeys.transient,
+        profile
+      }));
+    }
+
+    if (endActionKey && !endStatus.isComponentRegistered) {
+      dispatch(dockAction({
+        key: endActionKey,
+        dockingKey: ThDockingKeys.transient,
+        profile
+      }));
+    }
+  }, [profile, dock, startActionKey, endActionKey, startStatus.isComponentRegistered, endStatus.isComponentRegistered, dispatch]);
 
   return {
     getDocker,
