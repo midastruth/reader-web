@@ -32,7 +32,7 @@
     "./core/components": "./dist/core/Components/index.mjs",
     "./core/helpers": "./dist/core/Helpers/index.mjs",
     "./core/hooks": "./dist/core/Hooks/index.mjs",
-    "./core/i18n": "./dist/core/i18n/index.mjs",
+    "./core/i18n": "./dist/i18n/index.mjs",
     "./core/lib": "./dist/lib/index.mjs",
     "./core/preferences": "./dist/preferences/index.mjs",
     "./audio": "./dist/components/Audio/index.mjs",
