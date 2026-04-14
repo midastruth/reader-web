@@ -52,7 +52,7 @@ export const useCollapsibility = (items: ThActionEntry<string>[], prefs: Collaps
       }
 
       // Creating a shallow copy so that actionsOrder doesn’t mutate between rerenders
-      [...items].slice().reverse().map((item) => {
+      [...items].reverse().forEach((item) => {
         const actionPref = prefs.keys[item.key];
         if (actionPref.visibility === ThCollapsibilityVisibility.overflow) {
           menuItems.unshift(item);
@@ -70,7 +70,7 @@ export const useCollapsibility = (items: ThActionEntry<string>[], prefs: Collaps
       });
     } else {
       // collapse set to false so we ignore visibility and don’t triage
-      items.map((item) => {
+      items.forEach((item) => {
         actionIcons.push(item);
       });
     }

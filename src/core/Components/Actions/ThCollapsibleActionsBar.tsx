@@ -2,6 +2,8 @@
 
 import React, { Fragment } from "react";
 
+const MENU_DEPENDENCIES = ["Trigger"];
+
 import { ThActionEntry, ThActionsBar, ThActionsBarProps, ThActionsTriggerVariant } from "./ThActionsBar";
 import { ThMenu, THMenuProps } from "../Menu/ThMenu";
 
@@ -52,19 +54,18 @@ export const ThCollapsibleActionsBar = ({
         ) 
       }
 
-      { React.isValidElement(compounds?.menu) 
+      { React.isValidElement(compounds?.menu)
         ? (React.cloneElement(compounds.menu, {
-          ...compounds.menu.props,
           id: id,
           triggerRef: resolvedRef,
           items: Actions.MenuItems,
-          dependencies: ["Trigger"],
-        } as THMenuProps<string>)) 
-        : (<ThMenu 
-          id={ id } 
+          dependencies: MENU_DEPENDENCIES,
+        } as THMenuProps<string>))
+        : (<ThMenu
+          id={ id }
           triggerRef={ resolvedRef }
           items={ Actions.MenuItems }
-          dependencies={ ["Trigger"] }
+          dependencies={ MENU_DEPENDENCIES }
           { ...compounds?.menu }
         />
       )}

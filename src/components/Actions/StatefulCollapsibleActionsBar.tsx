@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 import { ThActionsKeys, ThDockingKeys } from "@/preferences";
 
@@ -24,20 +24,25 @@ export const StatefulCollapsibleActionsBar = ({
   const ref = useRef<HTMLDivElement | null>(null);
   const breakpoint = useAppSelector(state => state.theming.breakpoint);
 
+  const compounds = useMemo(() => ({
+    menu: (
+      <StatefulOverflowMenu
+        id={ id }
+        triggerRef={ ref }
+        className={ overflowMenuClassName }
+        items={ [] }
+      />
+    )
+  }), [id, overflowMenuClassName]);
+
   return (
     <>
-    <ThCollapsibleActionsBar 
+    <ThCollapsibleActionsBar
       ref={ ref }
       id={ id }
       items={ items }
       breakpoint={ breakpoint }
-      compounds={{
-        menu: (<StatefulOverflowMenu 
-          id={ id }
-          triggerRef={ ref }
-          className={ overflowMenuClassName } 
-          items={ [] }
-      />) }}
+      compounds={ compounds }
       { ...props }
     />
     </>
