@@ -20,6 +20,8 @@ export const useDocking = <T extends string>(key: T) => {
   const breakpoint = useAppSelector(state => state.theming.breakpoint);
   const actionsMap = useAppSelector(state => state.actions.keys);
   const actionState = actionsMap[key];
+  const profile = useAppSelector(state => state.reader.profile);
+  const dock = useAppSelector(state => profile ? state.actions.dock[profile] : undefined);
   const dispatch = useAppDispatch();
 
   const actions = useActions(actionsMap);
@@ -210,11 +212,12 @@ export const useDocking = <T extends string>(key: T) => {
 
   // on mount, check whether we should update states for docked sheets from pref
   useEffect(() => {
-    if (actionState?.isOpen == null) {
+    if (actionState?.isOpen == null && profile) {
       if (sheetType === ThSheetTypes.dockedStart) {
         dispatch(dockAction({
           key: key,
-          dockingKey: ThDockingKeys.start
+          dockingKey: ThDockingKeys.start,
+          profile: profile
         }));
         dispatch(setActionOpen({
           key: key,
@@ -223,7 +226,8 @@ export const useDocking = <T extends string>(key: T) => {
       } else if (sheetType === ThSheetTypes.dockedEnd) {
         dispatch(dockAction({
           key: key,
-          dockingKey: ThDockingKeys.end
+          dockingKey: ThDockingKeys.end,
+          profile: profile
         }));
         dispatch(setActionOpen({
           key: key,
@@ -231,7 +235,7 @@ export const useDocking = <T extends string>(key: T) => {
         }));
       }
     }
-  });
+  }, [actionState?.isOpen, sheetType, key, dispatch, profile]);
 
   // Edge case where the sheet has been opened/closed and
   // is of dockable type, but the dock panel is not populated
@@ -246,7 +250,7 @@ export const useDocking = <T extends string>(key: T) => {
     // has not be instantiated yet, and 
     // couldn’t be on first mount because
     // a different type was used in prefs
-    if (actionState?.isOpen != null && actionState?.docking == null) {
+    if (actionState?.isOpen != null && actionState?.docking == null && profile) {
       if (sheetType === ThSheetTypes.dockedStart) {
         // Check if the action is docked in practice
         // if it isn’t dispatch docking of the action
@@ -254,7 +258,8 @@ export const useDocking = <T extends string>(key: T) => {
         if (dockingKey !== ThDockingKeys.start) {
           dispatch(dockAction({
             key: key,
-            dockingKey: ThDockingKeys.start
+            dockingKey: ThDockingKeys.start,
+            profile: profile
           }));
         }
       } else if (sheetType === ThSheetTypes.dockedEnd) {
@@ -264,12 +269,49 @@ export const useDocking = <T extends string>(key: T) => {
         if (dockingKey !== ThDockingKeys.end) {
           dispatch(dockAction({
             key: key,
-            dockingKey: ThDockingKeys.end
+            dockingKey: ThDockingKeys.end,
+            profile: profile
           }));
         }
       }
     }
-  }, [dispatch, key, sheetType, actionState?.isOpen, actionState?.docking, actions]);
+  }, [dispatch, key, sheetType, actionState?.isOpen, actionState?.docking, actions, profile]);
+
+  // Sync action docking property with profile dock state when profile changes
+  useEffect(() => {
+    if (profile && dock) {
+      const isDockedInStart = dock[ThDockingKeys.start]?.actionKey === key;
+      const isDockedInEnd = dock[ThDockingKeys.end]?.actionKey === key;
+      
+      if (isDockedInStart && actionState?.docking !== ThDockingKeys.start) {
+        dispatch(dockAction({
+          key: key,
+          dockingKey: ThDockingKeys.start,
+          profile: profile
+        }));
+        // Restore isOpen state if action was docked
+        if (actionState?.isOpen === false) {
+          dispatch(setActionOpen({
+            key: key,
+            isOpen: true
+          }));
+        }
+      } else if (isDockedInEnd && actionState?.docking !== ThDockingKeys.end) {
+        dispatch(dockAction({
+          key: key,
+          dockingKey: ThDockingKeys.end,
+          profile: profile
+        }));
+        // Restore isOpen state if action was docked
+        if (actionState?.isOpen === false) {
+          dispatch(setActionOpen({
+            key: key,
+            isOpen: true
+          }));
+        }
+      }
+    }
+  }, [profile, dock, actionState?.docking, actionState?.isOpen, key, dispatch]);
 
   return {
     getDocker,
