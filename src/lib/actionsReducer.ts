@@ -107,6 +107,23 @@ const initialState: ActionsReducerState = {
   overflow: {}
 }
 
+const initializeProfileDock = (state: ActionsReducerState, profile: string) => {
+  if (!state.dock[profile]) {
+    state.dock[profile] = {
+      [ThDockingKeys.start]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      },
+      [ThDockingKeys.end]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      }
+    };
+  }
+};
+
 export const actionsSlice = createSlice({
   name: "actions",
   initialState,
@@ -115,20 +132,7 @@ export const actionsSlice = createSlice({
       const { key, dockingKey, profile } = action.payload;
       
       // Initialize dock state for profile if it doesn't exist
-      if (!state.dock[profile]) {
-        state.dock[profile] = {
-          [ThDockingKeys.start]: {
-            actionKey: null,
-            active: false,
-            collapsed: false
-          },
-          [ThDockingKeys.end]: {
-            actionKey: null,
-            active: false,
-            collapsed: false
-          }
-        };
-      }
+      initializeProfileDock(state, profile);
       
       const profileDock = state.dock[profile];
       
@@ -240,7 +244,7 @@ export const actionsSlice = createSlice({
     },
     activateDockPanel: (state, action: ActionStateSlotPayloadWithProfile) => {
       const { slot, profile } = action.payload;
-      if (!state.dock[profile]) return;
+      initializeProfileDock(state, profile);
       state.dock[profile][slot] = {
         ...state.dock[profile][slot],
         active: true
@@ -248,7 +252,7 @@ export const actionsSlice = createSlice({
     },
     deactivateDockPanel: (state, action: ActionStateSlotPayloadWithProfile) => {
       const { slot, profile } = action.payload;
-      if (!state.dock[profile]) return;
+      initializeProfileDock(state, profile);
       state.dock[profile][slot] = {
         ...state.dock[profile][slot],
         active: false
@@ -256,7 +260,7 @@ export const actionsSlice = createSlice({
     },
     collapseDockPanel: (state, action: ActionStateSlotPayloadWithProfile) => {
       const { slot, profile } = action.payload;
-      if (!state.dock[profile]) return;
+      initializeProfileDock(state, profile);
       state.dock[profile][slot] = {
         ...state.dock[profile][slot],
         collapsed: true
@@ -264,7 +268,7 @@ export const actionsSlice = createSlice({
     },
     expandDockPanel: (state, action: ActionStateSlotPayloadWithProfile) => {
       const { slot, profile } = action.payload;
-      if (!state.dock[profile]) return;
+      initializeProfileDock(state, profile);
       state.dock[profile][slot] = {
         ...state.dock[profile][slot],
         collapsed: false
@@ -273,7 +277,7 @@ export const actionsSlice = createSlice({
     setDockPanelWidth: (state, action: ActionStateSlotWidthPayload) => {
       const { key, width, profile } = action.payload;
       
-      if (!state.dock[profile]) return;
+      initializeProfileDock(state, profile);
       
       // Copy the value in the action state 
       // in case we do something with it later.
