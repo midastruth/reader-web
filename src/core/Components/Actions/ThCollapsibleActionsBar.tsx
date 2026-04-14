@@ -33,25 +33,40 @@ export const ThCollapsibleActionsBar = ({
   ...props
 }: ThCollapsibleActionsBarProps) => {
   const resolvedRef = useObjectRef(ref);
-  const Actions = useCollapsibility(items, prefs, breakpoint);
+  const Actions = useCollapsibility(items, prefs, breakpoint, resolvedRef);
+
+  const isSpaceFit = prefs.collapse === true;
 
   return (
     <>
-    <ThActionsBar 
+    <ThActionsBar
       ref={ resolvedRef }
       { ...props }
     >
-      { Actions.ActionIcons.map(({ Trigger, Target, key, associatedKey }) => 
+      { isSpaceFit && (
+        // Hidden measurement clone — always renders all items so widths are stable.
+        // Absolutely positioned so it is out of flow; aria-hidden to exclude from AT.
+        // getGhostRef observes the wrapper for icon-size changes (e.g. app-level zoom).
+        <span ref={ Actions.getGhostRef } aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", display: "flex", gap: "2px" }}>
+          { items.map(({ Trigger, key }) =>
+            <span key={ key } ref={ Actions.getItemRef(key) }>
+              <Trigger variant={ ThActionsTriggerVariant.button } { ...props } />
+            </span>
+          )}
+        </span>
+      )}
+
+      { Actions.ActionIcons.map(({ Trigger, Target, key, associatedKey }) =>
           <Fragment key={ key }>
-            <Trigger 
-              key={ `${ key }-trigger` } 
+            <Trigger
+              key={ `${ key }-trigger` }
               variant={ ThActionsTriggerVariant.button }
-              { ...(associatedKey ? { associatedKey: associatedKey } : {}) } 
+              { ...(associatedKey ? { associatedKey: associatedKey } : {}) }
               { ...props }
             />
             { Target && <Target key={ `${ key }-container` } triggerRef={ resolvedRef } placement={ targetPlacement } /> }
           </Fragment>
-        ) 
+        )
       }
 
       { React.isValidElement(compounds?.menu)
