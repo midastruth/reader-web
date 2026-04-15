@@ -108,8 +108,49 @@ export type ActionsReducerState = {
 }
 
 const initialState: ActionsReducerState = {
-  dock: {},
-  keys: {},
+  dock: {
+    epub: {
+      [ThDockingKeys.start]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      },
+      [ThDockingKeys.end]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      }
+    },
+    webPub: {
+      [ThDockingKeys.start]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      },
+      [ThDockingKeys.end]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      }
+    },
+    audio: {
+      [ThDockingKeys.start]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      },
+      [ThDockingKeys.end]: {
+        actionKey: null,
+        active: false,
+        collapsed: false
+      }
+    }
+  },
+  keys: {
+    epub: {},
+    webPub: {},
+    audio: {}
+  },
   overflow: {}
 }
 
