@@ -71,10 +71,15 @@ export const StatefulTheme = () => {
     currentValue: theme,
     onChange: async (val) => await updatePreference(val as ThemeKeyType),
     isRTL,
-    onEscape: () => dispatch(setActionOpen({
-      key: ThActionsKeys.settings,
-      isOpen: false
-    })),
+    onEscape: () => {
+      if (profile) {
+        dispatch(setActionOpen({
+          key: ThActionsKeys.settings,
+          isOpen: false,
+          profile
+        }));
+      }
+    },
     onFocus: (id) => {
       const element = radioGroupWrapperRef.current?.querySelector(`[id="${ id }"]`);
     if (element) (element as HTMLElement).focus();

@@ -28,8 +28,10 @@ export const useReaderHeaderBase = (actionKeys: string[]) => {
   const isHovering = useAppSelector(state => state.reader.isHovering);
   const hasScrollAffordance = useAppSelector(state => state.reader.hasScrollAffordance);
   const positionsList = useAppSelector(state => state.publication.positionsList);
+  const profile = useAppSelector(state => state.reader.profile);
 
-  const actions = useActions({ ...actionsMap, ...overflowMap });
+  const profileActionsMap = useAppSelector(state => profile ? state.actions.keys[profile] : undefined);
+  const actions = useActions({ ...profileActionsMap, ...overflowMap });
   const dispatch = useAppDispatch();
 
   const { focusWithinProps } = useFocusWithin({

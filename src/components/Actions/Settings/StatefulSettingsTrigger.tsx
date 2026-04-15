@@ -26,14 +26,16 @@ export const StatefulSettingsTrigger = ({ variant }: StatefulActionTriggerProps)
   const dispatch = useAppDispatch();
 
   const setOpen = (value: boolean) => {    
-    dispatch(setActionOpen({
-      key: ThActionsKeys.settings,
-      isOpen: value
-    }));
-
+    if (profile) {
+      dispatch(setActionOpen({
+        key: ThActionsKeys.settings,
+        isOpen: value,
+        profile
+      }));
+    }
     // hover false otherwise it tends to stay on close button press…
     if (!value) dispatch(setHovering(false));
-  }
+  };
 
   return(
     <>

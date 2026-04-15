@@ -35,15 +35,22 @@ export const StatefulSettingsWrapper = ({
   onReset,
   children
 }: StatefulSettingsWrapperProps) => {
-  const actionState = useAppSelector(state => state.actions.keys[ThActionsKeys.settings]);
+  const profile = useAppSelector(state => state.reader.profile);
+  const actionState = useAppSelector(state => {
+    if (!profile || !state.actions.keys[profile]) return undefined;
+    return state.actions.keys[profile][ThActionsKeys.settings];
+  });
   const dispatch = useAppDispatch();
   const docking = useDocking(ThActionsKeys.settings);
 
   const setOpen = (value: boolean) => {
-    dispatch(setActionOpen({
-      key: ThActionsKeys.settings,
-      isOpen: value
-    }));
+    if (profile) {
+      dispatch(setActionOpen({
+        key: ThActionsKeys.settings,
+        isOpen: value,
+        profile
+      }));
+    }
     if (!value) dispatch(setHovering(false));
   };
 

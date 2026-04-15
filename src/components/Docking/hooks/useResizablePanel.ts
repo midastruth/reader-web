@@ -36,8 +36,9 @@ export const useResizablePanel = (panel: DockStateObject | undefined) => {
     safePanel.actionKey ? preferences.actionsKeys[safePanel.actionKey]?.docked || null : null
   );
 
-  const actionsMap = useAppSelector(state => state.actions.keys);
-  const actions = useActions(actionsMap);
+  const profile = useAppSelector(state => state.reader.profile);
+  const actionsMap = useAppSelector(state => profile ? state.actions.keys[profile] : undefined);
+  const actions = useActions(actionsMap || {});
   const previouslyCollapsed = usePrevious(safePanel.collapsed);
 
   const previousWidth = actions.getDockedWidth(safePanel.actionKey) || null;
