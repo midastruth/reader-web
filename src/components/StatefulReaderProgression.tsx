@@ -106,7 +106,7 @@ export const StatefulReaderProgression = ({
     }
     
     return variants;
-  }, [variants, progressionKey, fallbackFormat, isImmersive, isHovering, isFullscreen, displayInImmersive, displayInFullscreen]);
+  }, [variants, unstableTimeline?.progression, fallbackFormat, isImmersive, isHovering, isFullscreen, displayInImmersive, displayInFullscreen]);
 
   // Compute display text based on current position and timeline
   const displayText = useMemo(() => {
@@ -205,7 +205,7 @@ export const StatefulReaderProgression = ({
     }
     
     return text;
-  }, [displayFormat, progressionKey, t]);
+  }, [displayFormat, unstableTimeline, t]);
 
   if (!displayText || displayFormat === ThProgressionFormat.none) {
     return null;
