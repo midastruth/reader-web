@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { NavigatorContext } from "../NavigatorProvider";
 import { EpubSettings, WebPubSettings, FXLFrameManager, FrameManager, WebPubFrameManager } from "@readium/navigator";
 import { Link, Locator } from "@readium/shared";
@@ -64,6 +64,67 @@ export const useNavigator = () => {
     throw new Error("useNavigator must be used within NavigatorProvider");
   }
 
+  // Cache unified navigator to prevent recreation on every render
+  const unifiedRef = useRef<UnifiedNavigator | null>(null);
+  const contextVisualRef = useRef(context.visual);
+  const contextMediaRef = useRef(context.media);
+
+  // Only recreate unified navigator if context values have changed
+  if (contextVisualRef.current !== context.visual || contextMediaRef.current !== context.media || !unifiedRef.current) {
+    // Prefer visual navigator when available, fallback to media
+    const navigator = context.visual || context.media;
+    if (!navigator) throw new Error("No navigator available");
+    
+    const isVisual = isVisualNavigator(navigator, context.visual);
+    
+    unifiedRef.current = {
+      go: (locator: Locator, animated: boolean, callback: NavigationCallback) => {
+        return navigator.go(locator, animated, callback);
+      },
+      goLink: (link: Link, animated: boolean, callback: NavigationCallback) => {
+        return navigator.goLink(link, animated, callback);
+      },
+      currentLocator: (): Locator | undefined => navigator.currentLocator(),
+      
+      previousLocator: (): Locator | null => {
+        if (isVisual && navigator.previousLocator) {
+          return navigator.previousLocator() || null;
+        }
+        return null;
+      },
+      
+      nextLocator: (): Locator | null => {
+        if (isVisual && navigator.nextLocator) {
+          return navigator.nextLocator() || null;
+        }
+        return null;
+      },
+      
+      goForward: (animated: boolean, callback: NavigationCallback) => {
+        if (navigator.goForward) {
+          return navigator.goForward(animated, callback);
+        }
+        return callback?.(false);
+      },
+      
+      goBackward: (animated: boolean, callback: NavigationCallback) => {
+        if (navigator.goBackward) {
+          return navigator.goBackward(animated, callback);
+        }
+        return callback?.(false);
+      },
+      
+      isVisual: () => isVisual,
+      
+      getCframes: isVisual ? navigator.getCframes?.bind(navigator) : undefined,
+      
+      underlying: navigator
+    };
+    
+    contextVisualRef.current = context.visual;
+    contextMediaRef.current = context.media;
+  }
+
   return {
     get visual() {
       if (!context.visual) throw new Error("Visual navigator not available");
@@ -79,65 +140,11 @@ export const useNavigator = () => {
       if (!context.media) throw new Error("Media navigator not available");
       return context.media;
     },
-    // Unified interface that automatically selects the appropriate navigator
     get unified(): UnifiedNavigator {
-      // Prefer visual navigator when available, fallback to media
-      const navigator = context.visual || context.media;
-      if (!navigator) throw new Error("No navigator available");
-      
-      const isVisual = isVisualNavigator(navigator, context.visual);
-      
-      return {
-        // Navigation methods available in both
-        go: (locator: Locator, animated: boolean, callback: NavigationCallback) => {
-          return navigator.go(locator, animated, callback);
-        },
-        goLink: (link: Link, animated: boolean, callback: NavigationCallback) => {
-          return navigator.goLink(link, animated, callback);
-        },
-        currentLocator: (): Locator | undefined => navigator.currentLocator(),
-        
-        // Unified previous/next navigation
-        previousLocator: (): Locator | null => {
-          if (isVisual && navigator.previousLocator) {
-            return navigator.previousLocator() || null;
-          }
-          // For media navigator, we could implement logic to get previous track/chapter
-          // For now, return null as media doesn't have this concept
-          return null;
-        },
-        nextLocator: (): Locator | null => {
-          if (isVisual && navigator.nextLocator) {
-            return navigator.nextLocator() || null;
-          }
-          // For media navigator, we could implement logic to get next track/chapter
-          // For now, return null as media doesn't have this concept
-          return null;
-        },
-        
-        // Unified forward/backward navigation
-        goForward: (animated: boolean, callback: NavigationCallback) => {
-          if (navigator.goForward) {
-            return navigator.goForward(animated, callback);
-          }
-          return callback?.(false);
-        },
-        goBackward: (animated: boolean, callback: NavigationCallback) => {
-          if (navigator.goBackward) {
-            return navigator.goBackward(animated, callback);
-          }
-          return callback?.(false);
-        },
-        
-        // Check if navigator is visual
-        isVisual: () => isVisual,
-        
-        // Visual-specific methods (only available when isVisual() is true)
-        getCframes: isVisual ? navigator.getCframes?.bind(navigator) : undefined,
-        
-        // Access to underlying navigator for advanced use cases
-        underlying: navigator
-      };
+      if (!unifiedRef.current) {
+        throw new Error("Unified navigator not available");
+      }
+      return unifiedRef.current;
     }
   };
 };

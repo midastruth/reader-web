@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useNavigator } from "@/core/Navigator";
+import { FXLFrameManager, FrameManager, WebPubFrameManager } from "@readium/navigator";
 
 import { useAppSelector } from "@/lib";
 
@@ -22,12 +23,17 @@ export const useWebkitPatch = (isOpen: boolean) => {
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const isScroll = isWebPub || (scroll && !isFXL);
 
-  const {
-    getCframes
-  } = useNavigator().unified;
+  let getCframes: (() => (FXLFrameManager | FrameManager | WebPubFrameManager | undefined)[] | undefined) | undefined;
+  try {
+    const visual = useNavigator().visual;
+    getCframes = visual.getCframes;
+  } catch (e) {
+    // Visual navigator not available (audio profile)
+    getCframes = undefined;
+  }
 
   useEffect(() => {
-    if (isScroll && !isOpen) {
+    if (isScroll && !isOpen && getCframes) {
       // We have to force a reflow on the iframe container to fix the issue.
       // Using the infamous Recalc technique (adding a style element with *{}) 
       // in the iframe contentDocument does not work.
