@@ -50,17 +50,26 @@ export const useWebkitPatch = (isOpen: boolean) => {
         const frames = getCframes();
         if (!frames || !Array.isArray(frames) || frames.length === 0) return;
         const frame = frames[0];
-        if (!frame?.window?.document?.scrollingElement) return;
-
-        const currentScrollTop = frame.window.document.scrollingElement.scrollTop;
-
-        if (currentScrollTop > 1) {
-          frame.window.document.scrollingElement.scrollTop = currentScrollTop - 1;
-        } else {
-          frame.window.document.scrollingElement.scrollTop = currentScrollTop + 1;
+        
+        // Safely check if frame window is accessible
+        let frameWindow;
+        try {
+          frameWindow = frame?.window;
+          if (!frameWindow?.document?.scrollingElement) return;
+        } catch (e) {
+          // Frame is not accessible (cross-origin or invalid state)
+          return;
         }
 
-        frame.window.document.scrollingElement.scrollTop = currentScrollTop;
+        const currentScrollTop = frameWindow.document.scrollingElement.scrollTop;
+
+        if (currentScrollTop > 1) {
+          frameWindow.document.scrollingElement.scrollTop = currentScrollTop - 1;
+        } else {
+          frameWindow.document.scrollingElement.scrollTop = currentScrollTop + 1;
+        }
+
+        frameWindow.document.scrollingElement.scrollTop = currentScrollTop;
       }, 0);
     }
   }, [isScroll, isOpen, getCframes]);
