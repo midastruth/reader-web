@@ -48,11 +48,11 @@ export const useResizablePanel = (panel: DockStateObject | undefined) => {
       : width;
 
   const isPopulated = () => {
-    return panel?.active && actions.isOpen(panel?.actionKey);
+    return !!(panel?.active && actions.isOpen(panel?.actionKey));
   };
 
   const isCollapsed = () => {
-    return panel?.collapsed;
+    return !!panel?.collapsed;
   }
 
   const forceExpand = () => {
@@ -60,7 +60,7 @@ export const useResizablePanel = (panel: DockStateObject | undefined) => {
   }
 
   const currentKey = () => {
-    return panel?.actionKey;
+    return panel?.actionKey ?? null;
   };
 
   const isResizable = () => {
