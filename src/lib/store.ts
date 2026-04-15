@@ -9,6 +9,8 @@ import actionsReducer, { ActionsReducerState } from "@/lib/actionsReducer";
 import publicationReducer, { PublicationReducerState } from "./publicationReducer";
 import preferencesReducer, { PreferencesReducerState } from "./preferencesReducer";
 import webPubSettingsReducer, { WebPubSettingsReducerState } from "./webPubSettingsReducer";
+import audioSettingsReducer, { AudioSettingsState } from "./audioSettingsReducer";
+import playerReducer, { PlayerReducerState } from "./playerReducer";
 
 import debounce from "debounce";
 
@@ -26,6 +28,8 @@ export type RootState = {
   publication: PublicationReducerState;
   preferences: PreferencesReducerState;
   webPubSettings: WebPubSettingsReducerState;
+  audioSettings: AudioSettingsState;
+  player: PlayerReducerState;
   [key: string]: any; // For external reducers
 };
 
@@ -63,6 +67,27 @@ const updateActionsState = (state: ActionsReducerState) => {
   };
 };
 
+const migrateDockStateToProfileKeyed = (state: ActionsReducerState): ActionsReducerState => {
+  // Check if dock state is in old format (not profile-keyed)
+  if (state.dock && typeof state.dock === "object" && !("epub" in state.dock || "webPub" in state.dock || "audio" in state.dock)) {
+    // Old format: dock has direct start/end keys
+    const oldDock = state.dock as any;
+    if (oldDock[ThDockingKeys.start] || oldDock[ThDockingKeys.end]) {
+      // Migrate to new profile-keyed format, only for epub profile
+      const newDock: any = {};
+      newDock["epub"] = {
+        [ThDockingKeys.start]: oldDock[ThDockingKeys.start] || { actionKey: null, active: false, collapsed: false },
+        [ThDockingKeys.end]: oldDock[ThDockingKeys.end] || { actionKey: null, active: false, collapsed: false }
+      };
+      return {
+        ...state,
+        dock: newDock
+      };
+    }
+  }
+  return state;
+};
+
 const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
   try {
     const resolvedKey = storageKey || DEFAULT_STORAGE_KEY;
@@ -73,7 +98,8 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
         settings: undefined, 
         theming: undefined,
         preferences: undefined,
-        webPubSettings: undefined
+        webPubSettings: undefined,
+        audioSettings: undefined
       };
     }
     
@@ -92,6 +118,9 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
       
       if (state.actions) {
         state.actions = updateActionsState(state.actions);
+        // Migrate dock state to profile-keyed format if needed
+        // Old dock state only applied to epub profile
+        state.actions = migrateDockStateToProfileKeyed(state.actions);
       }
     }
     
@@ -120,6 +149,7 @@ const saveState = (state: any, storageKey?: string, externalReducers: Record<str
     if (state.theming) stateToPersist.theming = state.theming;
     if (state.preferences) stateToPersist.preferences = state.preferences;
     if (state.webPubSettings) stateToPersist.webPubSettings = state.webPubSettings;
+    if (state.audioSettings) stateToPersist.audioSettings = state.audioSettings;
     
     // External reducers to persist
     Object.entries(externalReducers).forEach(([key, config]) => {
@@ -145,6 +175,8 @@ export const makeStore = (storageKey?: string, externalReducers: Record<string, 
     publication: publicationReducer,
     preferences: preferencesReducer,
     webPubSettings: webPubSettingsReducer,
+    audioSettings: audioSettingsReducer,
+    player: playerReducer,
     ...Object.entries(externalReducers).reduce((acc, [key, config]) => ({
       ...acc,
       [key]: config.reducer
@@ -161,6 +193,7 @@ export const makeStore = (storageKey?: string, externalReducers: Record<string, 
     theming: persistedState.theming,
     preferences: persistedState.preferences,
     webPubSettings: persistedState.webPubSettings,
+    audioSettings: persistedState.audioSettings,
     // Include persisted state for external reducers that have it
     ...Object.entries(externalReducers).reduce((acc, [key, config]) => {
       if (config.persist && persistedState[key] !== undefined) {

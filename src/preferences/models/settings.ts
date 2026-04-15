@@ -12,7 +12,14 @@ export interface ThSettingsRangePref {
   placeholder?: I18nValue<ThSettingsRangePlaceholder>;
   range?: [number, number];
   step?: number;
+  presets?: number[];
 }
+
+/**
+ * Use instead of ThSettingsRangePrefRequired for default values,
+ * so that presets remains optional.
+ */
+export type ThSettingsRangePrefRequired = Required<Omit<ThSettingsRangePref, "presets">> & Pick<ThSettingsRangePref, "presets">;
 
 export interface ThSettingsRadioPref<T extends string> {
   allowUnset?: boolean;
@@ -69,7 +76,9 @@ export enum ThSettingsContainerKeys {
 export enum ThSettingsRangeVariant {
   slider = "slider",
   incrementedSlider = "incrementedSlider",
-  numberField = "numberField"
+  numberField = "numberField",
+  sliderWithPresets = "sliderWithPresets",
+  presetsGroup = "presetsGroup"
 }
 
 export enum ThSettingsRangePlaceholder {
@@ -136,28 +145,28 @@ export const defaultSpacingPresetsOrder = [
   ThSpacingPresetKeys.loose
 ]
 
-export const defaultParagraphSpacing: Required<ThSettingsRangePref> = {
+export const defaultParagraphSpacing: ThSettingsRangePrefRequired = {
   variant: ThSettingsRangeVariant.numberField,
   placeholder: ThSettingsRangePlaceholder.range,
   range: [0, 3],
   step: 0.25
 }
 
-export const defaultParagraphIndent: Required<ThSettingsRangePref> = {
+export const defaultParagraphIndent: ThSettingsRangePrefRequired = {
   variant: ThSettingsRangeVariant.numberField,
   placeholder: ThSettingsRangePlaceholder.range,
   range: [0, 2],
   step: 0.25
 }
 
-export const defaultWordSpacing: Required<ThSettingsRangePref> = {
+export const defaultWordSpacing: ThSettingsRangePrefRequired = {
   variant: ThSettingsRangeVariant.numberField,
   placeholder: ThSettingsRangePlaceholder.range,
   range: [0, 1],
   step: 0.1
 }
 
-export const defaultLetterSpacing: Required<ThSettingsRangePref> = {
+export const defaultLetterSpacing: ThSettingsRangePrefRequired = {
   variant: ThSettingsRangeVariant.numberField,
   placeholder: ThSettingsRangePlaceholder.range,
   range: [0, 0.5],
@@ -165,12 +174,12 @@ export const defaultLetterSpacing: Required<ThSettingsRangePref> = {
 }
 
 export const defaultLineHeights = {
-  [ThLineHeightOptions.small]: 1.3,
+  [ThLineHeightOptions.small]: 1.35,
   [ThLineHeightOptions.medium]: 1.5,
   [ThLineHeightOptions.large]: 1.75
 }
 
-export const defaultZoom: Required<ThSettingsRangePref> = {
+export const defaultZoom: ThSettingsRangePrefRequired = {
   variant: ThSettingsRangeVariant.numberField,
   placeholder: ThSettingsRangePlaceholder.range,
   range: [0.7, 4],
@@ -180,23 +189,23 @@ export const defaultZoom: Required<ThSettingsRangePref> = {
 export const defaultSpacingPresets = {
   [ThSpacingPresetKeys.tight]: {
     [ThSpacingSettingsKeys.lineHeight]: ThLineHeightOptions.small,
-    [ThSpacingSettingsKeys.paragraphSpacing]: 0,
+    [ThSpacingSettingsKeys.paragraphSpacing]: 0.25,
     [ThSpacingSettingsKeys.paragraphIndent]: 1
   },
   [ThSpacingPresetKeys.balanced]: {
     [ThSpacingSettingsKeys.lineHeight]: ThLineHeightOptions.medium,
-    [ThSpacingSettingsKeys.paragraphSpacing]: 0.75,
-    [ThSpacingSettingsKeys.paragraphIndent]: 0
+    [ThSpacingSettingsKeys.paragraphSpacing]: 1,
+    [ThSpacingSettingsKeys.paragraphIndent]: 1
   },
   [ThSpacingPresetKeys.loose]: {
     [ThSpacingSettingsKeys.lineHeight]: ThLineHeightOptions.large,
-    [ThSpacingSettingsKeys.paragraphSpacing]: 1.75,
-    [ThSpacingSettingsKeys.paragraphIndent]: 0
+    [ThSpacingSettingsKeys.paragraphSpacing]: 1.5,
+    [ThSpacingSettingsKeys.paragraphIndent]: 1
   },
   [ThSpacingPresetKeys.accessible]: {
     [ThSpacingSettingsKeys.lineHeight]: ThLineHeightOptions.large,
     [ThSpacingSettingsKeys.paragraphSpacing]: 2.5,
-    [ThSpacingSettingsKeys.paragraphIndent]: 0,
+    [ThSpacingSettingsKeys.paragraphIndent]: 1,
     [ThSpacingSettingsKeys.letterSpacing]: 0.1,
     [ThSpacingSettingsKeys.wordSpacing]: 0.3
   }

@@ -27,7 +27,10 @@ import { NavigatorProvider } from "@/core/Navigator";
 
 import {
   BasicTextSelection,
+  ContextMenuEvent,
   FrameClickEvent,
+  KeyboardEventData,
+  SuspiciousActivityEvent
 } from "@readium/navigator-html-injectables";
 import { 
   EpubNavigatorListeners, 
@@ -142,6 +145,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
+  const isRTL = useAppSelector(state => state.publication.isRTL);
   const positionsList = useAppSelector(state => state.publication.positionsList);
   const fontLanguage = useAppSelector(state => state.publication.fontLanguage);
 
@@ -514,9 +518,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       return false;
     },
     textSelected: function (_selection: BasicTextSelection): void {},
-    contentProtection: function (_type: string, _data: unknown): void {},
-    contextMenu: function (_data: unknown): void {},
-    peripheral: function (_data: unknown): void {},
+    contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
+    contextMenu: function (_data: ContextMenuEvent): void {},
+    peripheral: function (_data: KeyboardEventData): void {},
   }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
@@ -614,7 +618,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   return (
     <>
     <I18nProvider locale={ preferences.locale }>
-    <NavigatorProvider navigator={ epubNavigator }>
+    <NavigatorProvider visualNavigator={ epubNavigator }>
       <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
           <div 
@@ -644,7 +648,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
             ? <nav className={ classNames(arrowStyles.container, arrowStyles.leftContainer) }>
                 <StatefulReaderArrowButton 
                   direction="left" 
-                  isDisabled={ atPublicationStart } 
+                  isDisabled={ isRTL ? atPublicationEnd : atPublicationStart } 
                   onPress={ () => {
                     const navigationCallback = () => {
                       dispatch(setUserNavigated(true));
@@ -664,7 +668,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
             ? <nav className={ classNames(arrowStyles.container, arrowStyles.rightContainer) }>
                 <StatefulReaderArrowButton 
                   direction="right" 
-                  isDisabled={ atPublicationEnd } 
+                  isDisabled={ isRTL ? atPublicationStart : atPublicationEnd } 
                   onPress={ () => {
                     const navigationCallback = () => {
                       dispatch(setUserNavigated(true));
