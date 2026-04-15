@@ -431,7 +431,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
         case ThActionsKeys.settings:
         case ThActionsKeys.toc:
           dispatch(toggleActionOpen({
-            key: actionKey
+            key: actionKey,
+            profile: "epub"
           }))
           break;
       //  case ThActionsKeys.jumpToPosition:

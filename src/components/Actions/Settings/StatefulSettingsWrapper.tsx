@@ -36,10 +36,7 @@ export const StatefulSettingsWrapper = ({
   children
 }: StatefulSettingsWrapperProps) => {
   const profile = useAppSelector(state => state.reader.profile);
-  const actionState = useAppSelector(state => {
-    if (!profile || !state.actions.keys[profile]) return undefined;
-    return state.actions.keys[profile][ThActionsKeys.settings];
-  });
+  const actionState = useAppSelector(state => profile ? state.actions.keys[profile][ThActionsKeys.settings] : undefined);
   const dispatch = useAppDispatch();
   const docking = useDocking(ThActionsKeys.settings);
 
