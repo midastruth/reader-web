@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, HTMLAttributes } from "react";
+import { useCallback, useEffect, useMemo, useRef, HTMLAttributes } from "react";
 
 import { ThActionsKeys } from "@/preferences/models";
 
@@ -31,7 +31,8 @@ export const useReaderHeaderBase = (actionKeys: string[]) => {
   const profile = useAppSelector(state => state.reader.profile);
 
   const profileActionsMap = useAppSelector(state => profile ? state.actions.keys[profile] : undefined);
-  const actions = useActions({ ...profileActionsMap, ...overflowMap });
+  const mergedActionsMap = useMemo(() => ({ ...profileActionsMap, ...overflowMap }), [profileActionsMap, overflowMap]);
+  const actions = useActions(mergedActionsMap);
   const dispatch = useAppDispatch();
 
   const { focusWithinProps } = useFocusWithin({

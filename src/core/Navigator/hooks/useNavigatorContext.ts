@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useMemo } from "react";
 import { NavigatorContext } from "../NavigatorProvider";
 import { EpubSettings, WebPubSettings, FXLFrameManager, FrameManager, WebPubFrameManager } from "@readium/navigator";
 import { Link, Locator } from "@readium/shared";
@@ -64,20 +64,15 @@ export const useNavigator = () => {
     throw new Error("useNavigator must be used within NavigatorProvider");
   }
 
-  // Cache unified navigator to prevent recreation on every render
-  const unifiedRef = useRef<UnifiedNavigator | null>(null);
-  const contextVisualRef = useRef(context.visual);
-  const contextMediaRef = useRef(context.media);
-
-  // Only recreate unified navigator if context values have changed
-  if (contextVisualRef.current !== context.visual || contextMediaRef.current !== context.media || !unifiedRef.current) {
+  // Build unified navigator, recreating only when the underlying navigators change
+  const unified = useMemo<UnifiedNavigator>(() => {
     // Prefer visual navigator when available, fallback to media
     const navigator = context.visual || context.media;
     if (!navigator) throw new Error("No navigator available");
-    
+
     const isVisual = isVisualNavigator(navigator, context.visual);
-    
-    unifiedRef.current = {
+
+    return {
       go: (locator: Locator, animated: boolean, callback: NavigationCallback) => {
         return navigator.go(locator, animated, callback);
       },
@@ -85,66 +80,70 @@ export const useNavigator = () => {
         return navigator.goLink(link, animated, callback);
       },
       currentLocator: (): Locator | undefined => navigator.currentLocator(),
-      
+
       previousLocator: (): Locator | null => {
         if (isVisual && navigator.previousLocator) {
           return navigator.previousLocator() || null;
         }
         return null;
       },
-      
+
       nextLocator: (): Locator | null => {
         if (isVisual && navigator.nextLocator) {
           return navigator.nextLocator() || null;
         }
         return null;
       },
-      
+
       goForward: (animated: boolean, callback: NavigationCallback) => {
         if (navigator.goForward) {
           return navigator.goForward(animated, callback);
         }
         return callback?.(false);
       },
-      
+
       goBackward: (animated: boolean, callback: NavigationCallback) => {
         if (navigator.goBackward) {
           return navigator.goBackward(animated, callback);
         }
         return callback?.(false);
       },
-      
+
       isVisual: () => isVisual,
-      
+
       getCframes: isVisual ? navigator.getCframes?.bind(navigator) : undefined,
-      
+
       underlying: navigator
     };
-    
-    contextVisualRef.current = context.visual;
-    contextMediaRef.current = context.media;
-  }
+  }, [context.visual, context.media]);
 
-  return {
+  // Memoize visual navigator wrapper to prevent recreation
+  const visualMemo = useMemo(() => {
+    if (!context.visual) return null;
+    
+    const visualNavigator = context.visual;
+    return {
+      ...visualNavigator,
+      getSetting: createUnifiedGetSetting(visualNavigator)
+    };
+  }, [context.visual]);
+
+  // Memoize media navigator to prevent recreation
+  const mediaMemo = useMemo(() => {
+    return context.media;
+  }, [context.media]);
+
+  return useMemo(() => ({
     get visual() {
-      if (!context.visual) throw new Error("Visual navigator not available");
-      
-      // Create a wrapper that provides a unified getSetting interface
-      const visualNavigator = context.visual;
-      return {
-        ...visualNavigator,
-        getSetting: createUnifiedGetSetting(visualNavigator)
-      };
+      if (!visualMemo) throw new Error("Visual navigator not available");
+      return visualMemo;
     },
     get media() {
-      if (!context.media) throw new Error("Media navigator not available");
-      return context.media;
+      if (!mediaMemo) throw new Error("Media navigator not available");
+      return mediaMemo;
     },
     get unified(): UnifiedNavigator {
-      if (!unifiedRef.current) {
-        throw new Error("Unified navigator not available");
-      }
-      return unifiedRef.current;
+      return unified;
     }
-  };
+  }), [visualMemo, mediaMemo, unified]);
 };
