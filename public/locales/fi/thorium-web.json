@@ -104,5 +104,27 @@
                 }
             }
         }
+    },
+    "audio": {
+        "player": {
+            "progress": "Toiston eteneminen",
+            "controls": "Toistotoiminnot",
+            "mediaControls": "Ääniasetukset",
+            "coverAlt": "Äänikirjan kansi"
+        },
+        "remotePlayback": {
+            "trigger": "Etätoisto",
+            "connected": "Etäyhteys päällä"
+        },
+        "settings": {
+            "sleepTimer": {
+                "hours": "h",
+                "minutes": "min",
+                "seconds": "s",
+                "start": "Aloita",
+                "instruction": "Toisto keskeytyy, kun asetettu aika on kulunut.",
+                "remaining": "Keskeytyy {{ remaining }} kuluttua"
+            }
+        }
     }
 }
