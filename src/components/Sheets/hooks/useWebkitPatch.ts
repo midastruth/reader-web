@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import { useNavigator } from "@/core/Navigator";
+import { usePrevious } from "@/core/Hooks/usePrevious";
 import { FXLFrameManager, FrameManager, WebPubFrameManager } from "@readium/navigator";
 
 import { useAppSelector } from "@/lib";
@@ -23,6 +24,8 @@ export const useWebkitPatch = (isOpen: boolean) => {
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const isScroll = isWebPub || (scroll && !isFXL);
 
+  const prevIsOpen = usePrevious(isOpen);
+
   let getCframes: (() => (FXLFrameManager | FrameManager | WebPubFrameManager | undefined)[] | undefined) | undefined;
   try {
     const visual = useNavigator().visual;
@@ -33,7 +36,7 @@ export const useWebkitPatch = (isOpen: boolean) => {
   }
 
   useEffect(() => {
-    if (isScroll && !isOpen && getCframes) {
+    if (isScroll && prevIsOpen && !isOpen && getCframes) {
       // We have to force a reflow on the iframe container to fix the issue.
       // Using the infamous Recalc technique (adding a style element with *{}) 
       // in the iframe contentDocument does not work.
@@ -78,5 +81,5 @@ export const useWebkitPatch = (isOpen: boolean) => {
         frameWindow.document.scrollingElement.scrollTop = currentScrollTop;
       }, 0);
     }
-  }, [isScroll, isOpen, getCframes]);
+  }, [isScroll, isOpen, prevIsOpen, getCframes]);
 };
