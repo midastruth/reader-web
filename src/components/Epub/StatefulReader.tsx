@@ -27,7 +27,10 @@ import { NavigatorProvider } from "@/core/Navigator";
 
 import {
   BasicTextSelection,
+  ContextMenuEvent,
   FrameClickEvent,
+  KeyboardEventData,
+  SuspiciousActivityEvent
 } from "@readium/navigator-html-injectables";
 import { 
   EpubNavigatorListeners, 
@@ -156,6 +159,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
+  const isRTL = useAppSelector(state => state.publication.isRTL);
   const positionsList = useAppSelector(state => state.publication.positionsList);
   const fontLanguage = useAppSelector(state => state.publication.fontLanguage);
 
@@ -613,100 +617,47 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       return false;
     },
     textSelected: function (selection: BasicTextSelection): void {
-      // Convert BasicTextSelection to TextSelection format for highlight system
       if (!selection) {
-        console.warn('StatefulReader: selection is null');
+        console.warn("StatefulReader: selection is null");
         return;
       }
 
-      // Note: BasicTextSelection from Readium doesn't have the Range object
-      // But we can approximate the data needed or rely on valid selection in the DOM
-      // However, since we are in the parent window, we might not have direct access 
-      // to the Range object inside the iframe easily from this event data alone
-      // if it's not passed. 
-      // LUCKILY, HighlightManager.handleTextSelected will check window.getSelection() 
-      // or similar if we pass a dummy object, OR we should pass what we have.
-      //
-      // Wait, HighlightManager's handleTextSelected expects a TextSelection with a Range.
-      // The `selection` from Readium `textSelected` is `BasicTextSelection`.
-      // The actual Range is inside the iframe.
-      // The `HighlightManager` hooks (useHighlightSelection) likely need the actual DOM Range.
-
-      // If we look at `useHighlightSelection.ts`:
-      // const isValidSelection = useCallback((selection: TextSelection): boolean => {
-      //   if (!selection || !selection.range) { return false; } ...
-
-      // So we MUST provide a Range.
-      // The `textSelected` event from Readium navigator might be insufficient if it doesn't pass the Range.
-      // However, if the user just selected text, the DOM selection should still be active in the iframe.
-
-      // Lazy recovery for iframeRef if missing
       if (!iframeRef.current && container.current) {
-        const iframe = container.current.querySelector('iframe');
+        const iframe = container.current.querySelector("iframe");
         if (iframe) {
           iframeRef.current = iframe;
         }
       }
 
-
-      // Prefer the exact iframe that reported the selection (FXL spreads can have multiple frames)
-
       const frames = selection.targetFrameSrc ? getCframes() : undefined;
-
       const matchingFrame = selection.targetFrameSrc
-
         ? frames?.find((frame) => frame && frame.source === selection.targetFrameSrc)
-
         : undefined;
 
-
-
       if (matchingFrame) {
-
         iframeRef.current = matchingFrame.iframe;
-
       }
-
-
 
       const selectionHref =
-
         (matchingFrame && "debugHref" in matchingFrame ? (matchingFrame as FXLFrameManager).debugHref : undefined) ||
-
         matchingFrame?.iframe.dataset.originalHref ||
-
         currentLocator()?.href;
 
-
-
       if (!selectionHref) {
-
-        console.warn('StatefulReader: could not resolve resource href for selection');
-
+        console.warn("StatefulReader: could not resolve resource href for selection");
         return;
-
       }
-
-
 
       if (iframeRef.current) {
-
         iframeRef.current.dataset.originalHref = selectionHref;
-
       }
 
-
-
       const isIframeReady = !!iframeRef.current;
-
       const isManagerReady = !!highlightManagerRef.current;
 
-
-      // Helper to try getting selection
       const getSelectionFromIframe = (iframe: HTMLIFrameElement, targetSrc?: string, searchText?: string) => {
-        // Verify src if possible (blob URLs might differ slightly or need decoding, so simple check/warning)
         if (targetSrc && iframe.src && iframe.src !== targetSrc) {
-          console.warn('StatefulReader: Mismatch in iframe src', { found: iframe.src, target: targetSrc });
+          console.warn("StatefulReader: Mismatch in iframe src", { found: iframe.src, target: targetSrc });
         }
 
         const win = iframe.contentWindow;
@@ -714,13 +665,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
           let sel = win.getSelection();
           if (sel && sel.rangeCount > 0) return sel;
 
-          // Fallback: Try to search for the text if explicit selection failed
           if (searchText) {
-            // Collapse selection or clear it to ensure find() works
             sel?.removeAllRanges();
-
-            // We try to find the text to "re-select" it.
-            // window.find(aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog);
             const found = (win as any).find(searchText, false, false, true, false, true, false);
             if (found) {
               sel = win.getSelection();
@@ -728,63 +674,58 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
             }
           }
         }
+
         return null;
       };
 
       const handleSelectionProcessing = (iframe: HTMLIFrameElement) => {
-        // First attempt: just get selection
         const domSelection = getSelectionFromIframe(iframe, selection.targetFrameSrc);
 
         if (domSelection && domSelection.rangeCount > 0) {
           const range = domSelection.getRangeAt(0);
-
           const textSelection: TextSelection = {
-            range: range,
+            range,
             text: domSelection.toString(),
             href: selectionHref,
-
             boundingClientRect: range.getBoundingClientRect()
           };
 
           highlightManagerRef.current!.handleTextSelected(textSelection);
-        } else {
-          console.warn('StatefulReader: No DOM selection found (immediate check)');
-
-          // Retry once after a small delay to handle race conditions
-          setTimeout(() => {
-            // Pass selection.text to trigger window.find() fallback
-            const delayedSel = getSelectionFromIframe(iframe, selection.targetFrameSrc, selection.text);
-            if (delayedSel && delayedSel.rangeCount > 0) {
-              const range = delayedSel.getRangeAt(0);
-              const textSelection: TextSelection = {
-                range: range,
-                text: delayedSel.toString(),
-                href: selectionHref,
-
-                boundingClientRect: range.getBoundingClientRect()
-              };
-              highlightManagerRef.current!.handleTextSelected(textSelection);
-            } else {
-              console.warn('StatefulReader: Still no selection after retry/fallback');
-            }
-          }, 50);
+          return;
         }
+
+        console.warn("StatefulReader: No DOM selection found (immediate check)");
+
+        setTimeout(() => {
+          const delayedSel = getSelectionFromIframe(iframe, selection.targetFrameSrc, selection.text);
+          if (delayedSel && delayedSel.rangeCount > 0) {
+            const range = delayedSel.getRangeAt(0);
+            const textSelection: TextSelection = {
+              range,
+              text: delayedSel.toString(),
+              href: selectionHref,
+              boundingClientRect: range.getBoundingClientRect()
+            };
+            highlightManagerRef.current!.handleTextSelected(textSelection);
+          } else {
+            console.warn("StatefulReader: Still no selection after retry/fallback");
+          }
+        }, 50);
       };
 
       if (isIframeReady && isManagerReady) {
-        // Safe to use non-null assertion since we checked above
         handleSelectionProcessing(iframeRef.current!);
       } else {
-        console.error('StatefulReader: Refs missing when handling text selection', {
+        console.error("StatefulReader: Refs missing when handling text selection", {
           iframeRef: isIframeReady,
           highlightManagerRef: isManagerReady,
           publicationLoaded: !!publication
         });
       }
     },
-    contentProtection: function (_type: string, _data: unknown): void {},
-    contextMenu: function (_data: unknown): void {},
-    peripheral: function (_data: unknown): void {},
+    contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
+    contextMenu: function (_data: ContextMenuEvent): void {},
+    peripheral: function (_data: KeyboardEventData): void {},
   }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
@@ -913,7 +854,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   return (
     <>
       <I18nProvider locale={preferences.locale}>
-        <NavigatorProvider navigator={epubNavigator}>
+        <NavigatorProvider visualNavigator={epubNavigator}>
           <main className={readerStyles.main}>
             <StatefulDockingWrapper>
               <div
@@ -943,7 +884,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
                   ? <nav className={classNames(arrowStyles.container, arrowStyles.leftContainer)}>
                     <StatefulReaderArrowButton
                       direction="left"
-                      isDisabled={atPublicationStart}
+                      isDisabled={isRTL ? atPublicationEnd : atPublicationStart}
                       onPress={() => {
                         const navigationCallback = () => {
                           dispatch(setUserNavigated(true));
@@ -963,7 +904,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
                   ? <nav className={classNames(arrowStyles.container, arrowStyles.rightContainer)}>
                     <StatefulReaderArrowButton
                       direction="right"
-                      isDisabled={atPublicationEnd}
+                      isDisabled={isRTL ? atPublicationStart : atPublicationEnd}
                       onPress={() => {
                         const navigationCallback = () => {
                           dispatch(setUserNavigated(true));
@@ -998,9 +939,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       {publication && (
         <HighlightManager
           ref={setHighlightManagerHandle}
-
-          bookId={localDataKey ?? publication.manifest.selfLink?.href ?? ""}
-          bookTitle={typeof publication.metadata.title === 'string' ? publication.metadata.title : publication.metadata.title?.toString()}
+          bookId={localDataKey ?? publication.manifest.linkWithRel("self")?.href ?? ""}
+          bookTitle={typeof publication.metadata.title === "string" ? publication.metadata.title : publication.metadata.title?.toString()}
           iframeRef={iframeRef}
         />
       )}

@@ -13,15 +13,15 @@ import {
   Profile
 } from "@readium/shared";
 import { useAppDispatch } from "@/lib/hooks";
-import { 
-  setRTL, 
-  setFXL, 
+import {
+  setRTL,
+  setFXL,
   setPositionsList,
   setHasDisplayTransformability,
-  setFontLanguage
+  setTocTree,
 } from "@/lib/publicationReducer";
+import { buildTocTree } from "@/helpers/buildTocTree";
 import { setReaderProfile, ReaderProfile } from "@/lib/readerReducer";
-import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { deserializePositions } from "@/helpers/deserializePositions";
 import { ErrorHandler, ProcessedError } from "@/helpers/errorHandler";
 
@@ -35,20 +35,19 @@ export interface UsePublicationReturn {
   // Loading states
   isLoading: boolean;
   error: ProcessedError | null;
-  
+
   // Publication data
   publication: Publication | null;
   manifest: object | null;
   selfLink: string | null;
   localDataKey: string | null;
-  
+
   // Profile detection
   profile: ReaderProfile | null;
-  
+
   // Publication metadata
   isRTL: boolean;
   isFXL: boolean;
-  fontLanguage: string;
   hasDisplayTransformability: boolean;
 }
 
@@ -81,29 +80,27 @@ const detectProfile = (manifest: Manifest): ReaderProfile => {
   return "webPub";
 };
 
-export const usePublication = ({ 
-  url, 
+export const usePublication = ({
+  url,
   onError = () => {},
   fetcher: customFetcher
 }: UsePublicationOptions): UsePublicationReturn => {
   const dispatch = useAppDispatch();
-  const { resolveFontLanguage } = usePreferences();
-  
+
   // Basic states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ProcessedError | null>(null);
   const [manifest, setManifest] = useState<object | null>(null);
   const [selfLink, setSelfLink] = useState<string | null>(null);
   const [localDataKey, setLocalDataKey] = useState<string | null>(null);
-  
+
   // Publication states
   const [publication, setPublication] = useState<Publication | null>(null);
   const [profile, setProfile] = useState<ReaderProfile | null>(null);
-  
+
   // Metadata states
   const [isRTL, setIsRTL] = useState(false);
   const [isFXL, setIsFXL] = useState(false);
-  const [fontLanguage, setFontLanguageState] = useState("");
   const [hasDisplayTransformability, setHasDisplayTransformabilityState] = useState(false);
 
   const handleManifestError = (error: unknown, context: string) => {
@@ -176,7 +173,18 @@ export const usePublication = ({
                 dispatch(setPositionsList([]));
               }
             }
-            
+
+            // For audio, build the TOC tree from the publication
+            if (detectedProfile === "audio") {
+              const tocLinks = manifestObj.toc?.items && manifestObj.toc.items.length > 0
+                ? manifestObj.toc.items
+                : manifestObj.readingOrder?.items || [];
+              const publicationTitle = manifestObj.metadata.title.getTranslation("en");
+              let idCounter = 0;
+              const idGenerator = () => `toc-${ ++idCounter }`;
+              dispatch(setTocTree(buildTocTree(tocLinks, idGenerator, undefined, publicationTitle)));
+            }
+
             setPublication(pub);
             setIsLoading(false);
           }
@@ -205,14 +213,6 @@ export const usePublication = ({
       dispatch(setFXL(fxl));
     }
 
-    // Font language resolution
-    const resolvedLang = resolveFontLanguage(
-      publication.metadata.languages?.[0], 
-      publication.metadata.effectiveReadingProgression
-    );
-    setFontLanguageState(resolvedLang);
-    dispatch(setFontLanguage(resolvedLang));
-    
     // Display transformability
     const displayTransformability = publication.metadata.accessibility?.feature?.some(
       feature => feature && feature.value === Feature.DISPLAY_TRANSFORMABILITY.value
@@ -235,7 +235,7 @@ export const usePublication = ({
 
       fetchPositions();
     }
-  }, [publication, profile, resolveFontLanguage, dispatch]);
+  }, [publication, profile, dispatch]);
 
   // Call onError callback when error changes
   useEffect(() => {
@@ -254,7 +254,6 @@ export const usePublication = ({
     profile,
     isRTL,
     isFXL,
-    fontLanguage,
     hasDisplayTransformability
   };
 };

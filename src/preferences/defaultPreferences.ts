@@ -2,14 +2,14 @@
 
 import { UnstableShortcutMetaKeywords, UnstableShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
 import { ThCollapsibilityVisibility } from "@/core/Components/Actions/hooks/useCollapsibility";
-import { 
-  ThActionsKeys, 
-  ThBreakpoints, 
-  ThDockingTypes, 
-  ThDockingKeys, 
-  ThSettingsKeys, 
-  ThSheetTypes, 
-  ThThemeKeys,  
+import {
+  ThActionsKeys,
+  ThBreakpoints,
+  ThDockingTypes,
+  ThDockingKeys,
+  ThSettingsKeys,
+  ThSheetTypes,
+  ThThemeKeys,
   ThSheetHeaderVariant,
   ThLayoutUI,
   ThBackLinkVariant,
@@ -30,19 +30,19 @@ import {
   defaultJumpToPositionAction,
   defaultContentProtectionConfig,
   defaultFontCollection,
-  defaultLetterSpacing, 
-  defaultLineHeights, 
-  defaultParagraphIndent, 
-  defaultParagraphSpacing, 
-  defaultSpacingPresets, 
-  defaultSpacingPresetsOrder, 
-  defaultSpacingSettingsMain, 
-  defaultSpacingSettingsSubpanel, 
-  defaultTextSettingsMain, 
-  defaultTextSettingsSubpanel, 
-  defaultWordSpacing, 
+  defaultLetterSpacing,
+  defaultLineHeights,
+  defaultParagraphIndent,
+  defaultParagraphSpacing,
+  defaultSpacingPresets,
+  defaultSpacingPresetsOrder,
+  defaultSpacingSettingsMain,
+  defaultSpacingSettingsSubpanel,
+  defaultTextSettingsMain,
+  defaultTextSettingsSubpanel,
+  defaultWordSpacing,
   defaultZoom,
-  tamilCollection
+  tamilCollection,
 } from "./models";
 import { createPreferences, ThPreferences, DefaultKeys } from "./preferences";
 
@@ -179,7 +179,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       ui: {
         reflow: ThLayoutUI.layered,
         fxl: ThLayoutUI.layered,
-        webPub: ThLayoutUI.stacked
+        webPub: ThLayoutUI.stacked,
       },
       radius: 5, // border-radius of containers
       spacing: 20, // padding of containers/sheets
@@ -190,7 +190,9 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       constraints: {
         [ThSheetTypes.bottomSheet]: 600, // Max-width of all bottom sheets
         [ThSheetTypes.popover]: 600, // Max-width of all popover sheets
-        pagination: 1024 // Max-width of pagination component
+        [ThSheetTypes.modal]: 600, // Max-width of all modal sheets
+        pagination: 1024, // Max-width of pagination component
+        dropdown: 250 // Max-height of main UI dropdowns
       }
     },
     breakpoints: {
@@ -296,12 +298,12 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       // Icons with visibility always are excluded from collapsing
       [ThBreakpoints.compact]: 2,
       [ThBreakpoints.medium]: 3
-    }, 
+    },
     keys: {
       [ThActionsKeys.settings]: defaultSettingsAction,
       [ThActionsKeys.fullscreen]: defaultFullscreenAction,
       [ThActionsKeys.toc]: defaultTocAction,
-      [ThActionsKeys.jumpToPosition]: defaultJumpToPositionAction
+      [ThActionsKeys.jumpToPosition]: defaultJumpToPositionAction,
     }
   },
   docking: {
