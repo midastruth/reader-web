@@ -586,7 +586,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       cache.current.colorScheme = colorScheme;
     }
 
-    const theme = isFXL ? themeObject.fxl : themeObject.reflow;
+    const theme = isFXL ? (themeObject.fxl ?? "auto") : (themeObject.reflow ?? "auto");
 
     // Protecting against re-applying on theme change
     if (theme !== "auto" && previousTheme !== theme) return;
