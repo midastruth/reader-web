@@ -8,7 +8,7 @@ import {
 } from "@/preferences/models";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
-import { usePreferenceKeys } from "@/preferences/hooks/usePreferenceKeys";
+import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 
 import { useAppSelector, useAppDispatch } from "@/lib";
@@ -55,7 +55,7 @@ export const useSpacingPresets = () => {
     baseline: {} 
   };
 
-  const { reflowSpacingPresetKeys, fxlSpacingPresetKeys, webPubSpacingPresetKeys } = usePreferenceKeys();
+  const { reflowSpacingPresetKeys, fxlSpacingPresetKeys, webPubSpacingPresetKeys } = useFilteredPreferenceKeys();
 
   const { preferences } = usePreferences();
 
@@ -73,7 +73,6 @@ export const useSpacingPresets = () => {
   const { isComponentUsed: shouldApplyPresets } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.spacingPresets,
     publicationType: isWebPub ? "webpub" : isFXL ? "fxl" : "reflow",
-    componentType: "spacing",
     additionalCondition: spacingKeys.length > 0
   });
 

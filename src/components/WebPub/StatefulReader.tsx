@@ -29,8 +29,8 @@ import {
   SuspiciousActivityEvent,
 } from "@readium/navigator-html-injectables";
 import { WebPubNavigatorListeners } from "@readium/navigator";
-import { 
-  Locator,  
+import {
+  Locator,
   Publication
 } from "@readium/shared";
 
@@ -115,7 +115,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.fontFamily,
     publicationType: "webpub",
-    componentType: "text"
   });
 
   const container = useRef<HTMLDivElement>(null);

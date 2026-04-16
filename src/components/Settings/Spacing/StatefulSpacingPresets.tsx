@@ -20,7 +20,7 @@ import { StatefulRadioGroup } from "../StatefulRadioGroup";
 import { useSpacingPresets } from "./hooks/useSpacingPresets";
 
 import { useI18n } from "@/i18n/useI18n";
-import { usePreferenceKeys } from "@/preferences/hooks/usePreferenceKeys";
+import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
 import { useNavigator } from "@/core/Navigator";
 import { useLineHeight } from "./hooks/useLineHeight";
 
@@ -41,7 +41,7 @@ const iconMap = {
 
 export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps) => {
   const { t } = useI18n();
-  const { reflowSpacingPresetKeys, fxlSpacingPresetKeys, webPubSpacingPresetKeys, subPanelSpacingSettingsKeys } = usePreferenceKeys();
+  const { reflowSpacingPresetKeys, fxlSpacingPresetKeys, webPubSpacingPresetKeys, subPanelSpacingSettingsKeys } = useFilteredPreferenceKeys();
 
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";

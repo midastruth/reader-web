@@ -4,10 +4,11 @@ import { useMemo } from "react";
 
 import { IEpubPreferences, TextAlignment } from "@readium/navigator";
 import { ThPreferences } from "@/preferences";
-import { ThLineHeightOptions, ThLayoutUI } from "@/preferences/models";
+import { ThLineHeightOptions, ThLayoutUI, ThSettingsKeys } from "@/preferences/models";
 import { FontMetadata } from "@/preferences/services/fonts";
 import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 import { ReadiumCSSSettings } from "@/core/Hooks/Epub/useEpubSettingsCache";
+import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 
 import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 
@@ -38,6 +39,71 @@ export const useEpubPreferencesConfig = ({
   fxlThemeKeys,
   reflowThemeKeys,
 }: UseEpubPreferencesConfigProps) => {
+  const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.fontFamily,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isFontSizeUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.zoom,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isFontWeightUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.fontWeight,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isColumnsUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.columns,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isLayoutUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.layout,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isHyphensUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.hyphens,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isLetterSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.letterSpacing,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isLineHeightUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.lineHeight,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isParagraphIndentUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.paragraphIndent,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isParagraphSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.paragraphSpacing,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isTextAlignUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.textAlign,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isTextNormalizeUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.textNormalize,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isWordSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.wordSpacing,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
   const epubPreferences = useMemo(() => {
     if (isFXL) return {};
 
@@ -52,37 +118,37 @@ export const useEpubPreferencesConfig = ({
     });
 
     return {
-      columnCount: settings.columnCount === "auto" ? null : Number(settings.columnCount),
+      columnCount: !isColumnsUsed ? undefined : (settings.columnCount === "auto" ? null : Number(settings.columnCount)),
       constraint: initialConstraint,
-      fontFamily: getFontMetadata(settings.fontFamily[fontLanguage] ?? "")?.fontStack || null,
-      fontSize: settings.fontSize,
-      fontWeight: settings.fontWeight,
-      hyphens: settings.hyphens,
-      letterSpacing: settings.publisherStyles ? undefined : settings.letterSpacing,
-      lineHeight: settings.publisherStyles 
-        ? undefined 
-        : settings.lineHeight === null 
-          ? null 
+      fontFamily: isFontFamilyUsed ? getFontMetadata(settings.fontFamily[fontLanguage] ?? "")?.fontStack || null : undefined,
+      fontSize: isFontSizeUsed ? settings.fontSize : undefined,
+      fontWeight: isFontWeightUsed ? settings.fontWeight : undefined,
+      hyphens: isHyphensUsed ? settings.hyphens : undefined,
+      letterSpacing: (!isLetterSpacingUsed || settings.publisherStyles) ? undefined : settings.letterSpacing,
+      lineHeight: (!isLineHeightUsed || settings.publisherStyles)
+        ? undefined
+        : settings.lineHeight === null
+          ? null
           : lineHeightOptions[settings.lineHeight],
-      optimalLineLength: settings.lineLength?.optimal != null 
-        ? settings.lineLength.optimal 
+      optimalLineLength: settings.lineLength?.optimal != null
+        ? settings.lineLength.optimal
         : undefined,
-      maximalLineLength: settings.lineLength?.max?.isDisabled 
-        ? null 
-        : (settings.lineLength?.max?.chars != null) 
-          ? settings.lineLength.max.chars 
+      maximalLineLength: settings.lineLength?.max?.isDisabled
+        ? null
+        : (settings.lineLength?.max?.chars != null)
+          ? settings.lineLength.max.chars
           : undefined,
-      minimalLineLength: settings.lineLength?.min?.isDisabled 
-        ? null 
-        : (settings.lineLength?.min?.chars != null) 
-          ? settings.lineLength.min.chars 
+      minimalLineLength: settings.lineLength?.min?.isDisabled
+        ? null
+        : (settings.lineLength?.min?.chars != null)
+          ? settings.lineLength.min.chars
           : undefined,
-      paragraphIndent: settings.publisherStyles ? undefined : settings.paragraphIndent,
-      paragraphSpacing: settings.publisherStyles ? undefined : settings.paragraphSpacing,
-      scroll: settings.scroll,
-      textAlign: settings.textAlign as unknown as TextAlignment | null | undefined,
-      textNormalization: settings.textNormalization,
-      wordSpacing: settings.publisherStyles ? undefined : settings.wordSpacing,
+      paragraphIndent: (!isParagraphIndentUsed || settings.publisherStyles) ? undefined : settings.paragraphIndent,
+      paragraphSpacing: (!isParagraphSpacingUsed || settings.publisherStyles) ? undefined : settings.paragraphSpacing,
+      scroll: !isLayoutUsed ? undefined : settings.scroll,
+      textAlign: isTextAlignUsed ? settings.textAlign as unknown as TextAlignment | null | undefined : undefined,
+      textNormalization: isTextNormalizeUsed ? settings.textNormalization : undefined,
+      wordSpacing: (!isWordSpacingUsed || settings.publisherStyles) ? undefined : settings.wordSpacing,
       ...themeProps
     } as IEpubPreferences;
   }, [
@@ -97,7 +163,20 @@ export const useEpubPreferencesConfig = ({
     getFontMetadata,
     lineHeightOptions,
     fxlThemeKeys,
-    reflowThemeKeys
+    reflowThemeKeys,
+    isFontFamilyUsed,
+    isFontSizeUsed,
+    isFontWeightUsed,
+    isColumnsUsed,
+    isLayoutUsed,
+    isHyphensUsed,
+    isLetterSpacingUsed,
+    isLineHeightUsed,
+    isParagraphIndentUsed,
+    isParagraphSpacingUsed,
+    isTextAlignUsed,
+    isTextNormalizeUsed,
+    isWordSpacingUsed,
   ]);
 
   const epubDefaults = useMemo(() => {

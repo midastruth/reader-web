@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-import { 
-  ThemeKeyType, 
-  usePreferenceKeys
+import {
+  ThemeKeyType,
+  useFilteredPreferenceKeys
 } from "../../preferences";
 
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
@@ -134,7 +134,7 @@ export const StatefulReader = ({
 };
 
 const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
-  const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = usePreferenceKeys();
+  const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
@@ -153,7 +153,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.fontFamily,
     publicationType: isFXL ? "fxl" : "reflow",
-    componentType: "text"
   });
 
   const textAlign = useAppSelector(state => state.settings.textAlign);
