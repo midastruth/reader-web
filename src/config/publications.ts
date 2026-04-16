@@ -15,5 +15,11 @@ export const PUBLICATION_MANIFESTS = {
   "readium-css": "https://readium.org/css/docs/manifest.json",
   "moby-dick-webpub": "https://readium.org/webpub-manifest/examples/MobyDick/manifest.json",
   "molly-hopper": "https://publication-server.readium.org/webpub/Z3M6Ly9yZWFkaXVtLXBsYXlncm91bmQtZmlsZXMvZGVtby9tb2xseS1ob3BwZXItdjEuMS53ZWJwdWI/manifest.json",
-  "flatland": "https://readium.org/webpub-manifest/examples/Flatland/manifest.json"
+  // Audiobooks
+  "flatland": "https://readium.org/webpub-manifest/examples/Flatland/manifest.json",
+  // RTL + CJK
+  "rtl": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9pc3JhZWxzYWlsaW5nLmVwdWI/manifest.json",
+  "cjk": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9qbHJlcS1pbi1qYXBhbmVzZS5lcHVi/manifest.json",
+  "cjk-v": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9rdXNhbWFrdXJhLWphcGFuZXNlLXZlcnRpY2FsLXdyaXRpbmcuZXB1Yg/manifest.json",
+  "rtl-fxl": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9oYXJ1a28taHRtbC1qcGVnLmVwdWI/manifest.json"
 } as const;
