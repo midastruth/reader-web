@@ -15,7 +15,8 @@ import {
   IWebPubDefaults,
   IWebPubPreferences,
   IInjectablesConfig,
-  IContentProtectionConfig
+  IContentProtectionConfig,
+  getScriptMode
 } from "@readium/navigator";
 
 type cbb = (ok: boolean) => void;
@@ -160,6 +161,12 @@ export const useWebPubNavigator = () => {
     return navigatorInstance?._cframes;
   }, []);
 
+  const currentScriptMode = useCallback(() => {
+    const metadata = navigatorInstance?.publication?.metadata;
+    if (!metadata) return undefined;
+    return getScriptMode(metadata);
+  }, []);
+
   return {
     WebPubNavigatorLoad, 
     WebPubNavigatorDestroy, 
@@ -180,6 +187,7 @@ export const useWebPubNavigator = () => {
     preferencesEditor: navigatorInstance?.preferencesEditor,
     getSetting,
     submitPreferences,
-    getCframes
+    getCframes,
+    getScriptMode: currentScriptMode
   }
 }

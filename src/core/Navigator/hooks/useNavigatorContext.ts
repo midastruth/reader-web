@@ -24,21 +24,24 @@ interface UnifiedNavigator {
   go(locator: Locator, animated: boolean, callback: NavigationCallback): void;
   goLink(link: Link, animated: boolean, callback: NavigationCallback): void;
   currentLocator(): Locator | undefined;
-  
+
   // Unified previous/next navigation
   previousLocator(): Locator | null;
   nextLocator(): Locator | null;
-  
+
   // Unified forward/backward navigation
   goForward(animated: boolean, callback: NavigationCallback): void;
   goBackward(animated: boolean, callback: NavigationCallback): void;
-  
+
   // Check if navigator is visual
   isVisual(): boolean;
-  
+
+  // Script mode of the current publication (undefined for media navigators)
+  getScriptMode(): string | undefined;
+
   // Visual-specific methods (only available when isVisual() is true)
   getCframes?(): (FXLFrameManager | FrameManager | WebPubFrameManager | undefined)[] | undefined;
-  
+
   // Access to underlying navigator for advanced use cases
   underlying: VisualNavigator | MediaNavigator;
 }
@@ -110,6 +113,13 @@ export const useNavigator = () => {
       },
 
       isVisual: () => isVisual,
+
+      getScriptMode: (): string | undefined => {
+        if (isVisual && (navigator as ReturnType<typeof useEpubNavigator> | ReturnType<typeof useWebPubNavigator>).getScriptMode) {
+          return (navigator as ReturnType<typeof useEpubNavigator> | ReturnType<typeof useWebPubNavigator>).getScriptMode?.();
+        }
+        return undefined;
+      },
 
       getCframes: isVisual ? navigator.getCframes?.bind(navigator) : undefined,
 

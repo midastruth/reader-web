@@ -8,15 +8,16 @@ import {
   Locator, 
   Publication 
 } from "@readium/shared";
-import { 
-  EpubNavigator, 
-  EpubNavigatorListeners, 
-  EpubPreferences, 
-  EpubSettings, 
-  IContentProtectionConfig, 
-  IEpubDefaults, 
+import {
+  EpubNavigator,
+  EpubNavigatorListeners,
+  EpubPreferences,
+  EpubSettings,
+  IContentProtectionConfig,
+  IEpubDefaults,
   IEpubPreferences,
-  IInjectablesConfig
+  IInjectablesConfig,
+  getScriptMode
 } from "@readium/navigator";
 
 type cbb = (ok: boolean) => void;
@@ -210,6 +211,12 @@ export const useEpubNavigator = () => {
     return navigatorInstance?._cframes;
   }, []);
 
+  const currentScriptMode = useCallback(() => {
+    const metadata = navigatorInstance?.publication?.metadata;
+    if (!metadata) return undefined;
+    return getScriptMode(metadata);
+  }, []);
+
   return { 
     EpubNavigatorLoad, 
     EpubNavigatorDestroy, 
@@ -232,6 +239,7 @@ export const useEpubNavigator = () => {
     getSetting,
     submitPreferences,
     getCframes,
+    getScriptMode: currentScriptMode,
     onFXLPositionChange: (cb: (locator: Locator) => void) => {
       FXLPositionChangedCallbackRef.current = cb;
     }
