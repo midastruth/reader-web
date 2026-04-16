@@ -60,7 +60,15 @@ const updateActionsState = (state: ActionsReducerState) => {
           key,
           {
             ...value,
-            isOpen: value?.docking === ThDockingKeys.transient || (value?.docking == null && value?.isOpen === true) ? false : value?.isOpen,
+            // Transient/undocked actions should never re-open on load
+            // Docked actions reset to null so useDocking re-establishes open state
+            // based on the actual breakpoint at load time (avoids opening docked
+            // sheets in fullscreen/compact where docking is unavailable)
+            isOpen: (value?.docking === ThDockingKeys.transient || value?.docking == null)
+              ? false
+              : (value?.docking === ThDockingKeys.start || value?.docking === ThDockingKeys.end)
+                ? null
+                : value?.isOpen,
           },
         ])
       );
@@ -77,7 +85,11 @@ const updateActionsState = (state: ActionsReducerState) => {
         key,
         {
           ...value,
-          isOpen: value?.docking === ThDockingKeys.transient || (value?.docking == null && value?.isOpen === true) ? false : value?.isOpen,
+          isOpen: (value?.docking === ThDockingKeys.transient || value?.docking == null)
+            ? false
+            : (value?.docking === ThDockingKeys.start || value?.docking === ThDockingKeys.end)
+              ? null
+              : value?.isOpen,
         },
       ])
     );
