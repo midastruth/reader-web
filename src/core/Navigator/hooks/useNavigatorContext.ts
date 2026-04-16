@@ -1,6 +1,6 @@
 import { useContext, useMemo } from "react";
 import { NavigatorContext } from "../NavigatorProvider";
-import { EpubSettings, WebPubSettings, FXLFrameManager, FrameManager, WebPubFrameManager } from "@readium/navigator";
+import { EpubSettings, WebPubSettings, FXLFrameManager, FrameManager, WebPubFrameManager, ScriptMode } from "@readium/navigator";
 import { Link, Locator } from "@readium/shared";
 
 // Import the navigator hook types
@@ -37,7 +37,7 @@ interface UnifiedNavigator {
   isVisual(): boolean;
 
   // Script mode of the current publication (undefined for media navigators)
-  getScriptMode(): string | undefined;
+  getScriptMode(): ScriptMode | undefined;
 
   // Visual-specific methods (only available when isVisual() is true)
   getCframes?(): (FXLFrameManager | FrameManager | WebPubFrameManager | undefined)[] | undefined;
@@ -114,7 +114,7 @@ export const useNavigator = () => {
 
       isVisual: () => isVisual,
 
-      getScriptMode: (): string | undefined => {
+      getScriptMode: (): ScriptMode | undefined => {
         if (isVisual && (navigator as ReturnType<typeof useEpubNavigator> | ReturnType<typeof useWebPubNavigator>).getScriptMode) {
           return (navigator as ReturnType<typeof useEpubNavigator> | ReturnType<typeof useWebPubNavigator>).getScriptMode?.();
         }

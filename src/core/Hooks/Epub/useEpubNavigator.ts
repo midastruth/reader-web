@@ -17,7 +17,8 @@ import {
   IEpubDefaults,
   IEpubPreferences,
   IInjectablesConfig,
-  getScriptMode
+  getScriptMode,
+  ScriptMode
 } from "@readium/navigator";
 
 type cbb = (ok: boolean) => void;
@@ -211,7 +212,7 @@ export const useEpubNavigator = () => {
     return navigatorInstance?._cframes;
   }, []);
 
-  const currentScriptMode = useCallback(() => {
+  const currentScriptMode = useCallback((): ScriptMode | undefined => {
     const metadata = navigatorInstance?.publication?.metadata;
     if (!metadata) return undefined;
     return getScriptMode(metadata);
