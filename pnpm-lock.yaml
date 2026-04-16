@@ -15,11 +15,11 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       '@readium/navigator':
-        specifier: 2.4.0
-        version: 2.4.0
+        specifier: 2.5.0-beta.1
+        version: 2.5.0-beta.1
       '@readium/navigator-html-injectables':
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.4.0-beta.1
+        version: 2.4.0-beta.1
       '@readium/shared':
         specifier: 2.2.0
         version: 2.2.0
@@ -66,7 +66,7 @@ importers:
         specifier: ^16.5.4
         version: 16.5.4(i18next@25.8.13(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
       react-modal-sheet:
-        specifier: ^5.2.1
+        specifier: 5.2.1
         version: 5.2.1(motion@12.34.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react-redux:
         specifier: ^9.2.0
@@ -1830,12 +1830,12 @@ packages:
   '@readium/css@2.0.1':
     resolution: {integrity: sha512-u5S8Q41ISWRXGyAmDh+R0YBdEULwOIyRvDO8HhmnBbP8pvbEZm/NaSf7Iu079iBd5BWGiAnAo6f2tSavoRzO4w==}
 
-  '@readium/navigator-html-injectables@2.3.1':
-    resolution: {integrity: sha512-i89cxXuVjpXg1XYwIZII/7Fyf3kueJlEi7QVA308CyhmQnRjMBErfraK4fD9z18TZNMiuDnXArPRIQWBC89P1Q==}
+  '@readium/navigator-html-injectables@2.4.0-beta.1':
+    resolution: {integrity: sha512-nMTrpV9TnKl+JFjAJB8gXVhCwu/u0BM/0SXrdmnWckPMoijPwrNJAbhDkGEST2eoup++zUxcfz1+0ve8hT//LA==}
     engines: {node: '>=18'}
 
-  '@readium/navigator@2.4.0':
-    resolution: {integrity: sha512-/FycosELp3hySMfxSbNbKL4iEBm15ojuqx1vgcLRtidqC2rH7khhwvZAnzNf6gHQIwwNMoMsWOdwaGOQTAI64w==}
+  '@readium/navigator@2.5.0-beta.1':
+    resolution: {integrity: sha512-BQ/BELG99AHnGubB4NYdkjp5f8gmmj9FFDYrVeqE7UPsKMWTdgTVeCExkR+QlNQYDnKO6SrHrGfKI+kx2Fc6gQ==}
     engines: {node: '>=18'}
 
   '@readium/shared@2.2.0':
@@ -6298,9 +6298,9 @@ snapshots:
 
   '@readium/css@2.0.1': {}
 
-  '@readium/navigator-html-injectables@2.3.1': {}
+  '@readium/navigator-html-injectables@2.4.0-beta.1': {}
 
-  '@readium/navigator@2.4.0': {}
+  '@readium/navigator@2.5.0-beta.1': {}
 
   '@readium/shared@2.2.0':
     dependencies:
