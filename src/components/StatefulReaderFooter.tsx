@@ -14,7 +14,7 @@ import { StatefulReaderPagination } from "./StatefulReaderPagination";
 import { ThPaginationLinkProps } from "@/core/Components/Reader/ThPagination";
 
 import { useNavigator } from "@/core/Navigator";
-import { useFocusWithin } from "react-aria";
+import { useFocusWithin, useLocale } from "react-aria";
 import { useI18n } from "@/i18n/useI18n";
 
 import { setHovering } from "@/lib/readerReducer";
@@ -33,6 +33,7 @@ export const StatefulReaderFooter = ({
   progressionFormatFallback: ThProgressionFormat | ThProgressionFormat[];
 }) => {
   const { t } = useI18n();
+  const { direction } = useLocale();
   const footerRef = useRef<HTMLDivElement>(null);
   const readerProfile = useAppSelector(state => state.reader.profile);
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
@@ -148,10 +149,11 @@ export const StatefulReaderFooter = ({
       onMouseLeave={ removeHover }
       { ...focusWithinProps }
     >
-      { (isScroll || readerProfile === "webPub")
+      { (isScroll)
         ? <StatefulReaderPagination
             aria-label={ t("reader.navigation.scroll.wrapper") }
             links={ updateLinks() }
+            dir={ direction }
             compounds={ {
               listItem: {
                 className: readerPaginationStyles.listItem

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { useLocale, useNumberFormatter } from "react-aria";
+import { useNumberFormatter } from "react-aria";
 
 import readerSharedUI from "../assets/styles/thorium-web.button.module.css";
 import settingsStyles from "./assets/styles/thorium-web.reader.settings.module.css";
@@ -12,6 +12,7 @@ import { useSharedPreferences } from "@/preferences/hooks/useSharedPreferences";
 import { useI18n } from "@/i18n/useI18n";
 import { useGridNavigation } from "./hooks/useGridNavigation";
 import classNames from "classnames";
+import { useAppSelector } from "@/lib/hooks";
 
 export interface StatefulSliderWithPresetsProps extends Omit<ThSliderWithPresetsProps, "compounds"> {
   standalone?: boolean;
@@ -37,7 +38,7 @@ export const StatefulSliderWithPresets = ({
 }: StatefulSliderWithPresetsProps) => {
   const { t } = useI18n();
   const { theming } = useSharedPreferences();
-  const { direction } = useLocale();
+  const isRTL = useAppSelector(state => state.publication.isRTL);
   const numberFormatter = useNumberFormatter(props.formatOptions);
   const resolvedFormatValue = formatValue ?? (props.formatOptions ? (v: number) => numberFormatter.format(v) : undefined);
   const tooltipDelay = theming.icon.tooltipDelay;
@@ -53,7 +54,7 @@ export const StatefulSliderWithPresets = ({
     items: presetsRef,
     currentValue: currentScalarValue,
     onChange: (v) => props.onChange?.([v]),
-    isRTL: direction === "rtl",
+    isRTL,
     onEscape,
     onFocus: (v) => {
       const el = presetsListRef.current?.querySelector(`input[value="${ v }"]`) as HTMLElement | null;

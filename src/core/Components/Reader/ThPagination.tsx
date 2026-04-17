@@ -33,7 +33,8 @@ export const ThPagination = ({
   links,
   compounds,
   children,
-  ...props
+  dir,
+  ...restProps
 }: ThPaginationProps) => {
   if (!links) {
     return null;
@@ -44,7 +45,8 @@ export const ThPagination = ({
   return (
     <nav
       ref={ ref }
-      { ...props }
+      dir="ltr"
+      { ...restProps }
     >
       { left && (
         <li { ...compounds?.listItem }>
@@ -60,7 +62,7 @@ export const ThPagination = ({
       ) }
 
       { children && (
-        <li { ...compounds?.listItem }>
+        <li { ...compounds?.listItem } dir={ dir }>
           { children }
         </li>
       ) }
