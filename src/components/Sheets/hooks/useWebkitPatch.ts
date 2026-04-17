@@ -4,7 +4,7 @@ import { useNavigator } from "@/core/Navigator";
 import { usePrevious } from "@/core/Hooks/usePrevious";
 import { FXLFrameManager, FrameManager, WebPubFrameManager } from "@readium/navigator";
 
-import { useAppSelector } from "@/lib";
+import { useIsScroll } from "@/hooks";
 
 /** For some unknown reason, React Aria Components’ Popover and Modal Components
  *  are breaking scroll on webkit based browsers in version 1.11.0. 
@@ -18,11 +18,7 @@ import { useAppSelector } from "@/lib";
  *  when the resources are loaded into the iframe directly as scroll. 
 */
 export const useWebkitPatch = (isOpen: boolean) => {
-  const profile = useAppSelector(state => state.reader.profile);
-  const isWebPub = profile === "webPub";
-  const scroll = useAppSelector(state => state.settings.scroll);
-  const isFXL = useAppSelector(state => state.publication.isFXL);
-  const isScroll = isWebPub || (scroll && !isFXL);
+  const isScroll = useIsScroll();
 
   const prevIsOpen = usePrevious(isOpen);
 

@@ -13,14 +13,13 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { setColumnCount } from "@/lib/settingsReducer";
+import { useIsScroll } from "@/hooks";
 
 import debounce from "debounce";
 
 export const StatefulColumns = () => {
   const { t } = useI18n();
-  const scroll = useAppSelector(state => state.settings.scroll);
-  const isFXL = useAppSelector(state => state.publication.isFXL);
-  const isScroll = scroll && !isFXL;
+  const isScroll = useIsScroll();
 
   const columnCount = useAppSelector(state => state.settings.columnCount) || "auto";
   const [effectiveValue, setEffectiveValue] = useState(columnCount);

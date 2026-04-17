@@ -19,6 +19,7 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { setHovering } from "@/lib/readerReducer";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useIsScroll } from "@/hooks";
 
 import classNames from "classnames";
 
@@ -37,10 +38,9 @@ export const StatefulReaderFooter = ({
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
   const hasScrollAffordance = useAppSelector(state => state.reader.hasScrollAffordance);
-  const scroll = useAppSelector(state => state.settings.scroll);
-  const isFXL = useAppSelector(state => state.publication.isFXL);
   const isRTL = useAppSelector(state => state.publication.isRTL);
-  const isScroll = scroll && !isFXL;
+  const isFXL = useAppSelector(state => state.publication.isFXL);
+  const isScroll = useIsScroll();
   const breakpoint = useAppSelector(state => state.theming.breakpoint);
   const reducedMotion = useAppSelector(state => state.theming.prefersReducedMotion);
   const timeline = useAppSelector(state => state.publication.unstableTimeline);

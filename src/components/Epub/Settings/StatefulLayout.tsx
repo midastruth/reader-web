@@ -14,12 +14,11 @@ import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { setScroll } from "@/lib/settingsReducer";
+import { useIsScroll } from "@/hooks";
 
 export const StatefulLayout = () => {
   const { t } = useI18n();
-  const scroll = useAppSelector(state => state.settings.scroll);
-  const isFXL = useAppSelector(state => state.publication.isFXL);
-  const isScroll = scroll && !isFXL;
+  const isScroll = useIsScroll();
 
   const dispatch = useAppDispatch();
 

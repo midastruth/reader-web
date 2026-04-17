@@ -58,7 +58,7 @@ import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { usePrevious } from "@/core/Hooks/usePrevious";
 import { useI18n } from "@/i18n/useI18n";
 import { useTimeline } from "@/core/Hooks/useTimeline";
-import { usePositionStorage } from "@/hooks/usePositionStorage";
+import { useIsScroll, usePositionStorage } from "@/hooks";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
@@ -167,8 +167,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   const paragraphIndent = getEffectiveSpacingValue(ThSpacingSettingsKeys.paragraphIndent);
   const paragraphSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.paragraphSpacing);
   const publisherStyles = useAppSelector(state => state.settings.publisherStyles);
-  const scroll = useAppSelector(state => state.settings.scroll);
-  const isScroll = scroll && !isFXL;
+  const isScroll = useIsScroll();
   const textNormalization = useAppSelector(state => state.settings.textNormalization);
   const wordSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.wordSpacing);
   const themeObject = useAppSelector(state => state.theming.theme);
