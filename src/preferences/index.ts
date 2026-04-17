@@ -1,5 +1,3 @@
-"use client";
-
 export * from "./globalPreferences";
 export * from "./ThGlobalPreferencesContext";
 export * from "./ThGlobalPreferencesProvider";

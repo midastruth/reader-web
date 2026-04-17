@@ -1,5 +1,3 @@
-"use client";
-
 import { UnstableShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
 import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
