@@ -210,7 +210,7 @@ function usePreferences<K extends CustomizableKeys = DefaultKeys>(): {
   getFontInjectables: (options?: { language?: string } | { key?: string }, optimize?: boolean) => any;
   getFontsList: (options?: { language?: string } | { key?: string }) => FontCollection;
   getFontMetadata: (fontId: string) => any;
-  resolveFontLanguage: (bcp47Tag: string | undefined, direction: "ltr" | "rtl") => any;
+  resolveFontLanguage: (bcp47Tag: string | undefined, scriptMode: ScriptMode) => any;
 }
 ```
 
