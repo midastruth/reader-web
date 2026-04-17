@@ -37,6 +37,10 @@
                 "compact": "Seuraava",
                 "descriptive": "Seuraava sivu"
             },
+            "goToNextResource": {
+                "compact": "Seuraava",
+                "descriptive": "Seuraava resurssi"
+            },
             "goToNextSentence": {
                 "compact": "Seuraava",
                 "descriptive": "Seuraava lause"
@@ -52,6 +56,10 @@
             "goToPreviousPage": {
                 "compact": "Edellinen",
                 "descriptive": "Edellinen sivu"
+            },
+            "goToPreviousResource": {
+                "compact": "Edellinen",
+                "descriptive": "Edellinen resurssi"
             },
             "goToPreviousSentence": {
                 "compact": "Edellinen",
@@ -123,6 +131,14 @@
                 "playbackRate": {
                     "compact": "Nopeus",
                     "descriptive": "Toistonopeus"
+                },
+                "sleepTimer": {
+                    "compact": "Ajastin",
+                    "descriptive": "Uniajastin",
+                    "presets": {
+                        "endOfChapter": "Luvun loppu",
+                        "endOfResource": "Resurssin loppu"
+                    }
                 }
             }
         },
@@ -304,6 +320,20 @@
                 "compact": "{{ x }} / {{ y }}",
                 "descriptive": "{{ x }} / {{ y }} ({{ z }})"
             }
+        },
+        "search": {
+            "actions": {
+                "next": {
+                    "compact": "Seuraava tulos"
+                },
+                "previous": {
+                    "compact": "Edellinen tulos"
+                }
+            },
+            "placeholder": "Hae avainsanoja tai lauseita",
+            "result_one": "{{ current }} / {{ count }} tulosta",
+            "result_other": "{{ current }} / {{ count }} tulosta",
+            "title": "Hae"
         },
         "tableOfContents": {
             "emptyState": {

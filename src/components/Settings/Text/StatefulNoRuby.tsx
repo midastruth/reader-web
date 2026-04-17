@@ -39,8 +39,8 @@ export const StatefulNoRuby = ({ standalone = true }: StatefulSettingsItemProps)
     <>
     <StatefulSwitch
       standalone={ standalone }
-      heading={ t("reader.settings.noRuby.title") }
-      label={ t("reader.settings.noRuby.label") }
+      heading={ t("reader.preferences.noRuby.title") }
+      label={ t("reader.preferences.noRuby.label") }
       onChange={ async (isSelected: boolean) => await updatePreference(isSelected) }
       isSelected={ noRuby ?? false }
     />

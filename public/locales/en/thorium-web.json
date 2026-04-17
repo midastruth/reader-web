@@ -91,14 +91,6 @@
       }
     },
     "settings": {
-      "ligatures": {
-        "label": "Enable ligatures",
-        "title": "Ligatures"
-      },
-      "noRuby": {
-        "label": "Hide ruby annotations",
-        "title": "Ruby annotations"
-      },
       "text": {
         "advanced": {
           "tooltip": "More options",

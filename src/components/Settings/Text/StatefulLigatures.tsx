@@ -39,8 +39,8 @@ export const StatefulLigatures = ({ standalone = true }: StatefulSettingsItemPro
     <>
     <StatefulSwitch
       standalone={ standalone }
-      heading={ t("reader.settings.ligatures.title") }
-      label={ t("reader.settings.ligatures.label") }
+      heading={ t("reader.preferences.ligatures.title") }
+      label={ t("reader.preferences.ligatures.label") }
       onChange={ async (isSelected: boolean) => await updatePreference(isSelected) }
       isSelected={ ligatures ?? true }
     />
