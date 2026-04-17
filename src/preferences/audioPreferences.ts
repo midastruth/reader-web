@@ -8,7 +8,6 @@ import {
   ThAudioActionKeys,
   ThAudioKeys,
   ThDockingKeys,
-  ThLayoutDirection,
   ThSheetTypes,
   ThThemeKeys,
   ThActionsTokens,
@@ -123,9 +122,6 @@ export interface ThAudioActionsPref<K extends AudioCustomizableKeys = {}> {
 export type ThAudioConstraintKeys = Extract<ThSheetTypes, ThSheetTypes.bottomSheet | ThSheetTypes.popover | ThSheetTypes.modal> | "cover";
 
 export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
-  direction?: ThLayoutDirection;
-  locale?: string;
-
   theming: {
     header?: {
       backLink?: ThBackLinkPref | null;

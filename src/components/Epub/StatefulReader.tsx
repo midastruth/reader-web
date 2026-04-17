@@ -10,8 +10,9 @@ import {
 import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 import arrowStyles from "../assets/styles/thorium-web.reader.paginatedArrow.module.css";
 
-import { 
-  ThActionsKeys,  
+import {
+  ThActionsKeys,
+  ThLayoutDirection,
   ThLayoutUI,
   ThDocumentTitleFormat,
   ThSpacingSettingsKeys,
@@ -21,7 +22,7 @@ import {
 
 import { ThPlugin, ThPluginRegistry } from "../Plugins/PluginRegistry";
 
-import { I18nProvider } from "react-aria";
+import { useLocale } from "react-aria";
 import { ThPluginProvider } from "../Plugins/PluginProvider";
 import { NavigatorProvider } from "@/core/Navigator";
 
@@ -136,6 +137,7 @@ export const StatefulReader = ({
 const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
+  const { direction: uiDirection } = useLocale();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
   const { occupySpace: arrowsOccupySpace } = usePaginatedArrows();
@@ -614,13 +616,12 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   }, [cache, themeObject, previousTheme, preferences.theming.themes, fxlThemeKeys, reflowThemeKeys, colorScheme, isFXL, submitPreferences, dispatch, navigatorReady]);
 
   useLayoutEffect(() => {
-    preferences.direction && dispatch(setDirection(preferences.direction));
+    dispatch(setDirection(uiDirection as ThLayoutDirection));
     dispatch(setPlatformModifier(getPlatformModifier()));
-  }, [preferences.direction, dispatch]);
+  }, [uiDirection, dispatch]);
 
   return (
     <>
-    <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider visualNavigator={ epubNavigator }>
       <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
@@ -700,6 +701,5 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       </StatefulDockingWrapper>
     </main>
   </NavigatorProvider>
-  </I18nProvider>
   </>
 )};

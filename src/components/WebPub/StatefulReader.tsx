@@ -17,7 +17,6 @@ import {
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
 
-import { I18nProvider } from "react-aria";
 import { ThPluginProvider } from "../Plugins/PluginProvider";
 import { NavigatorProvider } from "@/core/Navigator";
 
@@ -331,7 +330,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
 
   return (
     <>
-    <I18nProvider locale={ preferences.locale }>
     <NavigatorProvider visualNavigator={ webPubNavigator }>
       <main className={ readerStyles.main }>
         <StatefulDockingWrapper>
@@ -367,6 +365,5 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       </StatefulDockingWrapper>
     </main>
   </NavigatorProvider>
-  </I18nProvider>
   </>
 )};
