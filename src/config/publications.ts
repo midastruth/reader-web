@@ -19,6 +19,7 @@ export const PUBLICATION_MANIFESTS = {
   "flatland": "https://readium.org/webpub-manifest/examples/Flatland/manifest.json",
   // RTL + CJK
   "rtl": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9pc3JhZWxzYWlsaW5nLmVwdWI/manifest.json",
+  "rtl-arabic": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9yZWdpbWUtYW50aWNhbmNlci1hcmFiaWMuZXB1Yg/manifest.json",
   "cjk": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9qbHJlcS1pbi1qYXBhbmVzZS5lcHVi/manifest.json",
   "cjk-v": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9rdXNhbWFrdXJhLWphcGFuZXNlLXZlcnRpY2FsLXdyaXRpbmcuZXB1Yg/manifest.json",
   "rtl-fxl": "https://publication-server.readium.org/webpub/aHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9oYXJ1a28taHRtbC1qcGVnLmVwdWI/manifest.json"
