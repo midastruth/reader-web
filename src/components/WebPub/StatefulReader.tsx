@@ -123,6 +123,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
   const fontFamily = useAppSelector(state => state.webPubSettings.fontFamily);
   const fontWeight = useAppSelector(state => state.webPubSettings.fontWeight);
   const hyphens = useAppSelector(state => state.webPubSettings.hyphens);
+  const ligatures = useAppSelector(state => state.webPubSettings.ligatures);
+  const noRuby = useAppSelector(state => state.webPubSettings.noRuby);
   const letterSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.letterSpacing);
   const lineHeight = getEffectiveSpacingValue(ThSpacingSettingsKeys.lineHeight);
   const paragraphIndent = getEffectiveSpacingValue(ThSpacingSettingsKeys.paragraphIndent);
@@ -141,7 +143,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
     fontWeight,
     hyphens,
     letterSpacing,
+    ligatures,
     lineHeight,
+    noRuby,
     paragraphIndent,
     paragraphSpacing,
     publisherStyles,

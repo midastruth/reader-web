@@ -13,7 +13,9 @@ export interface WebPubSettingsReducerState {
   fontWeight: number;
   hyphens: boolean | null;
   letterSpacing: number | null;
+  ligatures: boolean | null;
   lineHeight: ThLineHeightOptions | null;
+  noRuby: boolean | null;
   paragraphIndent: number | null;
   paragraphSpacing: number | null;
   publisherStyles: boolean;
@@ -29,7 +31,9 @@ const initialState: WebPubSettingsReducerState = {
   fontWeight: 400,
   hyphens: null,
   letterSpacing: null,
+  ligatures: null,
   lineHeight: ThLineHeightOptions.publisher,
+  noRuby: null,
   paragraphIndent: null,
   paragraphSpacing: null,
   publisherStyles: true,
@@ -57,6 +61,9 @@ export const webPubSettingsSlice = createSlice({
     },
     setWebPubHyphens: (state, action) => {
       state.hyphens = action.payload
+    },
+    setWebPubLigatures: (state, action) => {
+      state.ligatures = action.payload
     },
     setWebPubLetterSpacing: (state, action) => {
       handleSpacingSetting(state, action, ThSpacingSettingsKeys.letterSpacing);
@@ -103,6 +110,9 @@ export const webPubSettingsSlice = createSlice({
     setWebPubTextNormalization: (state, action) => {
       state.textNormalization = action.payload
     },
+    setWebPubNoRuby: (state, action) => {
+      state.noRuby = action.payload
+    },
     setWebPubWordSpacing: (state, action) => {
       handleSpacingSetting(state, action, ThSpacingSettingsKeys.wordSpacing);
     },
@@ -119,6 +129,7 @@ export const {
   setWebPubFontFamily,
   setWebPubFontWeight,
   setWebPubHyphens,
+  setWebPubLigatures,
   setWebPubLetterSpacing,
   setWebPubLineHeight,
   setWebPubParagraphIndent,
@@ -127,6 +138,7 @@ export const {
   setWebPubSpacingPreset,
   setWebPubTextAlign,
   setWebPubTextNormalization,
+  setWebPubNoRuby,
   setWebPubWordSpacing,
   setWebPubZoom
 } = webPubSettingsSlice.actions;

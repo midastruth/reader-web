@@ -24,6 +24,8 @@ import { StatefulSpacingPresets } from "../../Settings/Spacing/StatefulSpacingPr
 import { StatefulTextAlign } from "../../Settings/Text/StatefulTextAlign";
 import { StatefulTextGroup } from "../../Settings/Text/StatefulTextGroup";
 import { StatefulTextNormalize } from "../../Settings/Text/StatefulTextNormalize";
+import { StatefulLigatures } from "../../Settings/Text/StatefulLigatures";
+import { StatefulNoRuby } from "../../Settings/Text/StatefulNoRuby";
 import { StatefulTheme } from "../../Settings/StatefulTheme";
 import { StatefulWordSpacing } from "../../Settings/Spacing/StatefulWordSpacing";
 import { StatefulZoom } from "../../Settings/StatefulZoom";
@@ -107,6 +109,14 @@ export const createDefaultPlugin = (): ThPlugin => {
         },
         [ThSettingsKeys.textNormalize]: {
           Comp: StatefulTextNormalize,
+          type: "text"
+        },
+        [ThSettingsKeys.ligatures]: {
+          Comp: StatefulLigatures,
+          type: "text"
+        },
+        [ThSettingsKeys.noRuby]: {
+          Comp: StatefulNoRuby,
           type: "text"
         },
         [ThSettingsKeys.theme]: {

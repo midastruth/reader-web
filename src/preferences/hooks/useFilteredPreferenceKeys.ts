@@ -14,6 +14,7 @@ import { usePreferenceKeys } from "./usePreferenceKeys";
 const EXCLUDED_CJK = [
   ThTextSettingsKeys.textAlign,
   ThTextSettingsKeys.hyphens,
+  ThTextSettingsKeys.ligatures,
   ThSpacingSettingsKeys.paragraphIndent,
   ThSpacingSettingsKeys.wordSpacing,
   ThTextSettingsKeys.textNormalize,
@@ -21,11 +22,14 @@ const EXCLUDED_CJK = [
 
 // Keys that are not applicable for each script mode and should be hidden from settings UI
 const EXCLUDED_BY_SCRIPT_MODE: Record<ScriptMode, string[]> = {
-  "ltr": [],
+  "ltr": [
+    ThTextSettingsKeys.noRuby,
+  ],
   "rtl": [
     ThTextSettingsKeys.hyphens,
     ThSpacingSettingsKeys.letterSpacing,
     ThTextSettingsKeys.textNormalize,
+    ThTextSettingsKeys.noRuby,
   ],
   "cjk-horizontal": EXCLUDED_CJK,
   "cjk-vertical": [...EXCLUDED_CJK, ThSettingsKeys.layout],

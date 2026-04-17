@@ -69,6 +69,16 @@ export const useEpubPreferencesConfig = ({
     publicationType: isFXL ? "fxl" : "reflow",
   });
 
+  const { isComponentUsed: isLigaturesUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.ligatures,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
+  const { isComponentUsed: isNoRubyUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.noRuby,
+    publicationType: isFXL ? "fxl" : "reflow",
+  });
+
   const { isComponentUsed: isLetterSpacingUsed } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.letterSpacing,
     publicationType: isFXL ? "fxl" : "reflow",
@@ -124,6 +134,8 @@ export const useEpubPreferencesConfig = ({
       fontSize: isFontSizeUsed ? settings.fontSize : undefined,
       fontWeight: isFontWeightUsed ? settings.fontWeight : undefined,
       hyphens: isHyphensUsed ? settings.hyphens : undefined,
+      ligatures: isLigaturesUsed ? settings.ligatures : undefined,
+      noRuby: isNoRubyUsed ? settings.noRuby : undefined,
       letterSpacing: (!isLetterSpacingUsed || settings.publisherStyles) ? undefined : settings.letterSpacing,
       lineHeight: (!isLineHeightUsed || settings.publisherStyles)
         ? undefined
@@ -170,6 +182,8 @@ export const useEpubPreferencesConfig = ({
     isColumnsUsed,
     isLayoutUsed,
     isHyphensUsed,
+    isLigaturesUsed,
+    isNoRubyUsed,
     isLetterSpacingUsed,
     isLineHeightUsed,
     isParagraphIndentUsed,

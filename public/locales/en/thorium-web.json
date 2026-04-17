@@ -68,7 +68,7 @@
     "fullscreen": {
       "tooltip": "Fullscreen",
       "trigger": "Toggle fullscreen mode",
-      "close": "Exit fullscreen mode"    
+      "close": "Exit fullscreen mode"
     },
     "toc": {
       "entries": "Entries in the table"
@@ -91,6 +91,14 @@
       }
     },
     "settings": {
+      "ligatures": {
+        "label": "Enable ligatures",
+        "title": "Ligatures"
+      },
+      "noRuby": {
+        "label": "Hide ruby annotations",
+        "title": "Ruby annotations"
+      },
       "text": {
         "advanced": {
           "tooltip": "More options",

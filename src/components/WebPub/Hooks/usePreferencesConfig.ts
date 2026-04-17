@@ -38,6 +38,16 @@ export const useWebPubPreferencesConfig = ({
     publicationType: "webpub",
   });
 
+  const { isComponentUsed: isLigaturesUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.ligatures,
+    publicationType: "webpub",
+  });
+
+  const { isComponentUsed: isNoRubyUsed } = useSettingsComponentStatus({
+    settingsKey: ThSettingsKeys.noRuby,
+    publicationType: "webpub",
+  });
+
   const { isComponentUsed: isLetterSpacingUsed } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.letterSpacing,
     publicationType: "webpub",
@@ -82,6 +92,8 @@ export const useWebPubPreferencesConfig = ({
       if (isFontFamilyUsed) preferences.fontFamily = getFontMetadata(settings.fontFamily[fontLanguage] ?? "")?.fontStack || null;
       if (isFontWeightUsed) preferences.fontWeight = settings.fontWeight;
       if (isHyphensUsed) preferences.hyphens = settings.hyphens;
+      if (isLigaturesUsed) preferences.ligatures = settings.ligatures;
+      if (isNoRubyUsed) preferences.noRuby = settings.noRuby;
       if (isLetterSpacingUsed) preferences.letterSpacing = settings.letterSpacing;
       if (isLineHeightUsed) preferences.lineHeight = settings.lineHeight === null
         ? null
@@ -103,6 +115,8 @@ export const useWebPubPreferencesConfig = ({
     isFontFamilyUsed,
     isFontWeightUsed,
     isHyphensUsed,
+    isLigaturesUsed,
+    isNoRubyUsed,
     isLetterSpacingUsed,
     isLineHeightUsed,
     isParagraphIndentUsed,
