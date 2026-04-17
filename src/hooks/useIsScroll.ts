@@ -9,5 +9,5 @@ export const useIsScroll = (): boolean => {
   const scriptMode = useAppSelector(state => state.publication.scriptMode);
 
   if (profile === "webPub") return true;
-  return (scroll || scriptMode === "cjk-vertical") && !isFXL;
+  return (scroll || scriptMode === "cjk-vertical" || scriptMode === "mongolian-vertical") && !isFXL;
 };

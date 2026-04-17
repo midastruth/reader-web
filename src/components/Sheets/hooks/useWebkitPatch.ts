@@ -20,7 +20,8 @@ import { useAppSelector } from "@/lib/hooks";
 */
 export const useWebkitPatch = (isOpen: boolean) => {
   const isScroll = useIsScroll();
-  const isHorizontalScroll = useAppSelector(state => state.publication.scriptMode) === "cjk-vertical";
+  const scriptMode = useAppSelector(state => state.publication.scriptMode);
+  const isHorizontalScroll = scriptMode === "cjk-vertical" || scriptMode === "mongolian-vertical";
 
   const prevIsOpen = usePrevious(isOpen);
 

@@ -33,6 +33,7 @@ const EXCLUDED_BY_SCRIPT_MODE: Record<ScriptMode, string[]> = {
   ],
   "cjk-horizontal": EXCLUDED_CJK,
   "cjk-vertical": [...EXCLUDED_CJK, ThSettingsKeys.layout],
+  "mongolian-vertical": [...EXCLUDED_CJK, ThSettingsKeys.layout],
 };
 
 /**
@@ -48,7 +49,7 @@ export const useFilteredPreferenceKeys = () => {
   return useMemo(() => {
     const excluded = [
       ...(EXCLUDED_BY_SCRIPT_MODE[scriptMode] ?? []),
-      ...(scriptMode === "cjk-vertical" && !isFXL
+      ...((scriptMode === "cjk-vertical" || scriptMode === "mongolian-vertical") && !isFXL
         ? [ThSettingsKeys.columns]
         : []),
     ];
