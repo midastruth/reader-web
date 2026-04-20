@@ -215,7 +215,7 @@ export const useEpubPreferencesConfig = ({
       scrollPaddingRight: preferences.typography.pageGutter,
       experiments: preferences.experiments?.reflow || null
     };
-  }, [isFXL, preferences]);
+  }, [isFXL, preferences, scriptMode]);
 
   return { epubPreferences, epubDefaults };
 };
