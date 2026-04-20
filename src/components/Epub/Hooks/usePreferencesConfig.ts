@@ -10,6 +10,8 @@ import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 import { ReadiumCSSSettings } from "@/core/Hooks/Epub/useEpubSettingsCache";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 
+import { useAppSelector } from "@/lib/hooks";
+
 import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 
 interface UseEpubPreferencesConfigProps {
@@ -39,6 +41,8 @@ export const useEpubPreferencesConfig = ({
   fxlThemeKeys,
   reflowThemeKeys,
 }: UseEpubPreferencesConfigProps) => {
+  const scriptMode = useAppSelector(state => state.publication.scriptMode);
+
   const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.fontFamily,
     publicationType: isFXL ? "fxl" : "reflow",
@@ -204,8 +208,8 @@ export const useEpubPreferencesConfig = ({
       scrollPaddingTop: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
         ? (preferences.theming.icon.size || 24) * 3 
         : (preferences.theming.icon.size || 24),
-      scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered 
-        ? (preferences.theming.icon.size || 24) * 5 
+      scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered
+        ? (preferences.theming.icon.size || 24) * (scriptMode === "cjk-vertical" || scriptMode === "mongolian-vertical" ? 3 : 5)
         : (preferences.theming.icon.size || 24),
       scrollPaddingLeft: preferences.typography.pageGutter,
       scrollPaddingRight: preferences.typography.pageGutter,
