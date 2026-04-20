@@ -2,6 +2,9 @@
 
 import { CSSProperties, Key, useCallback, useRef } from "react";
 
+import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+
 import { StatefulSettingsItemProps } from "../models/settings";
 
 import settingsStyles from "../assets/styles/thorium-web.reader.settings.module.css";
@@ -88,9 +91,10 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
     };
     
     if (selectedOption) {
-      await submitPreferences({ fontFamily: selectedOption.value });
+      const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.fontFamily] as "fontFamily";
+      await submitPreferences({ [prefKey]: selectedOption.value });
       
-      const currentSetting = getSetting("fontFamily");
+      const currentSetting = getSetting(prefKey);
       
       // Handle publisher font case (when currentSetting is null)
       if (currentSetting === null) {

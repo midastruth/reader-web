@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 
 import { ThSettingsKeys, ThSettingsRangeVariant, ThSpacingSettingsKeys } from "@/preferences";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -41,11 +42,12 @@ export const StatefulWordSpacing = ({ standalone = true }: StatefulSettingsItemP
   const wordSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.wordSpacing);
   
   const updatePreference = useCallback(async (value: number | number[] | null) => {
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing] as "wordSpacing";
     await submitPreferences({
-      wordSpacing: Array.isArray(value) ? value[0] : value
+      [prefKey]: Array.isArray(value) ? value[0] : value
     });
-    
-    setWordSpacing(getSetting("wordSpacing"));
+
+    setWordSpacing(getSetting(prefKey));
   }, [submitPreferences, getSetting, setWordSpacing]);
 
   return (

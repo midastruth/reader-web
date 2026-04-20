@@ -2,6 +2,9 @@
 
 import { useCallback } from "react";
 
+import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+
 import { StatefulSettingsItemProps } from "../models/settings";
 import { ThTextAlignOptions } from "@/preferences/models";
 
@@ -29,8 +32,9 @@ export const StatefulHyphens = ({ standalone = true }: StatefulSettingsItemProps
   const { getSetting, submitPreferences } = useNavigator().visual;
   
   const updatePreference = useCallback(async (value: boolean) => {
-    await submitPreferences({ hyphens: value });
-    const effectiveSetting = getSetting("hyphens");
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.hyphens] as "hyphens";
+    await submitPreferences({ [prefKey]: value });
+    const effectiveSetting = getSetting(prefKey);
   
     if (isWebPub) {
       dispatch(setWebPubHyphens(effectiveSetting));

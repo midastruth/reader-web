@@ -1,10 +1,12 @@
 import { useCallback, useMemo } from "react";
 
-import { 
+import {
   ThSpacingPresetKeys,
   ThLineHeightOptions,
   ThSpacingSettingsKeys,
+  ThSettingsKeys,
 } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import BookIcon from "../assets/icons/book.svg";
 import SmallIcon from "./assets/icons/density_small.svg";
@@ -104,19 +106,19 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
     // Only include spacing settings if their plugins are being used
     const preferencesToSubmit: any = {};
     if (isLetterSpacingUsed) {
-      preferencesToSubmit[ThSpacingSettingsKeys.letterSpacing] = reduxValues[ThSpacingSettingsKeys.letterSpacing];
+      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing]] = reduxValues[ThSpacingSettingsKeys.letterSpacing];
     }
     if (isLineHeightUsed) {
-      preferencesToSubmit[ThSpacingSettingsKeys.lineHeight] = lineHeightValueNumber;
+      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight]] = lineHeightValueNumber;
     }
     if (isParagraphIndentUsed) {
-      preferencesToSubmit[ThSpacingSettingsKeys.paragraphIndent] = reduxValues[ThSpacingSettingsKeys.paragraphIndent];
+      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent]] = reduxValues[ThSpacingSettingsKeys.paragraphIndent];
     }
     if (isParagraphSpacingUsed) {
-      preferencesToSubmit[ThSpacingSettingsKeys.paragraphSpacing] = reduxValues[ThSpacingSettingsKeys.paragraphSpacing];
+      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing]] = reduxValues[ThSpacingSettingsKeys.paragraphSpacing];
     }
     if (isWordSpacingUsed) {
-      preferencesToSubmit[ThSpacingSettingsKeys.wordSpacing] = reduxValues[ThSpacingSettingsKeys.wordSpacing];
+      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing]] = reduxValues[ThSpacingSettingsKeys.wordSpacing];
     }
 
     await submitPreferences(preferencesToSubmit);

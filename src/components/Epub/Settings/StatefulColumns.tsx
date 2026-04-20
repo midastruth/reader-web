@@ -2,6 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+
 import AutoLayoutIcon from "./assets/icons/document_scanner.svg";
 import OneColIcon from "./assets/icons/article.svg";
 import TwoColsIcon from "./assets/icons/menu_book.svg";
@@ -76,13 +79,15 @@ export const StatefulColumns = () => {
 
   const updatePreference = useCallback(async (value: string) => {
     const colCount = value === "auto" ? null : Number(value);
-    await submitPreferences({ columnCount: colCount });
-    updateEffectiveValue(value, getSetting("columnCount"));
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.columns] as "columnCount";
+    await submitPreferences({ [prefKey]: colCount });
+    updateEffectiveValue(value, getSetting(prefKey));
     dispatch(setColumnCount(value));
   }, [submitPreferences, getSetting, updateEffectiveValue, dispatch]);
 
   const debouncedUpdate = useCallback(() => {
-    const update = () => updateEffectiveValue(columnCount, getSetting("columnCount"));
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.columns] as "columnCount";
+    const update = () => updateEffectiveValue(columnCount, getSetting(prefKey));
     debounce(update, 50)();
 
     // layoutSettings is required as a dependency because it contains all the settings

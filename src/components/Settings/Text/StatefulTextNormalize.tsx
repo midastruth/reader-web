@@ -2,6 +2,9 @@
 
 import { useCallback } from "react";
 
+import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+
 import { StatefulSettingsItemProps } from "../models/settings";
 
 import { StatefulSwitch } from "../StatefulSwitch";
@@ -26,8 +29,9 @@ export const StatefulTextNormalize = ({ standalone = true }: StatefulSettingsIte
   const { getSetting, submitPreferences } = useNavigator().visual;
 
   const updatePreference = useCallback(async (value: boolean) => {
-    await submitPreferences({ textNormalization: value });
-    const effectiveSetting = getSetting("textNormalization");
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.textNormalize] as "textNormalization";
+    await submitPreferences({ [prefKey]: value });
+    const effectiveSetting = getSetting(prefKey);
 
     if (isWebPub) {
       dispatch(setWebPubTextNormalization(effectiveSetting));

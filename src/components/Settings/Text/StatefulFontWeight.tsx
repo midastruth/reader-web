@@ -2,6 +2,9 @@
 
 import { useMemo, useCallback } from "react";
 
+import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+
 import { StatefulSettingsItemProps } from "../models/settings";
 
 import DefaultIcon from "./assets/icons/format_bold_wght200.svg";
@@ -56,8 +59,9 @@ export const UnstableStatefulFontWeight = ({ standalone = true }: StatefulSettin
 
   const updatePreference = useCallback(async (value: FontWeight) => {
     const fontWeightValue = value === "default" ? 400 : 700;
-    await submitPreferences({ fontWeight: fontWeightValue });
-    const effectiveSetting = getSetting("fontWeight");
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.fontWeight] as "fontWeight";
+    await submitPreferences({ [prefKey]: fontWeightValue });
+    const effectiveSetting = getSetting(prefKey);
 
     if (isWebPub) {
       dispatch(setWebPubFontWeight(effectiveSetting));

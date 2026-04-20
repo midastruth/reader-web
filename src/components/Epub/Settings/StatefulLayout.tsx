@@ -2,7 +2,8 @@
 
 import { useCallback } from "react";
 
-import { ThLayoutOptions } from "@/preferences/models";
+import { ThLayoutOptions, ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import ScrollableIcon from "./assets/icons/contract.svg";
 import PaginatedIcon from "./assets/icons/docs.svg";
@@ -41,8 +42,9 @@ export const StatefulLayout = () => {
 
   const updatePreference = useCallback(async (value: string) => { 
     const derivedValue = value === ThLayoutOptions.scroll;
-    await submitPreferences({ scroll: derivedValue });
-    dispatch(setScroll(getSetting("scroll")));
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.layout] as "scroll";
+    await submitPreferences({ [prefKey]: derivedValue });
+    dispatch(setScroll(getSetting(prefKey)));
   }, [submitPreferences, getSetting, dispatch]);
 
   return (

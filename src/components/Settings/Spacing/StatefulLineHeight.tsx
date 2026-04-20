@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 
 import { ThLineHeightOptions, ThSpacingSettingsKeys, ThSettingsKeys } from "@/preferences";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -95,11 +96,12 @@ export const StatefulLineHeight = ({ standalone = true }: StatefulSettingsItemPr
       ? null
       : lineHeightOptions[value as keyof typeof ThLineHeightOptions];
 
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight] as "lineHeight";
     await submitPreferences({
-      lineHeight: computedValue
+      [prefKey]: computedValue
     });
 
-    const currentLineHeight = getSetting("lineHeight");
+    const currentLineHeight = getSetting(prefKey);
     const currentDisplayLineHeightOption = Object.entries(lineHeightOptions).find(([key, value]) => value === currentLineHeight)?.[0] as ThLineHeightOptions;
 
     setLineHeight(currentDisplayLineHeightOption);

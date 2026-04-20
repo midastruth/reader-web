@@ -3,6 +3,7 @@
 import React, { useCallback } from "react";
 
 import { ThSettingsKeys, ThSettingsRangeVariant } from "@/preferences";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import Decrease from "./assets/icons/text_decrease.svg";
 import Increase from "./assets/icons/text_increase.svg";
@@ -53,8 +54,9 @@ export const StatefulZoom = () => {
 
   const updatePreference = useCallback(async (value: number | number[]) => {
     if (readerProfile === "webPub") {
-      await submitPreferences({ zoom: Array.isArray(value) ? value[0] : value });
-      dispatch(setWebPubZoom(getSetting("zoom")));
+      const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.zoom] as "zoom";
+      await submitPreferences({ [prefKey]: Array.isArray(value) ? value[0] : value });
+      dispatch(setWebPubZoom(getSetting(prefKey)));
     } else {
       await submitPreferences({ fontSize: Array.isArray(value) ? value[0] : value });
       dispatch(setFontSize(getSetting("fontSize")));

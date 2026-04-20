@@ -2,7 +2,8 @@
 
 import { useCallback } from "react";
 
-import { ThLineHeightOptions, ThSpacingSettingsKeys } from "@/preferences";
+import { ThLineHeightOptions, ThSpacingSettingsKeys, ThSettingsKeys } from "@/preferences";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "./models/settings";
 
@@ -60,38 +61,38 @@ export const StatefulPublisherStyles = ({ standalone = true }: StatefulSettingsI
     if (isSelected) {
       // Reset all spacing settings to null (publisher defaults)
       if (isLineHeightUsed) {
-        values.lineHeight = null;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight]] = null;
       }
       if (isParagraphIndentUsed) {
-        values.paragraphIndent = null;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent]] = null;
       }
       if (isParagraphSpacingUsed) {
-        values.paragraphSpacing = null;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing]] = null;
       }
       if (isLetterSpacingUsed) {
-        values.letterSpacing = null;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing]] = null;
       }
       if (isWordSpacingUsed) {
-        values.wordSpacing = null;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing]] = null;
       }
     } else {
       // Set spacing settings to current values
       if (isLineHeightUsed) {
-        values.lineHeight = lineHeight === ThLineHeightOptions.publisher
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight]] = lineHeight === ThLineHeightOptions.publisher
           ? null
           : lineHeightOptions[lineHeight as keyof typeof ThLineHeightOptions];
       }
       if (isParagraphIndentUsed) {
-        values.paragraphIndent = paragraphIndent;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent]] = paragraphIndent;
       }
       if (isParagraphSpacingUsed) {
-        values.paragraphSpacing = paragraphSpacing;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing]] = paragraphSpacing;
       }
       if (isLetterSpacingUsed) {
-        values.letterSpacing = letterSpacing;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing]] = letterSpacing;
       }
       if (isWordSpacingUsed) {
-        values.wordSpacing = wordSpacing;
+        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing]] = wordSpacing;
       }
     }
 

@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 
 import { ThSettingsKeys, ThSettingsRangeVariant, ThSpacingSettingsKeys } from "@/preferences";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -41,11 +42,12 @@ export const StatefulLetterSpacing = ({ standalone = true }: StatefulSettingsIte
   const letterSpacing = getEffectiveSpacingValue(ThSpacingSettingsKeys.letterSpacing);
 
   const updatePreference = useCallback(async (value: number | number[] | null) => {
+    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing] as "letterSpacing";
     await submitPreferences({
-      letterSpacing: Array.isArray(value) ? value[0] : value
+      [prefKey]: Array.isArray(value) ? value[0] : value
     });
 
-    setLetterSpacing(getSetting("letterSpacing"));
+    setLetterSpacing(getSetting(prefKey));
   }, [submitPreferences, getSetting, setLetterSpacing]);
 
   return (

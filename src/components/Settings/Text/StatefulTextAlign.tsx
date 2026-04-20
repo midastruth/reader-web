@@ -2,9 +2,10 @@
 
 import { useCallback } from "react";
 
-import { ThTextAlignOptions, ThTextSettingsKeys } from "@/preferences/models";
+import { ThTextAlignOptions, ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
 import { StatefulSettingsItemProps } from "../models/settings";
 import { TextAlignment } from "@readium/navigator";
+import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
 
 import BookIcon from "../assets/icons/book.svg";
 import LeftAlignIcon from "./assets/icons/format_align_left.svg";
@@ -68,26 +69,28 @@ export const StatefulTextAlign = ({ standalone = true }: StatefulSettingsItemPro
         ? TextAlignment.start
         : TextAlignment.justify;
 
-    const currentHyphens = getSetting("hyphens") as boolean | undefined | null;
+    const hyphensPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.hyphens] as "hyphens";
+    const currentHyphens = getSetting(hyphensPrefKey) as boolean | undefined | null;
 
     const hyphens = textAlign === null
       ? null
       : (currentHyphens ?? textAlign === TextAlignment.justify);
 
+    const textAlignPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.textAlign] as "textAlign";
     const preferencesToSubmit: any = {
-      textAlign: textAlign
+      [textAlignPrefKey]: textAlign
     };
 
     // Only include hyphens if the plugin is being used
     if (isHyphensUsed) {
-      preferencesToSubmit.hyphens = hyphens;
+      preferencesToSubmit[hyphensPrefKey] = hyphens;
     }
 
     await submitPreferences(preferencesToSubmit);
 
-    const textAlignSetting = getSetting("textAlign") as TextAlignment | null;
+    const textAlignSetting = getSetting(textAlignPrefKey) as TextAlignment | null;
     const textAlignValue = textAlignSetting === null ? ThTextAlignOptions.publisher : textAlignSetting as unknown as ThTextAlignOptions;
-    const effectiveHyphens = getSetting("hyphens");
+    const effectiveHyphens = getSetting(hyphensPrefKey);
 
     if (isWebPub) {
       dispatch(setWebPubTextAlign(textAlignValue));
