@@ -42,6 +42,7 @@ export const useEpubPreferencesConfig = ({
   reflowThemeKeys,
 }: UseEpubPreferencesConfigProps) => {
   const scriptMode = useAppSelector(state => state.publication.scriptMode);
+  const isVerticalScript = scriptMode === "cjk-vertical" || scriptMode === "mongolian-vertical";
 
   const { isComponentUsed: isFontFamilyUsed } = useSettingsComponentStatus({
     settingsKey: ThSettingsKeys.fontFamily,
@@ -161,7 +162,7 @@ export const useEpubPreferencesConfig = ({
           : undefined,
       paragraphIndent: (!isParagraphIndentUsed || settings.publisherStyles) ? undefined : settings.paragraphIndent,
       paragraphSpacing: (!isParagraphSpacingUsed || settings.publisherStyles) ? undefined : settings.paragraphSpacing,
-      scroll: !isLayoutUsed ? undefined : settings.scroll,
+      scroll: isVerticalScript ? true : (!isLayoutUsed ? undefined : settings.scroll),
       textAlign: isTextAlignUsed ? settings.textAlign as unknown as TextAlignment | null | undefined : undefined,
       textNormalization: isTextNormalizeUsed ? settings.textNormalization : undefined,
       wordSpacing: (!isWordSpacingUsed || settings.publisherStyles) ? undefined : settings.wordSpacing,
@@ -180,6 +181,7 @@ export const useEpubPreferencesConfig = ({
     lineHeightOptions,
     fxlThemeKeys,
     reflowThemeKeys,
+    isVerticalScript,
     isFontFamilyUsed,
     isFontSizeUsed,
     isFontWeightUsed,
@@ -209,13 +211,13 @@ export const useEpubPreferencesConfig = ({
         ? (preferences.theming.icon.size || 24) * 3 
         : (preferences.theming.icon.size || 24),
       scrollPaddingBottom: preferences.theming.layout.ui?.reflow === ThLayoutUI.layered
-        ? (preferences.theming.icon.size || 24) * (scriptMode === "cjk-vertical" || scriptMode === "mongolian-vertical" ? 3 : 5)
+        ? (preferences.theming.icon.size || 24) * (isVerticalScript ? 3 : 5)
         : (preferences.theming.icon.size || 24),
       scrollPaddingLeft: preferences.typography.pageGutter,
       scrollPaddingRight: preferences.typography.pageGutter,
       experiments: preferences.experiments?.reflow || null
     };
-  }, [isFXL, preferences, scriptMode]);
+  }, [isFXL, preferences, isVerticalScript]);
 
   return { epubPreferences, epubDefaults };
 };

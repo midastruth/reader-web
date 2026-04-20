@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { usePlugins } from "@/components/Plugins/PluginProvider";
-import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
 import { ThSettingsKeys, ThTextSettingsKeys, ThSpacingSettingsKeys } from "@/preferences/models";
 
 interface UseSettingsComponentStatusOptions {
@@ -36,7 +36,7 @@ export function useSettingsComponentStatus(options: UseSettingsComponentStatusOp
   const { settingsKey, publicationType, additionalCondition = true } = options;
   
   const { spacingSettingsComponentsMap, textSettingsComponentsMap, settingsComponentsMap } = usePlugins();
-  const { preferences } = usePreferences();
+  const { reflowSettingsKeys, fxlSettingsKeys, webPubSettingsKeys, mainTextSettingsKeys, subPanelTextSettingsKeys, mainSpacingSettingsKeys, subPanelSpacingSettingsKeys } = useFilteredPreferenceKeys();
 
   return useMemo(() => {
     // 1. Check if component is registered in any of the component maps
@@ -50,24 +50,24 @@ export function useSettingsComponentStatus(options: UseSettingsComponentStatusOp
     let isInOrder = false;
     switch (publicationType) {
       case "reflow":
-        isInOrder = preferences.settings?.reflowOrder?.includes(settingsKey as ThSettingsKeys) || false;
+        isInOrder = reflowSettingsKeys.includes(settingsKey as ThSettingsKeys) || false;
         break;
       case "fxl":
-        isInOrder = preferences.settings?.fxlOrder?.includes(settingsKey as ThSettingsKeys) || false;
+        isInOrder = fxlSettingsKeys.includes(settingsKey as ThSettingsKeys) || false;
         break;
       case "webpub":
-        isInOrder = preferences.settings?.webPubOrder?.includes(settingsKey as ThSettingsKeys) || false;
+        isInOrder = webPubSettingsKeys.includes(settingsKey as ThSettingsKeys) || false;
         break;
     }
     
     // 3. Check if component is in any panel (text or spacing)
     const isInMainPanel =
-      preferences.settings?.text?.main?.includes(settingsKey as any) ||
-      preferences.settings?.spacing?.main?.includes(settingsKey as any) ||
+      mainTextSettingsKeys.includes(settingsKey as any) ||
+      mainSpacingSettingsKeys.includes(settingsKey as any) ||
       false;
     const isInSubPanel =
-      preferences.settings?.text?.subPanel?.includes(settingsKey as any) ||
-      preferences.settings?.spacing?.subPanel?.includes(settingsKey as any) ||
+      subPanelTextSettingsKeys.includes(settingsKey as any) ||
+      subPanelSpacingSettingsKeys.includes(settingsKey as any) ||
       false;
     
     // 4. Component is displayed if it's in order array and in any panel
@@ -87,7 +87,13 @@ export function useSettingsComponentStatus(options: UseSettingsComponentStatusOp
     settingsKey,
     publicationType,
     additionalCondition,
-    preferences,
+    reflowSettingsKeys,
+    fxlSettingsKeys,
+    webPubSettingsKeys,
+    mainTextSettingsKeys,
+    subPanelTextSettingsKeys,
+    mainSpacingSettingsKeys,
+    subPanelSpacingSettingsKeys,
     spacingSettingsComponentsMap,
     textSettingsComponentsMap,
     settingsComponentsMap
