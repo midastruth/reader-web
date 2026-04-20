@@ -23,6 +23,7 @@ import { useI18n } from "@/i18n/useI18n";
 import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
 import { useNavigator } from "@/core/Navigator";
 import { useLineHeight } from "./hooks/useLineHeight";
+import { useSettingsComponentStatus } from "../hooks/useSettingsComponentStatus";
 
 import { useAppSelector, useAppDispatch } from "@/lib";
 import { setSpacingPreset } from "@/lib/settingsReducer";
@@ -56,6 +57,29 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
 
   const { getPresetValues } = useSpacingPresets();
 
+  // Check if individual spacing setting plugins are being used
+  const publicationType = isWebPub ? "webpub" : isFXL ? "fxl" : "reflow";
+  const { isComponentUsed: isLetterSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.letterSpacing,
+    publicationType
+  });
+  const { isComponentUsed: isLineHeightUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.lineHeight,
+    publicationType
+  });
+  const { isComponentUsed: isParagraphIndentUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.paragraphIndent,
+    publicationType
+  });
+  const { isComponentUsed: isParagraphSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.paragraphSpacing,
+    publicationType
+  });
+  const { isComponentUsed: isWordSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.wordSpacing,
+    publicationType
+  });
+
   const updatePreference = useCallback(async (value: string) => {
     const spacingKey = value as ThSpacingPresetKeys;
     
@@ -73,18 +97,28 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
   
     // Convert lineHeight for preferences API (enum to number)
     const lineHeightValue = reduxValues[ThSpacingSettingsKeys.lineHeight];
-    const lineHeightValueNumber = lineHeightValue && lineHeightValue !== ThLineHeightOptions.publisher 
-      ? lineHeightOptions[lineHeightValue as ThLineHeightOptions] 
+    const lineHeightValueNumber = lineHeightValue && lineHeightValue !== ThLineHeightOptions.publisher
+      ? lineHeightOptions[lineHeightValue as ThLineHeightOptions]
       : null;
-  
-    const preferencesToSubmit = {
-      [ThSpacingSettingsKeys.letterSpacing]: reduxValues[ThSpacingSettingsKeys.letterSpacing],
-      [ThSpacingSettingsKeys.lineHeight]: lineHeightValueNumber,
-      [ThSpacingSettingsKeys.paragraphIndent]: reduxValues[ThSpacingSettingsKeys.paragraphIndent],
-      [ThSpacingSettingsKeys.paragraphSpacing]: reduxValues[ThSpacingSettingsKeys.paragraphSpacing],
-      [ThSpacingSettingsKeys.wordSpacing]: reduxValues[ThSpacingSettingsKeys.wordSpacing],
-    };
-  
+
+    // Only include spacing settings if their plugins are being used
+    const preferencesToSubmit: any = {};
+    if (isLetterSpacingUsed) {
+      preferencesToSubmit[ThSpacingSettingsKeys.letterSpacing] = reduxValues[ThSpacingSettingsKeys.letterSpacing];
+    }
+    if (isLineHeightUsed) {
+      preferencesToSubmit[ThSpacingSettingsKeys.lineHeight] = lineHeightValueNumber;
+    }
+    if (isParagraphIndentUsed) {
+      preferencesToSubmit[ThSpacingSettingsKeys.paragraphIndent] = reduxValues[ThSpacingSettingsKeys.paragraphIndent];
+    }
+    if (isParagraphSpacingUsed) {
+      preferencesToSubmit[ThSpacingSettingsKeys.paragraphSpacing] = reduxValues[ThSpacingSettingsKeys.paragraphSpacing];
+    }
+    if (isWordSpacingUsed) {
+      preferencesToSubmit[ThSpacingSettingsKeys.wordSpacing] = reduxValues[ThSpacingSettingsKeys.wordSpacing];
+    }
+
     await submitPreferences(preferencesToSubmit);
   
     if (isWebPub) {
@@ -98,7 +132,7 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
         values: reduxValues,
       }));
     }
-  }, [isWebPub, dispatch, submitPreferences, getPresetValues, lineHeightOptions]);
+  }, [isWebPub, dispatch, submitPreferences, getPresetValues, lineHeightOptions, isLetterSpacingUsed, isLineHeightUsed, isParagraphIndentUsed, isParagraphSpacingUsed, isWordSpacingUsed]);
 
   // Use appropriate spacing keys based on layout
   const spacingKeys = useMemo(() => {

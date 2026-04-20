@@ -12,6 +12,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 import { useSpacingPresets } from "./Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "./Spacing/hooks/useLineHeight";
+import { useSettingsComponentStatus } from "./hooks/useSettingsComponentStatus";
 
 import { useAppSelector } from "@/lib/hooks";
 
@@ -20,6 +21,28 @@ export const StatefulPublisherStyles = ({ standalone = true }: StatefulSettingsI
   const publisherStyles = useAppSelector(state => state.settings.publisherStyles);
 
   const { getEffectiveSpacingValue, setPublisherStyles } = useSpacingPresets();
+
+  // Check if individual spacing setting plugins are being used
+  const { isComponentUsed: isLineHeightUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.lineHeight,
+    publicationType: "reflow"
+  });
+  const { isComponentUsed: isParagraphIndentUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.paragraphIndent,
+    publicationType: "reflow"
+  });
+  const { isComponentUsed: isParagraphSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.paragraphSpacing,
+    publicationType: "reflow"
+  });
+  const { isComponentUsed: isLetterSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.letterSpacing,
+    publicationType: "reflow"
+  });
+  const { isComponentUsed: isWordSpacingUsed } = useSettingsComponentStatus({
+    settingsKey: ThSpacingSettingsKeys.wordSpacing,
+    publicationType: "reflow"
+  });
 
   const lineHeight = getEffectiveSpacingValue(ThSpacingSettingsKeys.lineHeight);
   const paragraphIndent = getEffectiveSpacingValue(ThSpacingSettingsKeys.paragraphIndent);
@@ -32,27 +55,50 @@ export const StatefulPublisherStyles = ({ standalone = true }: StatefulSettingsI
   const { submitPreferences } = useNavigator().visual;
 
   const updatePreference = useCallback(async (isSelected: boolean) => {
-    const values = isSelected ? 
-    {
-      lineHeight: null,
-      paragraphIndent: null,
-      paragraphSpacing: null,
-      letterSpacing: null,
-      wordSpacing: null
-    } : 
-    {
-      lineHeight: lineHeight === ThLineHeightOptions.publisher 
-        ? null 
-        : lineHeightOptions[lineHeight as keyof typeof ThLineHeightOptions],
-      paragraphIndent: paragraphIndent,
-      paragraphSpacing: paragraphSpacing,
-      letterSpacing: letterSpacing,
-      wordSpacing: wordSpacing
-    };
+    const values: any = {};
+
+    if (isSelected) {
+      // Reset all spacing settings to null (publisher defaults)
+      if (isLineHeightUsed) {
+        values.lineHeight = null;
+      }
+      if (isParagraphIndentUsed) {
+        values.paragraphIndent = null;
+      }
+      if (isParagraphSpacingUsed) {
+        values.paragraphSpacing = null;
+      }
+      if (isLetterSpacingUsed) {
+        values.letterSpacing = null;
+      }
+      if (isWordSpacingUsed) {
+        values.wordSpacing = null;
+      }
+    } else {
+      // Set spacing settings to current values
+      if (isLineHeightUsed) {
+        values.lineHeight = lineHeight === ThLineHeightOptions.publisher
+          ? null
+          : lineHeightOptions[lineHeight as keyof typeof ThLineHeightOptions];
+      }
+      if (isParagraphIndentUsed) {
+        values.paragraphIndent = paragraphIndent;
+      }
+      if (isParagraphSpacingUsed) {
+        values.paragraphSpacing = paragraphSpacing;
+      }
+      if (isLetterSpacingUsed) {
+        values.letterSpacing = letterSpacing;
+      }
+      if (isWordSpacingUsed) {
+        values.wordSpacing = wordSpacing;
+      }
+    }
+
     await submitPreferences(values);
 
     setPublisherStyles(isSelected ? true : false);
-  }, [submitPreferences, setPublisherStyles, lineHeight, paragraphIndent, paragraphSpacing, letterSpacing, wordSpacing, lineHeightOptions]);
+  }, [submitPreferences, setPublisherStyles, lineHeight, paragraphIndent, paragraphSpacing, letterSpacing, wordSpacing, lineHeightOptions, isLineHeightUsed, isParagraphIndentUsed, isParagraphSpacingUsed, isLetterSpacingUsed, isWordSpacingUsed]);
 
   return(
     <>
