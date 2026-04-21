@@ -48,6 +48,16 @@
             },
             "back": {
                 "trigger": "Précédent"
+            },
+            "printingDisabled": "L’impression a été désactivée",
+            "errors": {
+                "title": "Erreur",
+                "notFound": "La publication n’a pas été trouvée.",
+                "accessDenied": "Accès refusé.",
+                "network": "Le serveur n’est pas disponible – merci de réessayer plus tard.",
+                "serverError": "Erreur server – merci de réessayer plus tard.",
+                "clientError": "Requête invalide.",
+                "generic": "Impossible de charger la publication."
             }
         },
         "navigation": {
@@ -65,7 +75,10 @@
         },
         "jumpToPosition": {
             "go": "Aller",
-            "label": "Sélectionner une position entre {{ positionStart }} et {{ positionEnd }} :"
+            "label": "Sélectionner une position entre {{ positionStart }} et {{ positionEnd }} :",
+            "error": {
+                "notFound": "Position non trouvée."
+            }
         },
         "overflowMenu": {
             "active": {
@@ -89,6 +102,28 @@
                     "tooltip": "Options supplémentaires",
                     "trigger": "Options d’espacement supplémentaires"
                 }
+            }
+        }
+    },
+    "audio": {
+        "player": {
+            "progress": "Progression de lecture",
+            "controls": "Contrôles de lecture",
+            "mediaControls": "Actions de lecture",
+            "coverAlt": "Couverture du livre audio"
+        },
+        "remotePlayback": {
+            "trigger": "Lecture distante",
+            "connected": "Appareil connecté"
+        },
+        "settings": {
+            "sleepTimer": {
+                "hours": "h",
+                "minutes": "m",
+                "seconds": "s",
+                "start": "Démarrer",
+                "instruction": "La lecture s’arrêtera après la durée réglée.",
+                "remaining": "Arrêt dans {{ remaining }}"
             }
         }
     }
