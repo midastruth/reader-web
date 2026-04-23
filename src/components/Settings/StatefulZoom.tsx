@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 
 import { ThSettingsKeys, ThSettingsRangeVariant } from "@/preferences";
 import { SETTINGS_KEY_TO_PREFERENCE } from "./helpers/settingsKeyMapping";

@@ -20,7 +20,7 @@ import {
   ThSettingsKeys
 } from "../../preferences/models";
 
-import { ThPlugin, ThPluginRegistry } from "../Plugins/PluginRegistry";
+import { ThPluginRegistry } from "../Plugins/PluginRegistry";
 
 import { useLocale } from "react-aria";
 import { ThPluginProvider } from "../Plugins/PluginProvider";

@@ -2,7 +2,7 @@
 
 import { CSSProperties, Key, useCallback, useRef } from "react";
 
-import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
+import { ThSettingsKeys } from "@/preferences/models";
 import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
