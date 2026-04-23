@@ -28,6 +28,7 @@ import { useLineHeight } from "./hooks/useLineHeight";
 import { useSettingsComponentStatus } from "../hooks/useSettingsComponentStatus";
 
 import { useAppSelector, useAppDispatch } from "@/lib";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setSpacingPreset } from "@/lib/settingsReducer";
 import { setWebPubSpacingPreset } from "@/lib/webPubSettingsReducer";
 
@@ -48,7 +49,7 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
 
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
-  const spacing = useAppSelector(state => isWebPub ? state.webPubSettings.spacing : state.settings.spacing);
+  const spacing = useReaderSetting("spacing");
   const isFXL = useAppSelector(state => state.publication.isFXL);
 
   const dispatch = useAppDispatch();

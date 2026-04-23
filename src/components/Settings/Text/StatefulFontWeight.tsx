@@ -16,6 +16,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setFontWeight } from "@/lib/settingsReducer";
 import { setWebPubFontWeight } from "@/lib/webPubSettingsReducer";
 
@@ -27,7 +28,7 @@ export const UnstableStatefulFontWeight = ({ standalone = true }: StatefulSettin
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
   
-  const fontWeight = useAppSelector(state => isWebPub ? state.webPubSettings.fontWeight : state.settings.fontWeight) ?? 400;
+  const fontWeight = useReaderSetting("fontWeight");
 
   const dispatch = useAppDispatch();
 

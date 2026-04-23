@@ -23,6 +23,7 @@ import { useEffectiveRange } from "../hooks/useEffectiveRange";
 import { useAppSelector } from "@/lib/hooks";
 import { useLineHeight } from "./hooks/useLineHeight";
 import { useSpacingPresets } from "./hooks/useSpacingPresets";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 
 export const StatefulLineHeight = ({ standalone = true }: StatefulSettingsItemProps) => {
   const { t } = useI18n();
@@ -31,7 +32,7 @@ export const StatefulLineHeight = ({ standalone = true }: StatefulSettingsItemPr
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
 
-  const publisherStyles = useAppSelector(state => isWebPub ? state.webPubSettings.publisherStyles : state.settings.publisherStyles) ?? true;
+  const publisherStyles = useReaderSetting("publisherStyles");
 
   const { getSetting, submitPreferences, preferencesEditor } = useNavigator().visual;
 

@@ -13,6 +13,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setNoRuby } from "@/lib/settingsReducer";
 import { setWebPubNoRuby } from "@/lib/webPubSettingsReducer";
 
@@ -22,7 +23,7 @@ export const StatefulNoRuby = ({ standalone = true }: StatefulSettingsItemProps)
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
 
-  const noRuby = useAppSelector(state => isWebPub ? state.webPubSettings.noRuby : state.settings.noRuby) ?? false;
+  const noRuby = useReaderSetting("noRuby");
   const dispatch = useAppDispatch();
 
   const { getSetting, submitPreferences } = useNavigator().visual;

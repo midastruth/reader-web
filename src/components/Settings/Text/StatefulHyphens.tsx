@@ -14,6 +14,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setHyphens } from "@/lib/settingsReducer";
 import { setWebPubHyphens } from "@/lib/webPubSettingsReducer";
 
@@ -24,8 +25,8 @@ export const StatefulHyphens = ({ standalone = true }: StatefulSettingsItemProps
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
   
-  const hyphens = useAppSelector(state => isWebPub ? state.webPubSettings.hyphens : state.settings.hyphens) ?? false;
-  const textAlign = useAppSelector(state => isWebPub ? state.webPubSettings.textAlign : state.settings.textAlign) ?? ThTextAlignOptions.publisher;
+  const hyphens = useReaderSetting("hyphens");
+  const textAlign = useReaderSetting("textAlign");
 
   const dispatch = useAppDispatch();
   

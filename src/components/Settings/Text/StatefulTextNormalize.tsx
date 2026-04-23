@@ -13,6 +13,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setTextNormalization } from "@/lib/settingsReducer";
 import { setWebPubTextNormalization } from "@/lib/webPubSettingsReducer";
 
@@ -23,7 +24,7 @@ export const StatefulTextNormalize = ({ standalone = true }: StatefulSettingsIte
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
   
-  const textNormalization = useAppSelector(state => isWebPub ? state.webPubSettings.textNormalization : state.settings.textNormalization) ?? false;
+  const textNormalization = useReaderSetting("textNormalization");
   const dispatch = useAppDispatch();
 
   const { getSetting, submitPreferences } = useNavigator().visual;

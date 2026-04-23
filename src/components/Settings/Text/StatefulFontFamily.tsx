@@ -18,6 +18,7 @@ import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { FontDefinition } from "@/preferences/models";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setFontFamily } from "@/lib/settingsReducer";
 import { setWebPubFontFamily } from "@/lib/webPubSettingsReducer";
 
@@ -49,10 +50,8 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
   // Get language-specific font preferences
   const fontPreferences = getFontsList({ language: fontLanguage });
 
-  const fontFamily = useAppSelector(state => {
-    const fontSettings = isWebPub ? state.webPubSettings.fontFamily : state.settings.fontFamily;
-    return fontSettings[fontLanguage] ?? "publisher";
-  });
+  const fontFamilySettings = useReaderSetting("fontFamily");
+  const fontFamily = fontFamilySettings[fontLanguage] ?? "publisher";
   
   // Check if current font exists in available options, fallback to publisher if not
   const availableFontIds = new Set([

@@ -15,11 +15,11 @@ import { useSpacingPresets } from "./Spacing/hooks/useSpacingPresets";
 import { useLineHeight } from "./Spacing/hooks/useLineHeight";
 import { useSettingsComponentStatus } from "./hooks/useSettingsComponentStatus";
 
-import { useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "./hooks/useReaderSetting";
 
 export const StatefulPublisherStyles = ({ standalone = true }: StatefulSettingsItemProps) => {
   const { t } = useI18n();
-  const publisherStyles = useAppSelector(state => state.settings.publisherStyles);
+  const publisherStyles = useReaderSetting("publisherStyles");
 
   const { getEffectiveSpacingValue, setPublisherStyles } = useSpacingPresets();
 

@@ -19,6 +19,7 @@ import { useI18n } from "@/i18n/useI18n";
 import { useSettingsComponentStatus } from "../hooks/useSettingsComponentStatus";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setTextAlign, setHyphens } from "@/lib/settingsReducer";
 import { setWebPubHyphens, setWebPubTextAlign } from "@/lib/webPubSettingsReducer";
 
@@ -29,7 +30,7 @@ export const StatefulTextAlign = ({ standalone = true }: StatefulSettingsItemPro
   const isWebPub = profile === "webPub";
 
   const isRTL = useAppSelector(state => state.publication.isRTL);
-  const textAlign = useAppSelector(state => isWebPub ? state.webPubSettings.textAlign : state.settings.textAlign) ?? ThTextAlignOptions.publisher;
+  const textAlign = useReaderSetting("textAlign");
   const dispatch = useAppDispatch();
 
   const { getSetting, submitPreferences } = useNavigator().visual;

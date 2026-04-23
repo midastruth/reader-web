@@ -13,6 +13,7 @@ import { useNavigator } from "@/core/Navigator";
 import { useI18n } from "@/i18n/useI18n";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "../hooks/useReaderSetting";
 import { setLigatures } from "@/lib/settingsReducer";
 import { setWebPubLigatures } from "@/lib/webPubSettingsReducer";
 
@@ -22,7 +23,7 @@ export const StatefulLigatures = ({ standalone = true }: StatefulSettingsItemPro
   const profile = useAppSelector(state => state.reader.profile);
   const isWebPub = profile === "webPub";
 
-  const ligatures = useAppSelector(state => isWebPub ? state.webPubSettings.ligatures : state.settings.ligatures) ?? true;
+  const ligatures = useReaderSetting("ligatures");
   const dispatch = useAppDispatch();
 
   const { getSetting, submitPreferences } = useNavigator().visual;

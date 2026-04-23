@@ -20,6 +20,7 @@ import { usePlaceholder } from "./hooks/usePlaceholder";
 import { useEffectiveRange } from "./hooks/useEffectiveRange";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { useReaderSetting } from "./hooks/useReaderSetting";
 import { setFontSize } from "@/lib/settingsReducer";
 import { setWebPubZoom } from "@/lib/webPubSettingsReducer";
 import { EpubPreferencesEditor, WebPubPreferencesEditor } from "@readium/navigator";
@@ -30,9 +31,7 @@ export const StatefulZoom = () => {
 
   const readerProfile = useAppSelector((state) => state.reader.profile);
   const isFXL = useAppSelector((state) => state.publication.isFXL);
-  const fontSize = useAppSelector((state) => state.settings.fontSize) || 1;
-  const webPubZoom = useAppSelector((state) => state.webPubSettings.zoom) || 1;
-  const derivedState = readerProfile === "webPub" ? webPubZoom : fontSize;
+  const derivedState = useReaderSetting("zoom");
   
   const dispatch = useAppDispatch();
   
