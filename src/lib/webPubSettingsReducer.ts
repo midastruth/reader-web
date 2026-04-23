@@ -6,7 +6,14 @@ import {
   ThSpacingSettingsKeys, 
   ThTextAlignOptions 
 } from "@/preferences/models";
-import { FontFamilyStateObject, SetFontFamilyPayload, handleSpacingSetting, SetSpacingPresetPayload, SpacingStateObject } from "./settingsReducer";
+
+import { 
+  FontFamilyStateObject, 
+  SetFontFamilyPayload, 
+  handleSpacingSetting, 
+  SetSpacingPresetPayload, 
+  SpacingStateObject 
+} from "./settingsReducer";
 
 export interface WebPubSettingsReducerState {
   fontFamily: FontFamilyStateObject;
