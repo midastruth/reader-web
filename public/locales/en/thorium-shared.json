@@ -83,7 +83,7 @@
                     }
                 },
                 "emptyState": {
-                    "description": "No bookmarks added yet.",
+                    "description": "New bookmarks added while reading will show up in this list.",
                     "title": "No bookmarks"
                 },
                 "title": "Bookmarks"
@@ -345,7 +345,7 @@
         },
         "tableOfContents": {
             "emptyState": {
-                "description": "The table of contents was not provided for this publication.",
+                "description": "A table of contents was not provided by the author.",
                 "title": "No table of contents"
             },
             "title": "Table of contents"
