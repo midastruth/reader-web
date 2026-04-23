@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 
 import { ThSettingsKeys, ThSettingsRangeVariant, ThSpacingSettingsKeys } from "@/preferences";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -41,14 +41,15 @@ export const StatefulParagraphIndent = ({ standalone = true }: StatefulSettingsI
 
   const paragraphIndent = getEffectiveSpacingValue(ThSpacingSettingsKeys.paragraphIndent);
 
+  const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent];
+
   const updatePreference = useCallback(async (value: number | number[] | null) => {
-    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent] as "paragraphIndent";
     await submitPreferences({
       [prefKey]: Array.isArray(value) ? value[0] : value
     });
 
     setParagraphIndent(getSetting(prefKey));
-  }, [submitPreferences, getSetting, setParagraphIndent]);
+  }, [prefKey, submitPreferences, getSetting, setParagraphIndent]);
 
   return (
     <>

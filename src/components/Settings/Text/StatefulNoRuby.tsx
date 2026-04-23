@@ -2,8 +2,8 @@
 
 import { useCallback } from "react";
 
-import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { ThSettingsKeys } from "@/preferences/models";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -28,8 +28,9 @@ export const StatefulNoRuby = ({ standalone = true }: StatefulSettingsItemProps)
 
   const { getSetting, submitPreferences } = useNavigator().visual;
 
+  const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.noRuby];
+
   const updatePreference = useCallback(async (value: boolean) => {
-    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.noRuby] as "noRuby";
     await submitPreferences({ [prefKey]: value });
     const effectiveSetting = getSetting(prefKey);
 
@@ -38,7 +39,7 @@ export const StatefulNoRuby = ({ standalone = true }: StatefulSettingsItemProps)
     } else {
       dispatch(setNoRuby(effectiveSetting));
     }
-  }, [isWebPub, submitPreferences, getSetting, dispatch]);
+  }, [prefKey, isWebPub, submitPreferences, getSetting, dispatch]);
 
   return(
     <>

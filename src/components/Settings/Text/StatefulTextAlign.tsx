@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { ThTextAlignOptions, ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
 import { StatefulSettingsItemProps } from "../models/settings";
 import { TextAlignment } from "@readium/navigator";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import BookIcon from "../assets/icons/book.svg";
 import LeftAlignIcon from "./assets/icons/format_align_left.svg";
@@ -34,6 +34,9 @@ export const StatefulTextAlign = ({ standalone = true }: StatefulSettingsItemPro
   const dispatch = useAppDispatch();
 
   const { getSetting, submitPreferences } = useNavigator().visual;
+
+  const hyphensPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.hyphens];
+  const textAlignPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.textAlign];
 
   // Check if hyphens plugin is being used
   const publicationType = isWebPub ? "webpub" : "reflow";
@@ -70,14 +73,11 @@ export const StatefulTextAlign = ({ standalone = true }: StatefulSettingsItemPro
         ? TextAlignment.start
         : TextAlignment.justify;
 
-    const hyphensPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.hyphens] as "hyphens";
     const currentHyphens = getSetting(hyphensPrefKey) as boolean | undefined | null;
 
     const hyphens = textAlign === null
       ? null
       : (currentHyphens ?? textAlign === TextAlignment.justify);
-
-    const textAlignPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.textAlign] as "textAlign";
     const preferencesToSubmit: any = {
       [textAlignPrefKey]: textAlign
     };
@@ -100,7 +100,7 @@ export const StatefulTextAlign = ({ standalone = true }: StatefulSettingsItemPro
       dispatch(setTextAlign(textAlignValue));
       dispatch(setHyphens(effectiveHyphens));
     }
-  }, [isWebPub, getSetting, submitPreferences, dispatch, isHyphensUsed]);
+  }, [hyphensPrefKey, textAlignPrefKey, isWebPub, getSetting, submitPreferences, dispatch, isHyphensUsed]);
 
   return (
     <>

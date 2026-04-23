@@ -1,10 +1,6 @@
 import { ThSettingsKeys } from "@/preferences/models";
 
-/**
- * Mapping from settings keys to their corresponding preference property names
- * This mapping is derived from the actual settings components
- */
-export const SETTINGS_KEY_TO_PREFERENCE: Record<ThSettingsKeys, string> = {
+export const SETTINGS_KEY_TO_PREFERENCE = {
   [ThSettingsKeys.columns]: "columnCount",
   [ThSettingsKeys.fontFamily]: "fontFamily",
   [ThSettingsKeys.fontWeight]: "fontWeight",
@@ -25,4 +21,4 @@ export const SETTINGS_KEY_TO_PREFERENCE: Record<ThSettingsKeys, string> = {
   [ThSettingsKeys.theme]: "theme",
   [ThSettingsKeys.wordSpacing]: "wordSpacing",
   [ThSettingsKeys.zoom]: "zoom",
-};
+} as const;

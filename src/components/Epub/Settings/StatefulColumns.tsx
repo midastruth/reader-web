@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ThSettingsKeys } from "@/preferences/models";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../../Settings/helpers/settingsKeyMapping";
 
 import AutoLayoutIcon from "./assets/icons/document_scanner.svg";
 import OneColIcon from "./assets/icons/article.svg";
@@ -47,6 +47,8 @@ export const StatefulColumns = () => {
 
   const { submitPreferences, getSetting } = useEpubNavigator();
 
+  const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.columns];
+
   const items = useMemo(() => [
     {
       id: "auto",
@@ -79,14 +81,12 @@ export const StatefulColumns = () => {
 
   const updatePreference = useCallback(async (value: string) => {
     const colCount = value === "auto" ? null : Number(value);
-    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.columns] as "columnCount";
     await submitPreferences({ [prefKey]: colCount });
     updateEffectiveValue(value, getSetting(prefKey));
     dispatch(setColumnCount(value));
-  }, [submitPreferences, getSetting, updateEffectiveValue, dispatch]);
+  }, [prefKey, submitPreferences, getSetting, updateEffectiveValue, dispatch]);
 
   const debouncedUpdate = useCallback(() => {
-    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.columns] as "columnCount";
     const update = () => updateEffectiveValue(columnCount, getSetting(prefKey));
     debounce(update, 50)();
 

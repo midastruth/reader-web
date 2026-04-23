@@ -3,7 +3,7 @@
 import React, { useCallback } from "react";
 
 import { ThSettingsKeys, ThSettingsRangeVariant } from "@/preferences";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "./helpers/settingsKeyMapping";
 
 import Decrease from "./assets/icons/text_decrease.svg";
 import Increase from "./assets/icons/text_increase.svg";
@@ -51,16 +51,19 @@ export const StatefulZoom = () => {
       ? (preferencesEditor as any)?.zoom 
       : (preferencesEditor as EpubPreferencesEditor)?.fontSize;
 
+  const prefKey = readerProfile === "webPub"
+    ? SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.zoom]
+    : "fontSize" as const;
+
   const updatePreference = useCallback(async (value: number | number[]) => {
+    const normalizedValue = Array.isArray(value) ? value[0] : value;
+    await submitPreferences({ [prefKey]: normalizedValue });
     if (readerProfile === "webPub") {
-      const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.zoom] as "zoom";
-      await submitPreferences({ [prefKey]: Array.isArray(value) ? value[0] : value });
       dispatch(setWebPubZoom(getSetting(prefKey)));
     } else {
-      await submitPreferences({ fontSize: Array.isArray(value) ? value[0] : value });
-      dispatch(setFontSize(getSetting("fontSize")));
+      dispatch(setFontSize(getSetting(prefKey)));
     }
-  }, [readerProfile, submitPreferences, getSetting, dispatch]);
+  }, [readerProfile, prefKey, submitPreferences, getSetting, dispatch]);
 
   const zoomConfig = preferences.settings.keys[ThSettingsKeys.zoom];
   const { range: effectiveRange } = useEffectiveRange(zoomConfig.range, preferenceEditorProperty?.supportedRange);

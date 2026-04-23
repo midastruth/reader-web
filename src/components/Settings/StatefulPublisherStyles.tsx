@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 
 import { ThLineHeightOptions, ThSpacingSettingsKeys, ThSettingsKeys } from "@/preferences";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "./helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "./models/settings";
 
@@ -55,51 +55,57 @@ export const StatefulPublisherStyles = ({ standalone = true }: StatefulSettingsI
 
   const { submitPreferences } = useNavigator().visual;
 
+  const lineHeightPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight];
+  const paragraphIndentPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent];
+  const paragraphSpacingPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing];
+  const letterSpacingPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing];
+  const wordSpacingPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing];
+
   const updatePreference = useCallback(async (isSelected: boolean) => {
     const values: any = {};
 
     if (isSelected) {
       // Reset all spacing settings to null (publisher defaults)
       if (isLineHeightUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight]] = null;
+        values[lineHeightPrefKey] = null;
       }
       if (isParagraphIndentUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent]] = null;
+        values[paragraphIndentPrefKey] = null;
       }
       if (isParagraphSpacingUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing]] = null;
+        values[paragraphSpacingPrefKey] = null;
       }
       if (isLetterSpacingUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing]] = null;
+        values[letterSpacingPrefKey] = null;
       }
       if (isWordSpacingUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing]] = null;
+        values[wordSpacingPrefKey] = null;
       }
     } else {
       // Set spacing settings to current values
       if (isLineHeightUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight]] = lineHeight === ThLineHeightOptions.publisher
+        values[lineHeightPrefKey] = lineHeight === ThLineHeightOptions.publisher
           ? null
           : lineHeightOptions[lineHeight as keyof typeof ThLineHeightOptions];
       }
       if (isParagraphIndentUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent]] = paragraphIndent;
+        values[paragraphIndentPrefKey] = paragraphIndent;
       }
       if (isParagraphSpacingUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing]] = paragraphSpacing;
+        values[paragraphSpacingPrefKey] = paragraphSpacing;
       }
       if (isLetterSpacingUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing]] = letterSpacing;
+        values[letterSpacingPrefKey] = letterSpacing;
       }
       if (isWordSpacingUsed) {
-        values[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing]] = wordSpacing;
+        values[wordSpacingPrefKey] = wordSpacing;
       }
     }
 
     await submitPreferences(values);
 
     setPublisherStyles(isSelected ? true : false);
-  }, [submitPreferences, setPublisherStyles, lineHeight, paragraphIndent, paragraphSpacing, letterSpacing, wordSpacing, lineHeightOptions, isLineHeightUsed, isParagraphIndentUsed, isParagraphSpacingUsed, isLetterSpacingUsed, isWordSpacingUsed]);
+  }, [submitPreferences, setPublisherStyles, lineHeight, paragraphIndent, paragraphSpacing, letterSpacing, wordSpacing, lineHeightOptions, lineHeightPrefKey, paragraphIndentPrefKey, paragraphSpacingPrefKey, letterSpacingPrefKey, wordSpacingPrefKey, isLineHeightUsed, isParagraphIndentUsed, isParagraphSpacingUsed, isLetterSpacingUsed, isWordSpacingUsed]);
 
   return(
     <>

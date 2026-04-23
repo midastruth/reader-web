@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from "react";
 
 import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -34,6 +34,8 @@ export const UnstableStatefulFontWeight = ({ standalone = true }: StatefulSettin
 
   const { getSetting, submitPreferences } = useNavigator().visual;
 
+  const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.fontWeight];
+
   const items = [
     {
       id: "default",
@@ -60,7 +62,6 @@ export const UnstableStatefulFontWeight = ({ standalone = true }: StatefulSettin
 
   const updatePreference = useCallback(async (value: FontWeight) => {
     const fontWeightValue = value === "default" ? 400 : 700;
-    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.fontWeight] as "fontWeight";
     await submitPreferences({ [prefKey]: fontWeightValue });
     const effectiveSetting = getSetting(prefKey);
 
@@ -69,7 +70,7 @@ export const UnstableStatefulFontWeight = ({ standalone = true }: StatefulSettin
     } else {
       dispatch(setFontWeight(effectiveSetting));
     }
-  }, [isWebPub, submitPreferences, getSetting, dispatch]);
+  }, [prefKey, isWebPub, submitPreferences, getSetting, dispatch]);
 
   return(
     <>

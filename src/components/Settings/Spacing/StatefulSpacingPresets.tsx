@@ -6,7 +6,7 @@ import {
   ThSpacingSettingsKeys,
   ThSettingsKeys,
 } from "@/preferences/models";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import BookIcon from "../assets/icons/book.svg";
 import SmallIcon from "./assets/icons/density_small.svg";
@@ -55,6 +55,12 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
   const dispatch = useAppDispatch();
 
   const { submitPreferences } = useNavigator().visual;
+
+  const letterSpacingPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing];
+  const lineHeightPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight];
+  const paragraphIndentPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent];
+  const paragraphSpacingPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing];
+  const wordSpacingPrefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing];
 
   const lineHeightOptions = useLineHeight();
 
@@ -107,19 +113,19 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
     // Only include spacing settings if their plugins are being used
     const preferencesToSubmit: any = {};
     if (isLetterSpacingUsed) {
-      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.letterSpacing]] = reduxValues[ThSpacingSettingsKeys.letterSpacing];
+      preferencesToSubmit[letterSpacingPrefKey] = reduxValues[ThSpacingSettingsKeys.letterSpacing];
     }
     if (isLineHeightUsed) {
-      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight]] = lineHeightValueNumber;
+      preferencesToSubmit[lineHeightPrefKey] = lineHeightValueNumber;
     }
     if (isParagraphIndentUsed) {
-      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphIndent]] = reduxValues[ThSpacingSettingsKeys.paragraphIndent];
+      preferencesToSubmit[paragraphIndentPrefKey] = reduxValues[ThSpacingSettingsKeys.paragraphIndent];
     }
     if (isParagraphSpacingUsed) {
-      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.paragraphSpacing]] = reduxValues[ThSpacingSettingsKeys.paragraphSpacing];
+      preferencesToSubmit[paragraphSpacingPrefKey] = reduxValues[ThSpacingSettingsKeys.paragraphSpacing];
     }
     if (isWordSpacingUsed) {
-      preferencesToSubmit[SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.wordSpacing]] = reduxValues[ThSpacingSettingsKeys.wordSpacing];
+      preferencesToSubmit[wordSpacingPrefKey] = reduxValues[ThSpacingSettingsKeys.wordSpacing];
     }
 
     await submitPreferences(preferencesToSubmit);
@@ -135,7 +141,7 @@ export const StatefulSpacingPresets = ({ standalone }: StatefulSettingsItemProps
         values: reduxValues,
       }));
     }
-  }, [isWebPub, dispatch, submitPreferences, getPresetValues, lineHeightOptions, isLetterSpacingUsed, isLineHeightUsed, isParagraphIndentUsed, isParagraphSpacingUsed, isWordSpacingUsed]);
+  }, [isWebPub, dispatch, submitPreferences, getPresetValues, lineHeightOptions, letterSpacingPrefKey, lineHeightPrefKey, paragraphIndentPrefKey, paragraphSpacingPrefKey, wordSpacingPrefKey, isLetterSpacingUsed, isLineHeightUsed, isParagraphIndentUsed, isParagraphSpacingUsed, isWordSpacingUsed]);
 
   // Use appropriate spacing keys based on layout
   const spacingKeys = useMemo(() => {

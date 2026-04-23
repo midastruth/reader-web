@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 
 import { ThLineHeightOptions, ThSpacingSettingsKeys, ThSettingsKeys } from "@/preferences";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -35,6 +35,8 @@ export const StatefulLineHeight = ({ standalone = true }: StatefulSettingsItemPr
   const publisherStyles = useReaderSetting("publisherStyles");
 
   const { getSetting, submitPreferences, preferencesEditor } = useNavigator().visual;
+
+  const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight];
 
   const { getEffectiveSpacingValue, setLineHeight } = useSpacingPresets();
 
@@ -96,8 +98,6 @@ export const StatefulLineHeight = ({ standalone = true }: StatefulSettingsItemPr
     const computedValue = value === ThLineHeightOptions.publisher
       ? null
       : lineHeightOptions[value as keyof typeof ThLineHeightOptions];
-
-    const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.lineHeight] as "lineHeight";
     await submitPreferences({
       [prefKey]: computedValue
     });
@@ -106,7 +106,7 @@ export const StatefulLineHeight = ({ standalone = true }: StatefulSettingsItemPr
     const currentDisplayLineHeightOption = Object.entries(lineHeightOptions).find(([key, value]) => value === currentLineHeight)?.[0] as ThLineHeightOptions;
 
     setLineHeight(currentDisplayLineHeightOption);
-  }, [submitPreferences, getSetting, setLineHeight, lineHeightOptions]);
+  }, [prefKey, submitPreferences, getSetting, setLineHeight, lineHeightOptions]);
 
   return (
     <>

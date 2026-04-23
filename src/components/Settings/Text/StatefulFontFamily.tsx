@@ -3,7 +3,7 @@
 import { CSSProperties, Key, useCallback, useRef } from "react";
 
 import { ThTextSettingsKeys, ThSettingsKeys } from "@/preferences/models";
-import { SETTINGS_KEY_TO_PREFERENCE } from "@/preferences/helpers/settingsKeyMapping";
+import { SETTINGS_KEY_TO_PREFERENCE } from "../helpers/settingsKeyMapping";
 
 import { StatefulSettingsItemProps } from "../models/settings";
 
@@ -80,6 +80,8 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
 
   const { getSetting, submitPreferences } = useNavigator().visual;
 
+  const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.fontFamily];
+
   const updatePreference = useCallback(async (key: Key | null) => {
     if (!key || key === fontFamily) return;
 
@@ -88,9 +90,8 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
       label: string;
       value: string | null;
     };
-    
+
     if (selectedOption) {
-      const prefKey = SETTINGS_KEY_TO_PREFERENCE[ThSettingsKeys.fontFamily] as "fontFamily";
       await submitPreferences({ [prefKey]: selectedOption.value });
       
       const currentSetting = getSetting(prefKey);
@@ -121,7 +122,7 @@ export const StatefulFontFamily = ({ standalone = true }: StatefulSettingsItemPr
         }
       }
     }
-  }, [isWebPub, fontLanguage, fontFamily, submitPreferences, getSetting, fontPreferences, getFontMetadata, dispatch]);
+  }, [prefKey, isWebPub, fontLanguage, fontFamily, submitPreferences, getSetting, fontPreferences, getFontMetadata, dispatch]);
 
   return (
     <StatefulDropdown
