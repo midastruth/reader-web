@@ -54,6 +54,7 @@ Settings that are not applicable to the current publication's script mode are au
 | `rtl` | `hyphens`, `letterSpacing`, `textNormalize`, `noRuby` |
 | `cjk-horizontal` | `textAlign`, `hyphens`, `ligatures`, `paragraphIndent`, `wordSpacing`, `textNormalize` |
 | `cjk-vertical` | Same as CJK-horizontal + `layout`; also hides `columns` when not FXL |
+| `mongolian-vertical` | Same as CJK-vertical |
 
 ```tsx
 import { useFilteredPreferenceKeys } from "@edrlab/thorium-web/preferences";
