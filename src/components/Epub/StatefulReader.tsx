@@ -182,6 +182,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const reducedMotion = useAppSelector(state => state.theming.prefersReducedMotion);
 
   const breakpoint = useAppSelector(state => state.theming.breakpoint);
+  const containerBreakpoint = useAppSelector(state => state.theming.containerBreakpoint);
   
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
@@ -635,7 +636,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
                 isHovering,
                 isFXL,
                 layoutUI,
-                breakpoint
+                breakpoint,
+                containerBreakpoint
               })
             }
           >

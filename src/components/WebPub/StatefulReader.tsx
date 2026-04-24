@@ -137,6 +137,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const hasDisplayTransformability = useAppSelector(state => state.publication.hasDisplayTransformability);
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
+  const breakpoint = useAppSelector(state => state.theming.breakpoint);
+  const containerBreakpoint = useAppSelector(state => state.theming.containerBreakpoint);
 
   const cache = useWebPubSettingsCache(
     fontFamily,
@@ -342,7 +344,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
                   isScroll: true,
                   isImmersive,
                   isHovering,
-                  layoutUI
+                  layoutUI,
+                  breakpoint,
+                  containerBreakpoint
                 })
               )
             }
