@@ -285,7 +285,7 @@ const StatefulPlayerInner = ({ publication, localDataKey, positionStorage, cover
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
-  const { navigatorReady } = useAudioPlayerInit({
+  useAudioPlayerInit({
     publication,
     initialPosition,
     listeners,

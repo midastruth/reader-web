@@ -341,7 +341,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     }
   }, [getCframes, cache, preferences.affordances.scroll, goLeft, goRight, dispatch, activateImmersiveOnAction, toggleIsImmersive]);
 
-  const handleClick = useCallback((event: FrameClickEvent) => {
+  const handleClick = useCallback((_event: FrameClickEvent) => {
     if (
       cache.current.layoutUI === ThLayoutUI.layered &&
       ( !cache.current.settings.scroll ||

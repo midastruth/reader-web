@@ -304,7 +304,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
   // Initialize reader using the new composite hook
-  const { navigatorReady } = useWebPubReaderInit({
+  useWebPubReaderInit({
     container,
     publication,
     initialPosition,

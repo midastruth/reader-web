@@ -35,7 +35,6 @@ export const StatefulReaderFooter = ({
   const { t } = useI18n();
   const { direction } = useLocale();
   const footerRef = useRef<HTMLDivElement>(null);
-  const readerProfile = useAppSelector(state => state.reader.profile);
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
   const hasScrollAffordance = useAppSelector(state => state.reader.hasScrollAffordance);

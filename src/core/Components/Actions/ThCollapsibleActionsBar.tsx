@@ -8,6 +8,7 @@ import { ThActionEntry, ThActionsBar, ThActionsBarProps, ThActionsTriggerVariant
 import { ThMenu, THMenuProps } from "../Menu/ThMenu";
 
 import { useObjectRef } from "react-aria";
+import { ToolbarRenderProps, useRenderProps } from "react-aria-components";
 import { CollapsiblePref, useCollapsibility } from "./hooks/useCollapsibility";
 
 export interface ThCollapsibleActionsBarProps extends ThActionsBarProps {
@@ -36,6 +37,7 @@ export const ThCollapsibleActionsBar = ({
   const Actions = useCollapsibility(items, prefs, breakpoint, resolvedRef);
 
   const isSpaceFit = prefs.collapse === true;
+  const { className } = useRenderProps({ ...props, values: {} as ToolbarRenderProps });
 
   return (
     <>
@@ -48,7 +50,7 @@ export const ThCollapsibleActionsBar = ({
         // so gap, display, and any other CSS-driven layout is identical.
         // Plain div (not Toolbar) to avoid a nested role="toolbar".
         // Absolutely positioned so it is out of flow; aria-hidden to exclude from AT.
-        <div ref={ Actions.getGhostRef } className={ props.className } aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none" }}>
+        <div ref={ Actions.getGhostRef } className={ className } aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none" }}>
           { items.map(({ Trigger, key }) =>
             <span key={ key } ref={ Actions.getItemRef(key) }>
               <Trigger variant={ ThActionsTriggerVariant.button } { ...props } />
