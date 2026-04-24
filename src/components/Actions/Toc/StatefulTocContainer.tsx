@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from "react";
 
 import { Link } from "@readium/shared";
-import { ThActionsKeys, ThDockingKeys, ThSheetTypes, ThLayoutDirection } from "@/preferences/models";
+import { ThActionsKeys, ThDockingKeys, ThSheetTypes } from "@/preferences/models";
 import { StatefulActionContainerProps } from "../models/actions";
 
 import tocStyles from "./assets/styles/thorium-web.toc.module.css";
@@ -34,19 +34,21 @@ export const StatefulTocContainer = ({ triggerRef }: StatefulActionContainerProp
   const tocEntryId = tocEntry?.id;
   const tocTree = unstableTimeline?.toc?.tree;
 
-  const direction = useAppSelector(state => state.reader.direction);
-  const isRTL = direction === ThLayoutDirection.rtl;
+  const { goLink, getScriptMode } = useNavigator().unified;
+  // vertical-cjk has RTL reading progression but lays out as LTR in the TOC
+  const isRTL = getScriptMode() === "rtl";
 
-  const actionState = useAppSelector(state => state.actions.keys[ThActionsKeys.toc]);
+  const profile = useAppSelector(state => state.reader.profile);
+  const actionState = useAppSelector(state => profile ? state.actions.keys[profile][ThActionsKeys.toc] : undefined);
   const dispatch = useAppDispatch();
-
-  const { goLink } = useNavigator().unified;
   const docking = useDocking(ThActionsKeys.toc);
   const sheetType = docking.sheetType;
 
   const setOpen = useCallback((value: boolean) => {
-    dispatch(setActionOpen({ key: ThActionsKeys.toc, isOpen: value }));
-  }, [dispatch]);
+    if (profile) {
+      dispatch(setActionOpen({ key: ThActionsKeys.toc, isOpen: value, profile }));
+    }
+  }, [dispatch, profile]);
 
   const { expandedKeys, setExpandedKeys, filterValue, setFilterValue, displayedTocTree, treeRef, searchInputRef } =
     useTocContent({ isOpen: actionState?.isOpen ?? false, tocTree, tocEntry: tocEntryId });
