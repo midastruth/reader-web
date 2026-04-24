@@ -181,7 +181,7 @@ export const useCollapsibility = (
   // Implemented as a callback ref so the observer is set up directly on mount
   // without a separate state variable or useEffect dependency on a mutable ref.
   const ghostObserverRef = useRef<ResizeObserver | null>(null);
-  const getGhostRef = useCallback((el: HTMLElement | null) => {
+  const getGhostRef = useCallback((el: HTMLDivElement | null) => {
     ghostObserverRef.current?.disconnect();
     ghostObserverRef.current = null;
     if (el && isSpaceFit) {

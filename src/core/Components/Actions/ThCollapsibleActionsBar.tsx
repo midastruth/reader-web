@@ -44,16 +44,17 @@ export const ThCollapsibleActionsBar = ({
       { ...props }
     >
       { isSpaceFit && (
-        // Hidden measurement clone — always renders all items so widths are stable.
+        // Hidden measurement clone — renders with the same className as the real bar
+        // so gap, display, and any other CSS-driven layout is identical.
+        // Plain div (not Toolbar) to avoid a nested role="toolbar".
         // Absolutely positioned so it is out of flow; aria-hidden to exclude from AT.
-        // getGhostRef observes the wrapper for icon-size changes (e.g. app-level zoom).
-        <span ref={ Actions.getGhostRef } aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", display: "flex", gap: "2px" }}>
+        <div ref={ Actions.getGhostRef } className={ props.className } aria-hidden="true" style={{ position: "absolute", visibility: "hidden", pointerEvents: "none" }}>
           { items.map(({ Trigger, key }) =>
             <span key={ key } ref={ Actions.getItemRef(key) }>
               <Trigger variant={ ThActionsTriggerVariant.button } { ...props } />
             </span>
           )}
-        </span>
+        </div>
       )}
 
       { Actions.ActionIcons.map(({ Trigger, Target, key, associatedKey }) =>
