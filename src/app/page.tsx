@@ -115,8 +115,48 @@ const audiobooks = [
   }
 ]
 
+
+type LibraryBook = {
+  title: string;
+  author: string;
+  cover: string;
+  url: string;
+  rendition: string;
+};
+
+function parseManifestBook(manifest: Record<string, unknown>, manifestUrl: string): LibraryBook {
+  const metadata = (manifest.metadata ?? {}) as Record<string, unknown>;
+  const resources = (manifest.resources ?? []) as Array<Record<string, unknown>>;
+
+  const rawTitle = metadata["title"];
+  const title = typeof rawTitle === "string" ? rawTitle
+    : (rawTitle as Record<string, unknown>)?.["value"] as string ?? "";
+
+  const rawAuthor = metadata["author"];
+  const author = typeof rawAuthor === "string" ? rawAuthor
+    : Array.isArray(rawAuthor) ? (rawAuthor as Array<Record<string, unknown>>).map(a => a["name"] ?? a).join(", ")
+    : (rawAuthor as Record<string, unknown>)?.["name"] as string ?? "";
+
+  const coverResource = resources.find(r => {
+    const rel = r["rel"];
+    return rel === "cover" || (Array.isArray(rel) && rel.includes("cover"));
+  });
+  const coverHref = coverResource?.["href"] as string ?? "";
+  const base = manifestUrl.replace(/\/manifest\.json$/, "");
+  const cover = coverHref ? `${base}/${coverHref}` : "";
+
+  return {
+    title,
+    author,
+    cover,
+    url: `/read/manifest/${encodeURIComponent(manifestUrl)}`,
+    rendition: "Reflowable EPUB",
+  };
+}
+
 export default function Home() {
   const [isManifestEnabled, setIsManifestEnabled] = useState<boolean>(true);
+  const [myLibrary, setMyLibrary] = useState<LibraryBook[]>([]);
 
   useEffect(() => {
     const checkManifestRoute = async () => {
@@ -132,6 +172,22 @@ export default function Home() {
     checkManifestRoute();
   }, []);
 
+  useEffect(() => {
+    fetch("/api/library")
+      .then(r => r.json() as Promise<string[]>)
+      .then(manifestUrls =>
+        Promise.all(
+          manifestUrls.map(async (manifestUrl) => {
+            const res = await fetch(manifestUrl);
+            const manifest = await res.json() as Record<string, unknown>;
+            return parseManifestBook(manifest, manifestUrl);
+          })
+        )
+      )
+      .then(setMyLibrary)
+      .catch(console.error);
+  }, []);
+
   return (
     <main id="home">
       <header className="header">
@@ -139,6 +195,21 @@ export default function Home() {
 
         <p className="subtitle">An open-source ebook/audiobook/comics Web Reader</p>
       </header>
+
+      <h2>My Library</h2>
+
+      <PublicationGrid
+        publications={ myLibrary }
+        renderCover={ (publication) => (
+          <Image
+            src={ publication.cover }
+            alt=""
+            loading="lazy"
+            width={ 120 }
+            height={ 180 }
+          />
+        ) }
+      />
 
       <h2>Our selection</h2>
 
