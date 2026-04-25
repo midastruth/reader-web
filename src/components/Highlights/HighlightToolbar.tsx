@@ -14,6 +14,7 @@ export interface HighlightToolbarProps {
   position: { x: number; y: number };
   onColorSelect: (color: HighlightColor) => void;
   onAddNote: () => void;
+  onAiQuery: () => void;
   onClose: () => void;
 }
 
@@ -65,6 +66,7 @@ export function HighlightToolbar({
   position,
   onColorSelect,
   onAddNote,
+  onAiQuery,
   onClose,
 }: HighlightToolbarProps) {
   const { t } = useTranslation();
@@ -80,6 +82,11 @@ export function HighlightToolbar({
     e.stopPropagation();
     onAddNote();
   }, [onAddNote]);
+
+  const handleAiQueryClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAiQuery();
+  }, [onAiQuery]);
 
   return (
     <div
@@ -126,6 +133,17 @@ export function HighlightToolbar({
             <span className="highlight-toolbar-note-text">
               {t('highlights.note.add', 'Note')}
             </span>
+          </button>
+
+          <button
+            type="button"
+            className="highlight-toolbar-ai-btn"
+            onClick={handleAiQueryClick}
+            title={t('ai.query', 'AI 助读')}
+            aria-label={t('ai.query', 'AI 助读')}
+          >
+            <span className="highlight-toolbar-ai-icon" aria-hidden="true">✦</span>
+            <span className="highlight-toolbar-ai-text">AI</span>
           </button>
 
           <button
@@ -249,6 +267,37 @@ export function HighlightToolbar({
           letter-spacing: -0.01em;
         }
 
+        .highlight-toolbar-ai-btn {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          height: 24px;
+          padding: 0 10px;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 12px;
+          transition: opacity 0.18s ease, transform 0.18s ease;
+          color: #fff;
+        }
+
+        .highlight-toolbar-ai-btn:hover {
+          opacity: 0.88;
+          transform: translateY(-1px);
+        }
+
+        .highlight-toolbar-ai-icon {
+          font-size: 10px;
+          line-height: 1;
+        }
+
+        .highlight-toolbar-ai-text {
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          font-size: 11px;
+        }
+
         .highlight-toolbar-close-btn {
           width: 24px;
           height: 24px;
@@ -318,6 +367,10 @@ export function HighlightToolbar({
             color: #f5f5f5;
           }
 
+          .highlight-toolbar-ai-btn {
+            opacity: 0.92;
+          }
+
           .highlight-toolbar-close-btn {
             color: #b8c0cc;
           }
@@ -351,6 +404,16 @@ export function HighlightToolbar({
           }
 
           .highlight-toolbar-note-text {
+            display: none;
+          }
+
+          .highlight-toolbar-ai-btn {
+            width: 28px;
+            padding: 0;
+            justify-content: center;
+          }
+
+          .highlight-toolbar-ai-text {
             display: none;
           }
         }

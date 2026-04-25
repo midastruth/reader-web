@@ -53,6 +53,7 @@ import type { TextSelection } from "../Highlights/hooks/useHighlightSelection";
 import { PositionStorage, StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
+import { useGlobalPreferences } from "@/preferences/hooks/useGlobalPreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 import { useEpubStatelessCache } from "./Hooks/useEpubStatelessCache";
 import { useEpubReaderInit } from "./Hooks/useReaderInit";
@@ -138,6 +139,7 @@ export const StatefulReader = ({
 const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
+  const { preferences: globalPreferences } = useGlobalPreferences();
   const { direction: uiDirection } = useLocale();
   const { t } = useI18n();
   const { getEffectiveSpacingValue } = useSpacingPresets();
@@ -858,7 +860,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
 
   return (
     <>
-      <I18nProvider locale={preferences.locale}>
+      <I18nProvider locale={globalPreferences.locale}>
         <NavigatorProvider visualNavigator={epubNavigator}>
           <main className={readerStyles.main}>
             <StatefulDockingWrapper>
@@ -946,6 +948,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
           ref={setHighlightManagerHandle}
           bookId={localDataKey ?? publication.manifest.linkWithRel("self")?.href ?? ""}
           bookTitle={typeof publication.metadata.title === "string" ? publication.metadata.title : publication.metadata.title?.toString()}
+          bookAuthor={publication.metadata.authors?.items?.map((a: { name: { getTranslation: (lang: string) => string } }) => a.name.getTranslation("en")).join(", ")}
+          currentChapter={timeline.toc?.currentEntry?.title ?? undefined}
+          readingProgress={timeline.progression?.totalProgression ?? currentLocator()?.locations?.totalProgression ?? undefined}
           iframeRef={iframeRef}
         />
       )}

@@ -14,12 +14,19 @@ import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHig
 import { HighlightToolbar } from './HighlightToolbar';
 import { HighlightContextMenu } from './HighlightContextMenu';
 import { HighlightNote } from './HighlightNote';
+import { AiQueryPanel } from '@/components/AI/AiQueryPanel';
 
 export interface HighlightManagerProps {
   /** Book/publication ID */
   bookId: string;
   /** Book title (optional, for display) */
   bookTitle?: string;
+  /** Book author (optional, for AI queries) */
+  bookAuthor?: string;
+  /** Current chapter title (optional, for AI queries) */
+  currentChapter?: string;
+  /** Reading progress 0–1 (optional, for AI queries) */
+  readingProgress?: number;
   /** Reference to the reader iframe */
   iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 }
@@ -33,7 +40,7 @@ export interface HighlightManagerHandle {
 }
 
 
-export const HighlightManager = React.forwardRef<HighlightManagerHandle, HighlightManagerProps>(({ bookId, bookTitle, iframeRef }, ref) => {
+export const HighlightManager = React.forwardRef<HighlightManagerHandle, HighlightManagerProps>(({ bookId, bookTitle, bookAuthor, currentChapter, readingProgress, iframeRef }, ref) => {
   const dispatch = useDispatch();
 
   // Redux state
@@ -62,6 +69,11 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     highlight: null,
   });
 
+  const [aiPanelState, setAiPanelState] = useState<{
+    visible: boolean;
+    selectedText: string;
+  }>({ visible: false, selectedText: '' });
+
   const pendingSelectionRef = useRef<TextSelection | null>(null);
 
   // Keep track of the last iframe the user interacted with.
@@ -83,6 +95,17 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   const hideContextMenu = useCallback(() => {
     setContextMenuState({ visible: false, position: { x: 0, y: 0 }, highlight: null });
   }, []);
+
+  const hideAiPanel = useCallback(() => {
+    setAiPanelState({ visible: false, selectedText: '' });
+  }, []);
+
+  const handleAiQuery = useCallback(() => {
+    const selection = pendingSelectionRef.current;
+    if (!selection) return;
+    setAiPanelState({ visible: true, selectedText: selection.text });
+    hideToolbar();
+  }, [hideToolbar]);
 
   /**
    * Show context menu when highlight is clicked
@@ -400,6 +423,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
           position={toolbarState.position}
           onColorSelect={handleColorSelect}
           onAddNote={handleAddNoteFromToolbar}
+          onAiQuery={handleAiQuery}
           onClose={hideToolbar}
         />
       )}
@@ -417,6 +441,19 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
       {/* Note Editor */}
       <HighlightNote onHighlightUpdated={handleHighlightUpdated} />
+
+      {/* AI Query Panel */}
+      {aiPanelState.visible && (
+        <AiQueryPanel
+          selectedText={aiPanelState.selectedText}
+          bookId={bookId}
+          bookTitle={bookTitle}
+          bookAuthor={bookAuthor}
+          chapter={currentChapter}
+          progress={readingProgress}
+          onClose={hideAiPanel}
+        />
+      )}
     </>
   );
 });
