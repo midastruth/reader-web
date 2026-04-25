@@ -7,7 +7,7 @@ import {
   defaultSpacingSettingsSubpanel,
   defaultTextSettingsMain,
   defaultTextSettingsSubpanel,
-  usePreferenceKeys
+  useFilteredPreferenceKeys
 } from "@/preferences";
 
 import {
@@ -43,7 +43,7 @@ export const StatefulVisualSettingsContainer = ({
     subPanelSpacingSettingsKeys,
     subPanelTextSettingsKeys,
     webPubSettingsKeys,
-  } = usePreferenceKeys();
+  } = useFilteredPreferenceKeys();
   const { preferences } = usePreferences();
   const { t } = useI18n();
   const { settingsComponentsMap } = usePlugins();
@@ -66,9 +66,11 @@ export const StatefulVisualSettingsContainer = ({
   }, [dispatch]);
 
   const close = useCallback(() => {
-    dispatch(setActionOpen({ key: ThActionsKeys.settings, isOpen: false }));
+    if (profile) {
+      dispatch(setActionOpen({ key: ThActionsKeys.settings, isOpen: false, profile }));
+    }
     dispatch(setHovering(false));
-  }, [dispatch]);
+  }, [dispatch, profile]);
 
   const isTextNested = useCallback((key: string) => {
     const textSettings = [

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
 
 import { Publication, Locator } from "@readium/shared";
+import { getScriptMode } from "@readium/navigator";
 import { ThThemeKeys, ThemeKeyType, useTheming } from "@/preferences";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
@@ -145,7 +146,7 @@ const StatefulAudioContent = ({ publication, localDataKey, positionStorage, cove
   const { coverBlobUrl, coverReady } = useCoverBlobUrl(coverUrl);
 
   const { themeResolved } = useTheming<ThemeKeyType>({
-    theme: themeObject.audio,
+    theme: themeObject.audio ?? "auto",
     themeKeys: preferences.theming.themes.keys,
     systemKeys: preferences.theming.themes.systemThemes,
     breakpointsMap: preferences.theming.breakpoints,
@@ -199,7 +200,7 @@ const StatefulReaderContent = ({ profile, publication, plugins, coverUrl, ...pro
     if (!publication) return;
     const resolvedLang = resolveFontLanguage(
       publication.metadata.languages?.[0],
-      publication.metadata.effectiveReadingProgression
+      getScriptMode(publication.metadata)
     );
     dispatch(setFontLanguage(resolvedLang));
   }, [publication, resolveFontLanguage, dispatch]);
