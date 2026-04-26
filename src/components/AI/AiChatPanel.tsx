@@ -17,8 +17,10 @@ import {
   useLocalRuntime,
   type ChatModelAdapter,
 } from "@assistant-ui/react";
-import { Thread } from "@assistant-ui/react-ui";
+import { Thread, makeMarkdownText } from "@assistant-ui/react-ui";
 import { aiQuery, resolveBook } from "@/services/bookAwareApi";
+
+const MarkdownText = makeMarkdownText();
 
 export interface AiChatPanelProps {
   selectedText: string;
@@ -201,6 +203,9 @@ function AiThread({
           allowSpeak: false,
           allowFeedbackPositive: false,
           allowFeedbackNegative: false,
+          components: {
+            Text: MarkdownText,
+          },
         }}
         strings={{
           thread: {
@@ -228,6 +233,11 @@ function AiThread({
           editComposer: {
             send: { label: "发送" },
             cancel: { label: "取消" },
+          },
+          code: {
+            header: {
+              copy: { tooltip: "复制代码" },
+            },
           },
         }}
       />
