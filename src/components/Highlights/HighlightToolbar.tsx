@@ -139,8 +139,8 @@ export function HighlightToolbar({
             type="button"
             className="highlight-toolbar-ai-btn"
             onClick={handleAiQueryClick}
-            title={t('ai.query', 'AI 助读')}
-            aria-label={t('ai.query', 'AI 助读')}
+            title={t('ai.query', 'READER AI')}
+            aria-label={t('ai.query', 'READER AI')}
           >
             <span className="highlight-toolbar-ai-icon" aria-hidden="true">✦</span>
             <span className="highlight-toolbar-ai-text">AI</span>

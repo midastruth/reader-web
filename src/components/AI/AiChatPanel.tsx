@@ -246,9 +246,11 @@ export function AiChatPanel({
 }: AiChatPanelProps) {
   const sessionIdRef = useRef<string | undefined>(undefined);
   const bookCacheRef = useRef<{ sha256: string; title: string; author: string } | null>(null);
+  const [messageSent, setMessageSent] = useState(false);
 
   const adapter = useMemo<ChatModelAdapter>(() => ({
     async run({ messages }) {
+      setMessageSent(true);
       const lastUser = [...messages].reverse().find((m) => m.role === "user");
       const question =
         lastUser?.content
@@ -292,13 +294,13 @@ export function AiChatPanel({
           onKeyUp={(e) => e.stopPropagation()}
         >
           <div className="aichat-header">
-            <span className="aichat-header-title">AI 助读</span>
+            <span className="aichat-header-title">READER AI</span>
             <button className="aichat-header-close" onClick={onClose} aria-label="关闭">
               ✕
             </button>
           </div>
 
-          {selectedText && (
+          {selectedText && !messageSent && (
             <div className="aichat-context">
               <span className="aichat-context-label">选中文字</span>
               <p className="aichat-context-text">
@@ -363,7 +365,7 @@ export function AiChatPanel({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 14px 20px;
+          padding: 6px 20px;
           flex-shrink: 0;
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           background: #212121;
@@ -371,7 +373,7 @@ export function AiChatPanel({
         .aichat-header-title {
           font-size: 15px;
           font-weight: 700;
-          color: #fff;
+          color: #9b9b9b;
         }
         .aichat-header-close {
           background: transparent;
@@ -434,7 +436,7 @@ export function AiChatPanel({
           background: linear-gradient(to bottom, transparent, #212121 28%);
         }
         .aichat-thread-wrap .aui-thread-viewport-footer::after {
-          content: "AI 助读基于书籍内容生成，仅供参考。";
+          content: "READER AI 基于书籍内容生成，仅供参考。";
           margin-top: 8px;
           font-size: 11px;
           color: #777;
@@ -501,6 +503,9 @@ export function AiChatPanel({
           color: #eee;
         }
         .aichat-thread-wrap .aui-avatar-root {
+          width: 28px;
+          height: 28px;
+          font-size: 11px;
           background: transparent;
           border: 1px solid rgba(255, 255, 255, 0.18);
           color: #eee;
