@@ -37,9 +37,6 @@ const nextConfig = {
     },
   },
   async redirects() {
-    const isProduction = process.env.NODE_ENV === "production";
-    const isManifestEnabled = !isProduction || process.env.MANIFEST_ROUTE_FORCE_ENABLE === "true";
-
     const redirects = [
       {
         source: "/read/experimental/:identifier",
@@ -47,14 +44,6 @@ const nextConfig = {
         permanent: true,
       },
     ];
-
-    if (isProduction && !isManifestEnabled) {
-      redirects.push({
-        source: "/read/manifest/:path*",
-        destination: "/",
-        permanent: false,
-      });
-    }
 
     return redirects;
   }
