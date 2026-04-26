@@ -14,7 +14,7 @@ import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHig
 import { HighlightToolbar } from './HighlightToolbar';
 import { HighlightContextMenu } from './HighlightContextMenu';
 import { HighlightNote } from './HighlightNote';
-import { AiQueryPanel } from '@/components/AI/AiQueryPanel';
+import { AiChatPanel } from '@/components/AI/AiChatPanel';
 
 export interface HighlightManagerProps {
   /** Book/publication ID */
@@ -442,9 +442,9 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       {/* Note Editor */}
       <HighlightNote onHighlightUpdated={handleHighlightUpdated} />
 
-      {/* AI Query Panel */}
+      {/* AI Chat Panel */}
       {aiPanelState.visible && (
-        <AiQueryPanel
+        <AiChatPanel
           selectedText={aiPanelState.selectedText}
           bookId={bookId}
           bookTitle={bookTitle}
