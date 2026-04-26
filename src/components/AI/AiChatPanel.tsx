@@ -18,7 +18,7 @@ import {
   type ChatModelAdapter,
 } from "@assistant-ui/react";
 import { Thread, makeMarkdownText } from "@assistant-ui/react-ui";
-import { aiQuery, resolveBook } from "@/services/bookAwareApi";
+import { aiQueryStream, resolveBook } from "@/services/bookAwareApi";
 
 const MarkdownText = makeMarkdownText();
 
@@ -297,7 +297,7 @@ export function AiChatPanel({
   const [messageSent, setMessageSent] = useState(false);
 
   const adapter = useMemo<ChatModelAdapter>(() => ({
-    async run({ messages }) {
+    async *run({ messages, abortSignal }) {
       setMessageSent(true);
       const userMessages = messages.filter((m) => m.role === "user");
       const action = userMessages.length === 1 ? initialAction : "ask";
@@ -314,20 +314,26 @@ export function AiChatPanel({
         bookCacheRef.current = { sha256: book.sha256, title: book.title, author: book.author };
       }
 
-      const result = await aiQuery({
+      let fullText = "";
+
+      for await (const event of aiQueryStream({
         action,
         text: selectedText,
         question,
         book: bookCacheRef.current,
         location: { chapter, progress },
         session_id: sessionIdRef.current,
-      });
-
-      if (result.session_id) sessionIdRef.current = result.session_id;
-
-      return {
-        content: [{ type: "text", text: result.answer.text }],
-      };
+      }, abortSignal)) {
+        if (event.type === "delta") {
+          fullText += event.text;
+          yield { content: [{ type: "text", text: fullText }] };
+        } else if (event.type === "final") {
+          if (event.session_id) sessionIdRef.current = event.session_id;
+          yield { content: [{ type: "text", text: event.answer.text }] };
+        } else if (event.type === "error") {
+          throw new Error(event.message);
+        }
+      }
     },
   }), [selectedText, initialAction, bookId, bookTitle, chapter, progress]);
 

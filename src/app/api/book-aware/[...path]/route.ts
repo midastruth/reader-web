@@ -26,10 +26,13 @@ async function forward(req: NextRequest, ctx: RouteContext): Promise<NextRespons
     );
   }
 
-  const body = await upstreamRes.text();
-  return new NextResponse(body, {
+  return new NextResponse(upstreamRes.body, {
     status: upstreamRes.status,
-    headers: { "content-type": upstreamRes.headers.get("content-type") ?? "application/json" },
+    headers: {
+      "content-type": upstreamRes.headers.get("content-type") ?? "application/json",
+      "cache-control": "no-cache",
+      "x-accel-buffering": "no",
+    },
   });
 }
 
