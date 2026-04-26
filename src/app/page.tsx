@@ -195,7 +195,7 @@ export default function Home() {
   return (
     <main id="home">
       <header className="header">
-        <h1>Welcome to Thorium Web</h1>
+        <h1>Welcome Reader</h1>
 
         <p className="subtitle">An open-source ebook/audiobook/comics Web Reader</p>
       </header>
