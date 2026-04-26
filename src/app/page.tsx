@@ -124,7 +124,9 @@ type LibraryBook = {
   rendition: string;
 };
 
-function parseManifestBook(manifest: Record<string, unknown>, manifestUrl: string): LibraryBook {
+type LibraryManifestEntry = string | { url: string; sha256?: string };
+
+function parseManifestBook(manifest: Record<string, unknown>, manifestUrl: string, sha256?: string): LibraryBook {
   const metadata = (manifest.metadata ?? {}) as Record<string, unknown>;
   const resources = (manifest.resources ?? []) as Array<Record<string, unknown>>;
 
@@ -149,7 +151,7 @@ function parseManifestBook(manifest: Record<string, unknown>, manifestUrl: strin
     title,
     author,
     cover,
-    url: `/read/manifest/${encodeURIComponent(manifestUrl)}`,
+    url: `/read/manifest/${encodeURIComponent(manifestUrl)}${sha256 ? `?sha256=${encodeURIComponent(sha256)}` : ""}`,
     rendition: "Reflowable EPUB",
   };
 }
@@ -174,13 +176,15 @@ export default function Home() {
 
   useEffect(() => {
     fetch("/api/library")
-      .then(r => r.json() as Promise<string[]>)
-      .then(manifestUrls =>
+      .then(r => r.json() as Promise<LibraryManifestEntry[]>)
+      .then(entries =>
         Promise.all(
-          manifestUrls.map(async (manifestUrl) => {
+          entries.map(async (entry) => {
+            const manifestUrl = typeof entry === "string" ? entry : entry.url;
+            const sha256 = typeof entry === "string" ? undefined : entry.sha256;
             const res = await fetch(manifestUrl);
             const manifest = await res.json() as Record<string, unknown>;
-            return parseManifestBook(manifest, manifestUrl);
+            return parseManifestBook(manifest, manifestUrl, sha256);
           })
         )
       )

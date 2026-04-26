@@ -47,6 +47,7 @@ export interface StatefulReaderProps {
   localDataKey: string | null;
   plugins?: ThPlugin[];
   positionStorage?: PositionStorage;
+  bookSha256?: string;
 }
 
 export type ThPluginFactory = () => ThPlugin[] | Promise<ThPlugin[]>;
@@ -66,6 +67,7 @@ export interface ReaderComponentProps<
   localDataKey: string | null;
   isLoading?: boolean;
   positionStorage?: PositionStorage;
+  bookSha256?: string;
   plugins?: ReaderPlugins;
   i18n?: Partial<InitOptions>;
   preferences?: P extends "audio"
@@ -185,6 +187,7 @@ interface ReaderContentProps {
   publication: Publication;
   localDataKey: string | null;
   positionStorage?: PositionStorage;
+  bookSha256?: string;
   plugins?: ThPlugin[];
   coverUrl?: string;
 }

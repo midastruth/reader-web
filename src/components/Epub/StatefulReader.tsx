@@ -108,7 +108,8 @@ export const StatefulReader = ({
   publication,
   localDataKey,
   plugins,
-  positionStorage
+  positionStorage,
+  bookSha256
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
@@ -130,13 +131,13 @@ export const StatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } bookSha256={ bookSha256 } />
       </ThPluginProvider>
     </>
   );
 };
 
-const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage }) => {
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookSha256 }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; bookSha256?: string }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { preferences: globalPreferences } = useGlobalPreferences();
@@ -946,8 +947,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage }: { p
       {publication && (
         <HighlightManager
           ref={setHighlightManagerHandle}
-          bookId={localDataKey ?? publication.manifest.linkWithRel("self")?.href ?? ""}
-          bookTitle={typeof publication.metadata.title === "string" ? publication.metadata.title : publication.metadata.title?.toString()}
+          bookId={bookSha256 ?? localDataKey ?? publication.manifest.linkWithRel("self")?.href ?? ""}
+          bookTitle={publication.metadata.title.getTranslation("en")}
           bookAuthor={publication.metadata.authors?.items?.map((a: { name: { getTranslation: (lang: string) => string } }) => a.name.getTranslation("en")).join(", ")}
           currentChapter={timeline.toc?.currentEntry?.title ?? undefined}
           readingProgress={timeline.progression?.totalProgression ?? currentLocator()?.locations?.totalProgression ?? undefined}
