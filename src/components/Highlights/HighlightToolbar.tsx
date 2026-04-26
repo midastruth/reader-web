@@ -9,12 +9,13 @@ import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/lib/store';
 import { HighlightColor } from '@/lib/types/highlights';
 import { setActiveColor } from '@/lib/highlightsReducer';
+import type { AiAction } from '@/components/AI/AiChatPanel';
 
 export interface HighlightToolbarProps {
   position: { x: number; y: number };
   onColorSelect: (color: HighlightColor) => void;
   onAddNote: () => void;
-  onAiQuery: () => void;
+  onAiQuery: (action: AiAction) => void;
   onClose: () => void;
 }
 
@@ -83,9 +84,9 @@ export function HighlightToolbar({
     onAddNote();
   }, [onAddNote]);
 
-  const handleAiQueryClick = useCallback((e: React.MouseEvent) => {
+  const handleAiQueryClick = useCallback((e: React.MouseEvent, action: AiAction) => {
     e.stopPropagation();
-    onAiQuery();
+    onAiQuery(action);
   }, [onAiQuery]);
 
   return (
@@ -138,9 +139,29 @@ export function HighlightToolbar({
           <button
             type="button"
             className="highlight-toolbar-ai-btn"
-            onClick={handleAiQueryClick}
-            title={t('ai.query', 'AI 助读')}
-            aria-label={t('ai.query', 'AI 助读')}
+            onClick={(e) => handleAiQueryClick(e, 'dictionary')}
+            title={t('ai.dictionary', '查词')}
+            aria-label={t('ai.dictionary', '查词')}
+          >
+            <span className="highlight-toolbar-ai-text">词</span>
+          </button>
+
+          <button
+            type="button"
+            className="highlight-toolbar-ai-btn"
+            onClick={(e) => handleAiQueryClick(e, 'analyze')}
+            title={t('ai.analyze', '分析')}
+            aria-label={t('ai.analyze', '分析')}
+          >
+            <span className="highlight-toolbar-ai-text">分析</span>
+          </button>
+
+          <button
+            type="button"
+            className="highlight-toolbar-ai-btn"
+            onClick={(e) => handleAiQueryClick(e, 'ask')}
+            title={t('ai.query', 'READER AI')}
+            aria-label={t('ai.query', 'READER AI')}
           >
             <span className="highlight-toolbar-ai-icon" aria-hidden="true">✦</span>
             <span className="highlight-toolbar-ai-text">AI</span>
@@ -408,13 +429,8 @@ export function HighlightToolbar({
           }
 
           .highlight-toolbar-ai-btn {
-            width: 28px;
-            padding: 0;
-            justify-content: center;
-          }
-
-          .highlight-toolbar-ai-text {
-            display: none;
+            padding: 0 7px;
+            min-width: 26px;
           }
         }
       `}</style>

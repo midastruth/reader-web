@@ -113,3 +113,73 @@ export async function aiQuery(request: AiQueryRequest): Promise<AiQueryResponse>
     body: JSON.stringify(request),
   }) as Promise<AiQueryResponse>;
 }
+
+export type SseEvent =
+  | { type: "start"; ok: boolean; action: string; session_id?: string }
+  | { type: "delta"; text: string }
+  | { type: "tool_start"; tool_call_id: string; name: string; args: unknown }
+  | { type: "tool_update"; tool_call_id: string }
+  | { type: "tool_end"; tool_call_id: string; name: string; is_error: boolean }
+  | { type: "final"; ok: boolean; action: string; session_id?: string; answer: { text: string; brief: string }; output?: string }
+  | { type: "done" }
+  | { type: "error"; code?: string; message: string }
+  | { type: "ping" };
+
+export async function* aiQueryStream(
+  request: AiQueryRequest,
+  abortSignal?: AbortSignal
+): AsyncGenerator<SseEvent> {
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/ai/query/stream`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(request),
+      signal: abortSignal,
+    });
+  } catch (err) {
+    if ((err as Error)?.name === "AbortError") throw err;
+    throw new Error(`book-aware 后端无法连接：${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  if (!res.body) throw new Error("流式响应不可用");
+
+  if (!res.ok) {
+    const text = await res.text();
+    let errData: BackendError | null = null;
+    try { errData = JSON.parse(text) as BackendError; } catch { /* ignore */ }
+    if (errData?.error) throw new Error(friendlyError(errData.error.code, errData.error.message));
+    throw new Error(`请求失败 (${res.status})`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let currentEvent = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trimEnd();
+        if (trimmed.startsWith("event: ")) {
+          currentEvent = trimmed.slice(7);
+        } else if (trimmed.startsWith("data: ") && currentEvent) {
+          try {
+            const data = JSON.parse(trimmed.slice(6)) as Record<string, unknown>;
+            yield { type: currentEvent, ...data } as SseEvent;
+          } catch { /* ignore malformed */ }
+          currentEvent = "";
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}

@@ -14,7 +14,7 @@ import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHig
 import { HighlightToolbar } from './HighlightToolbar';
 import { HighlightContextMenu } from './HighlightContextMenu';
 import { HighlightNote } from './HighlightNote';
-import { AiQueryPanel } from '@/components/AI/AiQueryPanel';
+import { AiChatPanel, type AiAction } from '@/components/AI/AiChatPanel';
 
 export interface HighlightManagerProps {
   /** Book/publication ID */
@@ -72,7 +72,8 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   const [aiPanelState, setAiPanelState] = useState<{
     visible: boolean;
     selectedText: string;
-  }>({ visible: false, selectedText: '' });
+    initialAction: AiAction;
+  }>({ visible: false, selectedText: '', initialAction: 'ask' });
 
   const pendingSelectionRef = useRef<TextSelection | null>(null);
 
@@ -97,13 +98,13 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   }, []);
 
   const hideAiPanel = useCallback(() => {
-    setAiPanelState({ visible: false, selectedText: '' });
+    setAiPanelState({ visible: false, selectedText: '', initialAction: 'ask' });
   }, []);
 
-  const handleAiQuery = useCallback(() => {
+  const handleAiQuery = useCallback((action: AiAction) => {
     const selection = pendingSelectionRef.current;
     if (!selection) return;
-    setAiPanelState({ visible: true, selectedText: selection.text });
+    setAiPanelState({ visible: true, selectedText: selection.text, initialAction: action });
     hideToolbar();
   }, [hideToolbar]);
 
@@ -442,10 +443,11 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       {/* Note Editor */}
       <HighlightNote onHighlightUpdated={handleHighlightUpdated} />
 
-      {/* AI Query Panel */}
+      {/* AI Chat Panel */}
       {aiPanelState.visible && (
-        <AiQueryPanel
+        <AiChatPanel
           selectedText={aiPanelState.selectedText}
+          initialAction={aiPanelState.initialAction}
           bookId={bookId}
           bookTitle={bookTitle}
           bookAuthor={bookAuthor}

@@ -5,6 +5,8 @@ import { ThStoreProvider } from "@/lib/ThStoreProvider";
 import { ThGlobalPreferencesProvider } from "@/preferences/ThGlobalPreferencesProvider";
 
 import "./reset.css";
+import "@assistant-ui/react-ui/styles/index.css";
+import "@assistant-ui/react-ui/styles/markdown.css";
 
 export const runtime = "edge";
 
