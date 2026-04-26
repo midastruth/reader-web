@@ -22,8 +22,11 @@ import { aiQuery, resolveBook } from "@/services/bookAwareApi";
 
 const MarkdownText = makeMarkdownText();
 
+export type AiAction = "ask" | "dictionary" | "summarize" | "analyze";
+
 export interface AiChatPanelProps {
   selectedText: string;
+  initialAction?: AiAction;
   bookId?: string;
   bookTitle?: string;
   bookAuthor?: string;
@@ -167,20 +170,46 @@ function ImeSafeComposer() {
   );
 }
 
+function AutoSend({ question }: { question: string }) {
+  const aui = useAui();
+  const firedRef = useRef(false);
+
+  useEffect(() => {
+    if (firedRef.current) return;
+    firedRef.current = true;
+    const id = setTimeout(() => {
+      aui.composer().setText(question);
+      aui.composer().send();
+    }, 50);
+    return () => clearTimeout(id);
+  }, [aui, question]);
+
+  return null;
+}
+
 function AiThread({
   runtime,
   selectedText,
+  initialAction,
 }: {
   runtime: ReturnType<typeof useLocalRuntime>;
   selectedText: string;
+  initialAction: AiAction;
 }) {
+  const autoSendText =
+    initialAction === "dictionary" ? selectedText :
+    initialAction === "analyze" ? "分析" :
+    null;
+
   const suggestions = selectedText
     ? [
         { prompt: "解释这段文字", text: "解释这段文字" },
         { prompt: "总结这段文字的要点", text: "总结要点" },
         { prompt: "这段文字里有哪些关键信息？", text: "提取关键信息" },
+        { prompt: "为我导读当前章节", text: "章节导读" },
       ]
     : [
+        { prompt: "为我导读当前章节", text: "章节导读" },
         { prompt: "总结当前章节", text: "总结当前章节" },
         { prompt: "这本书主要讲什么？", text: "概括本书" },
         { prompt: "帮我梳理人物和关系", text: "梳理人物关系" },
@@ -188,6 +217,7 @@ function AiThread({
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
+      {autoSendText && <AutoSend question={autoSendText} />}
       <Thread
         assistantAvatar={{ fallback: "AI" }}
         composer={{ allowAttachments: false }}
@@ -245,8 +275,16 @@ function AiThread({
   );
 }
 
+const ACTION_CONTEXT_LABEL: Record<AiAction, string> = {
+  ask: "选中文字",
+  dictionary: "查词",
+  summarize: "总结选中文字",
+  analyze: "分析选中文字",
+};
+
 export function AiChatPanel({
   selectedText,
+  initialAction = "ask",
   bookId,
   bookTitle,
   bookAuthor,
@@ -261,6 +299,9 @@ export function AiChatPanel({
   const adapter = useMemo<ChatModelAdapter>(() => ({
     async run({ messages }) {
       setMessageSent(true);
+      const userMessages = messages.filter((m) => m.role === "user");
+      const action = userMessages.length === 1 ? initialAction : "ask";
+
       const lastUser = [...messages].reverse().find((m) => m.role === "user");
       const question =
         lastUser?.content
@@ -274,7 +315,7 @@ export function AiChatPanel({
       }
 
       const result = await aiQuery({
-        action: "ask",
+        action,
         text: selectedText,
         question,
         book: bookCacheRef.current,
@@ -288,7 +329,7 @@ export function AiChatPanel({
         content: [{ type: "text", text: result.answer.text }],
       };
     },
-  }), [selectedText, bookId, bookTitle, chapter, progress]);
+  }), [selectedText, initialAction, bookId, bookTitle, chapter, progress]);
 
   const runtime = useLocalRuntime(adapter);
 
@@ -312,7 +353,7 @@ export function AiChatPanel({
 
           {selectedText && !messageSent && (
             <div className="aichat-context">
-              <span className="aichat-context-label">选中文字</span>
+              <span className="aichat-context-label">{ACTION_CONTEXT_LABEL[initialAction]}</span>
               <p className="aichat-context-text">
                 {selectedText.length > 160
                   ? selectedText.slice(0, 160) + "…"
@@ -322,7 +363,7 @@ export function AiChatPanel({
           )}
 
           <div className="aichat-thread-wrap">
-            <AiThread runtime={runtime} selectedText={selectedText} />
+            <AiThread runtime={runtime} selectedText={selectedText} initialAction={initialAction} />
           </div>
         </div>
       </div>
@@ -469,6 +510,12 @@ export function AiChatPanel({
           background: rgba(255, 255, 255, 0.04);
           border-color: rgba(255, 255, 255, 0.12);
           color: #eee;
+          padding: 5px 12px;
+          border-radius: 999px;
+        }
+        .aichat-thread-wrap .aui-thread-welcome-suggestion-text {
+          font-size: 12px;
+          font-weight: 400;
         }
         .aichat-thread-wrap .aui-thread-welcome-suggestion:hover {
           background: rgba(255, 255, 255, 0.08);
