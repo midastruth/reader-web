@@ -24,6 +24,8 @@ import {
   contrast3Theme,
   solarizedLightTheme,
   solarizedDarkTheme,
+  gruvboxMaterialDarkTheme,
+  gruvboxMaterialLightTheme,
   defaultSettingsAction,
   defaultFullscreenAction,
   defaultTocAction,
@@ -220,6 +222,8 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
         ThThemeKeys.dark,
         ThThemeKeys.solarizedLight,
         ThThemeKeys.solarizedDark,
+        ThThemeKeys.gruvboxMaterialDark,
+        ThThemeKeys.gruvboxMaterialLight,
         ThThemeKeys.contrast1,
         ThThemeKeys.contrast2,
         ThThemeKeys.contrast3
@@ -242,7 +246,9 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
         [ThThemeKeys.contrast2]: contrast2Theme,
         [ThThemeKeys.contrast3]: contrast3Theme,
         [ThThemeKeys.solarizedLight]: solarizedLightTheme,
-        [ThThemeKeys.solarizedDark]: solarizedDarkTheme
+        [ThThemeKeys.solarizedDark]: solarizedDarkTheme,
+        [ThThemeKeys.gruvboxMaterialDark]: gruvboxMaterialDarkTheme,
+        [ThThemeKeys.gruvboxMaterialLight]: gruvboxMaterialLightTheme
       }
     },
   },

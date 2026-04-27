@@ -9,7 +9,9 @@ export enum ThThemeKeys {
   contrast2 = "contrast2",
   contrast3 = "contrast3",
   solarizedLight = "solarizedLight",
-  solarizedDark = "solarizedDark"
+  solarizedDark = "solarizedDark",
+  gruvboxMaterialDark = "gruvboxMaterialDark",
+  gruvboxMaterialLight = "gruvboxMaterialLight"
 }
 
 export const lightTheme = {
@@ -154,4 +156,36 @@ export const solarizedDarkTheme = {
   focus: "#268bd2",      // Blue
   elevate: "0px 0px 2px #586e75",
   immerse: "0.4"
+}
+
+export const gruvboxMaterialDarkTheme = {
+  background: "#282828", // bg0
+  text: "#d4be98",       // fg
+  link: "#7daea3",       // blue
+  visited: "#d3869b",    // purple
+  subdue: "#5a524c",     // bg5
+  disable: "#5a524c",    // bg5
+  hover: "#32302f",      // bg1
+  onHover: "#d4be98",    // fg
+  select: "#89b482",     // aqua
+  onSelect: "#282828",   // bg0
+  focus: "#7daea3",      // blue
+  elevate: "0px 0px 2px #5a524c",
+  immerse: "0.4"
+}
+
+export const gruvboxMaterialLightTheme = {
+  background: "#f9f5d7", // bg0
+  text: "#654735",       // fg
+  link: "#45707a",       // blue
+  visited: "#945e80",    // purple
+  subdue: "#a89984",     // muted
+  disable: "#a89984",
+  hover: "#f2e5bc",      // bg3
+  onHover: "#3c3836",    // fg dark
+  select: "#4c7a5d",     // aqua
+  onSelect: "#f9f5d7",   // bg0
+  focus: "#45707a",      // blue
+  elevate: "0px 0px 2px #a89984",
+  immerse: "0.6"
 }
