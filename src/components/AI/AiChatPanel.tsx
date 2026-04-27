@@ -572,6 +572,7 @@ export function AiChatPanel({
           background: transparent;
           border: 1px solid rgba(255, 255, 255, 0.18);
           color: #eee;
+          margin-top: 6px;
         }
         .aichat-thread-wrap .aui-assistant-action-bar-root,
         .aichat-thread-wrap .aui-branch-picker-root {
