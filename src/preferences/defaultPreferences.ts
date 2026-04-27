@@ -22,6 +22,8 @@ import {
   contrast1Theme,
   contrast2Theme,
   contrast3Theme,
+  solarizedLightTheme,
+  solarizedDarkTheme,
   defaultSettingsAction,
   defaultFullscreenAction,
   defaultTocAction,
@@ -211,13 +213,15 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     },
     themes: {
       reflowOrder: [
-        "auto", 
-        ThThemeKeys.light, 
+        "auto",
+        ThThemeKeys.light,
         ThThemeKeys.paper,
-        ThThemeKeys.sepia, 
-        ThThemeKeys.dark, 
-        ThThemeKeys.contrast1, 
-        ThThemeKeys.contrast2, 
+        ThThemeKeys.sepia,
+        ThThemeKeys.dark,
+        ThThemeKeys.solarizedLight,
+        ThThemeKeys.solarizedDark,
+        ThThemeKeys.contrast1,
+        ThThemeKeys.contrast2,
         ThThemeKeys.contrast3
       ],
       fxlOrder: [
@@ -236,7 +240,9 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
         [ThThemeKeys.sepia]: sepiaTheme,
         [ThThemeKeys.contrast1]: contrast1Theme,
         [ThThemeKeys.contrast2]: contrast2Theme,
-        [ThThemeKeys.contrast3]: contrast3Theme
+        [ThThemeKeys.contrast3]: contrast3Theme,
+        [ThThemeKeys.solarizedLight]: solarizedLightTheme,
+        [ThThemeKeys.solarizedDark]: solarizedDarkTheme
       }
     },
   },

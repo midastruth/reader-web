@@ -285,6 +285,8 @@
                 "light": "Light",
                 "paper": "Paper",
                 "sepia": "Sepia",
+                "solarizedLight": "Solarized Light",
+                "solarizedDark": "Solarized Dark",
                 "title": "Themes"
             },
             "title": "Display Settings",

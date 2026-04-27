@@ -7,7 +7,9 @@ export enum ThThemeKeys {
   paper = "paper",
   contrast1 = "contrast1",
   contrast2 = "contrast2",
-  contrast3 = "contrast3"
+  contrast3 = "contrast3",
+  solarizedLight = "solarizedLight",
+  solarizedDark = "solarizedDark"
 }
 
 export const lightTheme = {
@@ -120,4 +122,36 @@ export const contrast3Theme = {
   focus: "#004099",
   elevate: "0px 0px 2px #8c8c8c",
   immerse: "0.45"
+}
+
+export const solarizedLightTheme = {
+  background: "#fdf6e3", // Base3
+  text: "#657b83",       // Base00
+  link: "#268bd2",       // Blue
+  visited: "#6c71c4",    // Violet
+  subdue: "#93a1a1",     // Base1
+  disable: "#93a1a1",    // Base1
+  hover: "#eee8d5",      // Base2
+  onHover: "#586e75",    // Base01
+  select: "#2aa198",     // Cyan
+  onSelect: "#fdf6e3",   // Base3
+  focus: "#268bd2",      // Blue
+  elevate: "0px 0px 2px #93a1a1",
+  immerse: "0.6"
+}
+
+export const solarizedDarkTheme = {
+  background: "#002b36", // Base03
+  text: "#a0b6b8",
+  link: "#268bd2",       // Blue
+  visited: "#6c71c4",    // Violet
+  subdue: "#586e75",     // Base01
+  disable: "#586e75",    // Base01
+  hover: "#073642",      // Base02
+  onHover: "#a0b6b8",
+  select: "#2aa198",     // Cyan
+  onSelect: "#002b36",   // Base03
+  focus: "#268bd2",      // Blue
+  elevate: "0px 0px 2px #586e75",
+  immerse: "0.4"
 }
