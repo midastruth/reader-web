@@ -410,7 +410,7 @@ export function AiChatPanel({
           border-radius: 20px 20px 0 0;
           width: 100%;
           max-width: 840px;
-          height: 82vh;
+          height: 92vh;
           display: flex;
           flex-direction: column;
           color: #eee;
