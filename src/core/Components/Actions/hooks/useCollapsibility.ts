@@ -250,16 +250,15 @@ export const useCollapsibility = (
     if (breakpoint) {
       const prefForBreakpoint = prefs.collapse[breakpoint];
       if (prefForBreakpoint) {
+        // `always` items are never collapsed, so count only partially + overflow items
+        const partialCount = items.filter(i => prefs.keys[i.key]?.visibility === ThCollapsibilityVisibility.partially).length;
+        const overflowCount = items.filter(i => prefs.keys[i.key]?.visibility === ThCollapsibilityVisibility.overflow).length;
+        const collapsibleCount = partialCount + overflowCount;
+
         if (prefForBreakpoint === "all") {
-          countdown = 0;
+          countdown = overflowCount;
         } else if (!isNaN(prefForBreakpoint)) {
-          if (prefForBreakpoint === items.length) {
-            countdown = 0;
-          } else if (prefForBreakpoint < items.length) {
-            // We must take the overflow icon into account so that
-            // it doesn't contain only one partially visible item
-            countdown = items.length - (prefForBreakpoint - 1);
-          }
+          countdown = Math.max(0, collapsibleCount - (prefForBreakpoint - 1));
         }
       }
     }
