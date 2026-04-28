@@ -178,16 +178,18 @@ export default function Home() {
     fetch("/api/library")
       .then(r => r.json() as Promise<LibraryManifestEntry[]>)
       .then(entries =>
-        Promise.all(
+        Promise.allSettled(
           entries.map(async (entry) => {
             const manifestUrl = typeof entry === "string" ? entry : entry.url;
             const sha256 = typeof entry === "string" ? undefined : entry.sha256;
             const res = await fetch(manifestUrl);
+            if (!res.ok) throw new Error(`${res.status} ${manifestUrl}`);
             const manifest = await res.json() as Record<string, unknown>;
             return parseManifestBook(manifest, manifestUrl, sha256);
           })
         )
       )
+      .then(results => results.flatMap(r => r.status === "fulfilled" ? [r.value] : []))
       .then(setMyLibrary)
       .catch(console.error);
   }, []);
