@@ -7,8 +7,11 @@ import {
   useRef,
   useState,
   type CompositionEvent,
+  type CSSProperties,
   type FormEvent,
   type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
 } from "react";
 import {
   AssistantRuntimeProvider,
@@ -51,6 +54,12 @@ const IconSend = () => (
 const IconStop = () => (
   <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
     <rect width="10" height="10" rx="1.5" />
+  </svg>
+);
+
+const IconMinimize = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <path d="M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
@@ -188,14 +197,24 @@ function AutoSend({ question }: { question: string }) {
   return null;
 }
 
+function RunningBridge({ onRunningChange }: { onRunningChange: (running: boolean) => void }) {
+  const isRunning = useAuiState((s) => s.thread.isRunning);
+  useEffect(() => {
+    onRunningChange(isRunning);
+  }, [isRunning, onRunningChange]);
+  return null;
+}
+
 function AiThread({
   runtime,
   selectedText,
   initialAction,
+  onRunningChange,
 }: {
   runtime: ReturnType<typeof useLocalRuntime>;
   selectedText: string;
   initialAction: AiAction;
+  onRunningChange: (running: boolean) => void;
 }) {
   const autoSendText =
     initialAction === "dictionary" ? selectedText :
@@ -218,6 +237,7 @@ function AiThread({
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
+      <RunningBridge onRunningChange={onRunningChange} />
       {autoSendText && <AutoSend question={autoSendText} />}
       <Thread
         assistantAvatar={{ fallback: "AI" }}
@@ -283,6 +303,9 @@ const ACTION_CONTEXT_LABEL: Record<AiAction, string> = {
   analyze: "分析选中文字",
 };
 
+const MINIMIZE_THRESHOLD = 80;
+const RESTORE_THRESHOLD = 40;
+
 export function AiChatPanel({
   selectedText,
   initialAction = "ask",
@@ -296,6 +319,64 @@ export function AiChatPanel({
   const sessionIdRef = useRef<string | undefined>(undefined);
   const bookCacheRef = useRef<{ sha256: string; title: string; author: string } | null>(null);
   const [messageSent, setMessageSent] = useState(false);
+
+  const [minimized, setMinimized] = useState(false);
+  const [isAiRunning, setIsAiRunning] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartYRef = useRef<number | null>(null);
+  const hasDraggedRef = useRef(false);
+  const minimizedRef = useRef(minimized);
+  useEffect(() => { minimizedRef.current = minimized; }, [minimized]);
+
+  const handleMinimize = useCallback((e: MouseEvent) => {
+    e.stopPropagation();
+    setMinimized(true);
+  }, []);
+
+  const handleHeaderPointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    dragStartYRef.current = e.clientY;
+    hasDraggedRef.current = false;
+    setIsDragging(true);
+    setDragY(0);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handleHeaderPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    if (dragStartYRef.current === null) return;
+    const delta = e.clientY - dragStartYRef.current;
+    if (Math.abs(delta) > 4) hasDraggedRef.current = true;
+    if (!minimizedRef.current) {
+      setDragY(Math.max(0, delta));
+    } else {
+      setDragY(Math.min(0, delta));
+    }
+  }, []);
+
+  const handleHeaderPointerUp = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    if (dragStartYRef.current === null) return;
+    const delta = e.clientY - dragStartYRef.current;
+    dragStartYRef.current = null;
+    setIsDragging(false);
+    setDragY(0);
+
+    if (hasDraggedRef.current) {
+      if (!minimizedRef.current && delta > MINIMIZE_THRESHOLD) {
+        setMinimized(true);
+      } else if (minimizedRef.current && delta < -RESTORE_THRESHOLD) {
+        setMinimized(false);
+      }
+    } else {
+      if (minimizedRef.current) setMinimized(false);
+    }
+  }, []);
+
+  const handleHeaderPointerCancel = useCallback(() => {
+    dragStartYRef.current = null;
+    setIsDragging(false);
+    setDragY(0);
+  }, []);
 
   const adapter = useMemo<ChatModelAdapter>(() => ({
     async *run({ messages, abortSignal }) {
@@ -340,22 +421,58 @@ export function AiChatPanel({
 
   const runtime = useLocalRuntime(adapter);
 
+  const panelStyle: CSSProperties = {
+    transform: dragY !== 0 ? `translateY(${dragY}px)` : undefined,
+    transition: isDragging ? "none" : undefined,
+  };
+
   return (
     <>
-      <div className="aichat-overlay" onClick={onClose}>
+      <div
+        className={`aichat-overlay${minimized ? " aichat-overlay--minimized" : ""}`}
+        onClick={minimized ? undefined : onClose}
+      >
         <div
-          className="aichat-panel dark"
+          className={`aichat-panel dark${minimized ? " aichat-panel--minimized" : ""}`}
+          style={panelStyle}
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           onPointerUp={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
           onKeyUp={(e) => e.stopPropagation()}
         >
-          <div className="aichat-header">
-            <span className="aichat-header-title">READER AI</span>
-            <button className="aichat-header-close" onClick={onClose} aria-label="关闭">
-              ✕
-            </button>
+          <div
+            className="aichat-header"
+            onPointerDown={handleHeaderPointerDown}
+            onPointerMove={handleHeaderPointerMove}
+            onPointerUp={handleHeaderPointerUp}
+            onPointerCancel={handleHeaderPointerCancel}
+          >
+            <div className="aichat-header-row">
+              <span className="aichat-header-title">
+                READER AI
+                {minimized && isAiRunning && (
+                  <span className="aichat-running-dot" aria-label="AI 回复中" />
+                )}
+                {minimized && !isAiRunning && (
+                  <span className="aichat-tap-hint"> · 点击展开</span>
+                )}
+              </span>
+              <div className="aichat-header-actions">
+                {!minimized && (
+                  <button
+                    className="aichat-header-btn"
+                    onClick={handleMinimize}
+                    aria-label="最小化"
+                  >
+                    <IconMinimize />
+                  </button>
+                )}
+                <button className="aichat-header-close" onClick={onClose} aria-label="关闭">
+                  ✕
+                </button>
+              </div>
+            </div>
           </div>
 
           {selectedText && !messageSent && (
@@ -370,7 +487,12 @@ export function AiChatPanel({
           )}
 
           <div className="aichat-thread-wrap">
-            <AiThread runtime={runtime} selectedText={selectedText} initialAction={initialAction} />
+            <AiThread
+              runtime={runtime}
+              selectedText={selectedText}
+              initialAction={initialAction}
+              onRunningChange={setIsAiRunning}
+            />
           </div>
         </div>
       </div>
@@ -384,6 +506,12 @@ export function AiChatPanel({
           display: flex;
           align-items: flex-end;
           justify-content: center;
+          transition: background 0.28s ease;
+        }
+
+        .aichat-overlay--minimized {
+          background: transparent;
+          pointer-events: none;
         }
 
         .aichat-panel {
@@ -417,22 +545,73 @@ export function AiChatPanel({
           color: #eee;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           overflow: hidden;
+          transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                      transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .aichat-panel--minimized {
+          height: 38px;
+          pointer-events: auto;
+          cursor: pointer;
         }
 
         .aichat-header {
           display: flex;
+          flex-direction: row;
           align-items: center;
           justify-content: space-between;
-          padding: 6px 20px;
+          height: 38px;
+          padding: 0 16px;
           flex-shrink: 0;
           border-bottom: 1px solid rgba(255, 255, 255, 0.06);
           background: #212121;
+          cursor: grab;
+          user-select: none;
+          touch-action: none;
         }
+
+        .aichat-header:active {
+          cursor: grabbing;
+        }
+
+        .aichat-header-row {
+          display: contents;
+        }
+
         .aichat-header-title {
           font-size: 15px;
           font-weight: 700;
           color: #9b9b9b;
+          display: flex;
+          align-items: center;
+          gap: 0;
         }
+
+        .aichat-header-actions {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+        }
+
+        .aichat-header-btn {
+          background: transparent;
+          border: none;
+          color: #9b9b9b;
+          cursor: pointer;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          transition: background 0.15s, color 0.15s;
+        }
+
+        .aichat-header-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: #fff;
+        }
+
         .aichat-header-close {
           background: transparent;
           border: none;
@@ -447,9 +626,34 @@ export function AiChatPanel({
           border-radius: 8px;
           transition: background 0.15s, color 0.15s;
         }
+
         .aichat-header-close:hover {
           background: rgba(255, 255, 255, 0.08);
           color: #fff;
+        }
+
+        @keyframes aichat-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.3; transform: scale(0.85); }
+        }
+
+        .aichat-running-dot {
+          display: inline-block;
+          width: 7px;
+          height: 7px;
+          background: #4ade80;
+          border-radius: 50%;
+          margin-left: 7px;
+          vertical-align: middle;
+          animation: aichat-pulse 1.2s ease-in-out infinite;
+        }
+
+        .aichat-tap-hint {
+          font-size: 11px;
+          color: #5a5a5a;
+          margin-left: 4px;
+          font-weight: 400;
+          letter-spacing: 0;
         }
 
         .aichat-context {
