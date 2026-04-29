@@ -323,11 +323,14 @@ export function AiChatPanel({
   const [minimized, setMinimized] = useState(false);
   const [isAiRunning, setIsAiRunning] = useState(false);
   const [dragY, setDragY] = useState(0);
+  const [dragHeight, setDragHeight] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartYRef = useRef<number | null>(null);
   const hasDraggedRef = useRef(false);
   const minimizedRef = useRef(minimized);
   useEffect(() => { minimizedRef.current = minimized; }, [minimized]);
+
+  const MINIMIZED_H = 38;
 
   const handleMinimize = useCallback((e: MouseEvent) => {
     e.stopPropagation();
@@ -340,6 +343,7 @@ export function AiChatPanel({
     hasDraggedRef.current = false;
     setIsDragging(true);
     setDragY(0);
+    setDragHeight(null);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
@@ -347,12 +351,19 @@ export function AiChatPanel({
     if (dragStartYRef.current === null) return;
     const delta = e.clientY - dragStartYRef.current;
     if (Math.abs(delta) > 4) hasDraggedRef.current = true;
+
     if (!minimizedRef.current) {
+      // 展开 → 最小化：panel 跟着手指向下位移
       setDragY(Math.max(0, delta));
+      setDragHeight(null);
     } else {
-      setDragY(Math.min(0, delta));
+      // 最小化 → 展开：从底部向上撑开高度，不做位移
+      const maxH = window.innerHeight * 0.92;
+      const newH = Math.min(maxH, MINIMIZED_H + Math.max(0, -delta));
+      setDragHeight(newH);
+      setDragY(0);
     }
-  }, []);
+  }, [MINIMIZED_H]);
 
   const handleHeaderPointerUp = useCallback((e: PointerEvent<HTMLDivElement>) => {
     if (dragStartYRef.current === null) return;
@@ -360,6 +371,7 @@ export function AiChatPanel({
     dragStartYRef.current = null;
     setIsDragging(false);
     setDragY(0);
+    setDragHeight(null);
 
     if (hasDraggedRef.current) {
       if (!minimizedRef.current && delta > MINIMIZE_THRESHOLD) {
@@ -376,6 +388,7 @@ export function AiChatPanel({
     dragStartYRef.current = null;
     setIsDragging(false);
     setDragY(0);
+    setDragHeight(null);
   }, []);
 
   const adapter = useMemo<ChatModelAdapter>(() => ({
@@ -423,6 +436,7 @@ export function AiChatPanel({
 
   const panelStyle: CSSProperties = {
     transform: dragY !== 0 ? `translateY(${dragY}px)` : undefined,
+    height: dragHeight !== null ? `${dragHeight}px` : undefined,
     transition: isDragging ? "none" : undefined,
   };
 
