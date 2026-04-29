@@ -19,8 +19,9 @@ import {
 } from "@assistant-ui/react";
 import { Thread, makeMarkdownText } from "@assistant-ui/react-ui";
 import { aiQueryStream, resolveBook } from "@/services/bookAwareApi";
+import remarkGfm from "remark-gfm";
 
-const MarkdownText = makeMarkdownText();
+const MarkdownText = makeMarkdownText({ remarkPlugins: [remarkGfm] });
 
 export type AiAction = "ask" | "dictionary" | "summarize" | "analyze";
 
