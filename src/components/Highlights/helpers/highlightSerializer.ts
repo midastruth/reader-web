@@ -22,6 +22,17 @@ export const HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
   purple: 'rgba(206, 147, 216, 0.35)',
 };
 
+const SELECTED_HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
+  yellow: 'rgba(255, 235, 0, 0.58)',
+  green: 'rgba(165, 214, 167, 0.58)',
+  blue: 'rgba(144, 202, 249, 0.58)',
+  pink: 'rgba(244, 143, 177, 0.58)',
+  orange: 'rgba(255, 204, 128, 0.58)',
+  purple: 'rgba(206, 147, 216, 0.58)',
+};
+
+const NOTE_MARK_BORDER = '2px solid currentColor';
+
 interface CSSHighlightsRegistry {
   set(name: string, value: unknown): void;
   delete(name: string): void;
@@ -73,12 +84,12 @@ function rebuildDynamicHighlightStyles(doc: Document): void {
   for (const meta of getCssMetaMap(doc).values()) {
     const bg = HIGHLIGHT_COLORS[meta.color] ?? HIGHLIGHT_COLORS.yellow;
     const noteDecoration = meta.hasNote
-      ? 'text-decoration-line: underline; text-decoration-color: rgba(0, 0, 0, 0.45); text-decoration-thickness: 2px; text-underline-offset: 0.18em;'
+      ? 'text-decoration-line: underline; text-decoration-color: currentColor; text-decoration-thickness: 2px; text-underline-offset: 0.18em;'
       : '';
     const selectedDecoration = meta.selected
-      ? 'text-shadow: 0 0 0.01px currentColor, 0 0 3px rgba(0, 0, 0, 0.35);'
+      ? 'text-shadow: 0 0 0.01px currentColor, 0 0 2px currentColor;'
       : '';
-    const selectedBg = meta.selected ? `${bg}` : bg;
+    const selectedBg = meta.selected ? (SELECTED_HIGHLIGHT_COLORS[meta.color] ?? bg) : bg;
 
     rules.push(`::highlight(${meta.name}) { background-color: ${selectedBg}; color: inherit; ${noteDecoration} ${selectedDecoration} }`);
   }
@@ -208,7 +219,7 @@ export function getHighlightStyles(color: HighlightColor): string {
     box-decoration-break: clone;
     cursor: pointer;
     position: relative;
-    padding: 2px 0;
+    padding: 0;
     border-radius: 2px;
     transition: background-color 0.2s ease;
   `.trim();
@@ -229,7 +240,7 @@ export function createHighlightMark(
   mark.setAttribute('data-highlight-color', color);
   if (hasNote) mark.setAttribute('data-has-note', 'true');
   mark.style.cssText = getHighlightStyles(color);
-  if (hasNote) mark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
+  if (hasNote) mark.style.borderBottom = NOTE_MARK_BORDER;
   return mark;
 }
 
@@ -316,7 +327,7 @@ export function updateHighlightColor(
       htmlMark.classList.add(`thorium-highlight-${newColor}`);
       htmlMark.setAttribute('data-highlight-color', newColor);
       htmlMark.style.cssText = getHighlightStyles(newColor);
-      if (htmlMark.hasAttribute('data-has-note')) htmlMark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
+      if (htmlMark.hasAttribute('data-has-note')) htmlMark.style.borderBottom = NOTE_MARK_BORDER;
     });
 
     return marks.length > 0;
@@ -341,7 +352,7 @@ export function updateHighlightNoteIndicator(
       const htmlMark = mark as HTMLElement;
       if (hasNote) {
         htmlMark.setAttribute('data-has-note', 'true');
-        htmlMark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
+        htmlMark.style.borderBottom = NOTE_MARK_BORDER;
       } else {
         htmlMark.removeAttribute('data-has-note');
         htmlMark.style.borderBottom = '';
@@ -367,7 +378,7 @@ export function injectHighlightStyles(doc: Document): void {
     .thorium-highlight {
       position: relative;
       cursor: pointer;
-      padding: 2px 0;
+      padding: 0;
       border-radius: 2px;
       color: inherit !important;
       display: inline !important;
@@ -383,8 +394,8 @@ export function injectHighlightStyles(doc: Document): void {
     .thorium-highlight-pink { background-color: ${HIGHLIGHT_COLORS.pink} !important; }
     .thorium-highlight-orange { background-color: ${HIGHLIGHT_COLORS.orange} !important; }
     .thorium-highlight-purple { background-color: ${HIGHLIGHT_COLORS.purple} !important; }
-    .thorium-highlight[data-has-note="true"] { border-bottom: 2px solid rgba(0, 0, 0, 0.3); }
-    .thorium-highlight.selected { outline: 2px solid rgba(0, 0, 0, 0.4); outline-offset: 2px; }
+    .thorium-highlight[data-has-note="true"] { border-bottom: ${NOTE_MARK_BORDER}; }
+    .thorium-highlight.selected { outline: 2px solid currentColor; outline-offset: 2px; }
   `;
 
   doc.head.appendChild(style);
