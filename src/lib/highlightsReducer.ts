@@ -6,6 +6,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Highlight } from './types/highlights';
 import { HighlightColor } from './types/highlights';
+import { sortHighlightsByReadingOrder } from '@/core/Highlights/HighlightService';
 
 /**
  * Highlights state interface
@@ -67,7 +68,7 @@ const highlightsSlice = createSlice({
      * Load highlights for the current book
      */
     loadHighlights(state, action: PayloadAction<Highlight[]>) {
-      state.currentBookHighlights = action.payload;
+      state.currentBookHighlights = sortHighlightsByReadingOrder(action.payload);
       state.isLoading = false;
       state.error = null;
     },
@@ -77,7 +78,7 @@ const highlightsSlice = createSlice({
      */
     addHighlight(state, action: PayloadAction<Highlight>) {
       state.currentBookHighlights.push(action.payload);
-      state.currentBookHighlights.sort((a, b) => a.createdAt - b.createdAt);
+      state.currentBookHighlights = sortHighlightsByReadingOrder(state.currentBookHighlights);
     },
 
     /**
@@ -94,8 +95,9 @@ const highlightsSlice = createSlice({
         state.currentBookHighlights[index] = {
           ...state.currentBookHighlights[index],
           ...action.payload.updates,
-          updatedAt: Date.now(),
+          updatedAt: action.payload.updates.updatedAt ?? Date.now(),
         };
+        state.currentBookHighlights = sortHighlightsByReadingOrder(state.currentBookHighlights);
       }
     },
 

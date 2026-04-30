@@ -150,8 +150,9 @@ export function updateCssHighlightAppearance(highlight: Highlight, doc: Document
   return true;
 }
 
-export function getCssHighlightIdAtPoint(doc: Document, x: number, y: number): string | null {
+export function getCssHighlightIdsAtPoint(doc: Document, x: number, y: number): string[] {
   const PAD_Y = 4;
+  const ids: string[] = [];
 
   for (const [id, meta] of getCssMetaMap(doc)) {
     for (const range of meta.ranges) {
@@ -159,13 +160,19 @@ export function getCssHighlightIdAtPoint(doc: Document, x: number, y: number): s
       for (let i = 0; i < rects.length; i++) {
         const rect = rects[i];
         if (x >= rect.left && x <= rect.right && y >= rect.top - PAD_Y && y <= rect.bottom + PAD_Y) {
-          return id;
+          ids.push(id);
+          break;
         }
       }
+      if (ids.includes(id)) break;
     }
   }
 
-  return null;
+  return ids;
+}
+
+export function getCssHighlightIdAtPoint(doc: Document, x: number, y: number): string | null {
+  return getCssHighlightIdsAtPoint(doc, x, y)[0] ?? null;
 }
 
 export function selectCssHighlight(highlightId: string, doc: Document): void {

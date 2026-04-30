@@ -1,9 +1,8 @@
 /**
  * Hook for rendering highlights in the EPUB reader iframe.
  *
- * Text highlights render through the CSS Custom Highlight API when available,
- * avoiding DOM mutation and pagination drift. A <mark> wrapping fallback is
- * kept for older browsers.
+ * React wrapper around core/Highlights/HighlightRenderer. Rendering is kept out
+ * of components, mirroring KOReader's separated ReaderView layer.
  */
 
 import { useCallback, useEffect, useRef } from 'react';
@@ -11,26 +10,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import type { Highlight } from '@/lib/types/highlights';
 import { setSelectedHighlight } from '@/lib/highlightsReducer';
-import HighlightsDB from '@/core/Storage/HighlightsDB';
-import { locatorToRanges } from '../helpers/locatorToRange';
-import {
-  injectHighlightStyles,
-  wrapRangeWithHighlight,
-  removeHighlightMark,
-  updateHighlightColor,
-  toggleHighlightNoteIndicator,
-  selectHighlightMark,
-  deselectAllHighlights,
-  getHighlightIdFromElement,
-  renderCssHighlight,
-  removeCssHighlight,
-  updateCssHighlightAppearance,
-  getCssHighlightIdAtPoint,
-  clearRenderedHighlights,
-} from '../helpers/highlightSerializer';
+import { HighlightRenderer, highlightService } from '@/core/Highlights';
 
 export interface HighlightClickPayload {
   highlightId: string;
+  highlightIds: string[];
   element: Element;
   iframe: HTMLIFrameElement;
   position: { x: number; y: number };
@@ -40,9 +24,6 @@ export interface UseHighlightRendererOptions {
   onHighlightClick?: (payload: HighlightClickPayload) => void;
 }
 
-/**
- * Hook return type
- */
 export interface UseHighlightRendererReturn {
   restoreHighlights: (iframe: HTMLIFrameElement, href: string) => Promise<void>;
   renderHighlight: (highlight: Highlight, iframe: HTMLIFrameElement) => void;
@@ -52,50 +33,35 @@ export interface UseHighlightRendererReturn {
   handleHighlightClick: (highlightId: string, doc: Document) => void;
 }
 
-/**
- * Hook for rendering and managing highlights in the reader
- */
 export function useHighlightRenderer(
   bookId: string,
   options: UseHighlightRendererOptions = {}
 ): UseHighlightRendererReturn {
   const dispatch = useDispatch();
   const selectedHighlightId = useSelector((state: RootState) => state.highlights.selectedHighlightId);
-  const renderedHighlightsRef = useRef<Set<string>>(new Set());
-
+  const rendererRef = useRef(new HighlightRenderer());
   const onHighlightClickRef = useRef<UseHighlightRendererOptions['onHighlightClick']>(options.onHighlightClick);
 
   useEffect(() => {
     onHighlightClickRef.current = options.onHighlightClick;
   }, [options.onHighlightClick]);
 
-  /**
-   * Handle click on a highlight.
-   */
   const handleHighlightClick = useCallback((highlightId: string, doc: Document) => {
-    selectHighlightMark(highlightId, doc);
+    rendererRef.current.select(highlightId, doc);
     dispatch(setSelectedHighlight(highlightId));
   }, [dispatch]);
 
-  /**
-   * Inject styles and setup click handlers for an iframe.
-   */
   const setupIframe = useCallback((iframe: HTMLIFrameElement) => {
-    const doc = iframe.contentDocument;
+    const doc = rendererRef.current.setup(iframe);
     if (!doc) return;
 
-    injectHighlightStyles(doc);
-
-    const existingHandler = (doc as Document & { __thoriumHighlightClickHandler?: (event: MouseEvent) => void })
-      .__thoriumHighlightClickHandler;
-    if (existingHandler) return;
+    const holder = doc as Document & { __thoriumHighlightClickHandler?: (event: MouseEvent) => void };
+    if (holder.__thoriumHighlightClickHandler) return;
 
     const handleClick = (event: MouseEvent) => {
       const target = event.target as Element | null;
-      const domHighlightId = target ? getHighlightIdFromElement(target) : null;
-      const cssHighlightId = getCssHighlightIdAtPoint(doc, event.clientX, event.clientY);
-      const highlightId = domHighlightId || cssHighlightId;
-
+      const highlightIds = rendererRef.current.getIdsFromClick(doc, target, event.clientX, event.clientY);
+      const highlightId = highlightIds[0];
       if (!highlightId) return;
 
       event.preventDefault();
@@ -104,63 +70,32 @@ export function useHighlightRenderer(
       handleHighlightClick(highlightId, doc);
 
       const iframeRect = iframe.getBoundingClientRect();
-      const position = {
-        x: iframeRect.left + event.clientX,
-        y: iframeRect.top + event.clientY,
-      };
-
       onHighlightClickRef.current?.({
         highlightId,
+        highlightIds,
         element: target || doc.documentElement,
         iframe,
-        position,
+        position: {
+          x: iframeRect.left + event.clientX,
+          y: iframeRect.top + event.clientY,
+        },
       });
     };
 
-    (doc as Document & { __thoriumHighlightClickHandler?: (event: MouseEvent) => void })
-      .__thoriumHighlightClickHandler = handleClick;
-
-    // Capture phase lets us detect CSS highlights without relying on DOM nodes.
+    holder.__thoriumHighlightClickHandler = handleClick;
     doc.addEventListener('click', handleClick, true);
   }, [handleHighlightClick]);
 
-  /**
-   * Render a single highlight in the iframe.
-   */
   const renderHighlight = useCallback((highlight: Highlight, iframe: HTMLIFrameElement) => {
-    const doc = iframe.contentDocument;
-    if (!doc) {
-      console.warn('Cannot render highlight: iframe document not available');
-      return;
-    }
-
     try {
-      if (renderedHighlightsRef.current.has(highlight.id)) return;
-
-      const ranges = locatorToRanges(highlight.range, highlight.locator, doc);
-      if (ranges.length === 0) {
+      if (!rendererRef.current.render(highlight, iframe)) {
         console.warn('Could not restore range for highlight:', highlight.id);
-        return;
       }
-
-      const renderedWithCss = renderCssHighlight(highlight, ranges, doc);
-
-      if (!renderedWithCss) {
-        // Browser fallback: mutate DOM with <mark> only when CSS.highlights is unavailable.
-        for (const range of ranges) {
-          wrapRangeWithHighlight(range, highlight.id, highlight.color, !!highlight.note);
-        }
-      }
-
-      renderedHighlightsRef.current.add(highlight.id);
     } catch (error) {
       console.error('Failed to render highlight:', highlight.id, error);
     }
   }, []);
 
-  /**
-   * Restore all highlights for a specific chapter.
-   */
   const restoreHighlights = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
     const doc = iframe.contentDocument;
     if (!doc) {
@@ -170,66 +105,26 @@ export function useHighlightRenderer(
 
     setupIframe(iframe);
 
-    // Important: remove stale CSS highlights / fallback marks before restoring.
-    // This avoids nested <mark> fallback nodes and stale CSS ranges after reflow.
-    clearRenderedHighlights(doc);
-    renderedHighlightsRef.current.clear();
-
     try {
-      const chapterHighlights = await HighlightsDB.getHighlightsByChapter(bookId, href);
-
-      for (const highlight of chapterHighlights) {
-        renderHighlight(highlight, iframe);
-      }
-
-      if (selectedHighlightId) selectHighlightMark(selectedHighlightId, doc);
+      const chapterHighlights = await highlightService.loadChapter(bookId, href);
+      rendererRef.current.restore(chapterHighlights, iframe);
+      if (selectedHighlightId) rendererRef.current.select(selectedHighlightId, doc);
     } catch (error) {
       console.error('Failed to restore highlights:', error);
     }
-  }, [bookId, selectedHighlightId, setupIframe, renderHighlight]);
+  }, [bookId, selectedHighlightId, setupIframe]);
 
-  /**
-   * Remove a highlight from the iframe.
-   */
   const removeHighlight = useCallback((highlightId: string, iframe: HTMLIFrameElement) => {
-    const doc = iframe.contentDocument;
-    if (!doc) return;
-
-    removeCssHighlight(highlightId, doc);
-    removeHighlightMark(highlightId, doc);
-    renderedHighlightsRef.current.delete(highlightId);
+    rendererRef.current.remove(highlightId, iframe);
   }, []);
 
-  /**
-   * Update a highlight's appearance.
-   */
   const updateHighlight = useCallback((highlight: Highlight, iframe: HTMLIFrameElement) => {
-    const doc = iframe.contentDocument;
-    if (!doc) return;
-
-    const updatedCss = updateCssHighlightAppearance(highlight, doc);
-
-    if (!updatedCss) {
-      updateHighlightColor(highlight.id, highlight.color, doc);
-      toggleHighlightNoteIndicator(highlight.id, !!highlight.note, doc);
-    }
+    rendererRef.current.update(highlight, iframe);
   }, []);
 
-  /**
-   * Clear all highlights from the iframe.
-   */
   const clearAllHighlights = useCallback((iframe: HTMLIFrameElement) => {
-    const doc = iframe.contentDocument;
-    if (!doc) return;
-
-    clearRenderedHighlights(doc);
-    renderedHighlightsRef.current.clear();
-    deselectAllHighlights(doc);
+    rendererRef.current.clear(iframe);
   }, []);
-
-  useEffect(() => {
-    // Selection styling is applied when restoring/clicking inside a specific iframe.
-  }, [selectedHighlightId]);
 
   return {
     restoreHighlights,

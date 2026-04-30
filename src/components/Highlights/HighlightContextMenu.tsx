@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import { updateHighlight, deleteHighlight, openNoteEditor } from '@/lib/highlightsReducer';
-import HighlightsDB from '@/core/Storage/HighlightsDB';
+import { highlightService } from '@/core/Highlights';
 
 export interface HighlightContextMenuProps {
   highlight: Highlight;
@@ -43,11 +43,10 @@ export function HighlightContextMenu({
 
   const handleColorChange = useCallback(async (color: HighlightColor) => {
     try {
-      // Update in database
-      await HighlightsDB.updateHighlight(highlight.id, { color });
+      const updated = await highlightService.update(highlight.id, { color });
 
       // Update in Redux
-      dispatch(updateHighlight({ id: highlight.id, updates: { color } }));
+      dispatch(updateHighlight({ id: highlight.id, updates: updated }));
 
       // Notify parent
       onColorChange?.(color);
@@ -74,8 +73,7 @@ export function HighlightContextMenu({
     }
 
     try {
-      // Delete from database
-      await HighlightsDB.deleteHighlight(highlight.id);
+      await highlightService.delete(highlight.id);
 
       // Delete from Redux
       dispatch(deleteHighlight(highlight.id));

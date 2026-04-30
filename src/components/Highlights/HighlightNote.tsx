@@ -10,7 +10,7 @@ import debounce from 'debounce';
 import type { RootState } from '@/lib/store';
 import type { Highlight } from '@/lib/types/highlights';
 import { updateHighlight, closeNoteEditor } from '@/lib/highlightsReducer';
-import HighlightsDB from '@/core/Storage/HighlightsDB';
+import { highlightService } from '@/core/Highlights';
 
 export interface HighlightNoteProps {
   onHighlightUpdated?: (highlight: Highlight) => void;
@@ -53,19 +53,15 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
     const note = text || undefined;
 
     try {
-      // Update in database
-      await HighlightsDB.updateHighlight(highlight.id, { note });
+      const updated = await highlightService.update(highlight.id, { note });
 
       // Update in Redux
       dispatch(updateHighlight({
         id: highlight.id,
-        updates: { note }
+        updates: updated
       }));
 
-      onHighlightUpdated?.({
-        ...highlight,
-        note,
-      });
+      onHighlightUpdated?.(updated);
 
       setLastSaved(Date.now());
     } catch (error) {

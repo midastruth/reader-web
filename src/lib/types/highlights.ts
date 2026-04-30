@@ -112,6 +112,10 @@ export interface Highlight {
   locator: HighlightLocator;
   /** Serialized range for rendering */
   range: SerializedRange;
+  /** Anchor schema version. Missing means legacy pre-service data. */
+  anchorVersion?: number;
+  /** Stable reading-order key used by list sorting and conflict resolution. */
+  sortKey?: string;
 }
 
 /**

@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/lib/store';
 import { HighlightSortBy, type Highlight, type HighlightColor } from '@/lib/types/highlights';
+import { buildHighlightSortKey } from '@/core/Highlights';
 
 import { setSelectedHighlight, openNoteEditor } from '@/lib/highlightsReducer';
 
@@ -66,15 +67,15 @@ export function HighlightsList({ onHighlightClick, onJumpToHighlight }: Highligh
     filtered.sort((a, b) => {
       switch (sortBy) {
         case HighlightSortBy.POSITION:
-
-          return (a.locator.locations.progression || 0) - (b.locator.locations.progression || 0);
+          return (a.sortKey ?? buildHighlightSortKey(a)).localeCompare(b.sortKey ?? buildHighlightSortKey(b));
         case HighlightSortBy.CREATED:
 
           return b.createdAt - a.createdAt;
         case HighlightSortBy.UPDATED:
 
           return b.updatedAt - a.updatedAt;
-        case HighlightSortBy.COLOR:
+        case HighlightSortBy.COLOR:
+
           return a.color.localeCompare(b.color);
         default:
           return 0;

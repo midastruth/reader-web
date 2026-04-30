@@ -24,6 +24,12 @@ class HighlightsDatabase extends Dexie {
       highlights: 'id, bookId, createdAt, updatedAt, [bookId+locator.href]',
       bookMetadata: 'bookId, lastModified'
     });
+
+    // Schema version 2: service-driven annotations with stable reading-order keys.
+    this.version(2).stores({
+      highlights: 'id, bookId, sortKey, createdAt, updatedAt, [bookId+locator.href], [bookId+sortKey]',
+      bookMetadata: 'bookId, lastModified'
+    });
   }
 }
 

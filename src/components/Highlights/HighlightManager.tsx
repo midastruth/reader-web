@@ -7,8 +7,8 @@ import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
-import { loadHighlights, openNoteEditor, setCurrentBook } from '@/lib/highlightsReducer';
-import HighlightsDB from '@/core/Storage/HighlightsDB';
+import { loadHighlights, openNoteEditor, setCurrentBook, setSelectedHighlight } from '@/lib/highlightsReducer';
+import { highlightService, resolveHitHighlights } from '@/core/Highlights';
 import { useHighlightSelection, type TextSelection } from './hooks/useHighlightSelection';
 import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHighlightRenderer';
 import { HighlightToolbar } from './HighlightToolbar';
@@ -69,6 +69,16 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     highlight: null,
   });
 
+  const [chooseMenuState, setChooseMenuState] = useState<{
+    visible: boolean;
+    position: { x: number; y: number };
+    highlights: Highlight[];
+  }>({
+    visible: false,
+    position: { x: 0, y: 0 },
+    highlights: [],
+  });
+
   const [aiPanelState, setAiPanelState] = useState<{
     visible: boolean;
     selectedText: string;
@@ -95,6 +105,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
   const hideContextMenu = useCallback(() => {
     setContextMenuState({ visible: false, position: { x: 0, y: 0 }, highlight: null });
+    setChooseMenuState({ visible: false, position: { x: 0, y: 0 }, highlights: [] });
   }, []);
 
   const hideAiPanel = useCallback(() => {
@@ -125,10 +136,19 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     });
   }, [highlights, hideToolbar]);
 
-  const handleHighlightClick = useCallback(({ highlightId, position, iframe }: HighlightClickPayload) => {
+  const handleHighlightClick = useCallback(({ highlightId, highlightIds, position, iframe }: HighlightClickPayload) => {
     activeIframeRef.current = iframe;
-    showContextMenu(highlightId, position);
-  }, [showContextMenu]);
+
+    const hitHighlights = resolveHitHighlights(highlightIds, highlights);
+    if (hitHighlights.length > 1) {
+      hideToolbar();
+      setContextMenuState({ visible: false, position: { x: 0, y: 0 }, highlight: null });
+      setChooseMenuState({ visible: true, position, highlights: hitHighlights });
+      return;
+    }
+
+    showContextMenu(hitHighlights[0]?.id ?? highlightId, position);
+  }, [highlights, hideToolbar, showContextMenu]);
 
   const getIframeForSelection = useCallback((selection: TextSelection | null) => {
     const iframeFromSelection =
@@ -193,6 +213,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     renderHighlight,
     removeHighlight,
     updateHighlight: updateHighlightInDOM,
+    handleHighlightClick: selectRenderedHighlight,
   } = useHighlightRenderer(bookId, {
     onHighlightClick: handleHighlightClick,
   });
@@ -204,7 +225,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     const loadBookHighlights = async () => {
       try {
         dispatch(setCurrentBook(bookId));
-        const bookHighlights = await HighlightsDB.getHighlightsByBook(bookId);
+        const bookHighlights = await highlightService.loadBook(bookId);
         dispatch(loadHighlights(bookHighlights));
       } catch (error) {
         console.error('Failed to load highlights:', error);
@@ -413,6 +434,20 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     });
   }, [iframeRef, updateHighlightInDOM]);
 
+  const handleChooseHighlight = useCallback((highlight: Highlight) => {
+    const targetIframe = activeIframeRef.current || iframeRef?.current || null;
+    const doc = targetIframe?.contentDocument;
+    if (doc) selectRenderedHighlight(highlight.id, doc);
+    dispatch(setSelectedHighlight(highlight.id));
+
+    setChooseMenuState({ visible: false, position: { x: 0, y: 0 }, highlights: [] });
+    setContextMenuState({
+      visible: true,
+      position: chooseMenuState.position,
+      highlight,
+    });
+  }, [chooseMenuState.position, dispatch, iframeRef, selectRenderedHighlight]);
+
   // Highlight restoration is triggered by the reader when frames are loaded.
 
 
@@ -427,6 +462,88 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
           onAiQuery={handleAiQuery}
           onClose={hideToolbar}
         />
+      )}
+
+      {/* Overlapping highlights chooser */}
+      {chooseMenuState.visible && chooseMenuState.highlights.length > 1 && (
+        <div
+          className="highlight-overlap-menu"
+          style={{
+            position: 'absolute',
+            left: chooseMenuState.position.x,
+            top: chooseMenuState.position.y,
+            zIndex: 10000,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="highlight-overlap-menu-content">
+            <div className="highlight-overlap-menu-label">选择高亮</div>
+            {chooseMenuState.highlights.map((highlight) => (
+              <button
+                key={highlight.id}
+                className="highlight-overlap-menu-item"
+                onClick={() => handleChooseHighlight(highlight)}
+              >
+                <span className={`highlight-overlap-menu-color highlight-${highlight.color}`} />
+                <span className="highlight-overlap-menu-text">
+                  {highlight.locator.text.highlight.slice(0, 80)}
+                  {highlight.locator.text.highlight.length > 80 ? '…' : ''}
+                </span>
+              </button>
+            ))}
+          </div>
+          <style jsx>{`
+            .highlight-overlap-menu-content {
+              width: 260px;
+              max-height: 320px;
+              overflow: auto;
+              padding: 8px;
+              border: 1px solid #e0e0e0;
+              border-radius: 8px;
+              background: #fff;
+              box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            .highlight-overlap-menu-label {
+              padding: 6px 8px 8px;
+              font-size: 12px;
+              font-weight: 600;
+              color: #666;
+              text-transform: uppercase;
+            }
+            .highlight-overlap-menu-item {
+              width: 100%;
+              display: flex;
+              gap: 8px;
+              align-items: flex-start;
+              border: 0;
+              border-radius: 6px;
+              background: transparent;
+              padding: 8px;
+              cursor: pointer;
+              text-align: left;
+            }
+            .highlight-overlap-menu-item:hover { background: #f5f5f5; }
+            .highlight-overlap-menu-color {
+              flex: 0 0 12px;
+              width: 12px;
+              height: 12px;
+              margin-top: 3px;
+              border-radius: 999px;
+            }
+            .highlight-overlap-menu-text {
+              font-size: 13px;
+              line-height: 1.35;
+              color: #222;
+            }
+            .highlight-yellow { background: rgba(255, 235, 0, 0.65); }
+            .highlight-green { background: rgba(165, 214, 167, 0.65); }
+            .highlight-blue { background: rgba(144, 202, 249, 0.65); }
+            .highlight-pink { background: rgba(244, 143, 177, 0.65); }
+            .highlight-orange { background: rgba(255, 204, 128, 0.65); }
+            .highlight-purple { background: rgba(206, 147, 216, 0.65); }
+          `}</style>
+        </div>
       )}
 
       {/* Context Menu */}
