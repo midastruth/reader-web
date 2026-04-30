@@ -5,35 +5,35 @@
 
 .highlights-module {
   /* Color palette */
-  --highlight-yellow-bg: rgba(255, 213, 79, 0.3);
-  --highlight-yellow-bg-hover: rgba(255, 213, 79, 0.5);
-  --highlight-yellow-border: #ffd54f;
-  --highlight-yellow-solid: #fff59d;
+  --highlight-yellow-bg: rgba(255, 235, 0, 0.35);
+  --highlight-yellow-bg-hover: rgba(255, 235, 0, 0.5);
+  --highlight-yellow-border: rgba(255, 235, 0, 0.65);
+  --highlight-yellow-solid: rgba(255, 235, 0, 0.35);
 
-  --highlight-green-bg: rgba(129, 199, 132, 0.3);
-  --highlight-green-bg-hover: rgba(129, 199, 132, 0.5);
-  --highlight-green-border: #81c784;
-  --highlight-green-solid: #a5d6a7;
+  --highlight-green-bg: rgba(165, 214, 167, 0.35);
+  --highlight-green-bg-hover: rgba(165, 214, 167, 0.5);
+  --highlight-green-border: rgba(129, 199, 132, 0.65);
+  --highlight-green-solid: rgba(165, 214, 167, 0.35);
 
-  --highlight-blue-bg: rgba(100, 181, 246, 0.3);
-  --highlight-blue-bg-hover: rgba(100, 181, 246, 0.5);
-  --highlight-blue-border: #64b5f6;
-  --highlight-blue-solid: #90caf9;
+  --highlight-blue-bg: rgba(144, 202, 249, 0.35);
+  --highlight-blue-bg-hover: rgba(144, 202, 249, 0.5);
+  --highlight-blue-border: rgba(100, 181, 246, 0.65);
+  --highlight-blue-solid: rgba(144, 202, 249, 0.35);
 
-  --highlight-pink-bg: rgba(240, 98, 146, 0.3);
-  --highlight-pink-bg-hover: rgba(240, 98, 146, 0.5);
-  --highlight-pink-border: #f06292;
-  --highlight-pink-solid: #f48fb1;
+  --highlight-pink-bg: rgba(244, 143, 177, 0.35);
+  --highlight-pink-bg-hover: rgba(244, 143, 177, 0.5);
+  --highlight-pink-border: rgba(240, 98, 146, 0.65);
+  --highlight-pink-solid: rgba(244, 143, 177, 0.35);
 
-  --highlight-orange-bg: rgba(255, 183, 77, 0.3);
-  --highlight-orange-bg-hover: rgba(255, 183, 77, 0.5);
-  --highlight-orange-border: #ffb74d;
-  --highlight-orange-solid: #ffcc80;
+  --highlight-orange-bg: rgba(255, 204, 128, 0.35);
+  --highlight-orange-bg-hover: rgba(255, 204, 128, 0.5);
+  --highlight-orange-border: rgba(255, 183, 77, 0.65);
+  --highlight-orange-solid: rgba(255, 204, 128, 0.35);
 
-  --highlight-purple-bg: rgba(186, 104, 200, 0.3);
-  --highlight-purple-bg-hover: rgba(186, 104, 200, 0.5);
-  --highlight-purple-border: #ba68c8;
-  --highlight-purple-solid: #ce93d8;
+  --highlight-purple-bg: rgba(206, 147, 216, 0.35);
+  --highlight-purple-bg-hover: rgba(206, 147, 216, 0.5);
+  --highlight-purple-border: rgba(186, 104, 200, 0.65);
+  --highlight-purple-solid: rgba(206, 147, 216, 0.35);
 
   /* Theme colors */
   --highlight-bg-light: #ffffff;

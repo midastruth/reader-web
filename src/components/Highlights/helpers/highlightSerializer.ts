@@ -14,12 +14,12 @@ import { splitRangeByElements } from './locatorToRange';
  * Color to CSS class mapping
  */
 export const HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
-  yellow: '#fff59d',
-  green: '#a5d6a7',
-  blue: '#90caf9',
-  pink: '#f48fb1',
-  orange: '#ffcc80',
-  purple: '#ce93d8',
+  yellow: 'rgba(255, 235, 0, 0.35)',
+  green: 'rgba(165, 214, 167, 0.35)',
+  blue: 'rgba(144, 202, 249, 0.35)',
+  pink: 'rgba(244, 143, 177, 0.35)',
+  orange: 'rgba(255, 204, 128, 0.35)',
+  purple: 'rgba(206, 147, 216, 0.35)',
 };
 
 interface CSSHighlightsRegistry {

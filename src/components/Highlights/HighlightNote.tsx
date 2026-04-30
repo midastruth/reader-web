@@ -256,12 +256,12 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
           margin-bottom: 12px;
         }
 
-        .highlight-note-color-indicator.highlight-yellow { background: #ffd54f; }
-        .highlight-note-color-indicator.highlight-green { background: #81c784; }
-        .highlight-note-color-indicator.highlight-blue { background: #64b5f6; }
-        .highlight-note-color-indicator.highlight-pink { background: #f06292; }
-        .highlight-note-color-indicator.highlight-orange { background: #ffb74d; }
-        .highlight-note-color-indicator.highlight-purple { background: #ba68c8; }
+        .highlight-note-color-indicator.highlight-yellow { background: rgba(255, 235, 0, 0.35); }
+        .highlight-note-color-indicator.highlight-green { background: rgba(165, 214, 167, 0.35); }
+        .highlight-note-color-indicator.highlight-blue { background: rgba(144, 202, 249, 0.35); }
+        .highlight-note-color-indicator.highlight-pink { background: rgba(244, 143, 177, 0.35); }
+        .highlight-note-color-indicator.highlight-orange { background: rgba(255, 204, 128, 0.35); }
+        .highlight-note-color-indicator.highlight-purple { background: rgba(206, 147, 216, 0.35); }
 
         .highlight-note-quote {
           margin: 0;

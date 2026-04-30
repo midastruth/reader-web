@@ -159,12 +159,12 @@ export function exportAsHTML(
       border-left: 4px solid #ddd;
       background: #f9f9f9;
     }
-    .highlight-yellow { border-left-color: #ffd54f; }
-    .highlight-green { border-left-color: #81c784; }
-    .highlight-blue { border-left-color: #64b5f6; }
-    .highlight-pink { border-left-color: #f06292; }
-    .highlight-orange { border-left-color: #ffb74d; }
-    .highlight-purple { border-left-color: #ba68c8; }
+    .highlight-yellow { border-left-color: rgba(255, 235, 0, 0.65); }
+    .highlight-green { border-left-color: rgba(129, 199, 132, 0.65); }
+    .highlight-blue { border-left-color: rgba(100, 181, 246, 0.65); }
+    .highlight-pink { border-left-color: rgba(240, 98, 146, 0.65); }
+    .highlight-orange { border-left-color: rgba(255, 183, 77, 0.65); }
+    .highlight-purple { border-left-color: rgba(186, 104, 200, 0.65); }
     .color-tag {
       display: inline-block;
       padding: 0.25rem 0.5rem;
@@ -234,12 +234,12 @@ export function exportAsHTML(
 
 function getColorBg(color: HighlightColor): string {
   const colors: Record<HighlightColor, string> = {
-    yellow: '#fff59d',
-    green: '#a5d6a7',
-    blue: '#90caf9',
-    pink: '#f48fb1',
-    orange: '#ffcc80',
-    purple: '#ce93d8',
+    yellow: 'rgba(255, 235, 0, 0.35)',
+    green: 'rgba(165, 214, 167, 0.35)',
+    blue: 'rgba(144, 202, 249, 0.35)',
+    pink: 'rgba(244, 143, 177, 0.35)',
+    orange: 'rgba(255, 204, 128, 0.35)',
+    purple: 'rgba(206, 147, 216, 0.35)',
   };
   return colors[color];
 }
