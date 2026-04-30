@@ -134,10 +134,9 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
 
         {/* Highlight preview */}
         <div className="highlight-note-preview">
-          <div className={`highlight-note-color-indicator highlight-${highlight.color}`} />
-          <blockquote className="highlight-note-quote">
-            &ldquo;{displayText}&rdquo;
-          </blockquote>
+          <blockquote className={`highlight-note-quote quote-${highlight.color}`}>
+            {displayText}
+          </blockquote>
         </div>
 
         {/* Note editor */}
@@ -183,219 +182,241 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.32);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 10001;
-          padding: 20px;
-          backdrop-filter: blur(4px);
+          padding: 16px;
+          backdrop-filter: blur(6px);
         }
 
         .highlight-note-modal {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.96);
+          border-radius: 20px;
+          box-shadow:
+            0 24px 64px rgba(15, 23, 42, 0.18),
+            0 4px 16px rgba(15, 23, 42, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
           width: 100%;
-          max-width: 600px;
+          max-width: 420px;
           max-height: 80vh;
           display: flex;
           flex-direction: column;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          overflow: hidden;
         }
 
         .highlight-note-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 20px 24px;
-          border-bottom: 1px solid #e8e8e8;
+          padding: 14px 16px 12px;
+          border-bottom: 1px solid rgba(15, 23, 42, 0.06);
         }
 
         .highlight-note-title {
           margin: 0;
-          font-size: 20px;
+          font-size: 14px;
           font-weight: 600;
-          color: #1a1a1a;
+          color: #111827;
+          letter-spacing: -0.01em;
         }
 
         .highlight-note-close-btn {
-          width: 32px;
-          height: 32px;
+          width: 26px;
+          height: 26px;
           border: none;
-          background: transparent;
-          border-radius: 6px;
+          background: rgba(15, 23, 42, 0.05);
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 20px;
-          color: #666;
+          font-size: 13px;
+          color: #6b7280;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.2s ease;
+          transition: background 0.15s ease, color 0.15s ease;
         }
 
         .highlight-note-close-btn:hover {
-          background: #f0f0f0;
-          color: #333;
+          background: rgba(15, 23, 42, 0.1);
+          color: #111827;
         }
 
         .highlight-note-preview {
-          padding: 20px 24px;
-          background: #f9f9f9;
-          border-bottom: 1px solid #e8e8e8;
+          padding: 10px 16px;
+          background: rgba(15, 23, 42, 0.02);
+          border-bottom: 1px solid rgba(15, 23, 42, 0.05);
         }
 
         .highlight-note-color-indicator {
-          width: 40px;
-          height: 4px;
-          border-radius: 2px;
-          margin-bottom: 12px;
+          display: none;
         }
-
-        .highlight-note-color-indicator.highlight-yellow { background: rgba(255, 235, 0, 0.35); }
-        .highlight-note-color-indicator.highlight-green { background: rgba(165, 214, 167, 0.35); }
-        .highlight-note-color-indicator.highlight-blue { background: rgba(144, 202, 249, 0.35); }
-        .highlight-note-color-indicator.highlight-pink { background: rgba(244, 143, 177, 0.35); }
-        .highlight-note-color-indicator.highlight-orange { background: rgba(255, 204, 128, 0.35); }
-        .highlight-note-color-indicator.highlight-purple { background: rgba(206, 147, 216, 0.35); }
 
         .highlight-note-quote {
           margin: 0;
-          padding: 0;
-          font-size: 15px;
-          line-height: 1.6;
-          color: #333;
+          padding: 0 0 0 10px;
+          font-size: 12.5px;
+          line-height: 1.55;
+          color: #4b5563;
           font-style: italic;
+          border-left: 3px solid currentColor;
         }
 
+        .highlight-note-quote.quote-yellow { border-color: rgba(234, 179, 8, 0.7); }
+        .highlight-note-quote.quote-green  { border-color: rgba(74, 168, 109, 0.7); }
+        .highlight-note-quote.quote-blue   { border-color: rgba(59, 130, 246, 0.7); }
+        .highlight-note-quote.quote-pink   { border-color: rgba(236, 72, 153, 0.7); }
+        .highlight-note-quote.quote-orange { border-color: rgba(249, 115, 22, 0.7); }
+        .highlight-note-quote.quote-purple { border-color: rgba(139, 92, 246, 0.7); }
+
         .highlight-note-editor {
-          padding: 20px 24px;
+          padding: 12px 16px;
           flex: 1;
           overflow-y: auto;
         }
 
         .highlight-note-textarea {
           width: 100%;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 12px;
-          font-size: 15px;
+          border: 1px solid rgba(15, 23, 42, 0.12);
+          border-radius: 10px;
+          padding: 10px 12px;
+          font-size: 13.5px;
           line-height: 1.6;
           font-family: inherit;
-          resize: vertical;
-          min-height: 150px;
-          transition: border-color 0.2s ease;
+          resize: none;
+          min-height: 96px;
+          background: rgba(255, 255, 255, 0.7);
+          color: #111827;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          box-sizing: border-box;
+        }
+
+        .highlight-note-textarea::placeholder {
+          color: #9ca3af;
         }
 
         .highlight-note-textarea:focus {
           outline: none;
-          border-color: #64b5f6;
-          box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.1);
+          border-color: rgba(99, 102, 241, 0.5);
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+          background: #fff;
         }
 
         .highlight-note-footer {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px 24px;
-          border-top: 1px solid #e8e8e8;
+          padding: 10px 16px;
+          border-top: 1px solid rgba(15, 23, 42, 0.06);
         }
 
         .highlight-note-status {
-          font-size: 13px;
-          color: #666;
+          font-size: 11px;
+          color: #9ca3af;
+          letter-spacing: 0.01em;
         }
 
         .highlight-note-saving {
-          color: #64b5f6;
+          color: #6366f1;
         }
 
         .highlight-note-saved {
-          color: #81c784;
+          color: #22c55e;
         }
 
         .highlight-note-done-btn {
-          padding: 10px 24px;
-          background: #64b5f6;
+          padding: 6px 18px;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
           color: white;
           border: none;
-          border-radius: 6px;
-          font-size: 15px;
+          border-radius: 999px;
+          font-size: 12.5px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: opacity 0.15s ease, transform 0.15s ease;
+          letter-spacing: 0.01em;
+          box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
         }
 
         .highlight-note-done-btn:hover {
-          background: #42a5f5;
+          opacity: 0.88;
+          transform: translateY(-1px);
         }
 
         .highlight-note-done-btn:active {
-          transform: scale(0.98);
+          transform: scale(0.97);
+          opacity: 1;
         }
 
         @media (prefers-color-scheme: dark) {
           .highlight-note-modal {
-            background: #2c2c2c;
+            background: rgba(30, 30, 34, 0.97);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow:
+              0 24px 64px rgba(0, 0, 0, 0.5),
+              0 4px 16px rgba(0, 0, 0, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.07);
           }
 
           .highlight-note-header {
-            border-color: #444;
+            border-color: rgba(255, 255, 255, 0.06);
           }
 
           .highlight-note-title {
-            color: #e0e0e0;
+            color: #f3f4f6;
           }
 
           .highlight-note-close-btn {
-            color: #aaa;
+            background: rgba(255, 255, 255, 0.07);
+            color: #9ca3af;
           }
 
           .highlight-note-close-btn:hover {
-            background: #3a3a3a;
-            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.12);
+            color: #f3f4f6;
           }
 
           .highlight-note-preview {
-            background: #1e1e1e;
-            border-color: #444;
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.05);
           }
 
           .highlight-note-quote {
-            color: #e0e0e0;
+            color: #9ca3af;
           }
 
           .highlight-note-textarea {
-            background: #1e1e1e;
-            border-color: #555;
-            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
+          }
+
+          .highlight-note-textarea::placeholder {
+            color: #6b7280;
           }
 
           .highlight-note-textarea:focus {
-            border-color: #64b5f6;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
           }
 
           .highlight-note-footer {
-            border-color: #444;
+            border-color: rgba(255, 255, 255, 0.06);
           }
 
           .highlight-note-status {
-            color: #aaa;
+            color: #6b7280;
           }
         }
 
         @media (max-width: 640px) {
           .highlight-note-modal {
             max-width: 100%;
-            max-height: 90vh;
-          }
-
-          .highlight-note-header,
-          .highlight-note-preview,
-          .highlight-note-editor,
-          .highlight-note-footer {
-            padding-left: 16px;
-            padding-right: 16px;
+            max-height: 85vh;
+            border-radius: 16px;
           }
         }
       `}</style>
