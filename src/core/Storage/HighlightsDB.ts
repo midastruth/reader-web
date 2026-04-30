@@ -1,40 +1,65 @@
 /**
  * IndexedDB storage for text highlights and annotations
  * Uses Dexie.js for a modern, promise-based API
+ *
+ * Dexie touches browser-only APIs at module evaluation time. Keep it behind a
+ * dynamic import so Next.js Edge/server bundles can safely import this module;
+ * the database is instantiated only when a browser calls a storage method.
  */
 
-import Dexie, { Table } from 'dexie';
+import type Dexie from 'dexie';
+import type { Table } from 'dexie';
 import type { Highlight, BookHighlights } from '@/lib/types/highlights';
 
-/**
- * Highlights database schema
- */
-class HighlightsDatabase extends Dexie {
-  /** Individual highlights table */
-  highlights!: Table<Highlight, string>;
+type BookMetadata = { bookId: string; lastModified: number };
+type HighlightsDatabase = Dexie & {
+  highlights: Table<Highlight, string>;
+  bookMetadata: Table<BookMetadata, string>;
+};
 
-  /** Book-level metadata table */
-  bookMetadata!: Table<{ bookId: string; lastModified: number }, string>;
+let dbPromise: Promise<HighlightsDatabase> | null = null;
 
-  constructor() {
-    super('ThoriumHighlights');
+const createDatabase = async (): Promise<HighlightsDatabase> => {
+  const { default: DexieClass } = await import('dexie');
 
-    // Schema version 1
-    this.version(1).stores({
-      highlights: 'id, bookId, createdAt, updatedAt, [bookId+locator.href]',
-      bookMetadata: 'bookId, lastModified'
-    });
+  /**
+   * Highlights database schema
+   */
+  class DexieHighlightsDatabase extends DexieClass {
+    /** Individual highlights table */
+    highlights!: Table<Highlight, string>;
 
-    // Schema version 2: service-driven annotations with stable reading-order keys.
-    this.version(2).stores({
-      highlights: 'id, bookId, sortKey, createdAt, updatedAt, [bookId+locator.href], [bookId+sortKey]',
-      bookMetadata: 'bookId, lastModified'
-    });
+    /** Book-level metadata table */
+    bookMetadata!: Table<BookMetadata, string>;
+
+    constructor() {
+      super('ThoriumHighlights');
+
+      // Schema version 1
+      this.version(1).stores({
+        highlights: 'id, bookId, createdAt, updatedAt, [bookId+locator.href]',
+        bookMetadata: 'bookId, lastModified'
+      });
+
+      // Schema version 2: service-driven annotations with stable reading-order keys.
+      this.version(2).stores({
+        highlights: 'id, bookId, sortKey, createdAt, updatedAt, [bookId+locator.href], [bookId+sortKey]',
+        bookMetadata: 'bookId, lastModified'
+      });
+    }
   }
-}
 
-// Singleton instance
-const db = new HighlightsDatabase();
+  return new DexieHighlightsDatabase() as HighlightsDatabase;
+};
+
+const getDb = async (): Promise<HighlightsDatabase> => {
+  if (typeof globalThis.indexedDB === 'undefined') {
+    throw new Error('IndexedDB is only available in a browser runtime.');
+  }
+
+  dbPromise ??= createDatabase();
+  return dbPromise;
+};
 
 /**
  * Storage layer for highlights
@@ -45,6 +70,7 @@ export class HighlightsDB {
    * Add a new highlight
    */
   static async addHighlight(highlight: Highlight): Promise<void> {
+    const db = await getDb();
     await db.transaction('rw', [db.highlights, db.bookMetadata], async () => {
       await db.highlights.add(highlight);
       await db.bookMetadata.put({
@@ -61,6 +87,7 @@ export class HighlightsDB {
     id: string,
     updates: Partial<Omit<Highlight, 'id' | 'bookId' | 'createdAt'>>
   ): Promise<void> {
+    const db = await getDb();
     const existing = await db.highlights.get(id);
     if (!existing) {
       throw new Error(`Highlight not found: ${id}`);
@@ -85,6 +112,7 @@ export class HighlightsDB {
    * Delete a highlight
    */
   static async deleteHighlight(id: string): Promise<void> {
+    const db = await getDb();
     const existing = await db.highlights.get(id);
     if (!existing) {
       throw new Error(`Highlight not found: ${id}`);
@@ -104,6 +132,7 @@ export class HighlightsDB {
    * Sorted by creation time by default
    */
   static async getHighlightsByBook(bookId: string): Promise<Highlight[]> {
+    const db = await getDb();
     return await db.highlights
       .where('bookId')
       .equals(bookId)
@@ -125,6 +154,7 @@ export class HighlightsDB {
    * Get a single highlight by ID
    */
   static async getHighlight(id: string): Promise<Highlight | undefined> {
+    const db = await getDb();
     return await db.highlights.get(id);
   }
 
@@ -132,6 +162,7 @@ export class HighlightsDB {
    * Get all highlights across all books
    */
   static async getAllHighlights(): Promise<BookHighlights[]> {
+    const db = await getDb();
     const allHighlights = await db.highlights.toArray();
 
     // Group by book
@@ -160,6 +191,7 @@ export class HighlightsDB {
    * Delete all highlights for a specific book
    */
   static async deleteBookHighlights(bookId: string): Promise<void> {
+    const db = await getDb();
     await db.transaction('rw', [db.highlights, db.bookMetadata], async () => {
       await db.highlights.where('bookId').equals(bookId).delete();
       await db.bookMetadata.delete(bookId);
@@ -170,6 +202,7 @@ export class HighlightsDB {
    * Get count of highlights for a book
    */
   static async getHighlightCount(bookId: string): Promise<number> {
+    const db = await getDb();
     return await db.highlights.where('bookId').equals(bookId).count();
   }
 
@@ -202,6 +235,7 @@ export class HighlightsDB {
    * Import data (from backup)
    */
   static async importAll(jsonData: string): Promise<void> {
+    const db = await getDb();
     const data: BookHighlights[] = JSON.parse(jsonData);
 
     await db.transaction('rw', [db.highlights, db.bookMetadata], async () => {
@@ -219,6 +253,7 @@ export class HighlightsDB {
    * Clear all data (for testing/reset)
    */
   static async clearAll(): Promise<void> {
+    const db = await getDb();
     await db.transaction('rw', [db.highlights, db.bookMetadata], async () => {
       await db.highlights.clear();
       await db.bookMetadata.clear();
@@ -230,6 +265,7 @@ export class HighlightsDB {
    */
   static async isAvailable(): Promise<boolean> {
     try {
+      const db = await getDb();
       await db.open();
       return true;
     } catch (error) {

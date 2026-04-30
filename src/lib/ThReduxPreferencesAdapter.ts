@@ -4,7 +4,7 @@ import { ThPreferences, CustomizableKeys } from "../preferences/preferences";
 
 import { ThPreferencesAdapter } from "../preferences/adapters/ThPreferencesAdapter";
 
-import { AppState } from "@/lib/store";
+import type { AppState } from "@/lib/store";
 import { preferencesSlice } from "@/lib/preferencesReducer";
 import { mapStateToPreferences } from "@/lib/helpers/mapPreferences";
 

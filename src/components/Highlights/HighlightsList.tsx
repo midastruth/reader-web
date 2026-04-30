@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/lib/store';
 import { HighlightSortBy, type Highlight, type HighlightColor } from '@/lib/types/highlights';
-import { buildHighlightSortKey } from '@/core/Highlights';
+import { buildHighlightSortKey } from '@/core/Highlights/highlightSort';
 
 import { setSelectedHighlight, openNoteEditor } from '@/lib/highlightsReducer';
 

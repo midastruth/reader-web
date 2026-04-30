@@ -6,7 +6,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Highlight } from './types/highlights';
 import { HighlightColor } from './types/highlights';
-import { sortHighlightsByReadingOrder } from '@/core/Highlights/HighlightService';
+import { sortHighlightsByReadingOrder } from '@/core/Highlights/highlightSort';
 
 /**
  * Highlights state interface
