@@ -16,11 +16,7 @@ const createHighlightId = (): string => {
 };
 
 function normalizeHref(href: string): string {
-  try {
-    return decodeURIComponent(href).split('#')[0];
-  } catch {
-    return href.split('#')[0];
-  }
+  return decodeURIComponent(href).split('#')[0].split('?')[0];
 }
 
 function firstRangeOffset(highlight: Highlight): number {
@@ -36,10 +32,10 @@ export function buildHighlightSortKey(highlight: Pick<Highlight, 'locator' | 'ra
   const progression = highlight.locator.locations.progression ?? highlight.locator.locations.totalProgression ?? 1;
   const offset = firstRangeOffset(highlight as Highlight);
   return [
-    href,
-    String(position).padStart(8, '0'),
+    String(position).padStart(16, '0'),
     progression.toFixed(8),
     String(offset).padStart(8, '0'),
+    href,
     String(highlight.createdAt).padStart(13, '0'),
   ].join('|');
 }

@@ -280,7 +280,7 @@ export function wrapRangeWithHighlight(
  */
 export function unwrapHighlight(highlightId: string, doc: Document): boolean {
   try {
-    const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+    const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
 
     marks.forEach(mark => {
       const parent = mark.parentNode;
@@ -307,7 +307,7 @@ export function updateHighlightColor(
   doc: Document
 ): boolean {
   try {
-    const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+    const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
 
     marks.forEach(mark => {
       const htmlMark = mark as HTMLElement;
@@ -335,7 +335,7 @@ export function updateHighlightNoteIndicator(
   doc: Document
 ): boolean {
   try {
-    const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+    const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
 
     marks.forEach(mark => {
       const htmlMark = mark as HTMLElement;
@@ -400,7 +400,7 @@ export function selectHighlightMark(highlightId: string, doc: Document): void {
   deselectAllHighlights(doc);
   selectCssHighlight(highlightId, doc);
 
-  const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+  const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
   marks.forEach(mark => (mark as HTMLElement).classList.add('selected'));
 }
 
@@ -418,7 +418,7 @@ export function deselectAllHighlights(doc: Document): void {
  */
 export function clearRenderedHighlights(doc: Document): void {
   removeAllCssHighlights(doc);
-  const marks = Array.from(doc.querySelectorAll('[data-highlight-id]'));
+  const marks = Array.from(doc.querySelectorAll('.thorium-highlight[data-highlight-id]'));
   marks.forEach(mark => {
     const parent = mark.parentNode;
     if (!parent) return;
