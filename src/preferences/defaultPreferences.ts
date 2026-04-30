@@ -231,11 +231,11 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
       fxlOrder: [
         "auto",
         ThThemeKeys.light,
-        ThThemeKeys.dark
+        ThThemeKeys.solarizedDark
       ],
       systemThemes: {
         light: ThThemeKeys.light,
-        dark: ThThemeKeys.dark
+        dark: ThThemeKeys.solarizedDark
       },
       keys: {
         [ThThemeKeys.light]: lightTheme,
