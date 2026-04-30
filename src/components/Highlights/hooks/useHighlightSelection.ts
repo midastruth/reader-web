@@ -1,137 +1,48 @@
 /**
- * Hook for handling text selection and highlight creation
- * Integrates with Readium Navigator's textSelected callback
+ * Hook for handling text selection and highlight creation.
+ *
+ * UI-facing wrapper around the core HighlightService. Components dispatch Redux
+ * updates here, but persistence and anchor creation live in core/Highlights.
  */
 
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import type { Highlight, HighlightColor } from '@/lib/types/highlights';
 import { addHighlight } from '@/lib/highlightsReducer';
-import HighlightsDB from '@/core/Storage/HighlightsDB';
-import {
-  rangeToLocator,
-  serializeRange,
-  isValidTextRange,
-  normalizeRange,
-} from '../helpers/rangeToLocator';
+import { HighlightAnchors, highlightService, type TextSelection } from '@/core/Highlights';
 
+export type { TextSelection } from '@/core/Highlights';
 
-
-const createHighlightId = (): string => {
-
-  if (globalThis.crypto?.randomUUID) {
-
-    return globalThis.crypto.randomUUID();
-
-  }
-
-
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-};
-
-
-
-/**
-
- * Text selection data from Readium Navigator
-
- */
-
-export interface TextSelection {
-  range: Range;
-  text: string;
-  href: string;
-  position?: number;
-  cleanText?: string;
-  rawText?: string;
-  boundingClientRect?: DOMRect;
-}
-
-/**
- * Hook return type
- */
+/** Hook return type */
 export interface UseHighlightSelectionReturn {
   createHighlight: (selection: TextSelection, color: HighlightColor, note?: string) => Promise<Highlight | null>;
   isValidSelection: (selection: TextSelection) => boolean;
 }
 
-/**
- * Hook for handling text selection and creating highlights
- */
+/** Hook for handling text selection and creating highlights. */
 export function useHighlightSelection(bookId: string): UseHighlightSelectionReturn {
   const dispatch = useDispatch();
 
-  /**
-   * Validate a text selection
-   */
   const isValidSelection = useCallback((selection: TextSelection): boolean => {
-    if (!selection) {
-      console.warn('useHighlightSelection: selection is null/undefined');
-      return false;
-    }
-    if (!selection.range) {
-      console.warn('useHighlightSelection: selection.range is missing');
-      return false;
-    }
-
-    const validRange = isValidTextRange(selection.range);
-    if (!validRange) {
-      console.warn('useHighlightSelection: isValidTextRange returned false', selection.range);
-    }
-    return validRange;
+    const valid = HighlightAnchors.isValidSelection(selection);
+    if (!valid) console.warn('useHighlightSelection: invalid text selection', selection);
+    return valid;
   }, []);
 
-  /**
-   * Create a new highlight from a text selection
-   */
   const createHighlight = useCallback(
-    async (
-      selection: TextSelection,
-      color: HighlightColor,
-      note?: string
-    ): Promise<Highlight | null> => {
+    async (selection: TextSelection, color: HighlightColor, note?: string): Promise<Highlight | null> => {
       try {
-        // Validate selection
-        if (!isValidSelection(selection)) {
-          console.warn('Invalid text selection');
-          return null;
-        }
-
-        // Normalize the range to ensure it starts and ends at text nodes
-        const normalizedRange = normalizeRange(selection.range);
-
-        // Create the highlight object
-        const highlight: Highlight = {
-          id: createHighlightId(),
-          bookId,
-          color,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          note,
-          locator: rangeToLocator(normalizedRange, selection.href, selection.position),
-          range: serializeRange(normalizedRange),
-        };
-
-        // Save to IndexedDB
-        await HighlightsDB.addHighlight(highlight);
-
-        // Update Redux state
+        const highlight = await highlightService.create({ bookId, selection, color, note });
+        if (!highlight) return null;
         dispatch(addHighlight(highlight));
-
-
         return highlight;
       } catch (error) {
         console.error('Failed to create highlight:', error);
         return null;
       }
     },
-    [bookId, dispatch, isValidSelection]
+    [bookId, dispatch]
   );
 
-  return {
-    createHighlight,
-    isValidSelection,
-  };
+  return { createHighlight, isValidSelection };
 }

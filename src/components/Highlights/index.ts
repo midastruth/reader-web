@@ -29,8 +29,18 @@ export type { UseHighlightSelectionReturn, TextSelection } from './hooks/useHigh
 export { useHighlightRenderer } from './hooks/useHighlightRenderer';
 export type { UseHighlightRendererReturn } from './hooks/useHighlightRenderer';
 
-// Storage
+// Core service/storage
 export { default as HighlightsDB } from '@/core/Storage/HighlightsDB';
+export {
+  HighlightService,
+  highlightService,
+  HighlightRepository,
+  highlightRepository,
+  HighlightRenderer,
+  HighlightAnchors,
+  buildHighlightSortKey,
+  sortHighlightsByReadingOrder,
+} from '@/core/Highlights';
 
 // Types
 export type {

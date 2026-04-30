@@ -2,7 +2,7 @@ import { Store } from "@reduxjs/toolkit";
 
 import { ThGlobalPreferences } from "@/preferences/globalPreferences";
 import { ThGlobalPreferencesAdapter } from "@/preferences/adapters/ThGlobalPreferencesAdapter";
-import { AppState } from "@/lib/store";
+import type { AppState } from "@/lib/store";
 import { setLocale } from "@/lib/globalPreferencesReducer";
 
 export class ThReduxGlobalPreferencesAdapter implements ThGlobalPreferencesAdapter {

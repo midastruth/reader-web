@@ -16,10 +16,13 @@ export enum HighlightColor {
 }
 
 /**
- * Serialized DOM Range information for rendering highlights
- * Uses XPath to locate nodes in the DOM tree
+ * Legacy DOM Range serialization.
+ *
+ * Kept for backwards compatibility with highlights created by the older
+ * implementation. New highlights use the block-offset model below.
  */
-export interface SerializedRange {
+export interface LegacySerializedRange {
+  type?: 'dom-xpath';
   /** XPath to the start container node */
   startContainerPath: string;
   /** Offset within the start container */
@@ -29,6 +32,39 @@ export interface SerializedRange {
   /** Offset within the end container */
   endOffset: number;
 }
+
+/**
+ * One text highlight segment anchored to a stable block element.
+ *
+ * This is inspired by Obsidian Web Clipper's model: store the XPath of a
+ * paragraph/list-item/heading/etc. and character offsets within that block,
+ * instead of storing fragile text-node XPaths.
+ */
+export interface BlockRangePart {
+  /** XPath to the block element that contains this text segment */
+  blockPath: string;
+  /** Start character offset in the block's concatenated text */
+  startOffset: number;
+  /** End character offset in the block's concatenated text */
+  endOffset: number;
+  /** Text captured for this segment, useful for fallback/debugging */
+  text?: string;
+}
+
+/**
+ * New Obsidian-style block-offset range serialization.
+ * A single user selection may cross multiple blocks; each block becomes one
+ * part, while the Highlight remains one logical annotation.
+ */
+export interface BlockSerializedRange {
+  type: 'block-offset';
+  parts: BlockRangePart[];
+}
+
+/**
+ * Serialized highlight range.
+ */
+export type SerializedRange = LegacySerializedRange | BlockSerializedRange;
 
 /**
  * Readium Locator for precise content positioning
@@ -74,8 +110,12 @@ export interface Highlight {
   note?: string;
   /** Readium locator for cross-platform positioning */
   locator: HighlightLocator;
-  /** Serialized DOM range for rendering */
+  /** Serialized range for rendering */
   range: SerializedRange;
+  /** Anchor schema version. Missing means legacy pre-service data. */
+  anchorVersion?: number;
+  /** Stable reading-order key used by list sorting and conflict resolution. */
+  sortKey?: string;
 }
 
 /**

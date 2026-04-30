@@ -28,38 +28,38 @@ const COLOR_OPTIONS: Array<{
   {
     color: HighlightColor.YELLOW,
     label: 'Yellow',
-    bg: '#fff59d',
-    border: '#ffd54f',
+    bg: 'rgba(255, 235, 0, 0.35)',
+    border: 'rgba(255, 235, 0, 0.65)',
   },
   {
     color: HighlightColor.GREEN,
     label: 'Green',
-    bg: '#a5d6a7',
-    border: '#81c784',
+    bg: 'rgba(165, 214, 167, 0.35)',
+    border: 'rgba(129, 199, 132, 0.65)',
   },
   {
     color: HighlightColor.BLUE,
     label: 'Blue',
-    bg: '#90caf9',
-    border: '#64b5f6',
+    bg: 'rgba(144, 202, 249, 0.35)',
+    border: 'rgba(100, 181, 246, 0.65)',
   },
   {
     color: HighlightColor.PINK,
     label: 'Pink',
-    bg: '#f48fb1',
-    border: '#f06292',
+    bg: 'rgba(244, 143, 177, 0.35)',
+    border: 'rgba(240, 98, 146, 0.65)',
   },
   {
     color: HighlightColor.ORANGE,
     label: 'Orange',
-    bg: '#ffcc80',
-    border: '#ffb74d',
+    bg: 'rgba(255, 204, 128, 0.35)',
+    border: 'rgba(255, 183, 77, 0.65)',
   },
   {
     color: HighlightColor.PURPLE,
     label: 'Purple',
-    bg: '#ce93d8',
-    border: '#ba68c8',
+    bg: 'rgba(206, 147, 216, 0.35)',
+    border: 'rgba(186, 104, 200, 0.65)',
   },
 ];
 
@@ -143,7 +143,12 @@ export function HighlightToolbar({
             title={t('ai.dictionary', '查词')}
             aria-label={t('ai.dictionary', '查词')}
           >
-            <span className="highlight-toolbar-ai-text">词</span>
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/>
+              <line x1="6.5" y1="2" x2="6.5" y2="10" stroke="currentColor" strokeWidth="1.1"/>
+              <line x1="3" y1="4.5" x2="6" y2="4.5" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" opacity="0.7"/>
+              <line x1="3" y1="6.5" x2="6" y2="6.5" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" opacity="0.7"/>
+            </svg>
           </button>
 
           <button
@@ -153,7 +158,13 @@ export function HighlightToolbar({
             title={t('ai.analyze', '分析')}
             aria-label={t('ai.analyze', '分析')}
           >
-            <span className="highlight-toolbar-ai-text">分析</span>
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <line x1="1" y1="2" x2="9" y2="2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.65"/>
+              <line x1="1" y1="4.5" x2="9" y2="4.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.65"/>
+              <line x1="1" y1="7" x2="5.5" y2="7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.65"/>
+              <circle cx="9.5" cy="9.5" r="2.5" stroke="currentColor" strokeWidth="1.2"/>
+              <line x1="11.3" y1="11.3" x2="12.8" y2="12.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
           </button>
 
           <button
@@ -187,57 +198,57 @@ export function HighlightToolbar({
         .highlight-toolbar-content {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 4px;
           background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(244, 244, 246, 0.78));
-          border: 1px solid rgba(15, 23, 42, 0.12);
-          border-radius: 18px;
-          padding: 5px;
+            linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 246, 248, 0.84));
+          border: 1px solid rgba(15, 23, 42, 0.10);
+          border-radius: 14px;
+          padding: 4px;
           box-shadow:
-            0 14px 40px rgba(15, 23, 42, 0.18),
-            inset 0 1px 0 rgba(255, 255, 255, 0.82),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.35);
-          backdrop-filter: blur(22px) saturate(180%);
+            0 8px 24px rgba(15, 23, 42, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+          backdrop-filter: blur(20px) saturate(180%);
         }
 
         .highlight-toolbar-group {
           display: flex;
           align-items: center;
-          gap: 4px;
-          min-height: 30px;
-          padding: 3px;
-          background: rgba(255, 255, 255, 0.54);
-          border: 1px solid rgba(15, 23, 42, 0.06);
-          border-radius: 13px;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+          gap: 2px;
+          min-height: 24px;
+          padding: 2px;
+          background: rgba(255, 255, 255, 0.5);
+          border: 1px solid rgba(15, 23, 42, 0.05);
+          border-radius: 10px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
         }
 
         .highlight-toolbar-colors {
-          gap: 3px;
+          gap: 2px;
         }
 
         .highlight-toolbar-actions {
-          gap: 3px;
+          gap: 2px;
         }
 
         .highlight-toolbar-color-btn {
-          width: 22px;
-          height: 22px;
+          width: 18px;
+          height: 18px;
           border: 1px solid;
           border-radius: 999px;
           cursor: pointer;
-          transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
           position: relative;
           box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.48),
-            0 1px 1px rgba(15, 23, 42, 0.08);
+            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            0 1px 2px rgba(15, 23, 42, 0.1);
         }
 
         .highlight-toolbar-color-btn:hover {
-          transform: translateY(-1px);
+          transform: scale(1.15);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.55),
-            0 4px 10px rgba(15, 23, 42, 0.14);
+            0 3px 8px rgba(15, 23, 42, 0.16);
         }
 
         .highlight-toolbar-color-btn.active::after {
@@ -245,26 +256,26 @@ export function HighlightToolbar({
           position: absolute;
           inset: -2px;
           border-radius: inherit;
-          border: 1.5px solid rgba(17, 24, 39, 0.95);
-          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.92);
+          border: 1.5px solid rgba(17, 24, 39, 0.9);
+          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
         }
 
         .highlight-toolbar-note-btn {
           display: flex;
           align-items: center;
-          gap: 5px;
-          height: 24px;
-          padding: 0 10px;
+          gap: 4px;
+          height: 20px;
+          padding: 0 8px;
           background: transparent;
           border: none;
-          border-radius: 10px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 12px;
-          transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+          font-size: 11px;
+          transition: background-color 0.15s ease, transform 0.15s ease;
         }
 
         .highlight-toolbar-note-btn:hover {
-          background: rgba(15, 23, 42, 0.08);
+          background: rgba(15, 23, 42, 0.07);
           transform: translateY(-1px);
         }
 
@@ -272,34 +283,36 @@ export function HighlightToolbar({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 14px;
-          height: 14px;
+          width: 12px;
+          height: 12px;
           border-radius: 999px;
-          background: rgba(15, 23, 42, 0.1);
+          background: rgba(15, 23, 42, 0.09);
           color: #111827;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
           line-height: 1;
         }
 
         .highlight-toolbar-note-text {
           font-weight: 600;
-          color: #111827;
+          color: #374151;
           letter-spacing: -0.01em;
+          font-size: 11px;
         }
 
         .highlight-toolbar-ai-btn {
           display: flex;
           align-items: center;
-          gap: 4px;
-          height: 24px;
-          padding: 0 10px;
+          justify-content: center;
+          gap: 3px;
+          height: 20px;
+          min-width: 20px;
+          padding: 0 6px;
           background: linear-gradient(135deg, #6366f1, #8b5cf6);
           border: none;
-          border-radius: 10px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 12px;
-          transition: opacity 0.18s ease, transform 0.18s ease;
+          transition: opacity 0.15s ease, transform 0.15s ease;
           color: #fff;
         }
 
@@ -309,37 +322,36 @@ export function HighlightToolbar({
         }
 
         .highlight-toolbar-ai-icon {
-          font-size: 10px;
+          font-size: 9px;
           line-height: 1;
         }
 
         .highlight-toolbar-ai-text {
           font-weight: 700;
           letter-spacing: 0.02em;
-          font-size: 11px;
+          font-size: 10px;
         }
 
         .highlight-toolbar-close-btn {
-          width: 24px;
-          height: 24px;
+          width: 20px;
+          height: 20px;
           border: none;
           background: transparent;
-          border-radius: 10px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: lowercase;
+          font-size: 11px;
+          font-weight: 600;
           line-height: 1;
-          color: #6b7280;
-          transition: background-color 0.18s ease, color 0.18s ease;
+          color: #9ca3af;
+          transition: background-color 0.15s ease, color 0.15s ease;
           display: flex;
           align-items: center;
           justify-content: center;
         }
 
         .highlight-toolbar-close-btn:hover {
-          background: rgba(15, 23, 42, 0.08);
-          color: #111827;
+          background: rgba(15, 23, 42, 0.07);
+          color: #374151;
         }
 
         .sr-only {
@@ -357,35 +369,31 @@ export function HighlightToolbar({
         @media (prefers-color-scheme: dark) {
           .highlight-toolbar-content {
             background:
-              linear-gradient(180deg, rgba(58, 58, 60, 0.9), rgba(38, 38, 40, 0.82));
+              linear-gradient(180deg, rgba(52, 52, 56, 0.92), rgba(36, 36, 40, 0.86));
             border-color: rgba(255, 255, 255, 0.08);
             box-shadow:
-              0 18px 40px rgba(0, 0, 0, 0.34),
-              inset 0 1px 0 rgba(255, 255, 255, 0.16),
-              inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+              0 10px 28px rgba(0, 0, 0, 0.38),
+              inset 0 1px 0 rgba(255, 255, 255, 0.12),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.03);
           }
 
           .highlight-toolbar-group {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-          }
-
-          .highlight-toolbar-note-btn {
-            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.07);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
           }
 
           .highlight-toolbar-note-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.1);
           }
 
           .highlight-toolbar-note-icon {
-            background: rgba(255, 255, 255, 0.12);
-            color: #f5f5f5;
+            background: rgba(255, 255, 255, 0.11);
+            color: #e5e7eb;
           }
 
           .highlight-toolbar-note-text {
-            color: #f5f5f5;
+            color: #d1d5db;
           }
 
           .highlight-toolbar-ai-btn {
@@ -393,33 +401,33 @@ export function HighlightToolbar({
           }
 
           .highlight-toolbar-close-btn {
-            color: #b8c0cc;
+            color: #9ca3af;
           }
 
           .highlight-toolbar-close-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.09);
+            color: #e5e7eb;
           }
 
           .highlight-toolbar-color-btn.active::after {
-            border-color: #f8fafc;
-            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.75);
+            border-color: #f9fafb;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.7);
           }
         }
 
         @media (max-width: 640px) {
           .highlight-toolbar-content {
-            gap: 5px;
-            padding: 4px;
+            gap: 3px;
+            padding: 3px;
           }
 
           .highlight-toolbar-color-btn {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
           }
 
           .highlight-toolbar-note-btn {
-            width: 28px;
+            width: 24px;
             padding: 0;
             justify-content: center;
           }
@@ -429,8 +437,7 @@ export function HighlightToolbar({
           }
 
           .highlight-toolbar-ai-btn {
-            padding: 0 7px;
-            min-width: 26px;
+            padding: 0 6px;
           }
         }
       `}</style>

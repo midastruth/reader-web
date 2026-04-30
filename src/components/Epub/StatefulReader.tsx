@@ -137,6 +137,9 @@ export const StatefulReader = ({
   );
 };
 
+const normalizeHrefForReadingOrder = (href: string): string =>
+  decodeURIComponent(href).split('#')[0].split('?')[0];
+
 const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookSha256 }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; bookSha256?: string }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
@@ -279,6 +282,14 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
       dispatch(setTimeline(timeline));
     }
   });
+
+  const getReadingOrderPosition = useCallback((href: string): number | undefined => {
+    const normalizedHref = normalizeHrefForReadingOrder(href);
+    const index = publication.readingOrder?.items?.findIndex(
+      item => normalizeHrefForReadingOrder(item.href) === normalizedHref
+    );
+    return index !== undefined && index >= 0 ? index : undefined;
+  }, [publication]);
 
   const lineHeightOptions = useLineHeight();
 
@@ -695,6 +706,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
             range,
             text: domSelection.toString(),
             href: selectionHref,
+            readingOrderPosition: getReadingOrderPosition(selectionHref),
             boundingClientRect: range.getBoundingClientRect()
           };
 
@@ -712,6 +724,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
               range,
               text: delayedSel.toString(),
               href: selectionHref,
+              readingOrderPosition: getReadingOrderPosition(selectionHref),
               boundingClientRect: range.getBoundingClientRect()
             };
             highlightManagerRef.current!.handleTextSelected(textSelection);
@@ -734,7 +747,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
     contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
     contextMenu: function (_data: ContextMenuEvent): void {},
     peripheral: function (_data: KeyboardEventData): void {},
-  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState]);
+  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, getReadingOrderPosition]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

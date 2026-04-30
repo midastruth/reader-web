@@ -9,7 +9,7 @@ import { defaultPreferences } from "@/preferences/defaultPreferences";
 import { ThPreferencesProvider } from "@/preferences/ThPreferencesProvider";
 import { ThReduxPreferencesAdapter } from "@/lib/ThReduxPreferencesAdapter";
 
-import { RootState } from "@/lib/store";
+import type { RootState } from "@/lib/store";
 
 export const StatefulPreferencesProvider = ({ 
   children,

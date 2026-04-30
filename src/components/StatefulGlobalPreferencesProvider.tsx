@@ -7,7 +7,7 @@ import { ThGlobalPreferences } from "@/preferences/globalPreferences";
 import { ThGlobalPreferencesProvider } from "@/preferences/ThGlobalPreferencesProvider";
 import { ThReduxGlobalPreferencesAdapter } from "@/lib/ThReduxGlobalPreferencesAdapter";
 
-import { RootState } from "@/lib/store";
+import type { RootState } from "@/lib/store";
 
 export const StatefulGlobalPreferencesProvider = ({
   children,

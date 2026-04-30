@@ -1,220 +1,307 @@
 /**
- * Serialization utilities for highlights
+ * Rendering utilities for highlights.
+ *
+ * Primary rendering uses the CSS Custom Highlight API (Obsidian-style): text
+ * decorations are painted by the browser without mutating EPUB content DOM.
+ * The older <mark> wrapping path is kept as a fallback for browsers that do
+ * not support CSS.highlights.
  */
 
 import type { Highlight, HighlightColor } from '@/lib/types/highlights';
-
 import { splitRangeByElements } from './locatorToRange';
-
 
 /**
  * Color to CSS class mapping
  */
 export const HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
-  yellow: '#fff59d',
-  green: '#a5d6a7',
-  blue: '#90caf9',
-  pink: '#f48fb1',
-  orange: '#ffcc80',
-  purple: '#ce93d8',
+  yellow: 'rgba(255, 235, 0, 0.35)',
+  green: 'rgba(165, 214, 167, 0.35)',
+  blue: 'rgba(144, 202, 249, 0.35)',
+  pink: 'rgba(244, 143, 177, 0.35)',
+  orange: 'rgba(255, 204, 128, 0.35)',
+  purple: 'rgba(206, 147, 216, 0.35)',
 };
 
+const SELECTED_HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
+  yellow: 'rgba(255, 235, 0, 0.58)',
+  green: 'rgba(165, 214, 167, 0.58)',
+  blue: 'rgba(144, 202, 249, 0.58)',
+  pink: 'rgba(244, 143, 177, 0.58)',
+  orange: 'rgba(255, 204, 128, 0.58)',
+  purple: 'rgba(206, 147, 216, 0.58)',
+};
+
+const NOTE_MARK_BORDER = '2px solid currentColor';
+
+interface CSSHighlightsRegistry {
+  set(name: string, value: unknown): void;
+  delete(name: string): void;
+}
+
+interface HighlightInstance {
+  add(range: Range): void;
+  clear(): void;
+  priority?: number;
+}
+
+interface RenderedCssHighlightMeta {
+  name: string;
+  color: HighlightColor;
+  hasNote: boolean;
+  selected: boolean;
+  ranges: Range[];
+}
+
+type HighlightConstructor = new (...ranges: Range[]) => HighlightInstance;
+
+function getCssRegistry(doc: Document): CSSHighlightsRegistry | null {
+  return ((doc.defaultView?.CSS as unknown as { highlights?: CSSHighlightsRegistry })?.highlights) ?? null;
+}
+
+function getHighlightConstructor(doc: Document): HighlightConstructor | null {
+  return ((doc.defaultView as unknown as { Highlight?: HighlightConstructor })?.Highlight) ?? null;
+}
+
+function getCssMetaMap(doc: Document): Map<string, RenderedCssHighlightMeta> {
+  const holder = doc as Document & { __thoriumCssHighlights?: Map<string, RenderedCssHighlightMeta> };
+  if (!holder.__thoriumCssHighlights) holder.__thoriumCssHighlights = new Map();
+  return holder.__thoriumCssHighlights;
+}
+
+function getRegistryName(id: string): string {
+  return `thorium_h_${id.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+}
+
+function rebuildDynamicHighlightStyles(doc: Document): void {
+  let style = doc.getElementById('thorium-highlight-dynamic-styles') as HTMLStyleElement | null;
+  if (!style) {
+    style = doc.createElement('style');
+    style.id = 'thorium-highlight-dynamic-styles';
+    doc.head.appendChild(style);
+  }
+
+  const rules: string[] = [];
+  for (const meta of getCssMetaMap(doc).values()) {
+    const bg = HIGHLIGHT_COLORS[meta.color] ?? HIGHLIGHT_COLORS.yellow;
+    const noteDecoration = meta.hasNote
+      ? 'text-decoration-line: underline; text-decoration-color: currentColor; text-decoration-thickness: 2px; text-underline-offset: 0.18em;'
+      : '';
+    const selectedDecoration = meta.selected
+      ? 'text-shadow: 0 0 0.01px currentColor, 0 0 2px currentColor;'
+      : '';
+    const selectedBg = meta.selected ? (SELECTED_HIGHLIGHT_COLORS[meta.color] ?? bg) : bg;
+
+    rules.push(`::highlight(${meta.name}) { background-color: ${selectedBg}; color: inherit; ${noteDecoration} ${selectedDecoration} }`);
+  }
+
+  style.textContent = rules.join('\n');
+}
+
 /**
- * Generate CSS class name for a highlight
+ * Render a highlight with the CSS Custom Highlight API.
+ * Returns false when the browser does not support the API.
+ */
+export function renderCssHighlight(highlight: Highlight, ranges: Range[], doc: Document): boolean {
+  const registry = getCssRegistry(doc);
+  const HighlightCtor = getHighlightConstructor(doc);
+  if (!registry || !HighlightCtor) return false;
+
+  const validRanges = ranges.filter((range) => !range.collapsed && range.toString().trim().length > 0);
+  if (validRanges.length === 0) return true;
+
+  const name = getRegistryName(highlight.id);
+  registry.delete(name);
+
+  const cssHighlight = new HighlightCtor();
+  cssHighlight.priority = 0;
+  validRanges.forEach((range) => cssHighlight.add(range));
+  registry.set(name, cssHighlight);
+
+  getCssMetaMap(doc).set(highlight.id, {
+    name,
+    color: highlight.color,
+    hasNote: !!highlight.note,
+    selected: false,
+    ranges: validRanges,
+  });
+  rebuildDynamicHighlightStyles(doc);
+  return true;
+}
+
+export function removeCssHighlight(highlightId: string, doc: Document): boolean {
+  const registry = getCssRegistry(doc);
+  const meta = getCssMetaMap(doc).get(highlightId);
+  if (!registry || !meta) return false;
+
+  registry.delete(meta.name);
+  getCssMetaMap(doc).delete(highlightId);
+  rebuildDynamicHighlightStyles(doc);
+  return true;
+}
+
+export function removeAllCssHighlights(doc: Document): void {
+  const registry = getCssRegistry(doc);
+  const metaMap = getCssMetaMap(doc);
+
+  if (registry) {
+    for (const meta of metaMap.values()) registry.delete(meta.name);
+  }
+
+  metaMap.clear();
+  rebuildDynamicHighlightStyles(doc);
+}
+
+export function updateCssHighlightAppearance(highlight: Highlight, doc: Document): boolean {
+  const meta = getCssMetaMap(doc).get(highlight.id);
+  if (!meta) return false;
+
+  meta.color = highlight.color;
+  meta.hasNote = !!highlight.note;
+  rebuildDynamicHighlightStyles(doc);
+  return true;
+}
+
+export function getCssHighlightIdsAtPoint(doc: Document, x: number, y: number): string[] {
+  const PAD_Y = 4;
+  const ids: string[] = [];
+
+  for (const [id, meta] of getCssMetaMap(doc)) {
+    for (const range of meta.ranges) {
+      const rects = range.getClientRects();
+      for (let i = 0; i < rects.length; i++) {
+        const rect = rects[i];
+        if (x >= rect.left && x <= rect.right && y >= rect.top - PAD_Y && y <= rect.bottom + PAD_Y) {
+          ids.push(id);
+          break;
+        }
+      }
+      if (ids.includes(id)) break;
+    }
+  }
+
+  return ids;
+}
+
+export function getCssHighlightIdAtPoint(doc: Document, x: number, y: number): string | null {
+  return getCssHighlightIdsAtPoint(doc, x, y)[0] ?? null;
+}
+
+export function selectCssHighlight(highlightId: string, doc: Document): void {
+  const metaMap = getCssMetaMap(doc);
+  for (const [id, meta] of metaMap) meta.selected = id === highlightId;
+  rebuildDynamicHighlightStyles(doc);
+}
+
+export function deselectAllCssHighlights(doc: Document): void {
+  const metaMap = getCssMetaMap(doc);
+  for (const meta of metaMap.values()) meta.selected = false;
+  rebuildDynamicHighlightStyles(doc);
+}
+
+/**
+ * Generate CSS class name for a fallback <mark> highlight.
  */
 export function getHighlightClassName(color: HighlightColor, id: string): string {
   return `thorium-highlight thorium-highlight-${color} thorium-highlight-${id}`;
 }
 
 /**
- * Generate inline styles for a highlight mark element
+ * Generate inline styles for a fallback <mark> element.
  */
 export function getHighlightStyles(color: HighlightColor): string {
-
   const bgColor = HIGHLIGHT_COLORS[color] ?? HIGHLIGHT_COLORS.yellow;
 
   return `
-
     background-color: ${bgColor} !important;
-
     color: inherit !important;
-
     display: inline !important;
-
     -webkit-box-decoration-break: clone;
-
     box-decoration-break: clone;
-
     cursor: pointer;
-
     position: relative;
-
-    padding: 2px 0;
-
+    padding: 0;
     border-radius: 2px;
-
     transition: background-color 0.2s ease;
-
   `.trim();
-
 }
 
-
 /**
- * Create a highlight mark element
+ * Create a fallback <mark> element.
  */
 export function createHighlightMark(
-
   doc: Document,
-
   id: string,
-
   color: HighlightColor,
-
   hasNote: boolean = false
-
 ): HTMLElement {
-
   const mark = doc.createElement('mark');
-
   mark.className = getHighlightClassName(color, id);
-
   mark.setAttribute('data-highlight-id', id);
-
   mark.setAttribute('data-highlight-color', color);
-
-  if (hasNote) {
-
-    mark.setAttribute('data-has-note', 'true');
-
-  }
-
+  if (hasNote) mark.setAttribute('data-has-note', 'true');
   mark.style.cssText = getHighlightStyles(color);
-
-
-
-  // Add note indicator if has note
-
-  if (hasNote) {
-
-    mark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
-
-  }
-
-
-
+  if (hasNote) mark.style.borderBottom = NOTE_MARK_BORDER;
   return mark;
-
 }
 
-
 /**
- * Wrap a range with a highlight mark
+ * Wrap a range with fallback <mark> elements.
  */
 export function wrapRangeWithHighlight(
-
   range: Range,
-
   id: string,
-
   color: HighlightColor,
-
   hasNote: boolean = false
-
 ): HTMLElement | null {
-
   const doc = range.startContainer.ownerDocument || range.endContainer.ownerDocument;
-
   if (!doc) return null;
 
-
-
   const parts = splitRangeByElements(range);
-
   let firstMark: HTMLElement | null = null;
 
-
-
-  // Process from end → start to reduce live-range drift while mutating the DOM.
-
   for (let i = parts.length - 1; i >= 0; i--) {
-
     const part = parts[i];
-
     if (part.collapsed) continue;
 
-
-
     try {
-
       const mark = createHighlightMark(doc, id, color, hasNote);
-
       part.surroundContents(mark);
-
       if (!firstMark) firstMark = mark;
-
       continue;
-
     } catch {
-
-      // Fallback: manual wrapping (less strict than surroundContents)
-
+      // Fallback: manual wrapping.
     }
-
-
 
     try {
-
       const fragment = part.extractContents();
-
       const mark = createHighlightMark(doc, id, color, hasNote);
-
       mark.appendChild(fragment);
-
       part.insertNode(mark);
-
       if (!firstMark) firstMark = mark;
-
     } catch (innerError) {
-
-      if (process.env.NODE_ENV !== 'production') {
-
-        console.warn('Failed to wrap highlight sub-range:', innerError);
-
-      }
-
+      if (process.env.NODE_ENV !== 'production') console.warn('Failed to wrap highlight sub-range:', innerError);
     }
-
   }
 
-
-
   return firstMark;
-
 }
 
-
 /**
- * Remove highlight mark from a range
+ * Remove fallback <mark> elements.
  */
 export function unwrapHighlight(highlightId: string, doc: Document): boolean {
   try {
-    const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+    const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
 
     marks.forEach(mark => {
       const parent = mark.parentNode;
       if (parent) {
-        // Move all children out of the mark
-        while (mark.firstChild) {
-          parent.insertBefore(mark.firstChild, mark);
-        }
+        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
         parent.removeChild(mark);
       }
     });
 
-    // Normalize to merge adjacent text nodes
-    doc.body.normalize();
-
+    doc.body?.normalize();
     return marks.length > 0;
   } catch (error) {
     console.error('Failed to unwrap highlight:', error);
@@ -223,7 +310,7 @@ export function unwrapHighlight(highlightId: string, doc: Document): boolean {
 }
 
 /**
- * Update highlight color
+ * Update fallback <mark> color.
  */
 export function updateHighlightColor(
   highlightId: string,
@@ -231,28 +318,16 @@ export function updateHighlightColor(
   doc: Document
 ): boolean {
   try {
-    const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+    const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
 
     marks.forEach(mark => {
       const htmlMark = mark as HTMLElement;
       const oldColor = htmlMark.getAttribute('data-highlight-color');
-
-      // Update class
-      if (oldColor) {
-        htmlMark.classList.remove(`thorium-highlight-${oldColor}`);
-      }
+      if (oldColor) htmlMark.classList.remove(`thorium-highlight-${oldColor}`);
       htmlMark.classList.add(`thorium-highlight-${newColor}`);
-
-      // Update attribute
       htmlMark.setAttribute('data-highlight-color', newColor);
-
-      // Update styles
       htmlMark.style.cssText = getHighlightStyles(newColor);
-
-      // Preserve note indicator if exists
-      if (htmlMark.hasAttribute('data-has-note')) {
-        htmlMark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
-      }
+      if (htmlMark.hasAttribute('data-has-note')) htmlMark.style.borderBottom = NOTE_MARK_BORDER;
     });
 
     return marks.length > 0;
@@ -263,7 +338,7 @@ export function updateHighlightColor(
 }
 
 /**
- * Update highlight note indicator
+ * Update fallback <mark> note indicator.
  */
 export function updateHighlightNoteIndicator(
   highlightId: string,
@@ -271,14 +346,13 @@ export function updateHighlightNoteIndicator(
   doc: Document
 ): boolean {
   try {
-    const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
+    const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
 
     marks.forEach(mark => {
       const htmlMark = mark as HTMLElement;
-
       if (hasNote) {
         htmlMark.setAttribute('data-has-note', 'true');
-        htmlMark.style.borderBottom = '2px solid rgba(0, 0, 0, 0.3)';
+        htmlMark.style.borderBottom = NOTE_MARK_BORDER;
       } else {
         htmlMark.removeAttribute('data-has-note');
         htmlMark.style.borderBottom = '';
@@ -293,104 +367,82 @@ export function updateHighlightNoteIndicator(
 }
 
 /**
- * Inject CSS styles for highlights into iframe
+ * Inject base CSS styles into iframe.
  */
 export function injectHighlightStyles(doc: Document): void {
-  // Check if styles already injected
-  if (doc.getElementById('thorium-highlight-styles')) {
-    return;
-  }
+  if (doc.getElementById('thorium-highlight-styles')) return;
 
   const style = doc.createElement('style');
   style.id = 'thorium-highlight-styles';
   style.textContent = `
     .thorium-highlight {
-
       position: relative;
-
       cursor: pointer;
-
-      padding: 2px 0;
-
+      padding: 0;
       border-radius: 2px;
-
       color: inherit !important;
-
       display: inline !important;
-
       -webkit-box-decoration-break: clone;
-
       box-decoration-break: clone;
-
       transition: background-color 0.2s ease, opacity 0.2s ease;
-
     }
 
-
-    .thorium-highlight:hover {
-      opacity: 0.8;
-    }
-
-    .thorium-highlight-yellow { background-color: ${HIGHLIGHT_COLORS.yellow} !important; }
-    .thorium-highlight-green { background-color: ${HIGHLIGHT_COLORS.green} !important; }
-    .thorium-highlight-blue { background-color: ${HIGHLIGHT_COLORS.blue} !important; }
-    .thorium-highlight-pink { background-color: ${HIGHLIGHT_COLORS.pink} !important; }
-    .thorium-highlight-orange { background-color: ${HIGHLIGHT_COLORS.orange} !important; }
-    .thorium-highlight-purple { background-color: ${HIGHLIGHT_COLORS.purple} !important; }
-
-    .thorium-highlight[data-has-note="true"] {
-      border-bottom: 2px solid rgba(0, 0, 0, 0.3);
-    }
-
-    .thorium-highlight.selected {
-      outline: 2px solid rgba(0, 0, 0, 0.4);
-      outline-offset: 2px;
-    }
+    .thorium-highlight:hover { opacity: 0.8; }
+    .thorium-highlight-yellow { background-color: ${HIGHLIGHT_COLORS.yellow} !important; }
+    .thorium-highlight-green { background-color: ${HIGHLIGHT_COLORS.green} !important; }
+    .thorium-highlight-blue { background-color: ${HIGHLIGHT_COLORS.blue} !important; }
+    .thorium-highlight-pink { background-color: ${HIGHLIGHT_COLORS.pink} !important; }
+    .thorium-highlight-orange { background-color: ${HIGHLIGHT_COLORS.orange} !important; }
+    .thorium-highlight-purple { background-color: ${HIGHLIGHT_COLORS.purple} !important; }
+    .thorium-highlight[data-has-note="true"] { border-bottom: ${NOTE_MARK_BORDER}; }
+    .thorium-highlight.selected { outline: 2px solid currentColor; outline-offset: 2px; }
   `;
 
   doc.head.appendChild(style);
 }
 
-/**
- * Remove highlight mark (alias for unwrapHighlight)
- */
 export const removeHighlightMark = unwrapHighlight;
-
-/**
- * Toggle highlight note indicator (alias for updateHighlightNoteIndicator)
- */
 export const toggleHighlightNoteIndicator = updateHighlightNoteIndicator;
 
 /**
- * Select a highlight mark
+ * Select a highlight in both rendering modes.
  */
 export function selectHighlightMark(highlightId: string, doc: Document): void {
-  // First deselect all
   deselectAllHighlights(doc);
+  selectCssHighlight(highlightId, doc);
 
-  const marks = doc.querySelectorAll(`[data-highlight-id="${highlightId}"]`);
-  marks.forEach(mark => {
-    (mark as HTMLElement).classList.add('selected');
-  });
+  const marks = doc.querySelectorAll(`.thorium-highlight[data-highlight-id="${highlightId}"]`);
+  marks.forEach(mark => (mark as HTMLElement).classList.add('selected'));
 }
 
 /**
- * Deselect all highlight marks
+ * Deselect highlights in both rendering modes.
  */
 export function deselectAllHighlights(doc: Document): void {
+  deselectAllCssHighlights(doc);
   const selectedMarks = doc.querySelectorAll('.thorium-highlight.selected');
-  selectedMarks.forEach(mark => {
-    (mark as HTMLElement).classList.remove('selected');
-  });
+  selectedMarks.forEach(mark => (mark as HTMLElement).classList.remove('selected'));
 }
 
 /**
- * Get highlight ID from an element (if it is part of a highlight)
+ * Remove every rendered highlight owned by this system from a document.
+ */
+export function clearRenderedHighlights(doc: Document): void {
+  removeAllCssHighlights(doc);
+  const marks = Array.from(doc.querySelectorAll('.thorium-highlight[data-highlight-id]'));
+  marks.forEach(mark => {
+    const parent = mark.parentNode;
+    if (!parent) return;
+    while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+    parent.removeChild(mark);
+  });
+  doc.body?.normalize();
+}
+
+/**
+ * Get highlight ID from a fallback <mark> element.
  */
 export function getHighlightIdFromElement(element: Element): string | null {
   const mark = element.closest('.thorium-highlight');
-  if (mark) {
-    return mark.getAttribute('data-highlight-id');
-  }
-  return null;
+  return mark ? mark.getAttribute('data-highlight-id') : null;
 }

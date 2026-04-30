@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/lib/store';
 import { HighlightSortBy, type Highlight, type HighlightColor } from '@/lib/types/highlights';
+import { buildHighlightSortKey } from '@/core/Highlights/highlightSort';
 
 import { setSelectedHighlight, openNoteEditor } from '@/lib/highlightsReducer';
 
@@ -17,12 +18,12 @@ export interface HighlightsListProps {
 }
 
 const COLOR_LABELS: Record<HighlightColor, { label: string; bg: string }> = {
-  yellow: { label: 'Yellow', bg: '#fff59d' },
-  green: { label: 'Green', bg: '#a5d6a7' },
-  blue: { label: 'Blue', bg: '#90caf9' },
-  pink: { label: 'Pink', bg: '#f48fb1' },
-  orange: { label: 'Orange', bg: '#ffcc80' },
-  purple: { label: 'Purple', bg: '#ce93d8' },
+  yellow: { label: 'Yellow', bg: 'rgba(255, 235, 0, 0.35)' },
+  green: { label: 'Green', bg: 'rgba(165, 214, 167, 0.35)' },
+  blue: { label: 'Blue', bg: 'rgba(144, 202, 249, 0.35)' },
+  pink: { label: 'Pink', bg: 'rgba(244, 143, 177, 0.35)' },
+  orange: { label: 'Orange', bg: 'rgba(255, 204, 128, 0.35)' },
+  purple: { label: 'Purple', bg: 'rgba(206, 147, 216, 0.35)' },
 };
 
 export function HighlightsList({ onHighlightClick, onJumpToHighlight }: HighlightsListProps) {
@@ -66,15 +67,15 @@ export function HighlightsList({ onHighlightClick, onJumpToHighlight }: Highligh
     filtered.sort((a, b) => {
       switch (sortBy) {
         case HighlightSortBy.POSITION:
-
-          return (a.locator.locations.progression || 0) - (b.locator.locations.progression || 0);
+          return (a.sortKey ?? buildHighlightSortKey(a)).localeCompare(b.sortKey ?? buildHighlightSortKey(b));
         case HighlightSortBy.CREATED:
 
           return b.createdAt - a.createdAt;
         case HighlightSortBy.UPDATED:
 
           return b.updatedAt - a.updatedAt;
-        case HighlightSortBy.COLOR:
+        case HighlightSortBy.COLOR:
+
           return a.color.localeCompare(b.color);
         default:
           return 0;

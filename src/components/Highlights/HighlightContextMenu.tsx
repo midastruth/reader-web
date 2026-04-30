@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import { updateHighlight, deleteHighlight, openNoteEditor } from '@/lib/highlightsReducer';
-import HighlightsDB from '@/core/Storage/HighlightsDB';
+import { highlightService } from '@/core/Highlights';
 
 export interface HighlightContextMenuProps {
   highlight: Highlight;
@@ -23,12 +23,12 @@ const COLOR_OPTIONS: Array<{
   label: string;
   bg: string;
 }> = [
-    { color: HighlightColor.YELLOW, label: 'Yellow', bg: '#fff59d' },
-    { color: HighlightColor.GREEN, label: 'Green', bg: '#a5d6a7' },
-    { color: HighlightColor.BLUE, label: 'Blue', bg: '#90caf9' },
-    { color: HighlightColor.PINK, label: 'Pink', bg: '#f48fb1' },
-    { color: HighlightColor.ORANGE, label: 'Orange', bg: '#ffcc80' },
-    { color: HighlightColor.PURPLE, label: 'Purple', bg: '#ce93d8' },
+    { color: HighlightColor.YELLOW, label: 'Yellow', bg: 'rgba(255, 235, 0, 0.35)' },
+    { color: HighlightColor.GREEN, label: 'Green', bg: 'rgba(165, 214, 167, 0.35)' },
+    { color: HighlightColor.BLUE, label: 'Blue', bg: 'rgba(144, 202, 249, 0.35)' },
+    { color: HighlightColor.PINK, label: 'Pink', bg: 'rgba(244, 143, 177, 0.35)' },
+    { color: HighlightColor.ORANGE, label: 'Orange', bg: 'rgba(255, 204, 128, 0.35)' },
+    { color: HighlightColor.PURPLE, label: 'Purple', bg: 'rgba(206, 147, 216, 0.35)' },
   ];
 
 export function HighlightContextMenu({
@@ -43,11 +43,10 @@ export function HighlightContextMenu({
 
   const handleColorChange = useCallback(async (color: HighlightColor) => {
     try {
-      // Update in database
-      await HighlightsDB.updateHighlight(highlight.id, { color });
+      const updated = await highlightService.update(highlight.id, { color });
 
       // Update in Redux
-      dispatch(updateHighlight({ id: highlight.id, updates: { color } }));
+      dispatch(updateHighlight({ id: highlight.id, updates: updated }));
 
       // Notify parent
       onColorChange?.(color);
@@ -74,8 +73,7 @@ export function HighlightContextMenu({
     }
 
     try {
-      // Delete from database
-      await HighlightsDB.deleteHighlight(highlight.id);
+      await highlightService.delete(highlight.id);
 
       // Delete from Redux
       dispatch(deleteHighlight(highlight.id));
@@ -129,7 +127,7 @@ export function HighlightContextMenu({
               className="highlight-context-menu-action-btn"
               onClick={handleEditNote}
             >
-              <span className="icon">✏️</span>
+              <span className="icon">✎</span>
               {t('highlights.note.edit', 'Edit Note')}
             </button>
           ) : (
@@ -137,7 +135,7 @@ export function HighlightContextMenu({
               className="highlight-context-menu-action-btn"
               onClick={handleAddNote}
             >
-              <span className="icon">📝</span>
+              <span className="icon">✎</span>
               {t('highlights.note.add', 'Add Note')}
             </button>
           )}
@@ -146,8 +144,8 @@ export function HighlightContextMenu({
             className="highlight-context-menu-action-btn delete-btn"
             onClick={handleDelete}
           >
-            <span className="icon">🗑️</span>
-            {t('highlights.delete', 'Delete Highlight')}
+            <span className="icon">⌫</span>
+            {t('highlights.delete', 'Delete')}
           </button>
         </div>
 
@@ -167,173 +165,202 @@ export function HighlightContextMenu({
         }
 
         .highlight-context-menu-content {
-          background: white;
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-          min-width: 240px;
-          padding: 12px;
+          background: rgba(255, 255, 255, 0.96);
+          border: 1px solid rgba(15, 23, 42, 0.09);
+          border-radius: 14px;
+          box-shadow:
+            0 8px 28px rgba(15, 23, 42, 0.14),
+            0 2px 8px rgba(15, 23, 42, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+          min-width: 176px;
+          padding: 6px;
+          position: relative;
+          backdrop-filter: blur(16px) saturate(180%);
         }
 
         .highlight-context-menu-section {
-          padding: 8px 0;
+          padding: 4px 0;
         }
 
         .highlight-context-menu-section:not(:last-child) {
-          border-bottom: 1px solid #e8e8e8;
+          border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+          margin-bottom: 2px;
+          padding-bottom: 6px;
         }
 
         .highlight-context-menu-label {
-          font-size: 12px;
+          font-size: 10px;
           font-weight: 600;
-          color: #666;
-          margin-bottom: 8px;
+          color: #9ca3af;
+          margin-bottom: 6px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.6px;
+          padding: 0 4px;
         }
 
         .highlight-context-menu-colors {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 0 2px;
         }
 
         .highlight-context-menu-color-btn {
-          width: 100%;
-          aspect-ratio: 1;
-          border: 2px solid #e0e0e0;
-          border-radius: 6px;
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          border: 1.5px solid rgba(15, 23, 42, 0.12);
+          border-radius: 999px;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .highlight-context-menu-color-btn:hover {
-          transform: scale(1.05);
-          border-color: #999;
+          transform: scale(1.18);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.55),
+            0 3px 8px rgba(15, 23, 42, 0.16);
         }
 
         .highlight-context-menu-color-btn.active {
-          border-color: #333;
-          border-width: 3px;
+          border-color: rgba(17, 24, 39, 0.85);
+          border-width: 2px;
+          box-shadow:
+            0 0 0 1.5px rgba(255, 255, 255, 0.9),
+            0 0 0 3px rgba(17, 24, 39, 0.7);
         }
 
         .check-mark {
-          font-size: 18px;
-          font-weight: bold;
-          color: #333;
+          font-size: 10px;
+          font-weight: 700;
+          color: rgba(17, 24, 39, 0.8);
+          line-height: 1;
         }
 
         .highlight-context-menu-action-btn {
           width: 100%;
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 10px 12px;
+          gap: 7px;
+          padding: 6px 8px;
           background: transparent;
           border: none;
-          border-radius: 6px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 14px;
+          font-size: 12.5px;
           font-weight: 500;
-          color: #333;
-          transition: background-color 0.2s ease;
+          color: #374151;
+          transition: background-color 0.15s ease;
           text-align: left;
         }
 
         .highlight-context-menu-action-btn:hover {
-          background: #f5f5f5;
+          background: rgba(15, 23, 42, 0.06);
         }
 
         .highlight-context-menu-action-btn.delete-btn {
-          color: #d32f2f;
+          color: #ef4444;
         }
 
         .highlight-context-menu-action-btn.delete-btn:hover {
-          background: #ffebee;
+          background: rgba(239, 68, 68, 0.08);
         }
 
         .highlight-context-menu-action-btn .icon {
-          font-size: 16px;
-          min-width: 20px;
+          font-size: 13px;
+          min-width: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0.7;
         }
 
         .highlight-context-menu-close-btn {
           position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 24px;
-          height: 24px;
+          top: 6px;
+          right: 6px;
+          width: 20px;
+          height: 20px;
           border: none;
-          background: transparent;
-          border-radius: 4px;
+          background: rgba(15, 23, 42, 0.05);
+          border-radius: 6px;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 11px;
           line-height: 1;
-          color: #666;
+          color: #9ca3af;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.2s ease;
+          transition: background 0.15s ease, color 0.15s ease;
         }
 
         .highlight-context-menu-close-btn:hover {
-          background: #f0f0f0;
-          color: #333;
+          background: rgba(15, 23, 42, 0.1);
+          color: #374151;
         }
 
         @media (prefers-color-scheme: dark) {
           .highlight-context-menu-content {
-            background: #2c2c2c;
-            border-color: #444;
+            background: rgba(30, 30, 34, 0.97);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow:
+              0 10px 32px rgba(0, 0, 0, 0.42),
+              0 2px 8px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.07);
           }
 
-          .highlight-context-menu-section {
-            border-color: #444;
+          .highlight-context-menu-section:not(:last-child) {
+            border-color: rgba(255, 255, 255, 0.06);
           }
 
           .highlight-context-menu-label {
-            color: #aaa;
+            color: #6b7280;
           }
 
           .highlight-context-menu-color-btn {
-            border-color: #555;
-          }
-
-          .highlight-context-menu-color-btn:hover {
-            border-color: #777;
+            border-color: rgba(255, 255, 255, 0.15);
           }
 
           .highlight-context-menu-color-btn.active {
-            border-color: #e0e0e0;
+            border-color: rgba(249, 250, 251, 0.85);
+            box-shadow:
+              0 0 0 1.5px rgba(30, 30, 34, 0.9),
+              0 0 0 3px rgba(249, 250, 251, 0.6);
+          }
+
+          .check-mark {
+            color: rgba(249, 250, 251, 0.85);
           }
 
           .highlight-context-menu-action-btn {
-            color: #e0e0e0;
+            color: #d1d5db;
           }
 
           .highlight-context-menu-action-btn:hover {
-            background: #3a3a3a;
+            background: rgba(255, 255, 255, 0.07);
           }
 
           .highlight-context-menu-action-btn.delete-btn {
-            color: #f44336;
+            color: #f87171;
           }
 
           .highlight-context-menu-action-btn.delete-btn:hover {
-            background: #4a2020;
+            background: rgba(239, 68, 68, 0.12);
           }
 
           .highlight-context-menu-close-btn {
-            color: #aaa;
+            background: rgba(255, 255, 255, 0.06);
+            color: #6b7280;
           }
 
           .highlight-context-menu-close-btn:hover {
-            background: #3a3a3a;
-            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.1);
+            color: #d1d5db;
           }
         }
       `}</style>
