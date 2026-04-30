@@ -128,6 +128,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
 
     // Avoid overlapping UI
     hideToolbar();
+    setChooseMenuState({ visible: false, position: { x: 0, y: 0 }, highlights: [] });
 
     setContextMenuState({
       visible: true,

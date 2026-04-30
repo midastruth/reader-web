@@ -176,16 +176,25 @@ export function locatorToRanges(
   try {
     if (isBlockSerializedRange(serializedRange)) {
       const ranges: Range[] = [];
+      let restoredAllParts = serializedRange.parts.length > 0;
 
       for (const part of serializedRange.parts) {
         const block = getNodeByXPath(part.blockPath, doc);
-        if (block && block.nodeType === Node.ELEMENT_NODE) {
-          const range = rangeFromBlockOffsets(doc, block as Element, part.startOffset, part.endOffset);
-          if (range) ranges.push(range);
+        if (!block || block.nodeType !== Node.ELEMENT_NODE) {
+          restoredAllParts = false;
+          break;
         }
+
+        const range = rangeFromBlockOffsets(doc, block as Element, part.startOffset, part.endOffset);
+        if (!range) {
+          restoredAllParts = false;
+          break;
+        }
+
+        ranges.push(range);
       }
 
-      if (ranges.length > 0) return ranges;
+      if (restoredAllParts) return ranges;
     }
 
     if (isLegacySerializedRange(serializedRange)) {
