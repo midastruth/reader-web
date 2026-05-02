@@ -30,10 +30,14 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<number | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editingNoteIdRef = useRef<string | null>(null);
 
-  // Initialize note text when highlight changes
+  // Sync noteText only when switching to a different highlight — never on the same
+  // highlight's save-triggered update, to avoid clobbering in-flight user input.
   useEffect(() => {
-    if (highlight) {
+    if (!highlight) return;
+    if (editingNoteIdRef.current !== highlight.id) {
+      editingNoteIdRef.current = highlight.id;
       setNoteText(highlight.note || '');
     }
   }, [highlight]);

@@ -91,7 +91,7 @@ export function HighlightContextMenu({
     <div
       className="highlight-context-menu"
       style={{
-        position: 'absolute',
+        position: 'fixed',
         left: position.x,
         top: position.y,
         zIndex: 10000,

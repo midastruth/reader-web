@@ -470,7 +470,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
         <div
           className="highlight-overlap-menu"
           style={{
-            position: 'absolute',
+            position: 'fixed',
             left: chooseMenuState.position.x,
             top: chooseMenuState.position.y,
             zIndex: 10000,
