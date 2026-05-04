@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { Locator, Publication } from "@readium/shared";
-import { ThLineHeightOptions } from "@/preferences/models";
 import { WebPubNavigatorListeners, IContentProtectionConfig } from "@readium/navigator";
 import { ThPreferences } from "@/preferences";
 import { FontMetadata, InjectableFontResources } from "@/preferences/services/fonts";
@@ -27,7 +26,6 @@ interface UseWebPubReaderInitProps {
   injectFontResources: (resources: InjectableFontResources | null) => void;
   removeFontResources: () => void;
   getFontInjectables: (options?: { language?: string } | { key?: string }, optimize?: boolean) => InjectableFontResources | null;
-  lineHeightOptions: Record<ThLineHeightOptions, number | null>;
   contentProtectionConfig?: IContentProtectionConfig;
   onNavigatorReady?: () => void;
   onNavigatorLoaded?: () => void;
@@ -48,7 +46,6 @@ export const useWebPubReaderInit = ({
   injectFontResources,
   removeFontResources,
   getFontInjectables,
-  lineHeightOptions,
   contentProtectionConfig,
   onNavigatorReady,
   onNavigatorLoaded,
@@ -61,7 +58,6 @@ export const useWebPubReaderInit = ({
     fontLanguage,
     hasDisplayTransformability,
     getFontMetadata,
-    lineHeightOptions,
   });
 
   const { injectables } = useWebPubInjectablesConfig({

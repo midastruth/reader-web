@@ -62,7 +62,6 @@ import { useTimeline } from "@/core/Hooks/useTimeline";
 import { useIsScroll, usePositionStorage } from "@/hooks";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
-import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
@@ -264,8 +263,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
       dispatch(setTimeline(timeline));
     }
   });
-
-  const lineHeightOptions = useLineHeight();
 
   const documentTitleFormat = preferences.metadata?.documentTitle?.format;
   
@@ -550,7 +547,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     getFontInjectables,
     fxlThemeKeys,
     reflowThemeKeys,
-    lineHeightOptions,
     arrowsOccupySpace,
     arrowsWidth,
     colorScheme,

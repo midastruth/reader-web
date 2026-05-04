@@ -49,7 +49,6 @@ import { useTimeline } from "@/core/Hooks/useTimeline";
 import { usePositionStorage } from "@/hooks/usePositionStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
-import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
 import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
 import { toggleActionOpen } from "@/lib/actionsReducer";
@@ -185,8 +184,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     }
   });
 
-  const lineHeightOptions = useLineHeight();
-
   const documentTitleFormat = preferences.metadata?.documentTitle?.format;
 
   let documentTitle: string | undefined;
@@ -318,7 +315,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     injectFontResources,
     removeFontResources,
     getFontInjectables,
-    lineHeightOptions,
     contentProtectionConfig: resolveContentProtectionConfig(preferences.contentProtection, t),
     onNavigatorReady: () => {
       dispatch(setLoading(false));
