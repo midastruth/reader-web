@@ -12,8 +12,8 @@ importers:
         specifier: github:edrlab/thorium-locales
         version: thorium-locales@https://codeload.github.com/edrlab/thorium-locales/tar.gz/4a9e7d687d9469ffd1c9fa153cb2b7fc93b15cb8
       '@readium/css':
-        specifier: ^2.0.2
-        version: 2.0.2
+        specifier: ^2.0.3
+        version: 2.0.3
       '@readium/navigator':
         specifier: ^2.5.1
         version: 2.5.1
@@ -1830,8 +1830,8 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  '@readium/css@2.0.2':
-    resolution: {integrity: sha512-2cLkU3NPzLlVxVWPlyxoFTCFE2y5521cQ+sgHnPBAKnOdCh3SltQwd7XodvB+xTGgS4TdVbQmxfr3x1Ke6nZWA==}
+  '@readium/css@2.0.3':
+    resolution: {integrity: sha512-nCMjussYo3Y4lAVHuRtf+dCHC5Bmqy32rJBr5Dllp1hsSsZQ4RAiOdx2nzH6iTRpfnINp0aevHSD8tpSFPHElg==}
 
   '@readium/navigator-html-injectables@2.4.1':
     resolution: {integrity: sha512-Yt5xmwvBWMXX+GMvfYaFgMwFjvYiWAKHWYYNmpVw3IMGYcfAC04SGavA4Evu5oNrqAgb0ImseDGNrofq+/9NGQ==}
@@ -6304,7 +6304,7 @@ snapshots:
       '@react-types/shared': 3.33.0(react@19.2.4)
       react: 19.2.4
 
-  '@readium/css@2.0.2': {}
+  '@readium/css@2.0.3': {}
 
   '@readium/navigator-html-injectables@2.4.1': {}
 
