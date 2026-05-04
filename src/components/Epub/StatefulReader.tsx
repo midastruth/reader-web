@@ -727,7 +727,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
               readingOrderPosition: getReadingOrderPosition(selectionHref),
               boundingClientRect: range.getBoundingClientRect()
             };
-            highlightManagerRef.current!.handleTextSelected(textSelection);
+            highlightManagerRef.current?.handleTextSelected(textSelection);
           } else {
             console.warn("StatefulReader: Still no selection after retry/fallback");
           }
