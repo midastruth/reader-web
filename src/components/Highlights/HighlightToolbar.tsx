@@ -3,7 +3,7 @@
  * Appears when user selects text in the reader
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import type { RootState } from '@/lib/store';
@@ -74,6 +74,19 @@ export function HighlightToolbar({
   const dispatch = useDispatch();
   const activeColor = useSelector((state: RootState) => state.highlights.activeColor);
 
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const [clampedX, setClampedX] = useState(position.x);
+
+  useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return;
+    const toolbarWidth = el.offsetWidth;
+    const safeMargin = 8;
+    const ideal = position.x - toolbarWidth / 2;
+    const max = window.innerWidth - toolbarWidth - safeMargin;
+    setClampedX(Math.min(Math.max(safeMargin, ideal), max));
+  }, [position.x]);
+
   const handleColorClick = useCallback((color: HighlightColor) => {
     dispatch(setActiveColor(color));
     onColorSelect(color);
@@ -91,12 +104,12 @@ export function HighlightToolbar({
 
   return (
     <div
+      ref={toolbarRef}
       className="highlight-toolbar"
       style={{
         position: 'fixed',
-        left: position.x,
+        left: clampedX,
         top: position.y,
-        transform: 'translateX(-50%)',
         zIndex: 10000,
       }}
       onClick={(e) => e.stopPropagation()}
