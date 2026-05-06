@@ -1,4 +1,4 @@
-import { UnstableShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
+import { ShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
 import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
 import {
@@ -224,7 +224,7 @@ export interface ThPreferences<K extends CustomizableKeys = {}> {
   };
   actions: ThActionsPref<K>;
   shortcuts: {
-    representation: UnstableShortcutRepresentation;
+    representation: ShortcutRepresentation;
     joiner?: string;
   };
   docking: ThDockingPref<ThDockingKeys>;

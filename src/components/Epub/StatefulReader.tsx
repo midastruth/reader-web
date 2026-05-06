@@ -86,7 +86,8 @@ import classNames from "classnames";
 import debounce from "debounce";
 import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
-import { NavPeripheralType } from "../../helpers/peripherals";
+import { NavPeripheralType, fromActionPeripheralType } from "../../helpers/peripherals";
+import { toggleActionOpen } from "@/lib/actionsReducer";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
@@ -140,6 +141,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const container = useRef<HTMLDivElement>(null);
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
+  const profile = useAppSelector(state => state.reader.profile);
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const isRTL = useAppSelector(state => state.publication.isRTL);
   const positionsList = useAppSelector(state => state.publication.positionsList);
@@ -489,9 +491,13 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         case NavPeripheralType.moveDown:         moveTo("down");       break;
         case NavPeripheralType.moveHome:         moveTo("home");       break;
         case NavPeripheralType.moveEnd:          moveTo("end");        break;
+        default: {
+          const actionKey = fromActionPeripheralType(data.type);
+          if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+        }
       }
     },
-  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression]);
+  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, profile]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

@@ -5,12 +5,12 @@ import { ThAudioPreferencesContext } from "../ThAudioPreferencesContext";
 import { ThPreferencesContext } from "../ThPreferencesContext";
 import { ThBackLinkPref, ThDockingKeys, ThDockingPref } from "../models";
 import { ThemeTokens } from "./useTheming";
-import { UnstableShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
+import { ShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
 import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 
 export interface SharedPreferences {
   shortcuts: {
-    representation: UnstableShortcutRepresentation;
+    representation: ShortcutRepresentation;
     joiner?: string;
   };
   docking: ThDockingPref<ThDockingKeys>;

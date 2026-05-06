@@ -23,7 +23,6 @@ import {
   BasicTextSelection,
   ContextMenuEvent,
   FrameClickEvent,
-  KeyboardEventData,
   SuspiciousActivityEvent,
 } from "@readium/navigator-html-injectables";
 import { WebPubNavigatorListeners } from "@readium/navigator";
@@ -42,6 +41,7 @@ import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSetti
 import { useWebPubNavigator } from "@/core/Hooks/WebPub";
 import { useWebPubSettingsCache } from "@/core/Hooks/WebPub/useWebPubSettingsCache";
 import { useWebPubReaderInit } from "./Hooks/useReaderInit";
+import { useWebPubKeyboardPeripherals } from "./Hooks/useWebPubKeyboardPeripherals";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useI18n } from "@/i18n/useI18n";
 import { useTimeline } from "@/core/Hooks/useTimeline";
@@ -68,6 +68,8 @@ import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
+import { fromActionPeripheralType } from "@/helpers/peripherals";
+import { toggleActionOpen } from "@/lib/actionsReducer";
 
 export const ExperimentalWebPubStatefulReader = ({
   publication,
@@ -157,6 +159,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const layoutUI = preferences.theming.layout.ui?.webPub || ThLayoutUI.stacked;
 
   const dispatch = useAppDispatch();
+  const profile = useAppSelector(state => state.reader.profile);
+  const keyboardPeripherals = useWebPubKeyboardPeripherals();
 
   const onFsChange = useCallback((isFullscreen: boolean) => {
     dispatch(setFullscreen(isFullscreen));
@@ -271,8 +275,11 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     textSelected: function (_selection: BasicTextSelection): void {},
     contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
     contextMenu: function (_data: ContextMenuEvent): void {},
-    peripheral: function (_data: KeyboardEventData): void {},
-  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive]);
+    peripheral: function (data): void {
+      const actionKey = fromActionPeripheralType(data.type);
+      if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+    },
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, profile]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
@@ -293,6 +300,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     getFontInjectables,
     lineHeightOptions,
     contentProtectionConfig: resolveContentProtectionConfig(preferences.contentProtection, t),
+    keyboardPeripherals,
     onNavigatorReady: () => {
       dispatch(setLoading(false));
     },

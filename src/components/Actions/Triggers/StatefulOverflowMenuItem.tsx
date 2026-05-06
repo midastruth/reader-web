@@ -5,12 +5,13 @@ import React from "react";
 import overflowMenuStyles from "../assets/styles/thorium-web.overflow.module.css";
 
 import { Text } from "react-aria-components";
-import { UnstableStatefulShortcut as StatefulShortcut } from "./UnstableStatefulShortcut";
+import { StatefulShortcut } from "./StatefulShortcut";
 
 import { ThMenuItem, ThMenuItemProps } from "@/core/Components/Menu/ThMenuItem";
+import type { ThShortcutConfig } from "@/preferences/models/actions";
 
 export interface StatefulOverflowMenuItemProps extends Omit<ThMenuItemProps, "shortcut"> {
-  shortcut?: string | null
+  shortcut?: ThShortcutConfig | null
 }
 
 export const StatefulOverflowMenuItem = ({
@@ -40,8 +41,8 @@ export const StatefulOverflowMenuItem = ({
         { label }
       </Text>
       { shortcut && <StatefulShortcut
-        className={ overflowMenuStyles.menuItemShortcut } 
-        rawForm={ shortcut } 
+        className={ overflowMenuStyles.menuItemShortcut }
+        combo={ shortcut }
       /> }
     </ThMenuItem>
     </>

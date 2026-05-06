@@ -1,4 +1,4 @@
-import { UnstableShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
+import { ShortcutRepresentation } from "@/core/Helpers/keyboardUtilities";
 import { BreakpointsMap } from "@/core/Hooks/useBreakpoints";
 import { ThemeTokens } from "@/preferences/hooks/useTheming";
 import { ThCollapsibility } from "@/core/Components/Actions/hooks/useCollapsibility";
@@ -183,7 +183,7 @@ export interface ThAudioPreferences<K extends AudioCustomizableKeys = {}> {
   };
 
   shortcuts: {
-    representation: UnstableShortcutRepresentation;
+    representation: ShortcutRepresentation;
     joiner?: string;
   };
 

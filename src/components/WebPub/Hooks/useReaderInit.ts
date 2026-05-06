@@ -12,6 +12,7 @@ import { WebPubStatelessCache } from "@/core/Hooks/WebPub/useWebPubSettingsCache
 import { useWebPubPreferencesConfig } from "./usePreferencesConfig";
 import { useWebPubInjectablesConfig } from "./useInjectablesConfig";
 import { useWebPubNavigator, WebPubNavigatorLoadProps } from "@/core/Hooks/WebPub/useWebPubNavigator";
+import { IKeyboardPeripheralsConfig } from "@readium/navigator";
 
 interface UseWebPubReaderInitProps {
   container: React.RefObject<HTMLDivElement | null>;
@@ -29,6 +30,7 @@ interface UseWebPubReaderInitProps {
   getFontInjectables: (options?: { language?: string } | { key?: string }, optimize?: boolean) => InjectableFontResources | null;
   lineHeightOptions: Record<ThLineHeightOptions, number | null>;
   contentProtectionConfig?: IContentProtectionConfig;
+  keyboardPeripherals?: IKeyboardPeripheralsConfig;
   onNavigatorReady?: () => void;
   onNavigatorLoaded?: () => void;
   onCleanup?: () => void;
@@ -50,6 +52,7 @@ export const useWebPubReaderInit = ({
   getFontInjectables,
   lineHeightOptions,
   contentProtectionConfig,
+  keyboardPeripherals,
   onNavigatorReady,
   onNavigatorLoaded,
   onCleanup,
@@ -99,6 +102,7 @@ export const useWebPubReaderInit = ({
       },
       injectables,
       contentProtection: contentProtectionConfig,
+      keyboardPeripherals,
     };
 
     isNavigatorLoadedWebPub.current = true;

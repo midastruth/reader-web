@@ -8,3 +8,10 @@ export const NavPeripheralType = {
   moveHome:         "th_nav_move_home",
   moveEnd:          "th_nav_move_end",
 } as const;
+
+export const ACTION_PERIPHERAL_PREFIX = "th_action_" as const;
+
+export const toActionPeripheralType = (key: string) => `${ ACTION_PERIPHERAL_PREFIX }${ key }`;
+
+export const fromActionPeripheralType = (type: string): string | null =>
+  type.startsWith(ACTION_PERIPHERAL_PREFIX) ? type.slice(ACTION_PERIPHERAL_PREFIX.length) : null;
