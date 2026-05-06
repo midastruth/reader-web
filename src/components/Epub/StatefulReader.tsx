@@ -48,8 +48,7 @@ import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderArrowButton } from "../StatefulReaderArrowButton";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
-import { HighlightManager, type HighlightManagerHandle } from "../Highlights/HighlightManager";
-import type { TextSelection } from "../Highlights/hooks/useHighlightSelection";
+import { StatefulEpubHighlightManager } from "./StatefulEpubHighlightManager";
 import { PositionStorage, StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 
 import { usePreferences } from "@/preferences/hooks/usePreferences";
@@ -57,6 +56,7 @@ import { useGlobalPreferences } from "@/preferences/hooks/useGlobalPreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 import { useEpubStatelessCache } from "./Hooks/useEpubStatelessCache";
 import { useEpubReaderInit } from "./Hooks/useReaderInit";
+import { useEpubHighlightBridge } from "./Hooks/useEpubHighlightBridge";
 import { useEpubNavigator } from "@/core/Hooks/Epub/useEpubNavigator";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { usePrevious } from "@/core/Hooks/usePrevious";
@@ -138,9 +138,6 @@ export const StatefulReader = ({
   );
 };
 
-const normalizeHrefForReadingOrder = (href: string): string =>
-  decodeURIComponent(href).split('#')[0].split('?')[0];
-
 const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookSha256, containerRefSetter }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; bookSha256?: string; containerRefSetter?: (el: Element | null) => void }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
@@ -152,19 +149,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
   const { injectFontResources, removeFontResources, getAndroidFXLPatch } = useFonts();
   const container = useRef<HTMLDivElement>(null);
 
-  const highlightManagerRef = useRef<HighlightManagerHandle | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const pendingHighlightRestoresRef = useRef<Array<{ iframe: HTMLIFrameElement; href: string }>>([]);
-
-  const setHighlightManagerHandle = useCallback((handle: HighlightManagerHandle | null) => {
-    highlightManagerRef.current = handle;
-    if (!handle) return;
-    const pending = pendingHighlightRestoresRef.current;
-    pendingHighlightRestoresRef.current = [];
-    pending.forEach(({ iframe, href }) => {
-      void handle.restoreForIframe(iframe, href);
-    });
-  }, []);
   const arrowsWidth = useRef(2 * ((preferences.theming.arrow.size || 40) + (preferences.theming.arrow.offset || 0)));
 
   const isFXL = useAppSelector(state => state.publication.isFXL);
@@ -273,6 +257,18 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
     submitPreferences
   } = epubNavigator;
 
+  const {
+    iframeRef,
+    setHighlightManagerHandle,
+    restoreHighlightsForLoadedFrames,
+    handleTextSelected
+  } = useEpubHighlightBridge({
+    container,
+    publication,
+    getCframes,
+    currentLocator
+  });
+
   const { setLocalData, getLocalData, localData } = usePositionStorage(localDataKey, positionStorage);
 
   const timeline = useTimeline({
@@ -284,14 +280,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
       dispatch(setTimeline(timeline));
     }
   });
-
-  const getReadingOrderPosition = useCallback((href: string): number | undefined => {
-    const normalizedHref = normalizeHrefForReadingOrder(href);
-    const index = publication.readingOrder?.items?.findIndex(
-      item => normalizeHrefForReadingOrder(item.href) === normalizedHref
-    );
-    return index !== undefined && index >= 0 ? index : undefined;
-  }, [publication]);
 
   const lineHeightOptions = useLineHeight();
 
@@ -497,80 +485,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
 
       p.observe(window);
 
-
-
-      // Highlights: restore for currently loaded frame(s)
-
-      try {
-
-        const loadedIframe = (_wnd.frameElement as HTMLIFrameElement | null) || null;
-
-        if (loadedIframe) {
-
-          iframeRef.current = loadedIframe;
-
-        }
-
-
-
-        const locatorHref = currentLocator()?.href;
-
-
-
-        _cframes?.forEach((frameManager: FrameManager | FXLFrameManager | undefined) => {
-
-          if (!frameManager) return;
-
-
-
-          const iframe = frameManager.iframe;
-
-
-
-          const href =
-
-            ("debugHref" in frameManager ? (frameManager as FXLFrameManager).debugHref : undefined) ||
-
-            iframe.dataset.originalHref ||
-
-            locatorHref;
-
-
-
-          if (!href) return;
-
-
-
-          iframe.dataset.originalHref = href;
-
-          const handle = highlightManagerRef.current;
-
-          if (handle) {
-
-            void handle.restoreForIframe(iframe, href);
-
-            return;
-
-          }
-
-
-
-          const pending = pendingHighlightRestoresRef.current;
-
-          if (!pending.some((item) => item.iframe === iframe && item.href === href)) {
-
-            pending.push({ iframe, href });
-
-          }
-
-
-        });
-
-      } catch (error) {
-
-        console.warn("StatefulReader: failed to restore highlights for loaded frame", error);
-
-      }
+      await restoreHighlightsForLoadedFrames(_wnd);
 
     },
 
@@ -638,118 +553,12 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
       return false;
     },
     textSelected: function (selection: BasicTextSelection): void {
-      if (!selection) {
-        console.warn("StatefulReader: selection is null");
-        return;
-      }
-
-      if (!iframeRef.current && container.current) {
-        const iframe = container.current.querySelector("iframe");
-        if (iframe) {
-          iframeRef.current = iframe;
-        }
-      }
-
-      const frames = selection.targetFrameSrc ? getCframes() : undefined;
-      const matchingFrame = selection.targetFrameSrc
-        ? frames?.find((frame) => frame && frame.source === selection.targetFrameSrc)
-        : undefined;
-
-      if (matchingFrame) {
-        iframeRef.current = matchingFrame.iframe;
-      }
-
-      const selectionHref =
-        (matchingFrame && "debugHref" in matchingFrame ? (matchingFrame as FXLFrameManager).debugHref : undefined) ||
-        matchingFrame?.iframe.dataset.originalHref ||
-        currentLocator()?.href;
-
-      if (!selectionHref) {
-        console.warn("StatefulReader: could not resolve resource href for selection");
-        return;
-      }
-
-      if (iframeRef.current) {
-        iframeRef.current.dataset.originalHref = selectionHref;
-      }
-
-      const isIframeReady = !!iframeRef.current;
-      const isManagerReady = !!highlightManagerRef.current;
-
-      const getSelectionFromIframe = (iframe: HTMLIFrameElement, targetSrc?: string, searchText?: string) => {
-        if (targetSrc && iframe.src && iframe.src !== targetSrc) {
-          console.warn("StatefulReader: Mismatch in iframe src", { found: iframe.src, target: targetSrc });
-        }
-
-        const win = iframe.contentWindow;
-        if (win) {
-          let sel = win.getSelection();
-          if (sel && sel.rangeCount > 0) return sel;
-
-          if (searchText) {
-            sel?.removeAllRanges();
-            const found = (win as any).find(searchText, false, false, true, false, true, false);
-            if (found) {
-              sel = win.getSelection();
-              if (sel && sel.rangeCount > 0) return sel;
-            }
-          }
-        }
-
-        return null;
-      };
-
-      const handleSelectionProcessing = (iframe: HTMLIFrameElement) => {
-        const domSelection = getSelectionFromIframe(iframe, selection.targetFrameSrc);
-
-        if (domSelection && domSelection.rangeCount > 0) {
-          const range = domSelection.getRangeAt(0);
-          const textSelection: TextSelection = {
-            range,
-            text: domSelection.toString(),
-            href: selectionHref,
-            readingOrderPosition: getReadingOrderPosition(selectionHref),
-            boundingClientRect: range.getBoundingClientRect()
-          };
-
-          highlightManagerRef.current!.handleTextSelected(textSelection);
-          return;
-        }
-
-        console.warn("StatefulReader: No DOM selection found (immediate check)");
-
-        setTimeout(() => {
-          const delayedSel = getSelectionFromIframe(iframe, selection.targetFrameSrc, selection.text);
-          if (delayedSel && delayedSel.rangeCount > 0) {
-            const range = delayedSel.getRangeAt(0);
-            const textSelection: TextSelection = {
-              range,
-              text: delayedSel.toString(),
-              href: selectionHref,
-              readingOrderPosition: getReadingOrderPosition(selectionHref),
-              boundingClientRect: range.getBoundingClientRect()
-            };
-            highlightManagerRef.current?.handleTextSelected(textSelection);
-          } else {
-            console.warn("StatefulReader: Still no selection after retry/fallback");
-          }
-        }, 50);
-      };
-
-      if (isIframeReady && isManagerReady) {
-        handleSelectionProcessing(iframeRef.current!);
-      } else {
-        console.error("StatefulReader: Refs missing when handling text selection", {
-          iframeRef: isIframeReady,
-          highlightManagerRef: isManagerReady,
-          publicationLoaded: !!publication
-        });
-      }
+      handleTextSelected(selection);
     },
     contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
     contextMenu: function (_data: ContextMenuEvent): void {},
     peripheral: function (_data: KeyboardEventData): void {},
-  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, getReadingOrderPosition]);
+  }), [p, initReadingEnv, getCframes, restoreHighlightsForLoadedFrames, navLayout, setLocalData, dispatch, handleTap, handleClick, handleTextSelected, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
@@ -801,37 +610,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
     applyConstraint(arrowsOccupySpace ? arrowsWidth.current : 0)
       .catch(console.error);
   }, [arrowsOccupySpace, applyConstraint, navigatorReady]);
-
-  // Track iframe element for highlighting
-  useEffect(() => {
-    if (!container.current) return;
-
-    const observer = new MutationObserver(() => {
-      const iframe = container.current?.querySelector('iframe');
-      if (iframe) {
-        iframeRef.current = iframe;
-
-        try {
-          const doc = iframe.contentDocument;
-          if (doc) {
-            // We can inject styles here if needed, or wait for load
-          }
-        } catch (e) {
-          // Ignored
-        }
-      }
-    });
-
-    observer.observe(container.current, { childList: true, subtree: true });
-
-    // Initial check
-    const iframe = container.current?.querySelector('iframe');
-    if (iframe) {
-      iframeRef.current = iframe;
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   // Theme can also change on colorScheme change so
   // we have to handle this side-effect but we can’t
@@ -960,18 +738,15 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
         </NavigatorProvider>
       </I18nProvider>
 
-      {/* Highlight Manager - handles all highlight functionality */}
-      {publication && (
-        <HighlightManager
-          ref={setHighlightManagerHandle}
-          bookId={bookSha256 ?? localDataKey ?? publication.manifest.linkWithRel("self")?.href ?? ""}
-          bookTitle={publication.metadata.title.getTranslation("en")}
-          bookAuthor={publication.metadata.authors?.items?.map((a: { name: { getTranslation: (lang: string) => string } }) => a.name.getTranslation("en")).join(", ")}
-          currentChapter={timeline.toc?.currentEntry?.title ?? undefined}
-          readingProgress={timeline.progression?.totalProgression ?? currentLocator()?.locations?.totalProgression ?? undefined}
-          iframeRef={iframeRef}
-        />
-      )}
+      <StatefulEpubHighlightManager
+        publication={publication}
+        localDataKey={localDataKey}
+        bookSha256={bookSha256}
+        timeline={timeline}
+        currentLocator={currentLocator}
+        iframeRef={iframeRef}
+        managerRef={setHighlightManagerHandle}
+      />
     </>
   );
 };
