@@ -109,7 +109,8 @@ export const StatefulReader = ({
   localDataKey,
   plugins,
   positionStorage,
-  bookSha256
+  bookSha256,
+  containerRefSetter
 }: StatefulReaderProps) => {
   const [pluginsRegistered, setPluginsRegistered] = useState(false);
 
@@ -131,7 +132,7 @@ export const StatefulReader = ({
   return (
     <>
       <ThPluginProvider>
-        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } bookSha256={ bookSha256 } />
+        <StatefulReaderInner publication={ publication } localDataKey={ localDataKey } positionStorage={ positionStorage } bookSha256={ bookSha256 } containerRefSetter={ containerRefSetter } />
       </ThPluginProvider>
     </>
   );
@@ -140,7 +141,7 @@ export const StatefulReader = ({
 const normalizeHrefForReadingOrder = (href: string): string =>
   decodeURIComponent(href).split('#')[0].split('?')[0];
 
-const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookSha256 }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; bookSha256?: string }) => {
+const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookSha256, containerRefSetter }: { publication: Publication; localDataKey: string | null; positionStorage?: PositionStorage; bookSha256?: string; containerRefSetter?: (el: Element | null) => void }) => {
   const { fxlActionKeys, fxlThemeKeys, reflowActionKeys, reflowThemeKeys } = useFilteredPreferenceKeys();
   const { preferences, getFontMetadata, getFontInjectables } = usePreferences();
   const { preferences: globalPreferences } = useGlobalPreferences();
@@ -201,6 +202,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
   const reducedMotion = useAppSelector(state => state.theming.prefersReducedMotion);
 
   const breakpoint = useAppSelector(state => state.theming.breakpoint);
+  const containerBreakpoint = useAppSelector(state => state.theming.containerBreakpoint);
 
   const isImmersive = useAppSelector(state => state.reader.isImmersive);
   const isHovering = useAppSelector(state => state.reader.isHovering);
@@ -367,7 +369,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
     }
   }, [getCframes, cache, preferences.affordances.scroll, goLeft, goRight, dispatch, activateImmersiveOnAction, toggleIsImmersive]);
 
-  const handleClick = useCallback((event: FrameClickEvent) => {
+  const handleClick = useCallback((_event: FrameClickEvent) => {
     if (
       cache.current.layoutUI === ThLayoutUI.layered &&
       (!cache.current.settings.scroll ||
@@ -879,6 +881,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
           <main className={readerStyles.main}>
             <StatefulDockingWrapper>
               <div
+                ref={containerRefSetter}
                 className={
                   getReaderClassNames({
                     isScroll,
@@ -886,7 +889,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, bookS
                     isHovering,
                     isFXL,
                     layoutUI,
-                    breakpoint
+                    breakpoint,
+                    containerBreakpoint
                   })
                 }
               >
