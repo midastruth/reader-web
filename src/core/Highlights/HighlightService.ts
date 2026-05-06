@@ -5,7 +5,7 @@
  * ReaderHighlight: create, update, delete, stable sorting, and persistence.
  */
 
-import { HighlightColor, type Highlight } from '@/lib/types/highlights';
+import { HighlightColor, type Highlight, type SerializedRange } from '@/lib/types/highlights';
 import HighlightAnchors from './HighlightAnchors';
 import highlightRepository, { type HighlightRepository } from './HighlightRepository';
 import { buildHighlightSortKey, sortHighlightsByReadingOrder } from './highlightSort';
@@ -20,6 +20,10 @@ const createHighlightId = (): string => {
 
 function normalizeHref(href: string): string {
   return decodeURIComponent(href).split('#')[0].split('?')[0];
+}
+
+function rangesEqual(a: SerializedRange, b: SerializedRange): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
 }
 
 function normalizeStoredHighlight(highlight: Highlight): Highlight {
@@ -38,6 +42,18 @@ export class HighlightService {
     if (!HighlightAnchors.isValidSelection(input.selection)) return null;
 
     const normalizedRange = HighlightAnchors.normalize(input.selection.range);
+    const serializedRange = HighlightAnchors.serialize(normalizedRange);
+    const locator = HighlightAnchors.toLocator(input.selection, normalizedRange);
+    const normalizedNewHref = normalizeHref(locator.href);
+
+    const existing = await this.repository.byBook(input.bookId);
+    const duplicate = existing.find(
+      (h) =>
+        normalizeHref(h.locator.href) === normalizedNewHref &&
+        rangesEqual(h.range, serializedRange)
+    );
+    if (duplicate) return null;
+
     const now = Date.now();
     const highlight: Highlight = {
       id: createHighlightId(),
@@ -46,8 +62,8 @@ export class HighlightService {
       createdAt: now,
       updatedAt: now,
       note: input.note,
-      locator: HighlightAnchors.toLocator(input.selection, normalizedRange),
-      range: HighlightAnchors.serialize(normalizedRange),
+      locator,
+      range: serializedRange,
       anchorVersion: 2,
     };
     highlight.sortKey = buildHighlightSortKey(highlight);
