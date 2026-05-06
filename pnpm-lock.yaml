@@ -12,14 +12,14 @@ importers:
         specifier: github:edrlab/thorium-locales
         version: thorium-locales@https://codeload.github.com/edrlab/thorium-locales/tar.gz/4a9e7d687d9469ffd1c9fa153cb2b7fc93b15cb8
       '@readium/css':
-        specifier: ^2.0.2
+        specifier: 2.0.2
         version: 2.0.2
       '@readium/navigator':
-        specifier: ^2.5.2-beta.2
-        version: 2.5.2-beta.2
+        specifier: ^2.5.2-beta.3
+        version: 2.5.2-beta.3
       '@readium/navigator-html-injectables':
-        specifier: ^2.4.2-beta.2
-        version: 2.4.2-beta.2
+        specifier: ^2.4.2-beta.3
+        version: 2.4.2-beta.3
       '@readium/shared':
         specifier: ^2.2.0
         version: 2.2.0
@@ -1833,12 +1833,12 @@ packages:
   '@readium/css@2.0.2':
     resolution: {integrity: sha512-2cLkU3NPzLlVxVWPlyxoFTCFE2y5521cQ+sgHnPBAKnOdCh3SltQwd7XodvB+xTGgS4TdVbQmxfr3x1Ke6nZWA==}
 
-  '@readium/navigator-html-injectables@2.4.2-beta.2':
-    resolution: {integrity: sha512-jx7ywnZgjR8L1Wbe38PEfzWtmq/4IE1cMqN2W9iWrAo2jGlpHgUwdy4SCrey0lGpJZSfeZiit7LY/+yWA40SFQ==}
+  '@readium/navigator-html-injectables@2.4.2-beta.3':
+    resolution: {integrity: sha512-fNNvyvwxNP+ckjt1YRyxA933AiaNSctJ9ajhwHRqumRNnn7M97rOIqiAnsLfWFgB4XsEHR5+8Zg6dHbaFXIX7A==}
     engines: {node: '>=18'}
 
-  '@readium/navigator@2.5.2-beta.2':
-    resolution: {integrity: sha512-RBD0AvWmshryZ/FgeyJmpYiS13F7RmlUrsA8+mJH3ODuzccMS/ZCVXLf3OHoPa9M0aXty+8Io0BfsZUBb9gADQ==}
+  '@readium/navigator@2.5.2-beta.3':
+    resolution: {integrity: sha512-cnNt22tPxX07nu5LbZcSlaxjE9qqWpefEzc/LeRivoGc29Au4Olxe1MGFcbzAqgu2ClGScYDx3h5nPgfvMAbHQ==}
     engines: {node: '>=18'}
 
   '@readium/shared@2.2.0':
@@ -6306,9 +6306,9 @@ snapshots:
 
   '@readium/css@2.0.2': {}
 
-  '@readium/navigator-html-injectables@2.4.2-beta.2': {}
+  '@readium/navigator-html-injectables@2.4.2-beta.3': {}
 
-  '@readium/navigator@2.5.2-beta.2': {}
+  '@readium/navigator@2.5.2-beta.3': {}
 
   '@readium/shared@2.2.0':
     dependencies:
