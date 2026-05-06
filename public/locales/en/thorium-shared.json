@@ -285,10 +285,6 @@
                 "light": "Light",
                 "paper": "Paper",
                 "sepia": "Sepia",
-                "solarizedLight": "Solarized Light",
-                "solarizedDark": "Solarized Dark",
-                "gruvboxMaterialDark": "Gruvbox Material Dark",
-                "gruvboxMaterialLight": "Gruvbox Material Light",
                 "title": "Themes"
             },
             "title": "Display Settings",
