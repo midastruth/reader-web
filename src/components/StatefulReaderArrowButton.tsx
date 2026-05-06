@@ -13,7 +13,7 @@ import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 
 import { useAppSelector } from "@/lib/hooks";
 
-import { isActiveElement, isKeyboardTriggered } from "@/core/Helpers/focusUtilities";
+import { isActiveElement } from "@/core/Helpers/focusUtilities";
 
 
 import classNames from "classnames";
@@ -67,10 +67,8 @@ export const StatefulReaderArrowButton = ({
   };
 
   useEffect(() => {
-    const el = buttonRef.current;
-    if (!el || !isActiveElement(el)) return;
-    if (isDisabled || (!hasArrows && !isHovering && !isKeyboardTriggered(el))) {
-      el.blur();
+    if ((isDisabled || (!hasArrows && !isHovering)) && isActiveElement(buttonRef.current)) {
+      buttonRef.current!.blur();
     }
   });
 
@@ -91,6 +89,7 @@ export const StatefulReaderArrowButton = ({
       onKeyDown={ blurOnEsc }
       className={ classNames(className, handleClassNameFromSpaceProp(), handleClassNameFromState()) }
       isDisabled={ isDisabled }
+      preventFocusOnPress={ true }
       { ...props }
       compounds={ {
         tooltipTrigger: {
