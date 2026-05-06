@@ -7,6 +7,29 @@ import { buildShortcut, UnstablePShortcut } from "@/core/Helpers/keyboardUtiliti
 import { isInteractiveElement } from "@/core/Helpers/focusUtilities";
 
 import { useAppStore } from "@/lib/hooks";
+import { IKeyboardPeripheralsConfig } from "@readium/navigator";
+
+export const NavPeripheralType = {
+  progressForward:  "th_nav_progress_forward",
+  progressBackward: "th_nav_progress_backward",
+  moveRight:        "th_nav_move_right",
+  moveLeft:         "th_nav_move_left",
+  moveUp:           "th_nav_move_up",
+  moveDown:         "th_nav_move_down",
+  moveHome:         "th_nav_move_home",
+  moveEnd:          "th_nav_move_end",
+} as const;
+
+export const navKeyboardPeripherals: IKeyboardPeripheralsConfig = [
+  { type: NavPeripheralType.progressForward,  keyCombos: [{ keyCode: 32,             suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.progressBackward, keyCombos: [{ keyCode: 32, shift: true, suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.moveRight,        keyCombos: [{ keyCode: 39,             suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.moveLeft,         keyCombos: [{ keyCode: 37,             suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.moveUp,           keyCombos: [{ keyCode: 38,             suppressOnInteractiveElement: true }, { keyCode: 33, suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.moveDown,         keyCombos: [{ keyCode: 40,             suppressOnInteractiveElement: true }, { keyCode: 34, suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.moveHome,         keyCombos: [{ keyCode: 36,             suppressOnInteractiveElement: true }] },
+  { type: NavPeripheralType.moveEnd,          keyCombos: [{ keyCode: 35,             suppressOnInteractiveElement: true }] },
+];
 
 export interface PCallbacks {
   moveTo: (direction: "left" | "right" | "up" | "down" | "home" | "end") => void;

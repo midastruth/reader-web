@@ -11,7 +11,6 @@ import readerStyles from "../assets/styles/thorium-web.reader.app.module.css";
 import arrowStyles from "../assets/styles/thorium-web.reader.paginatedArrow.module.css";
 
 import {
-  ThActionsKeys,
   ThLayoutDirection,
   ThLayoutUI,
   ThDocumentTitleFormat,
@@ -30,14 +29,9 @@ import {
   BasicTextSelection,
   ContextMenuEvent,
   FrameClickEvent,
-  KeyboardEventData,
   SuspiciousActivityEvent
 } from "@readium/navigator-html-injectables";
-import { 
-  EpubNavigatorListeners, 
-  FrameManager, 
-  FXLFrameManager
-} from "@readium/navigator";
+import { EpubNavigatorListeners, KeyboardPeripheralEventData } from "@readium/navigator";
 import { 
   Locator, 
   Publication, 
@@ -66,8 +60,7 @@ import { useLineHeight } from "../Settings/Spacing/hooks/useLineHeight";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 import { useFonts } from "@/core/Hooks/fonts/useFonts";
 
-import { toggleActionOpen } from "@/lib/actionsReducer";
-import { useAppSelector, useAppDispatch, useAppStore } from "@/lib/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 
 import { 
   setTheme 
@@ -93,7 +86,8 @@ import classNames from "classnames";
 import debounce from "debounce";
 import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
-import Peripherals from "../../helpers/peripherals";
+import { NavPeripheralType, navKeyboardPeripherals } from "../../helpers/peripherals";
+import { isInteractiveElement } from "@/core/Helpers/focusUtilities";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
@@ -234,7 +228,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const onFsChange = useCallback((isFullscreen: boolean) => {
     dispatch(setFullscreen(isFullscreen));
   }, [dispatch]);
-  const fs = useFullscreen(onFsChange);
+  
+  useFullscreen(onFsChange);
 
   const epubNavigator = useEpubNavigator();
   const { 
@@ -386,80 +381,38 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     }
   }, [navLayout, currentLocator, handleFXLProgression]);
 
-  const appStore = useAppStore();
+  const moveTo = useCallback((direction: "left" | "right" | "up" | "down" | "home" | "end") => {
+    const navigationCallback = () => {
+      dispatch(setUserNavigated(true));
+      activateImmersiveOnAction();
+    };
+    switch (direction) {
+      case "right":
+        !cache.current.settings.scroll && goRight(!cache.current.reducedMotion, navigationCallback);
+        break;
+      case "left":
+        !cache.current.settings.scroll && goLeft(!cache.current.reducedMotion, navigationCallback);
+        break;
+      default:
+        break;
+    }
+  }, [dispatch, activateImmersiveOnAction, cache, goRight, goLeft]);
 
-  const p = useMemo(() => new Peripherals(appStore, preferences.actions, {
-    moveTo: (direction) => {
-      const navigationCallback = () => {
+  const goProgression = useCallback((shiftKey?: boolean) => {
+    if (!cache.current.settings?.scroll) {
+      const cb = () => {
         dispatch(setUserNavigated(true));
         activateImmersiveOnAction();
       };
-
-      switch(direction) {
-        case "right":
-          if (!cache.current.settings.scroll) {
-            goRight(!cache.current.reducedMotion, navigationCallback);
-          }
-          break;
-        case "left":
-          if (!cache.current.settings.scroll) {
-            goLeft(!cache.current.reducedMotion, navigationCallback);
-          }
-          break;
-        case "up":
-        case "home":
-          // Home should probably go to first column/page of chapter in reflow?
-          break;
-        case "down":
-        case "end":
-          // End should probably go to last column/page of chapter in reflow?
-          break;
-        default:
-          break;
-      }
-    },
-    goProgression: (shiftKey) => {
-      if (!cache.current.settings?.scroll) {
-        const callback = () => {
-          dispatch(setUserNavigated(true));
-          activateImmersiveOnAction();
-        };
-        shiftKey 
-          ? goBackward(!cache.current.reducedMotion, callback)
-          : goForward(!cache.current.reducedMotion, callback);
-      }
-    },
-    toggleAction: (actionKey) => {
-      switch (actionKey) {
-        case ThActionsKeys.fullscreen:
-          fs.handleFullscreen();
-          break;
-        case ThActionsKeys.settings:
-        case ThActionsKeys.toc:
-          dispatch(toggleActionOpen({
-            key: actionKey,
-            profile: "epub"
-          }))
-          break;
-      //  case ThActionsKeys.jumpToPosition:
-        default:
-          break
-      }
+      shiftKey
+        ? goBackward(!cache.current.reducedMotion, cb)
+        : goForward(!cache.current.reducedMotion, cb);
     }
-  }), [appStore, preferences.actions, dispatch, activateImmersiveOnAction, cache, goRight, goLeft, goBackward, goForward, fs]);
+  }, [dispatch, activateImmersiveOnAction, cache, goBackward, goForward]);
 
   const listeners: EpubNavigatorListeners = useMemo(() => ({
     frameLoaded: async function (_wnd: Window): Promise<void> {
       await initReadingEnv();
-      // Warning: this is using navigator's internal methods that will become private, do not rely on them
-      // See https://github.com/edrlab/thorium-web/issues/25
-      const _cframes = getCframes();
-      _cframes?.forEach(
-        (frameManager: FrameManager | FXLFrameManager | undefined) => {
-          if (frameManager) p.observe(frameManager.window);
-        }
-      );
-      p.observe(window);
     },
     positionChanged: async function (locator: Locator): Promise<void> {
       if (navLayout() !== Layout.fixed) {
@@ -527,8 +480,19 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     textSelected: function (_selection: BasicTextSelection): void {},
     contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
     contextMenu: function (_data: ContextMenuEvent): void {},
-    peripheral: function (_data: KeyboardEventData): void {},
-  }), [p, initReadingEnv, getCframes, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState]);
+    peripheral: function (data: KeyboardPeripheralEventData): void {
+      switch (data.type) {
+        case NavPeripheralType.progressForward:  goProgression(false); break;
+        case NavPeripheralType.progressBackward: goProgression(true);  break;
+        case NavPeripheralType.moveRight:        moveTo("right");      break;
+        case NavPeripheralType.moveLeft:         moveTo("left");       break;
+        case NavPeripheralType.moveUp:           moveTo("up");         break;
+        case NavPeripheralType.moveDown:         moveTo("down");       break;
+        case NavPeripheralType.moveHome:         moveTo("home");       break;
+        case NavPeripheralType.moveEnd:          moveTo("end");        break;
+      }
+    },
+  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
@@ -556,14 +520,9 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     colorScheme,
     isFXL,
     contentProtectionConfig: resolveContentProtectionConfig(preferences.contentProtection, t),
+    keyboardPeripherals: navKeyboardPeripherals,
     onNavigatorReady: () => {
       dispatch(setLoading(false));
-    },
-    onNavigatorLoaded: () => {
-      p.observe(window);
-    },
-    onCleanup: () => {
-      p.destroy();
     },
     fxlProgressionCallback: handleFXLProgression
   });
