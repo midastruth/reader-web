@@ -111,6 +111,20 @@
             "controls": "Uppspelningskontroller",
             "mediaControls": "Ljudinställningar",
             "coverAlt": "Omslag för ljudbok"
+        },
+        "remotePlayback": {
+            "trigger": "Fjärruppspelning",
+            "connected": "Fjärruppspelning aktiv"
+        },
+        "settings": {
+            "sleepTimer": {
+                "hours": "h",
+                "minutes": "min",
+                "seconds": "s",
+                "instruction": "Uppspelningen pausas efter den inställda tiden.",
+                "remaining": "Pausar om {{ remaining }}",
+                "start": "Starta sömntimer"
+            }
         }
     }
 }
