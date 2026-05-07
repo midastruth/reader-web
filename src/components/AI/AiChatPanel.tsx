@@ -21,7 +21,11 @@ import {
   type ChatModelAdapter,
 } from "@assistant-ui/react";
 import { Thread, makeMarkdownText } from "@assistant-ui/react-ui";
+import { useSelector } from "react-redux";
 import { aiQueryStream, resolveBook } from "@/services/bookAwareApi";
+import type { RootState } from "@/lib/store";
+import { ThColorScheme } from "@/core/Hooks/useColorScheme";
+import { usePreferences } from "@/preferences/hooks/usePreferences";
 import remarkGfm from "remark-gfm";
 
 const MarkdownText = makeMarkdownText({ remarkPlugins: [remarkGfm] });
@@ -305,6 +309,49 @@ const ACTION_CONTEXT_LABEL: Record<AiAction, string> = {
 
 const MINIMIZE_THRESHOLD = 80;
 const RESTORE_THRESHOLD = 40;
+const CLOSE_ANIMATION_MS = 180;
+
+const DARK_THEME_KEYS = new Set([
+  "dark",
+  "contrast1",
+  "contrast2",
+  "solarizedDark",
+  "gruvboxMaterialDark",
+]);
+
+function relativeLuminanceFromColor(color?: string): number | null {
+  if (!color) return null;
+
+  const normalized = color.trim().toLowerCase();
+  let red: number;
+  let green: number;
+  let blue: number;
+
+  const hexMatch = normalized.match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+  if (hexMatch) {
+    const hex = hexMatch[1].length === 3
+      ? hexMatch[1].split("").map((char) => char + char).join("")
+      : hexMatch[1];
+    red = Number.parseInt(hex.slice(0, 2), 16);
+    green = Number.parseInt(hex.slice(2, 4), 16);
+    blue = Number.parseInt(hex.slice(4, 6), 16);
+  } else {
+    const rgbMatch = normalized.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!rgbMatch) return null;
+    red = Number(rgbMatch[1]);
+    green = Number(rgbMatch[2]);
+    blue = Number(rgbMatch[3]);
+  }
+
+  const toLinear = (value: number) => {
+    const channel = value / 255;
+    return channel <= 0.03928
+      ? channel / 12.92
+      : Math.pow((channel + 0.055) / 1.055, 2.4);
+  };
+
+  return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue);
+}
 
 export function AiChatPanel({
   selectedText,
@@ -316,11 +363,16 @@ export function AiChatPanel({
   progress,
   onClose,
 }: AiChatPanelProps) {
+  const { preferences } = usePreferences();
+  const isFXL = useSelector((state: RootState) => state.publication.isFXL);
+  const themeObject = useSelector((state: RootState) => state.theming.theme);
+  const colorScheme = useSelector((state: RootState) => state.theming.colorScheme);
   const sessionIdRef = useRef<string | undefined>(undefined);
   const bookCacheRef = useRef<{ sha256: string; title: string; author: string } | null>(null);
   const [messageSent, setMessageSent] = useState(false);
 
   const [minimized, setMinimized] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isAiRunning, setIsAiRunning] = useState(false);
   const [dragY, setDragY] = useState(0);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
@@ -328,9 +380,37 @@ export function AiChatPanel({
   const dragStartYRef = useRef<number | null>(null);
   const hasDraggedRef = useRef(false);
   const minimizedRef = useRef(minimized);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => { minimizedRef.current = minimized; }, [minimized]);
 
+  useEffect(() => () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  }, []);
+
   const MINIMIZED_H = 38;
+
+  const isDarkPanel = useMemo(() => {
+    const requestedTheme = isFXL ? themeObject.fxl : themeObject.reflow;
+    const resolvedTheme = requestedTheme === "auto" || !requestedTheme
+      ? preferences.theming.themes.systemThemes?.[colorScheme] ?? (
+        colorScheme === ThColorScheme.dark ? "dark" : "light"
+      )
+      : requestedTheme;
+
+    const themeKeys = preferences.theming.themes.keys;
+    const themeBackground = Object.prototype.hasOwnProperty.call(themeKeys, resolvedTheme)
+      ? themeKeys[resolvedTheme as keyof typeof themeKeys]?.background
+      : undefined;
+    const luminance = relativeLuminanceFromColor(themeBackground);
+
+    return luminance !== null ? luminance < 0.42 : DARK_THEME_KEYS.has(resolvedTheme);
+  }, [colorScheme, isFXL, preferences.theming.themes.keys, preferences.theming.themes.systemThemes, themeObject.fxl, themeObject.reflow]);
+
+  const requestClose = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    closeTimerRef.current = setTimeout(onClose, CLOSE_ANIMATION_MS);
+  }, [isClosing, onClose]);
 
   const handleMinimize = useCallback((e: MouseEvent) => {
     e.stopPropagation();
@@ -406,7 +486,7 @@ export function AiChatPanel({
 
       if (!bookCacheRef.current) {
         const book = await resolveBook(bookId, bookTitle);
-        bookCacheRef.current = { sha256: book.sha256, title: book.title, author: book.author };
+        bookCacheRef.current = { sha256: book.sha256, title: book.title, author: book.author || bookAuthor || "" };
       }
 
       let fullText = "";
@@ -430,7 +510,7 @@ export function AiChatPanel({
         }
       }
     },
-  }), [selectedText, initialAction, bookId, bookTitle, chapter, progress]);
+  }), [selectedText, initialAction, bookId, bookTitle, bookAuthor, chapter, progress]);
 
   const runtime = useLocalRuntime(adapter);
 
@@ -440,14 +520,28 @@ export function AiChatPanel({
     transition: isDragging ? "none" : undefined,
   };
 
+  const overlayClassName = [
+    "aichat-overlay",
+    isDarkPanel ? "aichat-overlay--dark" : "aichat-overlay--light",
+    minimized ? "aichat-overlay--minimized" : "",
+    isClosing ? "aichat-overlay--closing" : "",
+  ].filter(Boolean).join(" ");
+
+  const panelClassName = [
+    "aichat-panel",
+    isDarkPanel ? "dark aichat-panel--dark" : "aichat-panel--light",
+    minimized ? "aichat-panel--minimized" : "",
+    isClosing ? "aichat-panel--closing" : "",
+  ].filter(Boolean).join(" ");
+
   return (
     <>
       <div
-        className={`aichat-overlay${minimized ? " aichat-overlay--minimized" : ""}`}
-        onClick={minimized ? undefined : onClose}
+        className={overlayClassName}
+        onClick={minimized ? undefined : requestClose}
       >
         <div
-          className={`aichat-panel dark${minimized ? " aichat-panel--minimized" : ""}`}
+          className={panelClassName}
           style={panelStyle}
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
@@ -482,7 +576,7 @@ export function AiChatPanel({
                     <IconMinimize />
                   </button>
                 )}
-                <button className="aichat-header-close" onClick={onClose} aria-label="关闭">
+                <button className="aichat-header-close" onClick={requestClose} aria-label="关闭">
                   ✕
                 </button>
               </div>
@@ -516,19 +610,49 @@ export function AiChatPanel({
           position: fixed;
           inset: 0;
           z-index: 20000;
-          background: rgba(0, 0, 0, 0.55);
           display: flex;
           align-items: flex-end;
           justify-content: center;
           transition: background 0.28s ease;
         }
 
-        .aichat-overlay--minimized {
+        .aichat-overlay--dark {
+          background: rgba(0, 0, 0, 0.55);
+        }
+
+        .aichat-overlay--light {
+          background: rgba(60, 46, 26, 0.18);
+        }
+
+        .aichat-overlay--minimized,
+        .aichat-overlay--closing {
           background: transparent;
           pointer-events: none;
         }
 
         .aichat-panel {
+          --aui-radius: 0.75rem;
+          --aui-thread-max-width: 42rem;
+          --aichat-bg: #212121;
+          --aichat-header-bg: #212121;
+          --aichat-text: #eeeeee;
+          --aichat-strong-text: #ffffff;
+          --aichat-muted-text: #9b9b9b;
+          --aichat-subtle-text: #777777;
+          --aichat-faint-text: #5a5a5a;
+          --aichat-border: rgba(255, 255, 255, 0.12);
+          --aichat-border-subtle: rgba(255, 255, 255, 0.06);
+          --aichat-soft-bg: rgba(255, 255, 255, 0.055);
+          --aichat-context-bg: rgba(255, 255, 255, 0.035);
+          --aichat-control-hover: rgba(255, 255, 255, 0.08);
+          --aichat-chip-bg: rgba(255, 255, 255, 0.04);
+          --aichat-chip-hover-bg: rgba(255, 255, 255, 0.08);
+          --aichat-user-bg: rgba(255, 255, 255, 0.08);
+          --aichat-button-bg: #ffffff;
+          --aichat-button-text: #000000;
+          --aichat-scrollbar: rgba(255, 255, 255, 0.16);
+          --aichat-shadow: none;
+
           --aui-background: 0 0% 13%;
           --aui-foreground: 0 0% 93%;
           --aui-card: 0 0% 13%;
@@ -546,27 +670,73 @@ export function AiChatPanel({
           --aui-border: 0 0% 24%;
           --aui-input: 0 0% 24%;
           --aui-ring: 0 0% 80%;
-          --aui-radius: 0.75rem;
-          --aui-thread-max-width: 42rem;
 
-          background: #212121;
+          background: var(--aichat-bg);
           border-radius: 20px 20px 0 0;
           width: 100%;
           max-width: 840px;
           height: 92vh;
           display: flex;
           flex-direction: column;
-          color: #eee;
+          color: var(--aichat-text);
+          box-shadow: var(--aichat-shadow);
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           overflow: hidden;
+          opacity: 1;
           transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                      transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+                      transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                      opacity 0.18s ease;
+        }
+
+        .aichat-panel--light {
+          --aichat-bg: #f7f3ea;
+          --aichat-header-bg: #f1eadc;
+          --aichat-text: #24201a;
+          --aichat-strong-text: #1c1915;
+          --aichat-muted-text: #6b6256;
+          --aichat-subtle-text: #8b8173;
+          --aichat-faint-text: #9d9282;
+          --aichat-border: rgba(87, 68, 41, 0.16);
+          --aichat-border-subtle: rgba(87, 68, 41, 0.10);
+          --aichat-soft-bg: rgba(255, 255, 255, 0.62);
+          --aichat-context-bg: rgba(255, 255, 255, 0.42);
+          --aichat-control-hover: rgba(87, 68, 41, 0.08);
+          --aichat-chip-bg: rgba(255, 255, 255, 0.58);
+          --aichat-chip-hover-bg: rgba(255, 255, 255, 0.88);
+          --aichat-user-bg: rgba(87, 68, 41, 0.10);
+          --aichat-button-bg: #2f2a22;
+          --aichat-button-text: #fffaf0;
+          --aichat-scrollbar: rgba(87, 68, 41, 0.22);
+          --aichat-shadow: 0 -8px 28px rgba(60, 46, 26, 0.12);
+
+          --aui-background: 38 42% 94%;
+          --aui-foreground: 35 18% 12%;
+          --aui-card: 38 42% 94%;
+          --aui-card-foreground: 35 18% 12%;
+          --aui-popover: 38 42% 96%;
+          --aui-popover-foreground: 35 18% 12%;
+          --aui-primary: 35 18% 16%;
+          --aui-primary-foreground: 38 60% 96%;
+          --aui-secondary: 38 30% 88%;
+          --aui-secondary-foreground: 35 18% 16%;
+          --aui-muted: 38 24% 88%;
+          --aui-muted-foreground: 35 12% 42%;
+          --aui-accent: 38 30% 88%;
+          --aui-accent-foreground: 35 18% 16%;
+          --aui-border: 35 18% 78%;
+          --aui-input: 35 18% 78%;
+          --aui-ring: 35 18% 38%;
         }
 
         .aichat-panel--minimized {
           height: 38px;
           pointer-events: auto;
           cursor: pointer;
+        }
+
+        .aichat-panel--closing {
+          opacity: 0;
+          transform: translateY(12px);
         }
 
         .aichat-header {
@@ -577,8 +747,8 @@ export function AiChatPanel({
           height: 38px;
           padding: 0 16px;
           flex-shrink: 0;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          background: #212121;
+          border-bottom: 1px solid var(--aichat-border-subtle);
+          background: var(--aichat-header-bg);
           cursor: grab;
           user-select: none;
           touch-action: none;
@@ -595,7 +765,7 @@ export function AiChatPanel({
         .aichat-header-title {
           font-size: 15px;
           font-weight: 700;
-          color: #9b9b9b;
+          color: var(--aichat-muted-text);
           display: flex;
           align-items: center;
           gap: 0;
@@ -610,7 +780,7 @@ export function AiChatPanel({
         .aichat-header-btn {
           background: transparent;
           border: none;
-          color: #9b9b9b;
+          color: var(--aichat-muted-text);
           cursor: pointer;
           width: 30px;
           height: 30px;
@@ -622,14 +792,14 @@ export function AiChatPanel({
         }
 
         .aichat-header-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: #fff;
+          background: var(--aichat-control-hover);
+          color: var(--aichat-strong-text);
         }
 
         .aichat-header-close {
           background: transparent;
           border: none;
-          color: #9b9b9b;
+          color: var(--aichat-muted-text);
           font-size: 16px;
           cursor: pointer;
           width: 30px;
@@ -642,8 +812,8 @@ export function AiChatPanel({
         }
 
         .aichat-header-close:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: #fff;
+          background: var(--aichat-control-hover);
+          color: var(--aichat-strong-text);
         }
 
         @keyframes aichat-pulse {
@@ -664,7 +834,7 @@ export function AiChatPanel({
 
         .aichat-tap-hint {
           font-size: 11px;
-          color: #5a5a5a;
+          color: var(--aichat-faint-text);
           margin-left: 4px;
           font-weight: 400;
           letter-spacing: 0;
@@ -672,8 +842,8 @@ export function AiChatPanel({
 
         .aichat-context {
           padding: 10px 20px;
-          background: rgba(255, 255, 255, 0.035);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--aichat-context-bg);
+          border-bottom: 1px solid var(--aichat-border-subtle);
           flex-shrink: 0;
         }
         .aichat-context-label {
@@ -682,13 +852,13 @@ export function AiChatPanel({
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.08em;
-          color: #8f8f8f;
+          color: var(--aichat-muted-text);
           margin-bottom: 4px;
         }
         .aichat-context-text {
           margin: 0;
           font-size: 13px;
-          color: #b6b6b6;
+          color: var(--aichat-text);
           line-height: 1.5;
           white-space: pre-wrap;
         }
@@ -696,35 +866,35 @@ export function AiChatPanel({
         .aichat-thread-wrap {
           flex: 1;
           min-height: 0;
-          background: #212121;
+          background: var(--aichat-bg);
         }
 
         .aichat-thread-wrap .aui-thread-root {
-          background: #212121;
+          background: var(--aichat-bg);
         }
         .aichat-thread-wrap .aui-thread-viewport {
           padding-top: 24px;
           scrollbar-width: thin;
-          scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+          scrollbar-color: var(--aichat-scrollbar) transparent;
         }
         .aichat-thread-wrap .aui-thread-viewport-footer {
           padding-bottom: 16px;
-          background: linear-gradient(to bottom, transparent, #212121 28%);
+          background: linear-gradient(to bottom, transparent, var(--aichat-bg) 28%);
         }
         .aichat-thread-wrap .aui-thread-viewport-footer::after {
           content: "READER AI 基于书籍内容生成，仅供参考。";
           margin-top: 8px;
           font-size: 11px;
-          color: #777;
+          color: var(--aichat-subtle-text);
           text-align: center;
         }
         .aichat-thread-wrap .aui-thread-scroll-to-bottom {
-          background: #2a2a2a;
-          border-color: rgba(255, 255, 255, 0.12);
-          color: #c7c7c7;
+          background: var(--aichat-soft-bg);
+          border-color: var(--aichat-border);
+          color: var(--aichat-text);
         }
         .aichat-thread-wrap .aui-thread-welcome-message {
-          color: #fff;
+          color: var(--aichat-strong-text);
           font-size: 20px;
         }
         .aichat-thread-wrap .aui-thread-welcome-suggestions {
@@ -732,9 +902,9 @@ export function AiChatPanel({
           gap: 10px;
         }
         .aichat-thread-wrap .aui-thread-welcome-suggestion {
-          background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(255, 255, 255, 0.12);
-          color: #eee;
+          background: var(--aichat-chip-bg);
+          border-color: var(--aichat-border);
+          color: var(--aichat-text);
           padding: 5px 12px;
           border-radius: 999px;
         }
@@ -743,16 +913,16 @@ export function AiChatPanel({
           font-weight: 400;
         }
         .aichat-thread-wrap .aui-thread-welcome-suggestion:hover {
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--aichat-chip-hover-bg);
         }
         .aichat-thread-wrap .aui-composer-root {
           border-radius: 24px;
-          border-color: rgba(255, 255, 255, 0.12);
-          background: rgba(255, 255, 255, 0.055);
+          border-color: var(--aichat-border);
+          background: var(--aichat-soft-bg);
           box-shadow: none;
         }
         .aichat-thread-wrap .aui-composer-input {
-          color: #eee;
+          color: var(--aichat-text);
           padding-top: 12px;
           padding-bottom: 12px;
           min-height: 48px;
@@ -762,8 +932,8 @@ export function AiChatPanel({
         .aichat-thread-wrap .aui-composer-send,
         .aichat-thread-wrap .aui-composer-cancel {
           border-radius: 999px;
-          background: #fff;
-          color: #000;
+          background: var(--aichat-button-bg);
+          color: var(--aichat-button-text);
         }
         .aichat-thread-wrap .aichat-composer-icon-btn {
           display: flex;
@@ -778,24 +948,24 @@ export function AiChatPanel({
           cursor: default;
         }
         .aichat-thread-wrap .aui-user-message-content {
-          background: rgba(255, 255, 255, 0.08);
-          color: #eee;
+          background: var(--aichat-user-bg);
+          color: var(--aichat-text);
         }
         .aichat-thread-wrap .aui-assistant-message-content {
-          color: #eee;
+          color: var(--aichat-text);
         }
         .aichat-thread-wrap .aui-avatar-root {
           width: 28px;
           height: 28px;
           font-size: 11px;
           background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          color: #eee;
+          border: 1px solid var(--aichat-border);
+          color: var(--aichat-text);
           margin-top: 6px;
         }
         .aichat-thread-wrap .aui-assistant-action-bar-root,
         .aichat-thread-wrap .aui-branch-picker-root {
-          color: #8d8d8d;
+          color: var(--aichat-muted-text);
         }
       `}</style>
     </>
