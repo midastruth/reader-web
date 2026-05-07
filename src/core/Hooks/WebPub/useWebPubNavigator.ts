@@ -165,10 +165,6 @@ export const useWebPubNavigator = () => {
     return navigatorInstance?._cframes;
   }, []);
 
-  const getViewport = useCallback(() => {
-    return navigatorInstance?.viewport;
-  }, []);
-
   const currentScriptMode = useCallback((): ScriptMode | undefined => {
     const metadata = navigatorInstance?.publication?.metadata;
     if (!metadata) return undefined;
@@ -196,7 +192,6 @@ export const useWebPubNavigator = () => {
     getSetting,
     submitPreferences,
     getCframes,
-    getViewport,
     getScriptMode: currentScriptMode
   }
 }

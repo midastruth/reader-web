@@ -193,10 +193,6 @@ export const useEpubNavigator = () => {
     return navigatorInstance?.viewport?.positions;
   }, []);
 
-  const getViewport = useCallback(() => {
-    return navigatorInstance?.viewport;
-  }, []);
-
   const canGoBackward = useCallback(() => {
     return navigatorInstance?.canGoBackward;
   }, []);
@@ -239,7 +235,6 @@ export const useEpubNavigator = () => {
     previousLocator,
     nextLocator,
     currentPositions,
-    getViewport,
     canGoBackward,
     canGoForward,
     isScrollStart,
