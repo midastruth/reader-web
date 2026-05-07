@@ -614,6 +614,7 @@ export function AiChatPanel({
           align-items: flex-end;
           justify-content: center;
           transition: background 0.28s ease;
+          animation: aichat-overlay-in 180ms ease-out;
         }
 
         .aichat-overlay--dark {
@@ -686,6 +687,7 @@ export function AiChatPanel({
           transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
                       transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
                       opacity 0.18s ease;
+          animation: aichat-panel-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .aichat-panel--light {
@@ -737,6 +739,30 @@ export function AiChatPanel({
         .aichat-panel--closing {
           opacity: 0;
           transform: translateY(12px);
+          animation: none;
+        }
+
+        @keyframes aichat-overlay-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes aichat-panel-in {
+          from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.985);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .aichat-overlay,
+          .aichat-panel {
+            animation: none;
+          }
         }
 
         .aichat-header {
