@@ -621,7 +621,7 @@ export function AiChatPanel({
         }
 
         .aichat-overlay--light {
-          background: rgba(60, 46, 26, 0.18);
+          background: rgba(190, 197, 178, 0.24);
         }
 
         .aichat-overlay--minimized,
@@ -689,25 +689,25 @@ export function AiChatPanel({
         }
 
         .aichat-panel--light {
-          --aichat-bg: #f7f3ea;
-          --aichat-header-bg: #f1eadc;
-          --aichat-text: #24201a;
-          --aichat-strong-text: #1c1915;
-          --aichat-muted-text: #6b6256;
-          --aichat-subtle-text: #8b8173;
-          --aichat-faint-text: #9d9282;
-          --aichat-border: rgba(87, 68, 41, 0.16);
-          --aichat-border-subtle: rgba(87, 68, 41, 0.10);
-          --aichat-soft-bg: rgba(255, 255, 255, 0.62);
-          --aichat-context-bg: rgba(255, 255, 255, 0.42);
-          --aichat-control-hover: rgba(87, 68, 41, 0.08);
-          --aichat-chip-bg: rgba(255, 255, 255, 0.58);
-          --aichat-chip-hover-bg: rgba(255, 255, 255, 0.88);
-          --aichat-user-bg: rgba(87, 68, 41, 0.10);
-          --aichat-button-bg: #2f2a22;
-          --aichat-button-text: #fffaf0;
-          --aichat-scrollbar: rgba(87, 68, 41, 0.22);
-          --aichat-shadow: 0 -8px 28px rgba(60, 46, 26, 0.12);
+          --aichat-bg: #fffbef;
+          --aichat-header-bg: #f8f5e4;
+          --aichat-text: #24251f;
+          --aichat-strong-text: #1b1d18;
+          --aichat-muted-text: #66705c;
+          --aichat-subtle-text: #7f8775;
+          --aichat-faint-text: #9aa18e;
+          --aichat-border: #e8e5d5;
+          --aichat-border-subtle: #edeada;
+          --aichat-soft-bg: #f2efdf;
+          --aichat-context-bg: #f8f5e4;
+          --aichat-control-hover: #edeada;
+          --aichat-chip-bg: #f2efdf;
+          --aichat-chip-hover-bg: #edeada;
+          --aichat-user-bg: #f0f2d4;
+          --aichat-button-bg: #2f3329;
+          --aichat-button-text: #fffbef;
+          --aichat-scrollbar: #bec5b2;
+          --aichat-shadow: 0 -8px 28px rgba(190, 197, 178, 0.24);
 
           --aui-background: 38 42% 94%;
           --aui-foreground: 35 18% 12%;
