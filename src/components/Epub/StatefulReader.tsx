@@ -233,11 +233,11 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   useFullscreen(onFsChange);
 
   const epubNavigator = useEpubNavigator();
-  const { 
-    goLeft, 
-    goRight, 
-    goBackward, 
-    goForward,  
+  const {
+    goLeft,
+    goRight,
+    goBackward,
+    goForward,
     navLayout,
     currentLocator,
     currentPositions,
@@ -245,8 +245,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     canGoForward,
     isScrollStart,
     isScrollEnd,
-    getCframes,
-    submitPreferences
+    submitPreferences,
+    getViewport
   } = epubNavigator;
 
   const { setLocalData, getLocalData, localData } = usePositionStorage(localDataKey, positionStorage);
@@ -308,34 +308,47 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     dispatch(toggleImmersive());
   }, [dispatch]);
 
-  // Warning: this is using navigator’s internal methods that will become private, do not rely on them
-  // See https://github.com/edrlab/thorium-web/issues/25
   const handleTap = useCallback((event: FrameClickEvent) => {
-    const _cframes = getCframes();
-    if (_cframes) {
-      if (!cache.current.settings.scroll) {
-        const oneQuarter = ((_cframes.length === 2 ? _cframes[0]!.window.innerWidth + _cframes[1]!.window.innerWidth : _cframes![0]!.window.innerWidth) * window.devicePixelRatio) / 4;
-        
-        const navigationCallback = () => {
-          dispatch(setUserNavigated(true));
-          activateImmersiveOnAction();
-        };
-    
-        if (event.x < oneQuarter) {
-          goLeft(!cache.current.reducedMotion, navigationCallback);
-        } 
-        else if (event.x > oneQuarter * 3) {
-          goRight(!cache.current.reducedMotion, navigationCallback);
-        } else if (oneQuarter <= event.x && event.x <= oneQuarter * 3) {
-          toggleIsImmersive();
-        }
-      } else {
-        if (preferences.affordances.scroll.toggleOnMiddlePointer.includes("tap")) {
-          toggleIsImmersive();
+    if (!cache.current.settings.scroll) {
+      const baseWidth = container.current?.clientWidth ?? window.innerWidth;
+      let visibleWidth = baseWidth;
+      if (isFXL) {
+        // WARNING: mirrors FXLFramePoolManager spread/portrait logic — changes there can break this
+        // Problem is we need to derive whether we are in spread with one page or not
+        const viewportItems = getViewport()?.readingOrder ?? [];
+        if (viewportItems.length === 1) {
+          const link = publication.readingOrder.items.find(l => l.href === viewportItems[0]);
+          const isLandscapePage = link?.properties?.page === "center";
+          if (!isLandscapePage) {
+            const pubSpread = publication.metadata.otherMetadata?.["spread"];
+            const spreadAllowed = pubSpread !== "none";
+            const containerIsLandscape = container.current
+              ? container.current.clientWidth > container.current.clientHeight
+              : false;
+            if (spreadAllowed && containerIsLandscape) visibleWidth = baseWidth / 2;
+          }
         }
       }
+      const oneQuarter = (visibleWidth * window.devicePixelRatio) / 4;
+
+      const navigationCallback = () => {
+        dispatch(setUserNavigated(true));
+        activateImmersiveOnAction();
+      };
+
+      if (event.x < oneQuarter) {
+        goLeft(!cache.current.reducedMotion, navigationCallback);
+      } else if (event.x > oneQuarter * 3) {
+        goRight(!cache.current.reducedMotion, navigationCallback);
+      } else {
+        toggleIsImmersive();
+      }
+    } else {
+      if (preferences.affordances.scroll.toggleOnMiddlePointer.includes("tap")) {
+        toggleIsImmersive();
+      }
     }
-  }, [getCframes, cache, preferences.affordances.scroll, goLeft, goRight, dispatch, activateImmersiveOnAction, toggleIsImmersive]);
+  }, [cache, isFXL, getViewport, publication, preferences.affordances.scroll, goLeft, goRight, dispatch, activateImmersiveOnAction, toggleIsImmersive]);
 
   const handleClick = useCallback((_event: FrameClickEvent) => {
     if (
