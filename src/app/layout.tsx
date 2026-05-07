@@ -8,7 +8,9 @@ import "./reset.css";
 import "@assistant-ui/react-ui/styles/index.css";
 import "@assistant-ui/react-ui/styles/markdown.css";
 
-export const runtime = "edge";
+// Do not enable Edge runtime globally: reader pages exceed Vercel's 1 MB Edge Function limit.
+// Keep Edge runtime only on lightweight API routes that explicitly opt in.
+// export const runtime = "edge";
 
 const inter = Inter({ subsets: ["latin"] });
 
