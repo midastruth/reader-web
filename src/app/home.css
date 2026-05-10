@@ -39,3 +39,24 @@ h2 {
 .dev-books {
   margin-top: 3rem;
 }
+
+.explore-link {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.explore-button {
+  display: inline-block;
+  padding: 0.625rem 1.5rem;
+  border: 1px solid var(--th-color-text-secondary);
+  border-radius: 6px;
+  color: var(--th-color-text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.explore-button:hover {
+  background-color: var(--th-color-text);
+  color: var(--th-color-background, #fff);
+}
