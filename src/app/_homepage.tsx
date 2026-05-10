@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PublicationGrid } from "@/components/Misc/PublicationGrid";
-import Image from "next/image";
+import { BookCoverImage } from "@/components/Misc/BookCoverImage";
 import { Link } from "react-aria-components";
 
 import "./reset.css";
@@ -131,12 +131,11 @@ export default function HomePage() {
           variant="shelf"
           publications={ myLibrary }
           renderCover={ (publication) => (
-            <Image
+            <BookCoverImage
               src={ publication.cover }
-              alt=""
-              fill
+              title={ publication.title }
+              author={ publication.author }
               sizes="140px"
-              style={{ objectFit: "cover" }}
             />
           ) }
         />
