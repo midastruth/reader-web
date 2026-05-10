@@ -95,6 +95,9 @@ export default function HomePage() {
         <Link href="/explore" className="explore-button">
           Explore all books
         </Link>
+        <Link href="/upload" className="explore-button" style={{ marginLeft: "0.75rem" }}>
+          Upload a book
+        </Link>
       </div>
     </main>
   );

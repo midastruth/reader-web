@@ -7,16 +7,43 @@ const UPSTREAM = (process.env.BOOK_AWARE_URL || "http://127.0.0.1:8787").replace
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
+function upstreamPath(path: string[]): string {
+  if (path.length === 4 && path[0] === "books" && (path[2] === "epub" || path[2] === "download")) {
+    return path.slice(0, 3).map(encodeURIComponent).join("/");
+  }
+
+  return path.map(encodeURIComponent).join("/");
+}
+
+function responseHeaders(upstreamRes: Response): Headers {
+  const headers = new Headers({
+    "content-type": upstreamRes.headers.get("content-type") ?? "application/json",
+    "cache-control": "no-cache",
+    "x-accel-buffering": "no",
+  });
+
+  const contentLength = upstreamRes.headers.get("content-length");
+  if (contentLength) headers.set("content-length", contentLength);
+
+  const contentDisposition = upstreamRes.headers.get("content-disposition");
+  if (contentDisposition) headers.set("content-disposition", contentDisposition);
+
+  return headers;
+}
+
 async function forward(req: NextRequest, ctx: RouteContext): Promise<NextResponse> {
   const { path } = await ctx.params;
-  const upstreamUrl = `${UPSTREAM}/${path.join("/")}${req.nextUrl.search}`;
+  const upstreamUrl = `${UPSTREAM}/${upstreamPath(path)}${req.nextUrl.search}`;
+  const isHead = req.method === "HEAD";
 
   let upstreamRes: Response;
   try {
     upstreamRes = await fetch(upstreamUrl, {
-      method: req.method,
+      // book-aware download endpoints do not support HEAD directly; issue GET upstream
+      // and translate it to a body-less HEAD response at this proxy boundary.
+      method: isHead ? "GET" : req.method,
       headers: { "content-type": "application/json" },
-      body: req.method !== "GET" && req.method !== "HEAD" ? await req.text() : undefined,
+      body: req.method !== "GET" && !isHead ? await req.text() : undefined,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -26,15 +53,20 @@ async function forward(req: NextRequest, ctx: RouteContext): Promise<NextRespons
     );
   }
 
+  if (isHead) {
+    await upstreamRes.body?.cancel();
+    return new NextResponse(null, {
+      status: upstreamRes.status,
+      headers: responseHeaders(upstreamRes),
+    });
+  }
+
   return new NextResponse(upstreamRes.body, {
     status: upstreamRes.status,
-    headers: {
-      "content-type": upstreamRes.headers.get("content-type") ?? "application/json",
-      "cache-control": "no-cache",
-      "x-accel-buffering": "no",
-    },
+    headers: responseHeaders(upstreamRes),
   });
 }
 
 export const GET  = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
+export const HEAD = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
 export const POST = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
