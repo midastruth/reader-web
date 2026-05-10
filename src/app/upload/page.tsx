@@ -155,7 +155,10 @@ export default function UploadPage() {
 
             {file ? (
               <div className={styles.fileInfo} onClick={(e) => e.stopPropagation()}>
-                <span className={styles.fileIcon}>📖</span>
+                <svg className={styles.fileIcon} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
                 <div className={styles.fileMeta}>
                   <div className={styles.fileName}>{file.name}</div>
                   <div className={styles.fileSize}>{formatBytes(file.size)}</div>
@@ -166,12 +169,19 @@ export default function UploadPage() {
                   aria-label="移除文件"
                   title="移除文件"
                 >
-                  ✕
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                    <line x1="1" y1="1" x2="13" y2="13"/>
+                    <line x1="13" y1="1" x2="1" y2="13"/>
+                  </svg>
                 </button>
               </div>
             ) : (
               <>
-                <div className={styles.dropIcon}>📂</div>
+                <svg className={styles.dropIcon} width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="16 16 12 12 8 16"/>
+                  <line x1="12" y1="12" x2="12" y2="21"/>
+                  <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+                </svg>
                 <p className={styles.dropLabel}>拖拽 EPUB 文件到此处</p>
                 <p className={styles.dropHint}>或点击选择文件</p>
                 <span className={styles.browseButton}>选择文件</span>
@@ -184,14 +194,18 @@ export default function UploadPage() {
             disabled={!file || isLoading}
             onClick={handleSubmit}
           >
-            {isLoading ? "上传中…" : "上传并建立索引"}
+            {isLoading ? (
+              <>
+                <div className={styles.spinner} />
+                上传中…
+              </>
+            ) : "上传并建立索引"}
           </button>
         </>
       )}
 
       {state.type === "loading" && (
         <div className={`${styles.status} ${styles.statusLoading}`}>
-          <div className={styles.spinner} />
           <span>正在上传并解析书籍内容，请稍候…</span>
         </div>
       )}

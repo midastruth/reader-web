@@ -50,55 +50,97 @@ function parseManifestBook(manifest: Record<string, unknown>, manifestUrl: strin
 
 export default function HomePage() {
   const [myLibrary, setMyLibrary] = useState<LibraryBook[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/library")
-      .then(r => r.json() as Promise<LibraryManifestEntry[]>)
-      .then(entries =>
-        Promise.allSettled(
+    let cancelled = false;
+
+    const loadLibrary = async () => {
+      setLoading(true);
+      setLibraryError(null);
+
+      try {
+        const libraryResponse = await fetch("/api/library");
+        if (!libraryResponse.ok) {
+          throw new Error(`Failed to load library: ${libraryResponse.status} ${libraryResponse.statusText}`);
+        }
+
+        const entries = await libraryResponse.json() as LibraryManifestEntry[];
+        const results = await Promise.allSettled(
           entries.map(async (entry) => {
             const manifestUrl = typeof entry === "string" ? entry : entry.url;
             const sha256 = typeof entry === "string" ? undefined : entry.sha256;
             const res = await fetch(manifestUrl);
-            if (!res.ok) throw new Error(`${res.status} ${manifestUrl}`);
+            if (!res.ok) throw new Error(`Failed to load manifest: ${res.status} ${manifestUrl}`);
             const manifest = await res.json() as Record<string, unknown>;
             return parseManifestBook(manifest, manifestUrl, sha256);
           })
-        )
-      )
-      .then(results => results.flatMap(r => r.status === "fulfilled" ? [r.value] : []))
-      .then(setMyLibrary)
-      .catch(console.error);
+        );
+        const books = results.flatMap(result => result.status === "fulfilled" ? [result.value] : []);
+
+        if (!cancelled) {
+          setMyLibrary(books);
+          setLibraryError(null);
+        }
+      } catch (err) {
+        console.error("Failed to load library", err);
+        if (!cancelled) {
+          setMyLibrary([]);
+          setLibraryError("We couldn’t load your library. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void loadLibrary();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <main id="home">
-      <header className="header">
+      <header className="page-header">
         <h1>My Library</h1>
+        <nav className="page-header-actions">
+          <Link href="/explore" className="btn-outline">Explore</Link>
+          <Link href="/upload" className="btn-solid">Upload a book</Link>
+        </nav>
       </header>
 
-      <PublicationGrid
-        variant="shelf"
-        publications={ myLibrary }
-        renderCover={ (publication) => (
-          <Image
-            src={ publication.cover }
-            alt=""
-            fill
-            sizes="140px"
-            style={{ objectFit: "cover" }}
-          />
-        ) }
-      />
-
-      <div className="explore-link">
-        <Link href="/explore" className="explore-button">
-          Explore all books
-        </Link>
-        <Link href="/upload" className="explore-button" style={{ marginLeft: "0.75rem" }}>
-          Upload a book
-        </Link>
-      </div>
+      { loading ? (
+        <div className="library-placeholder">
+          <span className="library-placeholder-icon">📚</span>
+          <p>Loading your library…</p>
+        </div>
+      ) : libraryError ? (
+        <div className="library-placeholder" role="alert">
+          <span className="library-placeholder-icon">⚠️</span>
+          <p>{ libraryError }</p>
+        </div>
+      ) : myLibrary.length === 0 ? (
+        <div className="library-placeholder">
+          <span className="library-placeholder-icon">📭</span>
+          <p>Your library is empty. Upload a book or explore the collection.</p>
+        </div>
+      ) : (
+        <PublicationGrid
+          variant="shelf"
+          publications={ myLibrary }
+          renderCover={ (publication) => (
+            <Image
+              src={ publication.cover }
+              alt=""
+              fill
+              sizes="140px"
+              style={{ objectFit: "cover" }}
+            />
+          ) }
+        />
+      ) }
     </main>
   );
 }
