@@ -16,7 +16,8 @@ import {
   ThDocumentTitleFormat,
   ThSpacingSettingsKeys,
   ThProgressionFormat,
-  ThSettingsKeys
+  ThSettingsKeys,
+  ThActionsKeys
 } from "../../preferences/models";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
@@ -230,7 +231,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     dispatch(setFullscreen(isFullscreen));
   }, [dispatch]);
   
-  useFullscreen(onFsChange);
+  const { handleFullscreen } = useFullscreen(onFsChange);
 
   const epubNavigator = useEpubNavigator();
   const { 
@@ -495,11 +496,12 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         case NavPeripheralType.zoomOut:          zoomOut();            break;
         default: {
           const actionKey = fromActionPeripheralType(data.type);
-          if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+          if (actionKey === ThActionsKeys.fullscreen) handleFullscreen();
+          else if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
         }
       }
     },
-  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile]);
+  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile, handleFullscreen]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

@@ -9,9 +9,10 @@ import { StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 import {
   ThLayoutUI,
   ThDocumentTitleFormat,
-  ThProgressionFormat, 
+  ThProgressionFormat,
   ThSpacingSettingsKeys,
-  ThSettingsKeys
+  ThSettingsKeys,
+  ThActionsKeys
 } from "@/preferences/models";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
@@ -166,7 +167,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     dispatch(setFullscreen(isFullscreen));
   }, [dispatch]);
   
-  useFullscreen(onFsChange);
+  const { handleFullscreen } = useFullscreen(onFsChange);
 
   const webPubNavigator = useWebPubNavigator();
   const { 
@@ -281,11 +282,12 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         case NavPeripheralType.zoomOut: zoomOut(); break;
         default: {
           const actionKey = fromActionPeripheralType(data.type);
-          if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+          if (actionKey === ThActionsKeys.fullscreen) handleFullscreen();
+          else if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
         }
       }
     },
-  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, zoomIn, zoomOut, profile]);
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, zoomIn, zoomOut, profile, handleFullscreen]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
