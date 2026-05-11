@@ -26,7 +26,8 @@ import {
   defaultAudioPlaybackRate,
   defaultAudioSkipBackwardInterval,
   defaultAudioSkipForwardInterval,
-  defaultAudioSleepTimer
+  defaultAudioSleepTimer,
+  TEXT_INPUT_SELECTORS
 } from "./models";
 import { createAudioPreferences, ThAudioPreferences, AudioDefaultKeys, ThAudioAffordance } from "./audioPreferences";
 
@@ -187,9 +188,18 @@ export const defaultAudioPreferences: ThAudioPreferences<AudioDefaultKeys> =
       },
       collapse: true,
       keys: {
-        [ThDockingKeys.start]: { visibility: ThCollapsibilityVisibility.overflow, shortcut: null },
-        [ThDockingKeys.end]: { visibility: ThCollapsibilityVisibility.overflow, shortcut: null },
-        [ThDockingKeys.transient]: { visibility: ThCollapsibilityVisibility.overflow, shortcut: null }
+        [ThDockingKeys.start]: { 
+          visibility: ThCollapsibilityVisibility.overflow, 
+          shortcut: null 
+        },
+        [ThDockingKeys.end]: { 
+          visibility: ThCollapsibilityVisibility.overflow, 
+          shortcut: null 
+        },
+        [ThDockingKeys.transient]: { 
+          visibility: ThCollapsibilityVisibility.overflow, 
+          shortcut: null 
+        }
       }
     }
   });

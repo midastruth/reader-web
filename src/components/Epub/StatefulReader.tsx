@@ -17,12 +17,11 @@ import {
   ThSpacingSettingsKeys,
   ThProgressionFormat,
   ThSettingsKeys,
+  ThDockingKeys,
   ThActionsKeys
 } from "../../preferences/models";
 
 import { ThPluginRegistry } from "../Plugins/PluginRegistry";
-
-import { useLocale } from "react-aria";
 import { ThPluginProvider } from "../Plugins/PluginProvider";
 import { NavigatorProvider } from "@/core/Navigator";
 
@@ -38,13 +37,14 @@ import {
   Publication, 
   Layout
 } from "@readium/shared";
+import { PositionStorage, StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 
 import { StatefulDockingWrapper } from "../Docking/StatefulDockingWrapper";
 import { StatefulReaderHeader } from "../StatefulReaderHeader";
 import { StatefulReaderArrowButton } from "../StatefulReaderArrowButton";
 import { StatefulReaderFooter } from "../StatefulReaderFooter";
-import { PositionStorage, StatefulReaderProps } from "../Reader/StatefulReaderWrapper";
 
+import { useLocale } from "react-aria";
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useSettingsComponentStatus } from "@/components/Settings/hooks/useSettingsComponentStatus";
 import { useEpubStatelessCache } from "./Hooks/useEpubStatelessCache";
@@ -59,6 +59,8 @@ import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { usePaginatedArrows } from "@/hooks/usePaginatedArrows";
 import { useFonts } from "@/core/Hooks/fonts/useFonts";
+import { useZoomCallbacks } from "@/components/Settings/hooks/useZoomCallbacks";
+import { useFocusedDockableKey } from "../Docking/hooks/useFocusedDockableKey";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 
@@ -81,14 +83,13 @@ import {
   setPublicationStart,
   setPublicationEnd
 } from "@/lib/publicationReducer";
+import { toggleActionOpen, dockAction } from "@/lib/actionsReducer";
 
 import classNames from "classnames";
 import debounce from "debounce";
 import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
-import { NavPeripheralType, fromActionPeripheralType } from "../../helpers/peripherals";
-import { useZoomCallbacks } from "@/components/Settings/hooks/useZoomCallbacks";
-import { toggleActionOpen } from "@/lib/actionsReducer";
+import { NavPeripheralType, fromActionPeripheralType, fromDockingPeripheralType } from "../../helpers/peripherals";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
@@ -221,6 +222,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const atPublicationEnd = useAppSelector(state => state.publication.atPublicationEnd);
 
   const dispatch = useAppDispatch();
+  const getFocusedDockableKey = useFocusedDockableKey();
 
   useEffect(() => {
     // Reset top bar visibility and last position
@@ -496,12 +498,29 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         case NavPeripheralType.zoomOut:          zoomOut();            break;
         default: {
           const actionKey = fromActionPeripheralType(data.type);
-          if (actionKey === ThActionsKeys.fullscreen) handleFullscreen();
-          else if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+
+          if (actionKey === ThActionsKeys.fullscreen) {
+            handleFullscreen();
+            return;
+          }
+
+          if (actionKey && profile) {
+            dispatch(toggleActionOpen({ key: actionKey, profile }));
+            return;
+          }
+
+          const dockingKey = fromDockingPeripheralType(data.type);
+
+          if (dockingKey && profile) {
+            const actionKey = getFocusedDockableKey(dockingKey as ThDockingKeys);
+            if (actionKey) {
+              dispatch(dockAction({ key: actionKey, dockingKey: dockingKey as ThDockingKeys, profile }));
+            }
+          }
         }
       }
     },
-  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile, handleFullscreen]);
+  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile, handleFullscreen, getFocusedDockableKey]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

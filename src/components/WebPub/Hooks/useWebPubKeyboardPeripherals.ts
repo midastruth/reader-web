@@ -1,14 +1,17 @@
 import { useMemo } from "react";
+
 import { IKeyboardPeripheralsConfig } from "@readium/navigator";
+import { ThActionsKeys } from "@/preferences/models";
+
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
-import { NavPeripheralType, toActionPeripheralType, ZOOM_IN_KEY_COMBOS, ZOOM_OUT_KEY_COMBOS } from "@/helpers/peripherals";
-import { ThActionsKeys } from "@/preferences/models";
 import { useActionComponentStatus } from "@/core/Components/Actions/hooks/useActionComponentStatus";
 
+import { NavPeripheralType, toActionPeripheralType, toDockingPeripheralType, ZOOM_IN_KEY_COMBOS, ZOOM_OUT_KEY_COMBOS } from "@/helpers/peripherals";
+
 export const useWebPubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
-  const { actionsKeys } = useActionsPreferences();
+  const { actionsKeys, docking } = useActionsPreferences();
   const { isSupported: isFullscreenSupported } = useFullscreen();
   const { webPubActionKeys } = useFilteredPreferenceKeys();
 
@@ -36,6 +39,10 @@ export const useWebPubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
       if (shortcut && isAvailable) config.push({ type: toActionPeripheralType(key), keyCombos: shortcut.keyCombos });
     }
 
+    for (const [key, tokens] of Object.entries(docking.keys)) {
+      if (tokens?.shortcut) config.push({ type: toDockingPeripheralType(key), keyCombos: tokens.shortcut.keyCombos });
+    }
+
     return config;
-  }, [actionsKeys, isFullscreenAvailable, isTocAvailable, isSettingsAvailable, isJumpToPositionAvailable]);
+  }, [actionsKeys, docking.keys, isFullscreenAvailable, isTocAvailable, isSettingsAvailable, isJumpToPositionAvailable]);
 };

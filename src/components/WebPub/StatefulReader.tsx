@@ -12,6 +12,7 @@ import {
   ThProgressionFormat,
   ThSpacingSettingsKeys,
   ThSettingsKeys,
+  ThDockingKeys,
   ThActionsKeys
 } from "@/preferences/models";
 
@@ -50,6 +51,8 @@ import { usePositionStorage } from "@/hooks/usePositionStorage";
 import { useDocumentTitle } from "@/core/Hooks/useDocumentTitle";
 import { useSpacingPresets } from "../Settings/Spacing/hooks/useSpacingPresets";
 import { useFonts } from "@/core/Hooks/fonts/useFonts";
+import { useZoomCallbacks } from "@/components/Settings/hooks/useZoomCallbacks";
+import { useFocusedDockableKey } from "../Docking/hooks/useFocusedDockableKey";
 
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { 
@@ -63,14 +66,13 @@ import {
   setPublicationStart,
   setPublicationEnd
 } from "@/lib/publicationReducer";
+import { toggleActionOpen, dockAction } from "@/lib/actionsReducer";
 
 import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
-import { NavPeripheralType, fromActionPeripheralType } from "@/helpers/peripherals";
-import { toggleActionOpen } from "@/lib/actionsReducer";
-import { useZoomCallbacks } from "@/components/Settings/hooks/useZoomCallbacks";
+import { NavPeripheralType, fromActionPeripheralType, fromDockingPeripheralType } from "@/helpers/peripherals";
 
 export const ExperimentalWebPubStatefulReader = ({
   publication,
@@ -160,6 +162,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   const layoutUI = preferences.theming.layout.ui?.webPub || ThLayoutUI.stacked;
 
   const dispatch = useAppDispatch();
+  const getFocusedDockableKey = useFocusedDockableKey();
   const profile = useAppSelector(state => state.reader.profile);
   const keyboardPeripherals = useWebPubKeyboardPeripherals();
 
@@ -282,12 +285,29 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         case NavPeripheralType.zoomOut: zoomOut(); break;
         default: {
           const actionKey = fromActionPeripheralType(data.type);
-          if (actionKey === ThActionsKeys.fullscreen) handleFullscreen();
-          else if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+
+          if (actionKey === ThActionsKeys.fullscreen) {
+            handleFullscreen();
+            return;
+          }
+
+          if (actionKey && profile) {
+            dispatch(toggleActionOpen({ key: actionKey, profile }));
+            return;
+          }
+
+          const dockingKey = fromDockingPeripheralType(data.type);
+
+          if (dockingKey && profile) {
+            const actionKey = getFocusedDockableKey(dockingKey as ThDockingKeys);
+            if (actionKey) {
+              dispatch(dockAction({ key: actionKey, dockingKey: dockingKey as ThDockingKeys, profile }));
+            }
+          }
         }
       }
     },
-  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, zoomIn, zoomOut, profile, handleFullscreen]);
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, zoomIn, zoomOut, profile, handleFullscreen, getFocusedDockableKey]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

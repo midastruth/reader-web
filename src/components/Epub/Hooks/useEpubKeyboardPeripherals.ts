@@ -1,21 +1,25 @@
 import { useMemo } from "react";
+
 import { IKeyboardPeripheralsConfig } from "@readium/navigator";
+import { ThActionsKeys } from "@/preferences/models";
+
 import { useIsScroll } from "@/hooks";
 import { useObservableCondition } from "@/core/Hooks/useObservableCondition";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
-import { NavPeripheralType, toActionPeripheralType, ZOOM_IN_KEY_COMBOS, ZOOM_OUT_KEY_COMBOS } from "@/helpers/peripherals";
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
 import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
-import { useAppSelector } from "@/lib/hooks";
-import { ThActionsKeys } from "@/preferences/models";
 import { useActionComponentStatus } from "@/core/Components/Actions/hooks/useActionComponentStatus";
+
+import { useAppSelector } from "@/lib/hooks";
+
+import { NavPeripheralType, toActionPeripheralType, toDockingPeripheralType, ZOOM_IN_KEY_COMBOS, ZOOM_OUT_KEY_COMBOS } from "@/helpers/peripherals";
 
 export const useEpubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
   const isScroll = useIsScroll();
   const isFXL = useAppSelector(state => state.publication.isFXL);
   const noScroll = useObservableCondition(!isScroll);
   const zoomActive = useObservableCondition(!isFXL);
-  const { actionsKeys } = useActionsPreferences();
+  const { actionsKeys, docking } = useActionsPreferences();
   const { isSupported: isFullscreenSupported } = useFullscreen();
   const { reflowActionKeys, fxlActionKeys } = useFilteredPreferenceKeys();
 
@@ -55,6 +59,10 @@ export const useEpubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
       if (shortcut && isAvailable) config.push({ type: toActionPeripheralType(key), keyCombos: shortcut.keyCombos });
     }
 
+    for (const [key, tokens] of Object.entries(docking.keys)) {
+      if (tokens?.shortcut) config.push({ type: toDockingPeripheralType(key), keyCombos: tokens.shortcut.keyCombos });
+    }
+
     return config;
-  }, [noScroll, zoomActive, actionsKeys, isFullscreenAvailable, isTocAvailable, isSettingsAvailable, isJumpToPositionAvailable]);
+  }, [noScroll, zoomActive, actionsKeys, docking.keys, isFullscreenAvailable, isTocAvailable, isSettingsAvailable, isJumpToPositionAvailable]);
 };
