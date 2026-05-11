@@ -100,7 +100,7 @@ export const StatefulActionIcon = ({
         label: (
           <>
             { tooltipLabel }
-            { shortcut && shortcuts.displayInTooltip && <StatefulShortcut className={ readerSharedUI.tooltipShortcut } combo={ shortcut } /> }
+            { shortcut && shortcuts.displayIn?.includes("tooltip") && <StatefulShortcut className={ readerSharedUI.tooltipShortcut } combo={ shortcut } /> }
           </>
         )
       } : undefined }

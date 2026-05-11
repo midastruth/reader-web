@@ -279,7 +279,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
   shortcuts: {
     representation: ShortcutRepresentation.symbol,
     joiner: "+",
-    displayInTooltip: true
+    displayIn: ["tooltip", "menuItem"]
   },
   actions: {
     reflowOrder: [

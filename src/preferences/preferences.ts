@@ -135,10 +135,12 @@ export type ThSettingsKeyTypes<K extends CustomizableKeys = DefaultKeys> = {
 
 export type ThConstraintKeys = Extract<ThSheetTypes, ThSheetTypes.bottomSheet | ThSheetTypes.popover | ThSheetTypes.modal> | "pagination" | "dropdown";
 
+export type ThShortcutsDisplayIn = "tooltip" | "menuItem";
+
 export interface ThShortcutsPref {
   representation: ShortcutRepresentation;
   joiner?: string;
-  displayInTooltip?: boolean;
+  displayIn?: ThShortcutsDisplayIn[];
 }
 
 export interface ThIconPref {

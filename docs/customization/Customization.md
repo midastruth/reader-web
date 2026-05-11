@@ -203,19 +203,22 @@ shortcuts: {
 
 Will display shortcuts as `Alt+Shift+{ Key }`.
 
-### Display in tooltip
+### Display locations
 
-Set `displayInTooltip` to `true` to show the action's keyboard shortcut inside the action icon's tooltip, alongside the label.
+Use `displayIn` to control where keyboard shortcuts are rendered. It accepts an array of location strings:
+
+- `"tooltip"` — shows the shortcut inside the action icon's tooltip, alongside the label.
+- `"menuItem"` — shows the shortcut in the overflow menu item.
 
 ```typescript
 shortcuts: {
   representation: ShortcutRepresentation.symbol,
   joiner: "+",
-  displayInTooltip: true
+  displayIn: ["tooltip", "menuItem"]
 }
 ```
 
-The shortcut is rendered using the same `ShortcutRepresentation` and `joiner` settings as elsewhere. Actions with no shortcut configured are unaffected.
+Omit a location to hide shortcuts there, or pass an empty array to suppress them entirely. Shortcuts use the same `representation` and `joiner` settings as elsewhere. Actions with no shortcut configured are unaffected.
 
 ## Actions
 
