@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ThLineHeightOptions, ThSettingsKeys } from "@/preferences/models";
 import { usePreferences } from "@/preferences/hooks/usePreferences";
 import { useAppSelector } from "@/lib/hooks";
-import { lineHeightRangeConfig } from "@readium/navigator";
+import { lineHeightRangeConfig, RCSSI18nEntry } from "@readium/navigator";
 import i18nData from "@readium/css/css/vars/i18n.json";
 
 export const ORDERED_LINE_HEIGHT_OPTIONS = [ThLineHeightOptions.small, ThLineHeightOptions.medium, ThLineHeightOptions.large] as const;
@@ -22,10 +22,8 @@ function spreadValues(values: number[], globalMin: number, globalMax: number): n
   return result;
 }
 
-type I18nEntry = { baseFontFamily?: string; lineHeightCompensation?: number };
-
 const getLineHeightCompensation = (language: string): number => {
-  const data = i18nData as Record<string, I18nEntry>;
+  const data = i18nData as Record<string, RCSSI18nEntry>;
   if (data[language]?.lineHeightCompensation !== undefined) return data[language].lineHeightCompensation!;
   const stripped = language.split("-").slice(0, -1).join("-");
   if (stripped && data[stripped]?.lineHeightCompensation !== undefined) return data[stripped].lineHeightCompensation!;
