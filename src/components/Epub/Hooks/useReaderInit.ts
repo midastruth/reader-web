@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 
 import { Locator, Publication } from "@readium/shared";
 import { EpubNavigatorListeners, IContentProtectionConfig, ILinkInjectable, IBlobInjectable } from "@readium/navigator";
+import { useEpubKeyboardPeripherals } from "./useEpubKeyboardPeripherals";
 import { ThPreferences } from "@/preferences";
 import { FontMetadata, InjectableFontResources } from "@/preferences/services/fonts";
 
@@ -95,6 +96,7 @@ export const useEpubReaderInit = ({
     onCleanup?.();
   }, [isFXL, removeFontResources, onCleanup]);
 
+  const keyboardPeripherals = useEpubKeyboardPeripherals();
   const { EpubNavigatorLoad, EpubNavigatorDestroy } = useEpubNavigator();
   const isNavigatorLoadedEpub = useRef(false);
   
@@ -119,6 +121,7 @@ export const useEpubReaderInit = ({
       defaults: epubDefaults,
       injectables: injectables || undefined,
       contentProtection: contentProtectionConfig,
+      keyboardPeripherals,
     };
 
     isNavigatorLoadedEpub.current = true;
