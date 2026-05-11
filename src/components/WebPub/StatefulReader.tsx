@@ -68,8 +68,9 @@ import classNames from "classnames";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
 import { resolveContentProtectionConfig } from "@/preferences/models/protection";
-import { fromActionPeripheralType } from "@/helpers/peripherals";
+import { NavPeripheralType, fromActionPeripheralType } from "@/helpers/peripherals";
 import { toggleActionOpen } from "@/lib/actionsReducer";
+import { useZoomCallbacks } from "@/components/Settings/hooks/useZoomCallbacks";
 
 export const ExperimentalWebPubStatefulReader = ({
   publication,
@@ -225,10 +226,12 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   useDocumentTitle(documentTitle);
 
   const toggleIsImmersive = useCallback(() => {
-    // If tap/click in iframe, then header/footer no longer hoovering 
+    // If tap/click in iframe, then header/footer no longer hoovering
     dispatch(setHovering(false));
     dispatch(toggleImmersive());
   }, [dispatch]);
+
+  const { zoomIn, zoomOut } = useZoomCallbacks(webPubNavigator);
 
   const listeners: WebPubNavigatorListeners = useMemo(() => ({
     frameLoaded: async function (_wnd: Window): Promise<void> {},
@@ -276,10 +279,16 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     contentProtection: function (_type: string, _data: SuspiciousActivityEvent): void {},
     contextMenu: function (_data: ContextMenuEvent): void {},
     peripheral: function (data): void {
-      const actionKey = fromActionPeripheralType(data.type);
-      if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+      switch (data.type) {
+        case NavPeripheralType.zoomIn:  zoomIn();  break;
+        case NavPeripheralType.zoomOut: zoomOut(); break;
+        default: {
+          const actionKey = fromActionPeripheralType(data.type);
+          if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
+        }
+      }
     },
-  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, profile]);
+  }), [setLocalData, canGoBackward, canGoForward, dispatch, toggleIsImmersive, zoomIn, zoomOut, profile]);
 
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 

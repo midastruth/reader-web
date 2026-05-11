@@ -2,12 +2,15 @@ import { useMemo } from "react";
 import { IKeyboardPeripheralsConfig } from "@readium/navigator";
 import { useIsScroll } from "@/hooks";
 import { useObservableCondition } from "@/core/Hooks/useObservableCondition";
-import { NavPeripheralType, toActionPeripheralType } from "@/helpers/peripherals";
+import { NavPeripheralType, toActionPeripheralType, ZOOM_IN_KEY_COMBOS, ZOOM_OUT_KEY_COMBOS } from "@/helpers/peripherals";
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
+import { useAppSelector } from "@/lib/hooks";
 
 export const useEpubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
   const isScroll = useIsScroll();
+  const isFXL = useAppSelector(state => state.publication.isFXL);
   const noScroll = useObservableCondition(!isScroll);
+  const zoomActive = useObservableCondition(!isFXL);
   const { actionsKeys } = useActionsPreferences();
 
   return useMemo(() => {
@@ -22,6 +25,8 @@ export const useEpubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
                                                               { keyCode: 34,              suppressOnInteractiveElement: true, condition: noScroll }] },
       { type: NavPeripheralType.moveHome,         keyCombos: [{ keyCode: 36,              suppressOnInteractiveElement: true, condition: noScroll }] },
       { type: NavPeripheralType.moveEnd,          keyCombos: [{ keyCode: 35,              suppressOnInteractiveElement: true, condition: noScroll }] },
+      { type: NavPeripheralType.zoomIn,           keyCombos: ZOOM_IN_KEY_COMBOS.map(c => ({ ...c, condition: zoomActive }))  },
+      { type: NavPeripheralType.zoomOut,          keyCombos: ZOOM_OUT_KEY_COMBOS.map(c => ({ ...c, condition: zoomActive })) },
     ];
 
     for (const [key, tokens] of Object.entries(actionsKeys)) {
@@ -30,5 +35,5 @@ export const useEpubKeyboardPeripherals = (): IKeyboardPeripheralsConfig => {
     }
 
     return config;
-  }, [noScroll, actionsKeys]);
+  }, [noScroll, zoomActive, actionsKeys]);
 };

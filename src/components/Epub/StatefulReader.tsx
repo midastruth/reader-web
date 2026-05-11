@@ -87,6 +87,7 @@ import debounce from "debounce";
 import { buildThemeObject } from "@/preferences/helpers/buildThemeObject";
 import { createDefaultPlugin } from "../Plugins/helpers/createDefaultPlugin";
 import { NavPeripheralType, fromActionPeripheralType } from "../../helpers/peripherals";
+import { useZoomCallbacks } from "@/components/Settings/hooks/useZoomCallbacks";
 import { toggleActionOpen } from "@/lib/actionsReducer";
 import { getPlatformModifier } from "@/core/Helpers/keyboardUtilities";
 import { getReaderClassNames } from "../Helpers/getReaderClassNames";
@@ -399,6 +400,8 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     }
   }, [dispatch, activateImmersiveOnAction, cache, goRight, goLeft]);
 
+  const { zoomIn, zoomOut } = useZoomCallbacks(epubNavigator);
+
   const goProgression = useCallback((shiftKey?: boolean) => {
     if (!cache.current.settings?.scroll) {
       const cb = () => {
@@ -491,13 +494,15 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         case NavPeripheralType.moveDown:         moveTo("down");       break;
         case NavPeripheralType.moveHome:         moveTo("home");       break;
         case NavPeripheralType.moveEnd:          moveTo("end");        break;
+        case NavPeripheralType.zoomIn:           zoomIn();             break;
+        case NavPeripheralType.zoomOut:          zoomOut();            break;
         default: {
           const actionKey = fromActionPeripheralType(data.type);
           if (actionKey && profile) dispatch(toggleActionOpen({ key: actionKey, profile }));
         }
       }
     },
-  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, profile]);
+  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
