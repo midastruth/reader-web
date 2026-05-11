@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { ScriptMode } from "@readium/navigator";
+import { ScriptMode, RCSSSettingsEntry } from "@readium/navigator";
 import { useAppSelector } from "@/lib/hooks";
 import {
   ThSettingsKeys,
@@ -31,7 +31,7 @@ const globallyAdded = new Set(
   Object.values(ReadiumCSSSettings).flatMap(entry => entry.added)
 );
 
-const deriveExcluded = (entry: { disabled: string[]; added: string[] }): string[] => {
+const deriveExcluded = (entry: RCSSSettingsEntry): string[] => {
   const fromDisabled = entry.disabled
     .map(k => READIUM_CSS_TO_SETTINGS_KEY[k])
     .filter((k): k is string => k !== undefined);
