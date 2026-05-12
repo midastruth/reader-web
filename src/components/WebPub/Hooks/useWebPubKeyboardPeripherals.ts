@@ -6,7 +6,7 @@ import { ThActionsKeys } from "@/preferences/models";
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
-import { useActionComponentStatus } from "@/core/Components/Actions/hooks/useActionComponentStatus";
+import { useActionComponentStatus } from "../../Actions/hooks/useActionComponentStatus";
 
 import { NavPeripheralType, toActionPeripheralType, toDockingPeripheralType, ZOOM_IN_KEY_COMBOS, ZOOM_OUT_KEY_COMBOS } from "@/helpers/peripherals";
 

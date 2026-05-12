@@ -8,7 +8,7 @@ import { useObservableCondition } from "@/core/Hooks/useObservableCondition";
 import { useFullscreen } from "@/core/Hooks/useFullscreen";
 import { useActionsPreferences } from "@/preferences/hooks/useActionsPreferences";
 import { useFilteredPreferenceKeys } from "@/preferences/hooks/useFilteredPreferenceKeys";
-import { useActionComponentStatus } from "@/core/Components/Actions/hooks/useActionComponentStatus";
+import { useActionComponentStatus } from "../../Actions/hooks/useActionComponentStatus";
 
 import { useAppSelector } from "@/lib/hooks";
 

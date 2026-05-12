@@ -26,8 +26,7 @@ import {
   defaultAudioPlaybackRate,
   defaultAudioSkipBackwardInterval,
   defaultAudioSkipForwardInterval,
-  defaultAudioSleepTimer,
-  TEXT_INPUT_SELECTORS
+  defaultAudioSleepTimer
 } from "./models";
 import { createAudioPreferences, ThAudioPreferences, AudioDefaultKeys, ThAudioAffordance } from "./audioPreferences";
 

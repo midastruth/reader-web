@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePlugins } from "@/components/Plugins/PluginProvider";
+import { usePlugins } from "../../Plugins/PluginProvider";
 
 interface UseActionComponentStatusOptions {
   actionKey: string;
