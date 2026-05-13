@@ -82,28 +82,15 @@ export async function resolveBook(
   bookId: string | undefined,
   bookTitle: string | undefined
 ): Promise<BookAwareBook> {
-  // 1. If bookId looks like a sha256 (64 hex chars), try GET /books/:sha256 directly.
-  if (bookId && /^[0-9a-f]{64}$/i.test(bookId)) {
-    try {
-      const data = await apiFetch(`/books/${encodeURIComponent(bookId)}`) as { ok: boolean; book: BookAwareBook };
-      return data.book;
-    } catch {
-      // fall through to title search
-    }
+  // Only trust a real content sha256. Title-based fallback is unsafe: two different
+  // EPUB files can share the same metadata title and would be silently misrouted to
+  // an unrelated index. Force the caller (Reader) to provide a verified sha256.
+  if (!bookId || !/^[0-9a-f]{64}$/i.test(bookId)) {
+    throw new Error(friendlyError("BOOK_NOT_FOUND", `当前书籍缺少可信的 sha256，未在 book-aware 后端注册`));
   }
 
-  // 2. Fall back to listing all books and matching by title (case-insensitive, trimmed).
-  if (!bookTitle?.trim()) {
-    throw new Error("无法确定当前书籍，请先在 book-aware 后端注册后再试。");
-  }
-
-  const books = await fetchBooks();
-  const needle = bookTitle.trim().toLowerCase();
-  const match = books.find((b) => b.title.trim().toLowerCase() === needle);
-  if (!match) {
-    throw new Error(friendlyError("BOOK_NOT_FOUND", `书籍「${bookTitle}」未在 book-aware 后端注册`));
-  }
-  return match;
+  const data = await apiFetch(`/books/${encodeURIComponent(bookId)}`) as { ok: boolean; book: BookAwareBook };
+  return data.book;
 }
 
 export async function aiQuery(request: AiQueryRequest): Promise<AiQueryResponse> {
