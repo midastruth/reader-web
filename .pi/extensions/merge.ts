@@ -15,6 +15,8 @@ type Candidate = {
 	stat: string;
 	mergeCheck: string;
 	mergeCheckExitCode: number;
+	lastCommitTime: number;
+	lastCommitIso: string;
 };
 
 function block(label: string, value: string): string {
@@ -76,6 +78,10 @@ async function collectCandidate(pi: ExtensionAPI, cwd: string, base: string, ref
 	const log = await run(pi, cwd, `git log --oneline --decorate -20 ${shellQuote(base)}..${shellQuote(ref)}`);
 	const stat = await run(pi, cwd, `git diff --stat ${shellQuote(base)}...${shellQuote(ref)}`);
 	const mergeCheck = await run(pi, cwd, `git merge-tree --write-tree ${shellQuote(base)} ${shellQuote(ref)}`);
+	const lastCommit = await run(pi, cwd, `git log -1 --format=%ct%x09%cI ${shellQuote(ref)}`);
+	const [ctRaw, ciso] = (lastCommit.stdout || "").trim().split(/\t/);
+	const lastCommitTime = Number(ctRaw || 0);
+	const lastCommitIso = ciso || "unknown";
 
 	return {
 		ref,
@@ -85,6 +91,8 @@ async function collectCandidate(pi: ExtensionAPI, cwd: string, base: string, ref
 		stat: stat.stdout || stat.stderr,
 		mergeCheck: mergeCheck.stdout || mergeCheck.stderr,
 		mergeCheckExitCode: mergeCheck.code,
+		lastCommitTime: Number.isFinite(lastCommitTime) ? lastCommitTime : 0,
+		lastCommitIso,
 	};
 }
 
@@ -94,9 +102,10 @@ function candidatesText(candidates: Candidate[]): string {
 	return candidates
 		.map((candidate, index) =>
 			[
-				`## Candidate ${index + 1}: ${candidate.ref}`,
+				`## Candidate ${index + 1}: ${candidate.ref}${index === 0 ? "  (most recent commit — recommended target)" : ""}`,
 				`Ahead of base: ${candidate.ahead} commit(s)` ,
 				`Behind base: ${candidate.behind} commit(s)`,
+				`Last commit: ${candidate.lastCommitIso}`,
 				`Merge check: ${candidate.mergeCheckExitCode === 0 ? "clean" : "conflict or error"}`,
 				"",
 				block(`git log --oneline ${DEFAULT_BASE}..${candidate.ref}`, candidate.log || "<empty>"),
@@ -113,15 +122,19 @@ function mergePrompt(base: string, status: string, mainStatus: string, candidate
 	return [
 		`Please review branches that may need merging into \`${base}\`.`,
 		"",
+		"请使用中文回复。",
+		"",
 		target ? `Requested target branch/ref: ${target}` : "Requested target branch/ref: not specified; choose from candidates.",
 		"",
 		"Goal:",
 		`- Find branches that are ahead of \`${base}\` and decide whether they should be merged into \`${base}\`.`,
-		"- If a branch is low-risk and clearly ready, merge it into the base branch locally.",
-		"- If there is meaningful risk, conflicts, unclear intent, or missing checks, do not merge; explain the risk and recommended next step.",
+		"- **Merge at most one branch per invocation.** Candidates are pre-sorted by most recent commit time (newest first); prefer Candidate 1 unless it is unsafe, in which case fall through to the next one or refuse.",
+		"- If the chosen branch is low-risk and clearly ready, merge it into the base branch locally and stop — do not proceed to other candidates in the same run.",
+		"- If there is meaningful risk, conflicts, unclear intent, or missing checks, do not merge; explain the risk and recommended next step. Mention the other candidates briefly so the user knows what is pending, but still do not merge them now.",
 		"- Prefer fast-forward merges when possible. Use a normal merge only when appropriate and explain why.",
 		"- Do not push unless the user explicitly asks to push.",
 		"- If there are no candidate branches and the base branch is ahead of its remote, suggest `/push`.",
+		"- After a successful merge, suggest the user re-run `/merge` to handle the next branch.",
 		"",
 		block(STATUS_COMMAND, status || "<empty>"),
 		"",
@@ -188,6 +201,10 @@ export default function mergeExtension(pi: ExtensionAPI) {
 					const candidate = await collectCandidate(pi, ctx.cwd, base, ref);
 					if (candidate) candidates.push(candidate);
 				}
+				// Strategy: only merge one branch per /merge call, prioritising the
+				// branch whose tip commit is most recent. Sort newest → oldest so
+				// Candidate 1 in the prompt is always the recommended target.
+				candidates.sort((a, b) => b.lastCommitTime - a.lastCommitTime);
 
 				const tracking = await mainTrackingStatus(pi, ctx.cwd, base);
 				pi.sendUserMessage(mergePrompt(base, status.stdout, tracking, candidates, target));
