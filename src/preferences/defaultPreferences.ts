@@ -69,7 +69,7 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     }
   },
   typography: {
-    minimalLineLength: 40, // undefined | null | number of characters. If 2 cols will switch to 1 based on this
+    minimalLineLength: null,  //原默认值为 40(字符数),如需恢复保护可改回数字，即使窗口很窄,选择 2 栏也会强行保留两栏(每栏可能被压得很窄)
     optimalLineLength: 55, // number of characters. If auto layout, picks colCount based on this
     maximalLineLength: 70, // undefined | null | number of characters.
     pageGutter: 20
