@@ -18,24 +18,30 @@ type UploadedBook = {
   author: string;
 };
 
+const BOOK_AWARE_UPLOAD_BASE_URL = (
+  process.env.NEXT_PUBLIC_BOOK_AWARE_URL ?? "/api/book-aware"
+).replace(/\/$/, "");
+
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      // Strip the data URL prefix (e.g. "data:application/epub+zip;base64,")
-      const base64 = result.split(",")[1];
-      resolve(base64);
+async function readResponsePayload(res: Response): Promise<Record<string, unknown>> {
+  const text = await res.text();
+  if (!text) return {};
+
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return {
+      ok: false,
+      error: {
+        message: res.ok ? text : `${res.status} ${res.statusText || "请求失败"}: ${text}`,
+      },
     };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
+  }
 }
 
 export default function UploadPage() {
@@ -77,18 +83,16 @@ export default function UploadPage() {
     setState({ type: "loading" });
 
     try {
-      const base64 = await fileToBase64(file);
+      const formData = new FormData();
+      formData.append("epub", file, file.name);
+      formData.append("filename", file.name);
 
-      const res = await fetch("/api/book-aware/books/import/epub", {
+      const res = await fetch(`${BOOK_AWARE_UPLOAD_BASE_URL}/books/import/epub`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content_base64: base64,
-          filename: file.name,
-        }),
+        body: formData,
       });
 
-      const data = await res.json() as Record<string, unknown>;
+      const data = await readResponsePayload(res);
 
       if (!res.ok || !data.ok) {
         const errMsg = (data.error as Record<string, unknown>)?.message as string

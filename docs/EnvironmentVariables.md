@@ -26,6 +26,22 @@ MANIFEST_ALLOWED_DOMAINS="publication-server.readium.org"
 
 You can also use `*` to allow all domains.
 
+## Book-aware backend
+
+### NEXT_PUBLIC_BOOK_AWARE_URL
+
+Browser-facing book-aware backend URL. Set this to the public backend origin (not the Next.js `/api/book-aware` proxy) so large EPUB uploads go directly to book-aware and do not hit Vercel function body limits.
+
+```bash
+NEXT_PUBLIC_BOOK_AWARE_URL="https://book-aware.example.com"
+```
+
+The book-aware backend must allow the frontend origin via CORS, for example:
+
+```bash
+BOOK_AWARE_CORS_ORIGIN="https://read.midaspenn.com"
+```
+
 ## Assets
 
 By default, the assets are fetched from the same domain as the application. An environment variable is therefore provided to configure the base path if needed.

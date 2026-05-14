@@ -36,15 +36,24 @@ async function forward(req: NextRequest, ctx: RouteContext): Promise<NextRespons
   const upstreamUrl = `${UPSTREAM}/${upstreamPath(path)}${req.nextUrl.search}`;
   const isHead = req.method === "HEAD";
 
+  const upstreamHeaders = new Headers();
+  const contentType = req.headers.get("content-type");
+  if (contentType) upstreamHeaders.set("content-type", contentType);
+
+  const init: RequestInit & { duplex?: "half" } = {
+    // book-aware download endpoints do not support HEAD directly; issue GET upstream
+    // and translate it to a body-less HEAD response at this proxy boundary.
+    method: isHead ? "GET" : req.method,
+    headers: upstreamHeaders,
+  };
+  if (req.method !== "GET" && !isHead) {
+    init.body = req.body;
+    init.duplex = "half";
+  }
+
   let upstreamRes: Response;
   try {
-    upstreamRes = await fetch(upstreamUrl, {
-      // book-aware download endpoints do not support HEAD directly; issue GET upstream
-      // and translate it to a body-less HEAD response at this proxy boundary.
-      method: isHead ? "GET" : req.method,
-      headers: { "content-type": "application/json" },
-      body: req.method !== "GET" && !isHead ? await req.text() : undefined,
-    });
+    upstreamRes = await fetch(upstreamUrl, init);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
