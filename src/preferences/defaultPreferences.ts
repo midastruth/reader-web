@@ -69,9 +69,9 @@ export const defaultPreferences: ThPreferences<DefaultKeys> = createPreferences<
     }
   },
   typography: {
-    minimalLineLength: null,  //原默认值为 40(字符数),如需恢复保护可改回数字，即使窗口很窄,选择 2 栏也会强行保留两栏(每栏可能被压得很窄)
+    minimalLineLength: 20,  //原默认值为 40(字符数),如需恢复保护可改回数字，即使窗口很窄,选择 2 栏也会强行保留两栏(每栏可能被压得很窄)
     optimalLineLength: 55, // number of characters. If auto layout, picks colCount based on this
-    maximalLineLength: 70, // undefined | null | number of characters.
+    maximalLineLength: 50, // 单栏最大行宽(字符数)。越小越窄,越接近书本感;太大会让眼睛扫距离过长。推荐 45-75
     pageGutter: 20
   },
   theming: {
