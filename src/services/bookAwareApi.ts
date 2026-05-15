@@ -43,8 +43,13 @@ function friendlyError(code: string, message: string): string {
     PROXY_UPSTREAM_UNREACHABLE: `book-aware 后端未启动或无法连接。请先运行后端服务（npm run dev）后再试。`,
     BOOK_NOT_FOUND: `当前书籍尚未在 book-aware 后端注册，请先用 /books/import/epub 导入。`,
     BOOK_NOT_INDEXED: `当前书籍已注册但尚未建立索引，请检查 book-aware 后端的 markdown 绑定。`,
+    BOOK_MARKDOWN_MISSING: `书籍的 Markdown 文件已丢失，请重新导入或重建索引。`,
     INVALID_TEXT: `选中文字不能为空。`,
     INVALID_ACTION: `不支持的操作类型。`,
+    AI_ERROR: `AI 服务返回错误：${message}`,
+    AI_EMPTY_RESPONSE: `AI 没有返回任何内容，请稍后重试。`,
+    AI_ABORTED: `AI 请求被中断：${message}`,
+    AI_NO_RESPONSE: `AI 未返回响应，请稍后重试。`,
   };
   return map[code] ?? `错误 [${code}]：${message}`;
 }

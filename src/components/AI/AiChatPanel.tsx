@@ -484,30 +484,40 @@ export function AiChatPanel({
           .map((c) => c.text)
           .join("") ?? "";
 
-      if (!bookCacheRef.current) {
-        const book = await resolveBook(bookId, bookTitle);
-        bookCacheRef.current = { sha256: book.sha256, title: book.title, author: book.author || bookAuthor || "" };
-      }
-
+      // Render any thrown error as an assistant bubble. assistant-ui's
+      // useLocalRuntime does NOT surface adapter exceptions in the chat;
+      // without this catch the UI just silently stops while the real
+      // message only appears in the browser console.
       let fullText = "";
-
-      for await (const event of aiQueryStream({
-        action,
-        text: selectedText,
-        question,
-        book: bookCacheRef.current,
-        location: { chapter, progress },
-        session_id: sessionIdRef.current,
-      }, abortSignal)) {
-        if (event.type === "delta") {
-          fullText += event.text;
-          yield { content: [{ type: "text", text: fullText }] };
-        } else if (event.type === "final") {
-          if (event.session_id) sessionIdRef.current = event.session_id;
-          yield { content: [{ type: "text", text: event.answer.text }] };
-        } else if (event.type === "error") {
-          throw new Error(event.message);
+      try {
+        if (!bookCacheRef.current) {
+          const book = await resolveBook(bookId, bookTitle);
+          bookCacheRef.current = { sha256: book.sha256, title: book.title, author: book.author || bookAuthor || "" };
         }
+
+        for await (const event of aiQueryStream({
+          action,
+          text: selectedText,
+          question,
+          book: bookCacheRef.current,
+          location: { chapter, progress },
+          session_id: sessionIdRef.current,
+        }, abortSignal)) {
+          if (event.type === "delta") {
+            fullText += event.text;
+            yield { content: [{ type: "text", text: fullText }] };
+          } else if (event.type === "final") {
+            if (event.session_id) sessionIdRef.current = event.session_id;
+            yield { content: [{ type: "text", text: event.answer.text }] };
+          } else if (event.type === "error") {
+            throw new Error(event.message);
+          }
+        }
+      } catch (err) {
+        if ((err as Error)?.name === "AbortError") throw err;
+        const message = err instanceof Error ? err.message : String(err);
+        const body = fullText ? `${fullText}\n\n⚠️ ${message}` : `⚠️ ${message}`;
+        yield { content: [{ type: "text", text: body }] };
       }
     },
   }), [selectedText, initialAction, bookId, bookTitle, bookAuthor, chapter, progress]);
