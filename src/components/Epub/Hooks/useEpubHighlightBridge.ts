@@ -39,7 +39,7 @@ export const useEpubHighlightBridge = ({
 }: UseEpubHighlightBridgeOptions) => {
   const highlightManagerRef = useRef<HighlightManagerHandle | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const pendingHighlightRestoresRef = useRef<Array<{ iframe: HTMLIFrameElement; href: string }>>([]);
+  const pendingHighlightRestoresRef = useRef<Array<{ iframe: HTMLIFrameElement; href: string; readingOrderPosition?: number }>>([]);
 
   const getReadingOrderPosition = useCallback((href: string): number | undefined => {
     const normalizedHref = normalizeHrefForReadingOrder(href);
@@ -55,8 +55,8 @@ export const useEpubHighlightBridge = ({
 
     const pending = pendingHighlightRestoresRef.current;
     pendingHighlightRestoresRef.current = [];
-    pending.forEach(({ iframe, href }) => {
-      void handle.restoreForIframe(iframe, href);
+    pending.forEach(({ iframe, href, readingOrderPosition }) => {
+      void handle.restoreForIframe(iframe, href, readingOrderPosition);
     });
   }, []);
 
@@ -78,21 +78,22 @@ export const useEpubHighlightBridge = ({
         if (!href) return;
 
         iframe.dataset.originalHref = href;
+        const readingOrderPosition = getReadingOrderPosition(href);
         const handle = highlightManagerRef.current;
         if (handle) {
-          void handle.restoreForIframe(iframe, href);
+          void handle.restoreForIframe(iframe, href, readingOrderPosition);
           return;
         }
 
         const pending = pendingHighlightRestoresRef.current;
         if (!pending.some((item) => item.iframe === iframe && item.href === href)) {
-          pending.push({ iframe, href });
+          pending.push({ iframe, href, readingOrderPosition });
         }
       });
     } catch (error) {
       console.warn("StatefulReader: failed to restore highlights for loaded frame", error);
     }
-  }, [currentLocator, getCframes]);
+  }, [currentLocator, getCframes, getReadingOrderPosition]);
 
   const handleTextSelected = (selection: BasicTextSelection): void => {
     if (!selection) {

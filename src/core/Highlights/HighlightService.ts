@@ -131,6 +131,7 @@ export class HighlightService {
       prefix: locator.text.before,
       suffix: locator.text.after,
       href: locator.href,
+      spine_index: locator.locations.position,
       total_progression: locator.locations.totalProgression,
       chapter: input.chapter,
       color: optimistic.color,
@@ -151,7 +152,7 @@ export class HighlightService {
     return this.remember(highlights);
   }
 
-  async loadChapter(bookId: string, href: string): Promise<Highlight[]> {
+  async loadChapter(bookId: string, href: string, readingOrderPosition?: number): Promise<Highlight[]> {
     if (!isServerBackedBookId(bookId)) return [];
 
     const normalizedHref = normalizeHref(href);
@@ -159,7 +160,12 @@ export class HighlightService {
     return sortHighlightsByReadingOrder(
       bookHighlights.filter((highlight) => {
         const highlightHref = normalizeHref(highlight.locator.href || '');
-        return highlightHref === normalizedHref;
+        if (highlightHref) return highlightHref === normalizedHref;
+
+        // Some older book-aware rows may not have href. Only restore them when
+        // the backend has a reliable spine index and it matches the loaded frame.
+        return readingOrderPosition !== undefined &&
+          highlight.locator.locations.position === readingOrderPosition;
       })
     );
   }

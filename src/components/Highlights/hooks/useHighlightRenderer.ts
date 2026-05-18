@@ -25,7 +25,7 @@ export interface UseHighlightRendererOptions {
 }
 
 export interface UseHighlightRendererReturn {
-  restoreHighlights: (iframe: HTMLIFrameElement, href: string) => Promise<void>;
+  restoreHighlights: (iframe: HTMLIFrameElement, href: string, readingOrderPosition?: number) => Promise<void>;
   renderHighlight: (highlight: Highlight, iframe: HTMLIFrameElement) => void;
   removeHighlight: (highlightId: string, iframe: HTMLIFrameElement) => void;
   updateHighlight: (highlight: Highlight, iframe: HTMLIFrameElement) => void;
@@ -96,7 +96,7 @@ export function useHighlightRenderer(
     }
   }, []);
 
-  const restoreHighlights = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
+  const restoreHighlights = useCallback(async (iframe: HTMLIFrameElement, href: string, readingOrderPosition?: number) => {
     const doc = iframe.contentDocument;
     if (!doc) {
       console.warn('Cannot restore highlights: iframe document not available');
@@ -106,7 +106,7 @@ export function useHighlightRenderer(
     setupIframe(iframe);
 
     try {
-      const chapterHighlights = await highlightService.loadChapter(bookId, href);
+      const chapterHighlights = await highlightService.loadChapter(bookId, href, readingOrderPosition);
       rendererRef.current.restore(chapterHighlights, iframe);
       if (selectedHighlightId) rendererRef.current.select(selectedHighlightId, doc);
     } catch (error) {

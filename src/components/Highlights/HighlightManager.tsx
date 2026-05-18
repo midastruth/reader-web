@@ -35,7 +35,7 @@ export interface HighlightManagerHandle {
 
   handleTextSelected: (selection: TextSelection) => void;
 
-  restoreForIframe: (iframe: HTMLIFrameElement, href: string) => Promise<void>;
+  restoreForIframe: (iframe: HTMLIFrameElement, href: string, readingOrderPosition?: number) => Promise<void>;
 
 }
 
@@ -312,10 +312,10 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     });
   }, [getIframeForSelection, hideContextMenu, hideToolbar, isValidSelection]);
 
-  const restoreForIframe = useCallback(async (iframe: HTMLIFrameElement, href: string) => {
+  const restoreForIframe = useCallback(async (iframe: HTMLIFrameElement, href: string, readingOrderPosition?: number) => {
     setupIframeSelectionDismissal(iframe);
 
-    await restoreHighlights(iframe, href);
+    await restoreHighlights(iframe, href, readingOrderPosition);
 
   }, [restoreHighlights, setupIframeSelectionDismissal]);
 
