@@ -207,7 +207,7 @@ export function rangeToBlockParts(range: Range): BlockRangePart[] {
 /**
  * Extract text context around a range.
  */
-function getTextContext(range: Range, contextLength = 80): {
+function getTextContext(range: Range, contextLength = 200): {
   before: string;
   highlight: string;
   after: string;

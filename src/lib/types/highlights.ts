@@ -10,9 +10,20 @@ export enum HighlightColor {
   YELLOW = 'yellow',
   GREEN = 'green',
   BLUE = 'blue',
-  PINK = 'pink',
-  ORANGE = 'orange',
-  PURPLE = 'purple'
+  RED = 'red',
+  PURPLE = 'purple',
+  GRAY = 'gray',
+}
+
+const LEGACY_COLOR_MAP: Partial<Record<string, HighlightColor>> = {
+  pink: HighlightColor.RED,
+  orange: HighlightColor.YELLOW,
+};
+
+/** Normalize any stored color string to the current HighlightColor enum. */
+export function normalizeHighlightColor(color: string): HighlightColor {
+  if ((Object.values(HighlightColor) as string[]).includes(color)) return color as HighlightColor;
+  return LEGACY_COLOR_MAP[color] ?? HighlightColor.YELLOW;
 }
 
 /**
@@ -93,6 +104,26 @@ export interface HighlightLocator {
 }
 
 /**
+ * KOReader sync state for a highlight.
+ * Tracks whether this highlight has been uploaded to book-aware and resolved
+ * to a native KOReader XPointer annotation.
+ */
+export interface KoreaderSyncState {
+  /** Sync lifecycle: pending (uploaded, awaiting KOReader), resolved, conflict, or failed. */
+  status: 'pending' | 'resolved' | 'conflict' | 'failed';
+  /** ID of the corresponding highlight in the book-aware backend. */
+  backendId?: string;
+  /** KOReader XPointer for start of annotation (set after KOReader resolves it). */
+  pos0?: string;
+  /** KOReader XPointer for end of annotation (set after KOReader resolves it). */
+  pos1?: string;
+  /** KOReader display page (set after KOReader resolves it). */
+  page?: string;
+  /** Last sync error, set when status is failed. */
+  error?: string;
+}
+
+/**
  * A single highlight/annotation
  */
 export interface Highlight {
@@ -116,6 +147,8 @@ export interface Highlight {
   anchorVersion?: number;
   /** Stable reading-order key used by list sorting and conflict resolution. */
   sortKey?: string;
+  /** KOReader sync state. Present only when the highlight has been uploaded to book-aware. */
+  koreader?: KoreaderSyncState;
 }
 
 /**

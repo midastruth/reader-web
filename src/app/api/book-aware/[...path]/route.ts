@@ -76,6 +76,8 @@ async function forward(req: NextRequest, ctx: RouteContext): Promise<NextRespons
   });
 }
 
-export const GET  = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
-export const HEAD = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
-export const POST = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
+export const GET    = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
+export const HEAD   = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
+export const POST   = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
+export const PATCH  = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);
+export const DELETE = (req: NextRequest, ctx: RouteContext) => forward(req, ctx);

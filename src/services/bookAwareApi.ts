@@ -82,6 +82,84 @@ export async function fetchBooks(): Promise<BookAwareBook[]> {
   return data.books ?? [];
 }
 
+export interface CreateHighlightPayload {
+  exact: string;
+  prefix?: string;
+  suffix?: string;
+  href?: string;
+  spine_index?: number;
+  total_progression?: number;
+  chapter?: string;
+  color?: string;
+  note?: string;
+}
+
+export interface BookAwareHighlight {
+  id: string;
+  book_sha256: string;
+  created_at: string;
+  updated_at: string;
+  exact: string;
+  prefix: string;
+  suffix: string;
+  href?: string;
+  spine_index?: number;
+  total_progression?: number;
+  chapter?: string;
+  color?: string;
+  note?: string;
+  koreader: { status: string; pos0?: string; pos1?: string; page?: string; error?: string };
+  // Phase 3
+  version?: number;
+  deleted_at?: string;
+  updated_by?: string;
+}
+
+export interface UpdateHighlightPayload {
+  note?: string;
+  color?: string;
+  updated_by?: string;
+}
+
+export async function updateBookAwareHighlight(
+  sha256: string,
+  highlightId: string,
+  payload: UpdateHighlightPayload,
+): Promise<BookAwareHighlight> {
+  const data = await apiFetch(
+    `/books/${encodeURIComponent(sha256)}/highlights/${encodeURIComponent(highlightId)}`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  ) as { ok: boolean; highlight: BookAwareHighlight };
+  return data.highlight;
+}
+
+export async function deleteBookAwareHighlight(
+  sha256: string,
+  highlightId: string,
+): Promise<{ deleted: string; deleted_at: string }> {
+  const data = await apiFetch(
+    `/books/${encodeURIComponent(sha256)}/highlights/${encodeURIComponent(highlightId)}`,
+    { method: "DELETE" },
+  ) as { ok: boolean; deleted: string; deleted_at: string };
+  return { deleted: data.deleted, deleted_at: data.deleted_at };
+}
+
+export async function createBookAwareHighlight(
+  sha256: string,
+  payload: CreateHighlightPayload
+): Promise<BookAwareHighlight> {
+  const data = await apiFetch(`/books/${encodeURIComponent(sha256)}/highlights`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  }) as { ok: boolean; highlight: BookAwareHighlight };
+  return data.highlight;
+}
+
 /** Resolve a sha256 or title string to a registered BookAwareBook. */
 export async function resolveBook(
   bookId: string | undefined,

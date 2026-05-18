@@ -44,22 +44,22 @@ const COLOR_OPTIONS: Array<{
     border: 'rgba(100, 181, 246, 0.65)',
   },
   {
-    color: HighlightColor.PINK,
-    label: 'Pink',
-    bg: 'rgba(244, 143, 177, 0.35)',
-    border: 'rgba(240, 98, 146, 0.65)',
-  },
-  {
-    color: HighlightColor.ORANGE,
-    label: 'Orange',
-    bg: 'rgba(255, 204, 128, 0.35)',
-    border: 'rgba(255, 183, 77, 0.65)',
+    color: HighlightColor.RED,
+    label: 'Red',
+    bg: 'rgba(255, 138, 128, 0.35)',
+    border: 'rgba(239, 68, 68, 0.65)',
   },
   {
     color: HighlightColor.PURPLE,
     label: 'Purple',
     bg: 'rgba(206, 147, 216, 0.35)',
     border: 'rgba(186, 104, 200, 0.65)',
+  },
+  {
+    color: HighlightColor.GRAY,
+    label: 'Gray',
+    bg: 'rgba(180, 180, 180, 0.35)',
+    border: 'rgba(120, 120, 120, 0.65)',
   },
 ];
 

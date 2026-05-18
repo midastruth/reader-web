@@ -11,6 +11,7 @@ import preferencesReducer, { PreferencesReducerState } from "./preferencesReduce
 import globalPreferencesReducer, { GlobalPreferencesReducerState } from "./globalPreferencesReducer";
 import webPubSettingsReducer, { WebPubSettingsReducerState } from "./webPubSettingsReducer";
 import highlightsReducer, { HighlightsState } from "./highlightsReducer";
+import { normalizeHighlightColor } from "./types/highlights";
 import audioSettingsReducer, { AudioSettingsState } from "./audioSettingsReducer";
 import playerReducer, { PlayerReducerState } from "./playerReducer";
 
@@ -125,6 +126,15 @@ const migrateDockStateToProfileKeyed = (state: ActionsReducerState): ActionsRedu
   return state;
 };
 
+const migrateHighlightsState = (state: HighlightsState): HighlightsState => ({
+  ...state,
+  activeColor: normalizeHighlightColor(String(state.activeColor || "")),
+  currentBookHighlights: (state.currentBookHighlights || []).map((highlight) => ({
+    ...highlight,
+    color: normalizeHighlightColor(String(highlight.color || "")),
+  })),
+});
+
 const migrateKeysStateToProfileKeyed = (state: ActionsReducerState): ActionsReducerState => {
   // If keys is not profile-keyed, migrate to profile-keyed format
   // Old format: keys is a flat object like { [key]: ActionStateObject }
@@ -195,6 +205,9 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
       }
       if (state.webPubSettings) {
         state.webPubSettings = migrateFontFamily(state.webPubSettings);
+      }
+      if (state.highlights) {
+        state.highlights = migrateHighlightsState(state.highlights);
       }
       if (state.actions) {
         state.actions = updateActionsState(state.actions);

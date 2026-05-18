@@ -208,7 +208,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
   }, [hideToolbar]);
 
   // Hooks
-  const { createHighlight, isValidSelection } = useHighlightSelection(bookId);
+  const { createHighlight, isValidSelection } = useHighlightSelection(bookId, currentChapter);
   const {
     restoreHighlights,
     renderHighlight,
@@ -540,9 +540,9 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
             .highlight-yellow { background: rgba(255, 235, 0, 0.65); }
             .highlight-green { background: rgba(165, 214, 167, 0.65); }
             .highlight-blue { background: rgba(144, 202, 249, 0.65); }
-            .highlight-pink { background: rgba(244, 143, 177, 0.65); }
-            .highlight-orange { background: rgba(255, 204, 128, 0.65); }
+            .highlight-red { background: rgba(255, 138, 128, 0.65); }
             .highlight-purple { background: rgba(206, 147, 216, 0.65); }
+            .highlight-gray { background: rgba(180, 180, 180, 0.65); }
           `}</style>
         </div>
       )}

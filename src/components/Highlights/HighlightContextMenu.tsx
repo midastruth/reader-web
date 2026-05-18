@@ -6,9 +6,11 @@
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import type { AppDispatch } from '@/lib/store';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
-import { updateHighlight, deleteHighlight, openNoteEditor } from '@/lib/highlightsReducer';
+import { updateHighlight, deleteHighlight, openNoteEditor, setError } from '@/lib/highlightsReducer';
 import { highlightService } from '@/core/Highlights';
+import { deleteSyncedBookAwareHighlight, syncBookAwareHighlightUpdate } from '@/components/Highlights/helpers/bookAwareHighlightSync';
 
 export interface HighlightContextMenuProps {
   highlight: Highlight;
@@ -26,9 +28,9 @@ const COLOR_OPTIONS: Array<{
     { color: HighlightColor.YELLOW, label: 'Yellow', bg: 'rgba(255, 235, 0, 0.35)' },
     { color: HighlightColor.GREEN, label: 'Green', bg: 'rgba(165, 214, 167, 0.35)' },
     { color: HighlightColor.BLUE, label: 'Blue', bg: 'rgba(144, 202, 249, 0.35)' },
-    { color: HighlightColor.PINK, label: 'Pink', bg: 'rgba(244, 143, 177, 0.35)' },
-    { color: HighlightColor.ORANGE, label: 'Orange', bg: 'rgba(255, 204, 128, 0.35)' },
+    { color: HighlightColor.RED, label: 'Red', bg: 'rgba(255, 138, 128, 0.35)' },
     { color: HighlightColor.PURPLE, label: 'Purple', bg: 'rgba(206, 147, 216, 0.35)' },
+    { color: HighlightColor.GRAY, label: 'Gray', bg: 'rgba(180, 180, 180, 0.35)' },
   ];
 
 export function HighlightContextMenu({
@@ -39,20 +41,20 @@ export function HighlightContextMenu({
   onDelete,
 }: HighlightContextMenuProps) {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleColorChange = useCallback(async (color: HighlightColor) => {
     try {
       const updated = await highlightService.update(highlight.id, { color });
-
-      // Update in Redux
       dispatch(updateHighlight({ id: highlight.id, updates: updated }));
 
-      // Notify parent
-      onColorChange?.(color);
+      await syncBookAwareHighlightUpdate(updated, { color, updated_by: 'reader-web' }, dispatch);
 
+      onColorChange?.(color);
       onClose();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      dispatch(setError(`Failed to update highlight color: ${message}`));
       console.error('Failed to update highlight color:', error);
     }
   }, [highlight.id, dispatch, onColorChange, onClose]);
@@ -73,19 +75,17 @@ export function HighlightContextMenu({
     }
 
     try {
+      await deleteSyncedBookAwareHighlight(highlight, dispatch);
       await highlightService.delete(highlight.id);
-
-      // Delete from Redux
       dispatch(deleteHighlight(highlight.id));
-
-      // Notify parent
       onDelete?.();
-
       onClose();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      dispatch(setError(`Failed to delete highlight: ${message}`));
       console.error('Failed to delete highlight:', error);
     }
-  }, [highlight.id, dispatch, onDelete, onClose, t]);
+  }, [highlight, dispatch, onDelete, onClose, t]);
 
   return (
     <div

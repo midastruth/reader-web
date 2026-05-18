@@ -5,7 +5,7 @@
  * ReaderHighlight: create, update, delete, stable sorting, and persistence.
  */
 
-import { HighlightColor, type Highlight, type SerializedRange } from '@/lib/types/highlights';
+import { HighlightColor, normalizeHighlightColor, type Highlight, type SerializedRange } from '@/lib/types/highlights';
 import HighlightAnchors from './HighlightAnchors';
 import highlightRepository, { type HighlightRepository } from './HighlightRepository';
 import { buildHighlightSortKey, sortHighlightsByReadingOrder } from './highlightSort';
@@ -29,6 +29,7 @@ function rangesEqual(a: SerializedRange, b: SerializedRange): boolean {
 function normalizeStoredHighlight(highlight: Highlight): Highlight {
   const normalized: Highlight = {
     ...highlight,
+    color: normalizeHighlightColor(highlight.color),
     anchorVersion: highlight.anchorVersion ?? (highlight.range.type === 'block-offset' ? 2 : 1),
   };
   normalized.sortKey = normalized.sortKey ?? buildHighlightSortKey(normalized);
@@ -58,7 +59,7 @@ export class HighlightService {
     const highlight: Highlight = {
       id: createHighlightId(),
       bookId: input.bookId,
-      color: input.color ?? HighlightColor.YELLOW,
+      color: input.color ?? HighlightColor.GRAY,
       createdAt: now,
       updatedAt: now,
       note: input.note,

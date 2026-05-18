@@ -21,9 +21,9 @@ const COLOR_LABELS: Record<HighlightColor, { label: string; bg: string }> = {
   yellow: { label: 'Yellow', bg: 'rgba(255, 235, 0, 0.35)' },
   green: { label: 'Green', bg: 'rgba(165, 214, 167, 0.35)' },
   blue: { label: 'Blue', bg: 'rgba(144, 202, 249, 0.35)' },
-  pink: { label: 'Pink', bg: 'rgba(244, 143, 177, 0.35)' },
-  orange: { label: 'Orange', bg: 'rgba(255, 204, 128, 0.35)' },
+  red: { label: 'Red', bg: 'rgba(255, 138, 128, 0.35)' },
   purple: { label: 'Purple', bg: 'rgba(206, 147, 216, 0.35)' },
+  gray: { label: 'Gray', bg: 'rgba(180, 180, 180, 0.35)' },
 };
 
 export function HighlightsList({ onHighlightClick, onJumpToHighlight }: HighlightsListProps) {

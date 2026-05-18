@@ -38,7 +38,7 @@ export interface HighlightsState {
 const initialState: HighlightsState = {
   currentBookHighlights: [],
   selectedHighlightId: null,
-  activeColor: HighlightColor.YELLOW,
+  activeColor: HighlightColor.GRAY,
   isNoteEditorOpen: false,
   editingNoteId: null,
   isListVisible: false,

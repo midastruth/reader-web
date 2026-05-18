@@ -8,6 +8,7 @@
  */
 
 import type { Highlight, HighlightColor } from '@/lib/types/highlights';
+import { normalizeHighlightColor } from '@/lib/types/highlights';
 import { splitRangeByElements } from './locatorToRange';
 
 /**
@@ -17,18 +18,18 @@ export const HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
   yellow: 'rgba(255, 235, 0, 0.35)',
   green: 'rgba(165, 214, 167, 0.35)',
   blue: 'rgba(144, 202, 249, 0.35)',
-  pink: 'rgba(244, 143, 177, 0.35)',
-  orange: 'rgba(255, 204, 128, 0.35)',
+  red: 'rgba(255, 138, 128, 0.35)',
   purple: 'rgba(206, 147, 216, 0.35)',
+  gray: 'rgba(180, 180, 180, 0.35)',
 };
 
 const SELECTED_HIGHLIGHT_COLORS: Record<HighlightColor, string> = {
   yellow: 'rgba(255, 235, 0, 0.58)',
   green: 'rgba(165, 214, 167, 0.58)',
   blue: 'rgba(144, 202, 249, 0.58)',
-  pink: 'rgba(244, 143, 177, 0.58)',
-  orange: 'rgba(255, 204, 128, 0.58)',
+  red: 'rgba(255, 138, 128, 0.58)',
   purple: 'rgba(206, 147, 216, 0.58)',
+  gray: 'rgba(180, 180, 180, 0.58)',
 };
 
 const NOTE_MARK_BORDER = '2px solid currentColor';
@@ -119,7 +120,7 @@ export function renderCssHighlight(highlight: Highlight, ranges: Range[], doc: D
 
   getCssMetaMap(doc).set(highlight.id, {
     name,
-    color: highlight.color,
+    color: normalizeHighlightColor(highlight.color),
     hasNote: !!highlight.note,
     selected: false,
     ranges: validRanges,
@@ -155,7 +156,7 @@ export function updateCssHighlightAppearance(highlight: Highlight, doc: Document
   const meta = getCssMetaMap(doc).get(highlight.id);
   if (!meta) return false;
 
-  meta.color = highlight.color;
+  meta.color = normalizeHighlightColor(highlight.color);
   meta.hasNote = !!highlight.note;
   rebuildDynamicHighlightStyles(doc);
   return true;
@@ -391,9 +392,9 @@ export function injectHighlightStyles(doc: Document): void {
     .thorium-highlight-yellow { background-color: ${HIGHLIGHT_COLORS.yellow} !important; }
     .thorium-highlight-green { background-color: ${HIGHLIGHT_COLORS.green} !important; }
     .thorium-highlight-blue { background-color: ${HIGHLIGHT_COLORS.blue} !important; }
-    .thorium-highlight-pink { background-color: ${HIGHLIGHT_COLORS.pink} !important; }
-    .thorium-highlight-orange { background-color: ${HIGHLIGHT_COLORS.orange} !important; }
+    .thorium-highlight-red { background-color: ${HIGHLIGHT_COLORS.red} !important; }
     .thorium-highlight-purple { background-color: ${HIGHLIGHT_COLORS.purple} !important; }
+    .thorium-highlight-gray { background-color: ${HIGHLIGHT_COLORS.gray} !important; }
     .thorium-highlight[data-has-note="true"] { border-bottom: ${NOTE_MARK_BORDER}; }
     .thorium-highlight.selected { outline: 2px solid currentColor; outline-offset: 2px; }
   `;

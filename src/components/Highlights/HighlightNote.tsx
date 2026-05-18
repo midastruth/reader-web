@@ -7,10 +7,11 @@ import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import debounce from 'debounce';
-import type { RootState } from '@/lib/store';
+import type { AppDispatch, RootState } from '@/lib/store';
 import type { Highlight } from '@/lib/types/highlights';
-import { updateHighlight, closeNoteEditor } from '@/lib/highlightsReducer';
+import { updateHighlight, closeNoteEditor, setError } from '@/lib/highlightsReducer';
 import { highlightService } from '@/core/Highlights';
+import { syncBookAwareHighlightUpdate } from '@/components/Highlights/helpers/bookAwareHighlightSync';
 
 export interface HighlightNoteProps {
   onHighlightUpdated?: (highlight: Highlight) => void;
@@ -18,7 +19,7 @@ export interface HighlightNoteProps {
 
 export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const isOpen = useSelector((state: RootState) => state.highlights.isNoteEditorOpen);
   const editingNoteId = useSelector((state: RootState) => state.highlights.editingNoteId);
@@ -58,17 +59,18 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
 
     try {
       const updated = await highlightService.update(highlight.id, { note });
+      dispatch(updateHighlight({ id: highlight.id, updates: updated }));
 
-      // Update in Redux
-      dispatch(updateHighlight({
-        id: highlight.id,
-        updates: updated
-      }));
+      await syncBookAwareHighlightUpdate(updated, {
+        note: note ?? '',
+        updated_by: 'reader-web',
+      }, dispatch);
 
       onHighlightUpdated?.(updated);
-
       setLastSaved(Date.now());
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      dispatch(setError(`Failed to save note: ${message}`));
       console.error('Failed to save note:', error);
     } finally {
       setIsSaving(false);
@@ -271,9 +273,9 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
         .highlight-note-quote.quote-yellow { border-color: rgba(234, 179, 8, 0.7); }
         .highlight-note-quote.quote-green  { border-color: rgba(74, 168, 109, 0.7); }
         .highlight-note-quote.quote-blue   { border-color: rgba(59, 130, 246, 0.7); }
-        .highlight-note-quote.quote-pink   { border-color: rgba(236, 72, 153, 0.7); }
-        .highlight-note-quote.quote-orange { border-color: rgba(249, 115, 22, 0.7); }
+        .highlight-note-quote.quote-red    { border-color: rgba(239, 68, 68, 0.7); }
         .highlight-note-quote.quote-purple { border-color: rgba(139, 92, 246, 0.7); }
+        .highlight-note-quote.quote-gray   { border-color: rgba(120, 120, 120, 0.7); }
 
         .highlight-note-editor {
           padding: 12px 16px;

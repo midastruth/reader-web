@@ -53,6 +53,7 @@ export interface HighlightUpdateInput {
   locator?: Highlight['locator'];
   range?: Highlight['range'];
   sortKey?: string;
+  koreader?: Highlight['koreader'];
 }
 
 export interface HighlightRenderTarget {
