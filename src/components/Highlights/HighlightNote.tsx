@@ -11,7 +11,6 @@ import type { AppDispatch, RootState } from '@/lib/store';
 import type { Highlight } from '@/lib/types/highlights';
 import { updateHighlight, closeNoteEditor, setError } from '@/lib/highlightsReducer';
 import { highlightService } from '@/core/Highlights';
-import { syncBookAwareHighlightUpdate } from '@/components/Highlights/helpers/bookAwareHighlightSync';
 
 export interface HighlightNoteProps {
   onHighlightUpdated?: (highlight: Highlight) => void;
@@ -60,11 +59,6 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
     try {
       const updated = await highlightService.update(highlight.id, { note });
       dispatch(updateHighlight({ id: highlight.id, updates: updated }));
-
-      await syncBookAwareHighlightUpdate(updated, {
-        note: note ?? '',
-        updated_by: 'reader-web',
-      }, dispatch);
 
       onHighlightUpdated?.(updated);
       setLastSaved(Date.now());

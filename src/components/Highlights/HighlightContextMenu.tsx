@@ -10,7 +10,6 @@ import type { AppDispatch } from '@/lib/store';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import { updateHighlight, deleteHighlight, openNoteEditor, setError } from '@/lib/highlightsReducer';
 import { highlightService } from '@/core/Highlights';
-import { deleteSyncedBookAwareHighlight, syncBookAwareHighlightUpdate } from '@/components/Highlights/helpers/bookAwareHighlightSync';
 
 export interface HighlightContextMenuProps {
   highlight: Highlight;
@@ -48,8 +47,6 @@ export function HighlightContextMenu({
       const updated = await highlightService.update(highlight.id, { color });
       dispatch(updateHighlight({ id: highlight.id, updates: updated }));
 
-      await syncBookAwareHighlightUpdate(updated, { color, updated_by: 'reader-web' }, dispatch);
-
       onColorChange?.(color);
       onClose();
     } catch (error) {
@@ -75,7 +72,6 @@ export function HighlightContextMenu({
     }
 
     try {
-      await deleteSyncedBookAwareHighlight(highlight, dispatch);
       await highlightService.delete(highlight.id);
       dispatch(deleteHighlight(highlight.id));
       onDelete?.();

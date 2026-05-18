@@ -45,6 +45,7 @@ export interface CreateHighlightInput {
   selection: TextSelection;
   color: HighlightColor;
   note?: string;
+  chapter?: string;
 }
 
 export interface HighlightUpdateInput {

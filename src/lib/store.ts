@@ -11,7 +11,6 @@ import preferencesReducer, { PreferencesReducerState } from "./preferencesReduce
 import globalPreferencesReducer, { GlobalPreferencesReducerState } from "./globalPreferencesReducer";
 import webPubSettingsReducer, { WebPubSettingsReducerState } from "./webPubSettingsReducer";
 import highlightsReducer, { HighlightsState } from "./highlightsReducer";
-import { normalizeHighlightColor } from "./types/highlights";
 import audioSettingsReducer, { AudioSettingsState } from "./audioSettingsReducer";
 import playerReducer, { PlayerReducerState } from "./playerReducer";
 
@@ -126,15 +125,6 @@ const migrateDockStateToProfileKeyed = (state: ActionsReducerState): ActionsRedu
   return state;
 };
 
-const migrateHighlightsState = (state: HighlightsState): HighlightsState => ({
-  ...state,
-  activeColor: normalizeHighlightColor(String(state.activeColor || "")),
-  currentBookHighlights: (state.currentBookHighlights || []).map((highlight) => ({
-    ...highlight,
-    color: normalizeHighlightColor(String(highlight.color || "")),
-  })),
-});
-
 const migrateKeysStateToProfileKeyed = (state: ActionsReducerState): ActionsReducerState => {
   // If keys is not profile-keyed, migrate to profile-keyed format
   // Old format: keys is a flat object like { [key]: ActionStateObject }
@@ -185,7 +175,6 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
         preferences: undefined,
         globalPreferences: undefined,
         webPubSettings: undefined,
-        highlights: undefined,
         audioSettings: undefined
       };
     }
@@ -206,8 +195,10 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
       if (state.webPubSettings) {
         state.webPubSettings = migrateFontFamily(state.webPubSettings);
       }
+      // Highlight/annotation data is server-backed and must not be restored
+      // from browser storage.
       if (state.highlights) {
-        state.highlights = migrateHighlightsState(state.highlights);
+        state.highlights = undefined;
       }
       if (state.actions) {
         state.actions = updateActionsState(state.actions);
@@ -226,7 +217,6 @@ const loadState = (storageKey: string = DEFAULT_STORAGE_KEY) => {
       preferences: undefined,
       globalPreferences: undefined,
       webPubSettings: undefined,
-      highlights: undefined,
       audioSettings: undefined
     };
   }
@@ -246,7 +236,7 @@ const saveState = (state: any, storageKey?: string, externalReducers: Record<str
     if (state.preferences) stateToPersist.preferences = state.preferences;
     if (state.globalPreferences) stateToPersist.globalPreferences = state.globalPreferences;
     if (state.webPubSettings) stateToPersist.webPubSettings = state.webPubSettings;
-    if (state.highlights) stateToPersist.highlights = state.highlights;
+    // Highlight/annotation data is server-backed; do not persist it locally.
     if (state.audioSettings) stateToPersist.audioSettings = state.audioSettings;
 
     // External reducers to persist
@@ -294,7 +284,7 @@ export const makeStore = (storageKey?: string, externalReducers: Record<string, 
     preferences: persistedState.preferences,
     globalPreferences: persistedState.globalPreferences,
     webPubSettings: persistedState.webPubSettings,
-    highlights: persistedState.highlights,
+    highlights: undefined,
     audioSettings: persistedState.audioSettings,
     // Include persisted state for external reducers that have it
     ...Object.entries(externalReducers).reduce((acc, [key, config]) => {

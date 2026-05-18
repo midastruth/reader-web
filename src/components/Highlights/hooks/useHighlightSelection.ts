@@ -12,13 +12,6 @@ import type { Highlight, HighlightColor } from '@/lib/types/highlights';
 import { addHighlight, setError } from '@/lib/highlightsReducer';
 import { HighlightAnchors, highlightService } from '@/core/Highlights';
 import type { TextSelection } from '@/core/Highlights';
-import { createBookAwareHighlight } from '@/services/bookAwareApi';
-import {
-  bookAwareSyncErrorMessage,
-  finalizeCreatedBookAwareHighlight,
-  isBookAwareBookId,
-  markBookAwareSyncFailed,
-} from '@/components/Highlights/helpers/bookAwareHighlightSync';
 
 export type { TextSelection } from '@/core/Highlights';
 
@@ -41,49 +34,11 @@ export function useHighlightSelection(bookId: string, chapter?: string): UseHigh
   const createHighlight = useCallback(
     async (selection: TextSelection, color: HighlightColor, note?: string): Promise<Highlight | null> => {
       try {
-        const highlight = await highlightService.create({ bookId, selection, color, note });
+        const highlight = await highlightService.create({ bookId, selection, color, note, chapter });
         if (!highlight) return null;
 
-        // Mark book-aware sync as pending before starting the backend upload so
-        // note/color edits can be reconciled when backendId arrives.
-        const shouldSyncBookAware = isBookAwareBookId(bookId);
-        const highlightWithSync = shouldSyncBookAware
-          ? { ...highlight, koreader: { status: 'pending' as const } }
-          : highlight;
-
-        if (shouldSyncBookAware) {
-          await highlightService.update(highlight.id, { koreader: { status: 'pending' } });
-        }
-        dispatch(addHighlight(highlightWithSync));
-
-        if (highlightWithSync.koreader) {
-          void createBookAwareHighlight(bookId, {
-            exact: highlight.locator.text.highlight,
-            prefix: highlight.locator.text.before,
-            suffix: highlight.locator.text.after,
-            href: highlight.locator.href,
-            total_progression: highlight.locator.locations.totalProgression,
-            chapter,
-            color: highlight.color,
-            note: highlight.note,
-          }).then((result) => finalizeCreatedBookAwareHighlight({
-            localHighlightId: highlight.id,
-            bookId,
-            created: result,
-            creationSnapshot: { color: highlight.color, note: highlight.note },
-            dispatch,
-          })).catch(async (err: unknown) => {
-            try {
-              await markBookAwareSyncFailed(highlight.id, err, dispatch);
-            } catch (markErr) {
-              dispatch(setError(`book-aware highlight sync failed: ${bookAwareSyncErrorMessage(markErr)}`));
-              console.error('[book-aware] failed to persist sync failure:', markErr);
-            }
-            console.error('[book-aware] highlight sync failed:', bookAwareSyncErrorMessage(err));
-          });
-        }
-
-        return highlightWithSync;
+        dispatch(addHighlight(highlight));
+        return highlight;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         dispatch(setError(`Failed to create highlight: ${message}`));

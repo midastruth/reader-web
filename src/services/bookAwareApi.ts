@@ -137,6 +137,29 @@ export async function updateBookAwareHighlight(
   return data.highlight;
 }
 
+export async function fetchBookAwareHighlights(sha256: string): Promise<BookAwareHighlight[]> {
+  const data = await apiFetch(`/books/${encodeURIComponent(sha256)}/highlights`);
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('book-aware highlights response is malformed: expected an object');
+  }
+
+  if ('highlights' in data) {
+    if (!Array.isArray(data.highlights)) {
+      throw new Error('book-aware highlights response is malformed: "highlights" is not an array');
+    }
+    return (data.highlights as BookAwareHighlight[]).filter((highlight) => !highlight.deleted_at);
+  }
+
+  if ('items' in data) {
+    if (!Array.isArray(data.items)) {
+      throw new Error('book-aware highlights response is malformed: "items" is not an array');
+    }
+    return (data.items as BookAwareHighlight[]).filter((highlight) => !highlight.deleted_at);
+  }
+
+  throw new Error('book-aware highlights response is malformed: expected "highlights" or "items" array');
+}
+
 export async function deleteBookAwareHighlight(
   sha256: string,
   highlightId: string,
