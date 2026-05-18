@@ -110,36 +110,71 @@ function findRangeByContent(
   if (!normalizedSearch) return null;
 
   const fullText = root.textContent || '';
-  let index = fullText.indexOf(normalizedSearch);
 
-  // Case-insensitive fallback for documents that normalize case/spacing.
-  if (index === -1) {
-    index = fullText.toLowerCase().indexOf(normalizedSearch.toLowerCase());
+  // Collect all occurrences (case-sensitive, then case-insensitive as fallback).
+  const occurrences: number[] = [];
+  for (let i = fullText.indexOf(normalizedSearch); i !== -1; i = fullText.indexOf(normalizedSearch, i + 1)) {
+    occurrences.push(i);
   }
-
-  while (index !== -1) {
-    const before = fullText.slice(Math.max(0, index - 80), index);
-    const after = fullText.slice(index + normalizedSearch.length, index + normalizedSearch.length + 80);
-    const beforeMatch = !beforeContext || before.endsWith(beforeContext.trim());
-    const afterMatch = !afterContext || after.startsWith(afterContext.trim());
-
-    if (beforeMatch && afterMatch) {
-      const start = findTextNodeAtOffset(root, index);
-      const end = findTextNodeAtOffset(root, index + normalizedSearch.length);
-      if (start && end) {
-        const range = doc.createRange();
-        range.setStart(start.node, start.offset);
-        range.setEnd(end.node, end.offset);
-        return range.collapsed ? null : range;
-      }
+  if (occurrences.length === 0) {
+    const lower = fullText.toLowerCase();
+    const needle = normalizedSearch.toLowerCase();
+    for (let i = lower.indexOf(needle); i !== -1; i = lower.indexOf(needle, i + 1)) {
+      occurrences.push(i);
     }
+  }
+  if (occurrences.length === 0) return null;
 
-    const nextStart = index + Math.max(1, normalizedSearch.length);
-    index = fullText.indexOf(normalizedSearch, nextStart);
-    if (index === -1) index = fullText.toLowerCase().indexOf(normalizedSearch.toLowerCase(), nextStart);
+  const buildRange = (index: number): Range | null => {
+    const start = findTextNodeAtOffset(root, index);
+    const end = findTextNodeAtOffset(root, index + normalizedSearch.length);
+    if (!start || !end) return null;
+    const range = doc.createRange();
+    range.setStart(start.node, start.offset);
+    range.setEnd(end.node, end.offset);
+    return range.collapsed ? null : range;
+  };
+
+  // Unique match: trust the search text alone. This is the overwhelmingly common
+  // case for non-trivial selections and lets us restore highlights even when the
+  // stored prefix/suffix windows do not match the current DOM exactly.
+  if (occurrences.length === 1) {
+    return buildRange(occurrences[0]);
   }
 
-  return null;
+  // Multiple matches: score each occurrence by the length of the common suffix
+  // with the stored before-context and the common prefix with the stored
+  // after-context. This is tolerant of small whitespace/markup differences and
+  // does not require the stored window to be shorter than the search window.
+  const beforeRef = beforeContext || '';
+  const afterRef = afterContext || '';
+  const beforeWindow = Math.max(beforeRef.length, 80);
+  const afterWindow = Math.max(afterRef.length, 80);
+
+  const commonSuffixLength = (a: string, b: string): number => {
+    const limit = Math.min(a.length, b.length);
+    let n = 0;
+    while (n < limit && a.charCodeAt(a.length - 1 - n) === b.charCodeAt(b.length - 1 - n)) n++;
+    return n;
+  };
+  const commonPrefixLength = (a: string, b: string): number => {
+    const limit = Math.min(a.length, b.length);
+    let n = 0;
+    while (n < limit && a.charCodeAt(n) === b.charCodeAt(n)) n++;
+    return n;
+  };
+
+  type Scored = { index: number; score: number };
+  const scored: Scored[] = occurrences.map((index) => {
+    const before = fullText.slice(Math.max(0, index - beforeWindow), index);
+    const after = fullText.slice(index + normalizedSearch.length, index + normalizedSearch.length + afterWindow);
+    const score = commonSuffixLength(before, beforeRef) + commonPrefixLength(after, afterRef);
+    return { index, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  // If no context was stored, every score is 0 and we fall back to the first hit.
+  return buildRange(scored[0].index);
 }
 
 function legacyLocatorToRange(
