@@ -17,9 +17,6 @@ export type {
   BlockSerializedRange,
   BlockRangePart,
   LegacySerializedRange,
-  BookHighlights,
-  HighlightFilter,
-  HighlightStats,
 } from '@/lib/types/highlights';
 
 /** DOM selection captured by the reader/navigator layer. */
@@ -57,12 +54,3 @@ export interface HighlightUpdateInput {
   koreader?: Highlight['koreader'];
 }
 
-export interface HighlightRenderTarget {
-  iframe: HTMLIFrameElement;
-  href: string;
-}
-
-export interface HighlightHit {
-  highlightId: string;
-  rect?: DOMRect;
-}

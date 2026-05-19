@@ -22,8 +22,6 @@ export interface HighlightsState {
   isNoteEditorOpen: boolean;
   /** ID of highlight being edited in note editor */
   editingNoteId: string | null;
-  /** Whether the highlights list panel is visible */
-  isListVisible: boolean;
   /** Loading state */
   isLoading: boolean;
   /** Error message */
@@ -41,7 +39,6 @@ const initialState: HighlightsState = {
   activeColor: HighlightColor.GRAY,
   isNoteEditorOpen: false,
   editingNoteId: null,
-  isListVisible: false,
   isLoading: false,
   error: null,
   currentBookId: null,
@@ -148,20 +145,6 @@ const highlightsSlice = createSlice({
     },
 
     /**
-     * Toggle the highlights list panel
-     */
-    toggleHighlightsList(state) {
-      state.isListVisible = !state.isListVisible;
-    },
-
-    /**
-     * Set highlights list visibility
-     */
-    setHighlightsListVisible(state, action: PayloadAction<boolean>) {
-      state.isListVisible = action.payload;
-    },
-
-    /**
      * Set loading state
      */
     setLoading(state, action: PayloadAction<boolean>) {
@@ -206,8 +189,6 @@ export const {
   setActiveColor,
   openNoteEditor,
   closeNoteEditor,
-  toggleHighlightsList,
-  setHighlightsListVisible,
   setLoading,
   setError,
   clearHighlights,

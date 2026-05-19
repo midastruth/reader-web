@@ -22,7 +22,7 @@ import {
   updateCssHighlightAppearance,
   updateHighlightColor,
   wrapRangeWithHighlight,
-} from '@/components/Highlights/helpers/highlightSerializer';
+} from './dom';
 
 export class HighlightRenderer {
   private rendered = new WeakMap<Document, Set<string>>();

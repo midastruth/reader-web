@@ -1,0 +1,241 @@
+.toolbar {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 246, 248, 0.84));
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 24px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.colorBtn {
+  width: 18px;
+  height: 18px;
+  border: 1px solid;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 2px rgba(15, 23, 42, 0.1);
+}
+
+.colorBtn:hover {
+  transform: scale(1.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 3px 8px rgba(15, 23, 42, 0.16);
+}
+
+.colorBtn.active::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 1.5px solid rgba(17, 24, 39, 0.9);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+.noteBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.noteBtn:hover {
+  background: rgba(15, 23, 42, 0.07);
+  transform: translateY(-1px);
+}
+
+.noteIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.09);
+  color: #111827;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.noteText {
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: -0.01em;
+  font-size: 11px;
+}
+
+.aiBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  color: #fff;
+}
+
+.aiBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.aiIcon {
+  font-size: 9px;
+  line-height: 1;
+}
+
+.aiText {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: 10px;
+}
+
+.closeBtn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  color: #9ca3af;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover {
+  background: rgba(15, 23, 42, 0.07);
+  color: #374151;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .content {
+    background:
+      linear-gradient(180deg, rgba(52, 52, 56, 0.92), rgba(36, 36, 40, 0.86));
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.38),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .group {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .noteBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .noteIcon {
+    background: rgba(255, 255, 255, 0.11);
+    color: #e5e7eb;
+  }
+
+  .noteText {
+    color: #d1d5db;
+  }
+
+  .aiBtn {
+    opacity: 0.92;
+  }
+
+  .closeBtn {
+    color: #9ca3af;
+  }
+
+  .closeBtn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #e5e7eb;
+  }
+
+  .colorBtn.active::after {
+    border-color: #f9fafb;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.7);
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    gap: 3px;
+    padding: 3px;
+  }
+
+  .colorBtn {
+    width: 16px;
+    height: 16px;
+  }
+
+  .noteBtn {
+    width: 24px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .noteText {
+    display: none;
+  }
+
+  .aiBtn {
+    padding: 0 6px;
+  }
+}

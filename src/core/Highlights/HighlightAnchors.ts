@@ -9,8 +9,9 @@ import {
   normalizeRange,
   rangeToLocator,
   serializeRange,
-} from '@/components/Highlights/helpers/rangeToLocator';
-import { locatorToRange, locatorToRanges } from '@/components/Highlights/helpers/locatorToRange';
+  locatorToRange,
+  locatorToRanges,
+} from './dom';
 import type { TextSelection } from './models';
 
 export class HighlightAnchors {
