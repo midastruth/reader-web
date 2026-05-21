@@ -233,13 +233,12 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   useFullscreen(onFsChange);
 
   const epubNavigator = useEpubNavigator();
-  const { 
-    goLeft, 
-    goRight, 
-    goBackward, 
-    goForward,  
+  const {
+    goLeft,
+    goRight,
+    goBackward,
+    goForward,
     navLayout,
-    currentLocator,
     currentPositions,
     canGoBackward,
     canGoForward,
@@ -361,25 +360,6 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
     }
   }, [canGoBackward, canGoForward, dispatch]);
 
-  // We need this as a workaround due to positionChanged being unreliable
-  // in FXL – if the frame is in the pool hidden and is shown again,
-  // positionChanged won’t fire.
-  const handleFXLProgression = useCallback((locator: Locator) => {
-    setLocalData(locator);
-    updatePublicationNavigationState();
-  }, [setLocalData, updatePublicationNavigationState]);
-
-  const initReadingEnv = useCallback(async () => {
-    if (navLayout() === Layout.fixed) {
-      // [TMP] Working around positionChanged not firing consistently for FXL
-      // Init'ing so that progression can be populated on first spread loaded
-      const cLoc = currentLocator();
-      if (cLoc) {
-        handleFXLProgression(cLoc);
-      };
-    }
-  }, [navLayout, currentLocator, handleFXLProgression]);
-
   const moveTo = useCallback((direction: "left" | "right" | "up" | "down" | "home" | "end") => {
     const navigationCallback = () => {
       dispatch(setUserNavigated(true));
@@ -412,18 +392,14 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
   }, [dispatch, activateImmersiveOnAction, cache, goBackward, goForward]);
 
   const listeners: EpubNavigatorListeners = useMemo(() => ({
-    frameLoaded: async function (_wnd: Window): Promise<void> {
-      await initReadingEnv();
-    },
+    frameLoaded: async function (_wnd: Window): Promise<void> {},
     positionChanged: async function (locator: Locator): Promise<void> {
-      if (navLayout() !== Layout.fixed) {
-        const debouncedHandleProgression = debounce(
-          async () => {
-            setLocalData(locator);
-            updatePublicationNavigationState();
-          }, 250);
-        debouncedHandleProgression();
-      }
+      const debouncedHandleProgression = debounce(
+        async () => {
+          setLocalData(locator);
+          updatePublicationNavigationState();
+        }, 250);
+      debouncedHandleProgression();
     },
     tap: function (_e: FrameClickEvent): boolean {
       handleTap(_e);
@@ -499,7 +475,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
         }
       }
     },
-  }), [initReadingEnv, navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile]);
+  }), [navLayout, setLocalData, dispatch, handleTap, handleClick, cache, preferences.affordances.scroll, isScrollStart, isScrollEnd, updatePublicationNavigationState, moveTo, goProgression, zoomIn, zoomOut, profile]);
   
   const initialPosition = useMemo(() => getLocalData(), [getLocalData]);
 
@@ -529,8 +505,7 @@ const StatefulReaderInner = ({ publication, localDataKey, positionStorage, conta
 
     onNavigatorReady: () => {
       dispatch(setLoading(false));
-    },
-    fxlProgressionCallback: handleFXLProgression
+    }
   });
 
   const applyConstraint = useCallback(async (value: number) => {
