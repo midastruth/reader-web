@@ -11,6 +11,7 @@ import type { RootState } from '@/lib/store';
 import type { Highlight } from '@/lib/types/highlights';
 import { setSelectedHighlight } from '@/lib/highlightsReducer';
 import { HighlightRenderer, highlightService } from '@/core/Highlights';
+import { loadHighlights } from '@/lib/highlightsReducer';
 
 export interface HighlightClickPayload {
   highlightId: string;
@@ -39,6 +40,7 @@ export function useHighlightRenderer(
 ): UseHighlightRendererReturn {
   const dispatch = useDispatch();
   const selectedHighlightId = useSelector((state: RootState) => state.highlights.selectedHighlightId);
+  const allHighlights = useSelector((state: RootState) => state.highlights.currentBookHighlights);
   const rendererRef = useRef(new HighlightRenderer());
   const onHighlightClickRef = useRef<UseHighlightRendererOptions['onHighlightClick']>(options.onHighlightClick);
 
@@ -106,13 +108,28 @@ export function useHighlightRenderer(
     setupIframe(iframe);
 
     try {
-      const chapterHighlights = await highlightService.loadChapter(bookId, href, readingOrderPosition);
+      // Defensive: if the iframe restores before the sync service finishes its
+      // initial load (redux empty for this book), pull the book once here so
+      // freshly-opened chapters still render existing highlights.
+      let pool = allHighlights;
+      const hasAny = pool.some((h) => h.bookId === bookId);
+      if (!hasAny) {
+        const loaded = await highlightService.loadBook(bookId);
+        if (loaded.length) dispatch(loadHighlights(loaded));
+        pool = loaded;
+      }
+      const chapterHighlights = highlightService.filterChapter(
+        pool,
+        bookId,
+        href,
+        readingOrderPosition
+      );
       rendererRef.current.restore(chapterHighlights, iframe);
       if (selectedHighlightId) rendererRef.current.select(selectedHighlightId, doc);
     } catch (error) {
       console.error('Failed to restore highlights:', error);
     }
-  }, [bookId, selectedHighlightId, setupIframe]);
+  }, [allHighlights, bookId, dispatch, selectedHighlightId, setupIframe]);
 
   const removeHighlight = useCallback((highlightId: string, iframe: HTMLIFrameElement) => {
     rendererRef.current.remove(highlightId, iframe);

@@ -149,5 +149,16 @@ export interface Highlight {
   sortKey?: string;
   /** KOReader sync state. Present only when the highlight has been uploaded to book-aware. */
   koreader?: KoreaderSyncState;
+  /** Backend per-highlight version. */
+  backendVersion?: number;
+  /** Backend book-level sync cursor assigned to this highlight. */
+  syncVersion?: number;
+  /** Client that originally created the backend row. */
+  source?: 'reader-web' | 'koreader';
+  /** Tombstone timestamp in ms. Deleted highlights are not rendered. */
+  deletedAt?: number;
+  /** Client that deleted the backend row. */
+  deletedBy?: 'reader-web' | 'koreader';
+  /** Client that last updated the backend row. */
+  updatedBy?: 'reader-web' | 'koreader';
 }
-

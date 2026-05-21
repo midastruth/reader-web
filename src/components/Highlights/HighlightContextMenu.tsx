@@ -37,7 +37,7 @@ export function HighlightContextMenu({
   const handleColorChange = useCallback(
     async (color: HighlightColor) => {
       try {
-        const updated = await highlightService.update(highlight.id, { color });
+        const updated = await highlightService.update(highlight, { color });
         dispatch(updateHighlight({ id: highlight.id, updates: updated }));
         onColorChange?.(color);
         onClose();
@@ -47,7 +47,7 @@ export function HighlightContextMenu({
         console.error('Failed to update highlight color:', error);
       }
     },
-    [highlight.id, dispatch, onColorChange, onClose]
+    [highlight, dispatch, onColorChange, onClose]
   );
 
   const handleNoteAction = useCallback(() => {
@@ -59,7 +59,7 @@ export function HighlightContextMenu({
     if (!window.confirm(t('highlights.delete.confirm', 'Delete this highlight?'))) return;
 
     try {
-      await highlightService.delete(highlight.id);
+      await highlightService.delete(highlight);
       dispatch(deleteHighlight(highlight.id));
       onDelete?.();
       onClose();
@@ -68,7 +68,7 @@ export function HighlightContextMenu({
       dispatch(setError(`Failed to delete highlight: ${message}`));
       console.error('Failed to delete highlight:', error);
     }
-  }, [highlight.id, dispatch, onDelete, onClose, t]);
+  }, [highlight, dispatch, onDelete, onClose, t]);
 
   const noteLabel = highlight.note
     ? t('highlights.note.edit', 'Edit Note')

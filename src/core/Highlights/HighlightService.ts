@@ -1,21 +1,25 @@
 /**
  * Application service for highlight/annotation operations.
  *
- * Highlights and notes are server-backed by book-aware. Browser storage is not
- * used as a source of truth; Redux only keeps the current UI session state.
+ * Highlights and notes are server-backed by book-aware. Redux is the single
+ * source of truth for the client; this service is stateless and simply
+ * translates between backend payloads and domain Highlight objects.
  */
 
-import { HighlightColor, normalizeHighlightColor, type Highlight, type HighlightLocator, type KoreaderSyncState, type SerializedRange } from '@/lib/types/highlights';
-import {
-  createBookAwareHighlight,
-  deleteBookAwareHighlight,
-  fetchBookAwareHighlights,
-  updateBookAwareHighlight,
-  type BookAwareHighlight,
-  type UpdateHighlightPayload,
-} from '@/services/bookAwareApi';
+import { HighlightColor, type Highlight } from '@/lib/types/highlights';
+import type { UpdateHighlightPayload } from '@/services/bookAwareApi';
 import HighlightAnchors from './HighlightAnchors';
 import { buildHighlightSortKey, sortHighlightsByReadingOrder } from './highlightSort';
+import {
+  fromBackendForCreate,
+  fromBackendForSync,
+  toCreateHighlightPayload,
+} from './HighlightMapper';
+import {
+  highlightRemoteRepository,
+  type HighlightRemoteRepository,
+} from './HighlightRemoteRepository';
+import { readHighlightSyncCursor, saveHighlightSyncCursor } from './syncCursor';
 import type { CreateHighlightInput, HighlightUpdateInput } from './models';
 
 export { buildHighlightSortKey, sortHighlightsByReadingOrder };
@@ -30,75 +34,15 @@ function normalizeHref(href: string): string {
   return decodeURIComponent(href).split('#')[0].split('?')[0];
 }
 
-function parseBackendTime(value: string | undefined): number {
-  const parsed = value ? Date.parse(value) : NaN;
-  return Number.isFinite(parsed) ? parsed : Date.now();
-}
-
-function normalizeKoreaderStatus(status: string | undefined): KoreaderSyncState['status'] {
-  switch (status) {
-    case 'pending':
-    case 'resolved':
-    case 'conflict':
-    case 'failed':
-      return status;
-    default:
-      throw new Error(`Unexpected book-aware koreader status: ${status ?? '<missing>'}`);
-  }
-}
-
-function locatorFromBackend(highlight: BookAwareHighlight, fallback?: Highlight): HighlightLocator {
-  return fallback?.locator ?? {
-    href: highlight.href ?? '',
-    locations: {
-      totalProgression: highlight.total_progression,
-      position: highlight.spine_index,
-    },
-    text: {
-      before: highlight.prefix || undefined,
-      highlight: highlight.exact,
-      after: highlight.suffix || undefined,
-    },
-  };
-}
-
-function rangeFromBackend(fallback?: Highlight): SerializedRange {
-  // book-aware stores semantic text context, not the browser's DOM XPath/block
-  // offsets. Rendering therefore uses locatorToRange()'s text-context fallback.
-  return fallback?.range ?? { type: 'block-offset', parts: [] };
-}
-
-function fromBackendHighlight(highlight: BookAwareHighlight, fallback?: Highlight): Highlight {
-  const local: Highlight = {
-    id: highlight.id,
-    bookId: highlight.book_sha256,
-    color: normalizeHighlightColor(highlight.color || ''),
-    createdAt: parseBackendTime(highlight.created_at),
-    updatedAt: parseBackendTime(highlight.updated_at),
-    note: highlight.note || undefined,
-    locator: locatorFromBackend(highlight, fallback),
-    range: rangeFromBackend(fallback),
-    anchorVersion: fallback?.anchorVersion ?? 2,
-    koreader: {
-      status: normalizeKoreaderStatus(highlight.koreader?.status),
-      backendId: highlight.id,
-      pos0: highlight.koreader?.pos0,
-      pos1: highlight.koreader?.pos1,
-      page: highlight.koreader?.page,
-      error: highlight.koreader?.error,
-    },
-  };
-  local.sortKey = fallback?.sortKey ?? buildHighlightSortKey(local);
-  return local;
+export interface PullChangesResult {
+  added: Highlight[];
+  updated: Highlight[];
+  deleted: string[];
+  serverVersion: number;
 }
 
 export class HighlightService {
-  private readonly cache = new Map<string, Highlight>();
-
-  private remember(highlights: Highlight[]): Highlight[] {
-    for (const highlight of highlights) this.cache.set(highlight.id, highlight);
-    return highlights;
-  }
+  constructor(private readonly remote: HighlightRemoteRepository = highlightRemoteRepository) {}
 
   async create(input: CreateHighlightInput): Promise<Highlight | null> {
     if (!isServerBackedBookId(input.bookId)) {
@@ -126,20 +70,15 @@ export class HighlightService {
     };
     optimistic.sortKey = buildHighlightSortKey(optimistic);
 
-    const created = await createBookAwareHighlight(input.bookId, {
-      exact: locator.text.highlight,
-      prefix: locator.text.before,
-      suffix: locator.text.after,
-      href: locator.href,
-      spine_index: locator.locations.position,
-      total_progression: locator.locations.totalProgression,
-      chapter: input.chapter,
+    const created = await this.remote.create(input.bookId, toCreateHighlightPayload({
+      locator,
       color: optimistic.color,
       note: optimistic.note,
-    });
+      chapter: input.chapter,
+    }));
 
-    const highlight = fromBackendHighlight(created, optimistic);
-    this.cache.set(highlight.id, highlight);
+    const highlight = fromBackendForCreate(created, optimistic);
+    if (highlight.syncVersion != null) saveHighlightSyncCursor(input.bookId, highlight.syncVersion);
     return highlight;
   }
 
@@ -147,80 +86,113 @@ export class HighlightService {
     if (!isServerBackedBookId(bookId)) return [];
 
     const highlights = sortHighlightsByReadingOrder(
-      (await fetchBookAwareHighlights(bookId)).map((highlight) => fromBackendHighlight(highlight))
+      (await this.remote.list(bookId)).map((highlight) => fromBackendForSync(highlight))
     );
-    return this.remember(highlights);
+    const maxSyncVersion = highlights.reduce(
+      (max, highlight) => Math.max(max, highlight.syncVersion ?? 0),
+      0
+    );
+    if (maxSyncVersion > 0) saveHighlightSyncCursor(bookId, maxSyncVersion);
+    return highlights;
   }
 
-  async loadChapter(bookId: string, href: string, readingOrderPosition?: number): Promise<Highlight[]> {
+  /**
+   * Filter an already-loaded highlight set down to the chapter visible in
+   * the given iframe. Pure: takes the current Redux slice as input.
+   */
+  filterChapter(
+    highlights: readonly Highlight[],
+    bookId: string,
+    href: string,
+    readingOrderPosition?: number
+  ): Highlight[] {
     if (!isServerBackedBookId(bookId)) return [];
 
     const normalizedHref = normalizeHref(href);
-    const bookHighlights = await this.loadBook(bookId);
     return sortHighlightsByReadingOrder(
-      bookHighlights.filter((highlight) => {
+      highlights.filter((highlight) => {
+        if (highlight.bookId !== bookId || highlight.deletedAt) return false;
         const highlightHref = normalizeHref(highlight.locator.href || '');
         if (highlightHref) return highlightHref === normalizedHref;
 
-        // Some older book-aware rows may not have href. Only restore them when
-        // the backend has a reliable spine index and it matches the loaded frame.
-        return readingOrderPosition !== undefined &&
-          highlight.locator.locations.position === readingOrderPosition;
+        // Older book-aware rows may not have href. Only restore them when the
+        // backend has a reliable spine index and it matches the loaded frame.
+        return (
+          readingOrderPosition !== undefined &&
+          highlight.locator.locations.position === readingOrderPosition
+        );
       })
     );
   }
 
-  async update(id: string, updates: HighlightUpdateInput): Promise<Highlight> {
-    const existing = this.cache.get(id);
-    if (!existing) throw new Error(`Highlight not loaded from server: ${id}`);
+  async update(existing: Highlight, updates: HighlightUpdateInput): Promise<Highlight> {
     if (!isServerBackedBookId(existing.bookId)) {
       throw new Error('本地高亮/注释已禁用，无法更新非服务器高亮。');
     }
 
-    const fallback: Highlight = {
+    const merged: Highlight = {
       ...existing,
       ...updates,
       updatedAt: Date.now(),
     };
-    fallback.sortKey = updates.sortKey ?? buildHighlightSortKey(fallback);
+    merged.sortKey = updates.sortKey ?? buildHighlightSortKey(merged);
 
     const payload: UpdateHighlightPayload = { updated_by: 'reader-web' };
     if ('note' in updates) payload.note = updates.note ?? '';
     if (updates.color !== undefined) payload.color = updates.color;
 
-    let updated = fallback;
-    if (payload.note !== undefined || payload.color !== undefined) {
-      updated = fromBackendHighlight(
-        await updateBookAwareHighlight(existing.bookId, existing.koreader?.backendId ?? existing.id, payload),
-        fallback
-      );
-    }
+    if (payload.note === undefined && payload.color === undefined) return merged;
 
-    this.cache.set(updated.id, updated);
+    const remote = await this.remote.update(
+      existing.bookId,
+      existing.koreader?.backendId ?? existing.id,
+      payload
+    );
+    const updated = fromBackendForSync(remote, merged);
+    if (updated.syncVersion != null) saveHighlightSyncCursor(existing.bookId, updated.syncVersion);
     return updated;
   }
 
-  async delete(id: string): Promise<void> {
-    const existing = this.cache.get(id);
-    if (!existing) throw new Error(`Highlight not loaded from server: ${id}`);
+  async delete(existing: Highlight): Promise<void> {
     if (!isServerBackedBookId(existing.bookId)) {
       throw new Error('本地高亮/注释已禁用，无法删除非服务器高亮。');
     }
 
-    await deleteBookAwareHighlight(existing.bookId, existing.koreader?.backendId ?? existing.id);
-    this.cache.delete(id);
+    const deleted = await this.remote.delete(
+      existing.bookId,
+      existing.koreader?.backendId ?? existing.id
+    );
+    const serverVersion = (deleted as { server_version?: number }).server_version;
+    if (typeof serverVersion === 'number') saveHighlightSyncCursor(existing.bookId, serverVersion);
   }
 
-  async get(id: string): Promise<Highlight | undefined> {
-    return this.cache.get(id);
-  }
+  async pullChanges(bookId: string, existing: readonly Highlight[]): Promise<PullChangesResult> {
+    if (!isServerBackedBookId(bookId)) {
+      return { added: [], updated: [], deleted: [], serverVersion: 0 };
+    }
 
-  async exportAll(): Promise<string> {
-    return JSON.stringify(Array.from(this.cache.values()), null, 2);
-  }
+    const sinceVersion = readHighlightSyncCursor(bookId);
+    const response = await this.remote.changes(bookId, sinceVersion);
 
-  async importAll(): Promise<void> {
-    throw new Error('本地导入已禁用：高亮和注释完全由服务器管理。');
+    const existingById = new Map(existing.map((h) => [h.id, h]));
+    const added: Highlight[] = [];
+    const updated: Highlight[] = [];
+    const deleted: string[] = [];
+
+    for (const change of response.changes) {
+      const id = change.highlight.id;
+      if (change.type === 'delete') {
+        if (existingById.has(id)) deleted.push(id);
+        continue;
+      }
+      const prior = existingById.get(id);
+      const highlight = fromBackendForSync(change.highlight, prior);
+      if (prior) updated.push(highlight);
+      else added.push(highlight);
+    }
+
+    saveHighlightSyncCursor(bookId, response.server_version);
+    return { added, updated, deleted, serverVersion: response.server_version };
   }
 }
 

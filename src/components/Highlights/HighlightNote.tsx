@@ -60,7 +60,7 @@ export function HighlightNote({ onHighlightUpdated }: HighlightNoteProps) {
 
       setIsSaving(true);
       try {
-        const updated = await highlightService.update(highlight.id, { note: text || undefined });
+        const updated = await highlightService.update(highlight, { note: text || undefined });
         dispatch(updateHighlight({ id: highlight.id, updates: updated }));
         onHighlightUpdated?.(updated);
         setLastSaved(Date.now());

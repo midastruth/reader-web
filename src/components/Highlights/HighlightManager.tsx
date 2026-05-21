@@ -11,16 +11,23 @@
  */
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '@/lib/store';
+import { useDispatch, useSelector, useStore } from 'react-redux';
+import type { AppDispatch, RootState } from '@/lib/store';
 import { HighlightColor, type Highlight } from '@/lib/types/highlights';
 import {
+  addHighlight,
+  deleteHighlight,
   loadHighlights,
   openNoteEditor,
   setCurrentBook,
   setSelectedHighlight,
+  updateHighlight,
 } from '@/lib/highlightsReducer';
-import { highlightService, resolveHitHighlights } from '@/core/Highlights';
+import {
+  highlightSyncService,
+  resolveHitHighlights,
+  type PullChangesResult,
+} from '@/core/Highlights';
 
 import { useHighlightSelection, type TextSelection } from './hooks/useHighlightSelection';
 import { useHighlightRenderer, type HighlightClickPayload } from './hooks/useHighlightRenderer';
@@ -60,18 +67,24 @@ export interface HighlightManagerHandle {
 /** Window (ms) during which we trust the last pointerup position over the selection rect. */
 const POINTER_UP_WINDOW_MS = 1000;
 
+function normalizeHref(href: string): string {
+  return decodeURIComponent(href).split('#')[0].split('?')[0];
+}
+
 export const HighlightManager = React.forwardRef<HighlightManagerHandle, HighlightManagerProps>(
   function HighlightManager(
     { bookId, bookTitle, bookAuthor, currentChapter, readingProgress, iframeRef },
     ref
   ) {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
+    const store = useStore<RootState>();
 
     const highlights = useSelector((state: RootState) => state.highlights.currentBookHighlights);
     const activeColor = useSelector((state: RootState) => state.highlights.activeColor);
 
     const interactions = useHighlightInteractions();
     const pendingSelectionRef = useRef<TextSelection | null>(null);
+    const loadedFramesRef = useRef(new Map<string, { iframe: HTMLIFrameElement; readingOrderPosition?: number }>());
 
     // Track which iframe the user last interacted with (important for FXL spreads).
     const activeIframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -120,22 +133,57 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
       handleHighlightClick: selectRenderedHighlight,
     } = useHighlightRenderer(bookId, { onHighlightClick: handleHighlightClick });
 
-    // Load all highlights for the current book on mount / book change.
-    useEffect(() => {
-      let cancelled = false;
-      (async () => {
-        try {
-          dispatch(setCurrentBook(bookId));
-          const bookHighlights = await highlightService.loadBook(bookId);
-          if (!cancelled) dispatch(loadHighlights(bookHighlights));
-        } catch (error) {
-          console.error('Failed to load highlights:', error);
+    // Keep handler refs current so the sync session callbacks (registered once)
+    // always see the latest renderer functions.
+    const renderHighlightRef = useRef(renderHighlight);
+    const removeHighlightRef = useRef(removeHighlight);
+    const updateHighlightInDOMRef = useRef(updateHighlightInDOM);
+    useEffect(() => { renderHighlightRef.current = renderHighlight; }, [renderHighlight]);
+    useEffect(() => { removeHighlightRef.current = removeHighlight; }, [removeHighlight]);
+    useEffect(() => { updateHighlightInDOMRef.current = updateHighlightInDOM; }, [updateHighlightInDOM]);
+
+    const applyPulledChanges = useCallback(
+      (result: PullChangesResult) => {
+        for (const id of result.deleted) {
+          dispatch(deleteHighlight(id));
+          for (const { iframe } of loadedFramesRef.current.values()) {
+            removeHighlightRef.current(id, iframe);
+          }
         }
-      })();
-      return () => {
-        cancelled = true;
-      };
-    }, [bookId, dispatch]);
+
+        for (const highlight of result.added) {
+          dispatch(addHighlight(highlight));
+          const href = normalizeHref(highlight.locator.href || '');
+          const frame = href ? loadedFramesRef.current.get(href) : undefined;
+          if (frame) renderHighlightRef.current(highlight, frame.iframe);
+        }
+
+        for (const highlight of result.updated) {
+          dispatch(updateHighlight({ id: highlight.id, updates: highlight }));
+          const href = normalizeHref(highlight.locator.href || '');
+          const frame = href ? loadedFramesRef.current.get(href) : undefined;
+          if (frame) updateHighlightInDOMRef.current(highlight, frame.iframe);
+        }
+      },
+      [dispatch]
+    );
+
+    // Single effect: own the sync session for the current book.
+    useEffect(() => {
+      dispatch(setCurrentBook(bookId));
+      loadedFramesRef.current.clear();
+
+      const session = highlightSyncService.start(bookId, {
+        getCurrentHighlights: () => store.getState().highlights.currentBookHighlights,
+        onInitialLoad: (bookHighlights) => dispatch(loadHighlights(bookHighlights)),
+        onPulledChanges: applyPulledChanges,
+        onError: (error, phase) => {
+          console.error(`Highlight sync failed during ${phase}:`, error);
+        },
+      });
+
+      return () => session.stop();
+    }, [applyPulledChanges, bookId, dispatch, store]);
 
     // Dismiss the toolbar when clicking outside it (outer document only — iframe
     // clicks are handled by useIframeSelectionDismissal).
@@ -198,6 +246,7 @@ export const HighlightManager = React.forwardRef<HighlightManagerHandle, Highlig
     const restoreForIframe = useCallback(
       async (iframe: HTMLIFrameElement, href: string, readingOrderPosition?: number) => {
         iframeSelection.register(iframe);
+        loadedFramesRef.current.set(normalizeHref(href), { iframe, readingOrderPosition });
         await restoreHighlights(iframe, href, readingOrderPosition);
       },
       [iframeSelection, restoreHighlights]

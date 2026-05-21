@@ -94,6 +94,8 @@ export interface CreateHighlightPayload {
   note?: string;
 }
 
+export type BookAwareHighlightClient = "reader-web" | "koreader";
+
 export interface BookAwareHighlight {
   id: string;
   book_sha256: string;
@@ -108,17 +110,40 @@ export interface BookAwareHighlight {
   chapter?: string;
   color?: string;
   note?: string;
-  koreader: { status: string; pos0?: string; pos1?: string; page?: string; error?: string };
-  // Phase 3
+  koreader: {
+    status: string;
+    pos0?: string;
+    pos1?: string;
+    page?: string;
+    error?: string;
+    candidates_count?: number;
+    conflict_scores?: { best: number; second: number; margin: number };
+  };
+  source?: BookAwareHighlightClient;
   version?: number;
+  sync_version?: number;
   deleted_at?: string;
-  updated_by?: string;
+  deleted_by?: BookAwareHighlightClient;
+  updated_by?: BookAwareHighlightClient;
+  client_id?: string;
+}
+
+export interface BookAwareHighlightChange {
+  type: "upsert" | "delete";
+  sync_version: number;
+  highlight: BookAwareHighlight;
+}
+
+export interface HighlightChangesResponse {
+  ok: boolean;
+  server_version: number;
+  changes: BookAwareHighlightChange[];
 }
 
 export interface UpdateHighlightPayload {
   note?: string;
   color?: string;
-  updated_by?: string;
+  updated_by?: BookAwareHighlightClient;
 }
 
 export async function updateBookAwareHighlight(
@@ -160,15 +185,32 @@ export async function fetchBookAwareHighlights(sha256: string): Promise<BookAwar
   throw new Error('book-aware highlights response is malformed: expected "highlights" or "items" array');
 }
 
+export async function fetchBookAwareHighlightChanges(
+  sha256: string,
+  sinceVersion: number,
+): Promise<HighlightChangesResponse> {
+  const data = await apiFetch(
+    `/books/${encodeURIComponent(sha256)}/highlights/changes?since_version=${encodeURIComponent(String(sinceVersion))}`,
+  );
+  if (typeof data !== "object" || data === null) {
+    throw new Error("book-aware highlight changes response is malformed: expected an object");
+  }
+  const response = data as HighlightChangesResponse;
+  if (typeof response.server_version !== "number" || !Array.isArray(response.changes)) {
+    throw new Error('book-aware highlight changes response is malformed: expected "server_version" and "changes"');
+  }
+  return response;
+}
+
 export async function deleteBookAwareHighlight(
   sha256: string,
   highlightId: string,
-): Promise<{ deleted: string; deleted_at: string }> {
+): Promise<{ deleted: string; deleted_at: string; server_version?: number }> {
   const data = await apiFetch(
     `/books/${encodeURIComponent(sha256)}/highlights/${encodeURIComponent(highlightId)}`,
     { method: "DELETE" },
-  ) as { ok: boolean; deleted: string; deleted_at: string };
-  return { deleted: data.deleted, deleted_at: data.deleted_at };
+  ) as { ok: boolean; deleted: string; deleted_at: string; server_version?: number };
+  return { deleted: data.deleted, deleted_at: data.deleted_at, server_version: data.server_version };
 }
 
 export async function createBookAwareHighlight(
