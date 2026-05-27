@@ -86,7 +86,7 @@
   "dependencies": {
     "@edrlab/thorium-locales": "github:edrlab/thorium-locales",
     "@readium/css": ">=2.0.5",
-    "@readium/navigator": "^2.5.6",
+    "@readium/navigator": "^2.5.7",
     "@readium/navigator-html-injectables": "^2.4.3",
     "@readium/shared": "^2.2.1",
     "@reduxjs/toolkit": "^2.11.2",
