@@ -685,7 +685,7 @@ export function AiChatPanel({
           background: var(--aichat-bg);
           border-radius: 20px 20px 0 0;
           width: 100%;
-          max-width: min(45vw, 1100px);
+          max-width: clamp(840px, 49vw, 1100px);
           height: 92vh;
           display: flex;
           flex-direction: column;
