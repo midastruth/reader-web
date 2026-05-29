@@ -643,7 +643,7 @@ export function AiChatPanel({
 
         .aichat-panel {
           --aui-radius: 0.75rem;
-          --aui-thread-max-width: 42rem;
+          --aui-thread-max-width: clamp(42rem, 88%, 66rem);
           --aichat-bg: #212121;
           --aichat-header-bg: #212121;
           --aichat-text: #eeeeee;
