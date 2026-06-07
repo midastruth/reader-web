@@ -30,7 +30,7 @@ import remarkGfm from "remark-gfm";
 
 const MarkdownText = makeMarkdownText({ remarkPlugins: [remarkGfm] });
 
-export type AiAction = "ask" | "dictionary" | "summarize" | "analyze";
+export type AiAction = "ask" | "dictionary" | "summarize" | "analyze" | "research";
 
 export interface AiChatPanelProps {
   selectedText: string;
@@ -223,6 +223,7 @@ function AiThread({
   const autoSendText =
     initialAction === "dictionary" ? selectedText :
     initialAction === "analyze" ? "分析" :
+    initialAction === "research" ? "深度研究" :
     null;
 
   const suggestions = selectedText
@@ -305,6 +306,7 @@ const ACTION_CONTEXT_LABEL: Record<AiAction, string> = {
   dictionary: "查词",
   summarize: "总结选中文字",
   analyze: "分析选中文字",
+  research: "深度研究",
 };
 
 const MINIMIZE_THRESHOLD = 80;
@@ -371,7 +373,9 @@ export function AiChatPanel({
   const bookCacheRef = useRef<{ sha256: string; title: string; author: string } | null>(null);
   const [messageSent, setMessageSent] = useState(false);
 
-  const [minimized, setMinimized] = useState(false);
+  // Deep research can take a long time, so the panel starts minimized to let
+  // the user keep reading while the research runs in the background.
+  const [minimized, setMinimized] = useState(initialAction === "research");
   const [isClosing, setIsClosing] = useState(false);
   const [isAiRunning, setIsAiRunning] = useState(false);
   const [dragY, setDragY] = useState(0);

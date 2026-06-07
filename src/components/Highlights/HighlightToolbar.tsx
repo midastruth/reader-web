@@ -133,9 +133,9 @@ export function HighlightToolbar({
           <button
             type="button"
             className={styles.aiBtn}
-            onClick={(e) => handleAiQueryClick(e, 'analyze')}
-            title={t('ai.analyze', '分析')}
-            aria-label={t('ai.analyze', '分析')}
+            onClick={(e) => handleAiQueryClick(e, 'research')}
+            title={t('ai.research', '深度研究')}
+            aria-label={t('ai.research', '深度研究')}
           >
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
               <line x1="1" y1="2" x2="9" y2="2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" opacity="0.65"/>
@@ -144,6 +144,7 @@ export function HighlightToolbar({
               <circle cx="9.5" cy="9.5" r="2.5" stroke="currentColor" strokeWidth="1.2"/>
               <line x1="11.3" y1="11.3" x2="12.8" y2="12.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
             </svg>
+            <span className={styles.aiText}>研究</span>
           </button>
 
           <button

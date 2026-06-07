@@ -4,7 +4,10 @@ const BASE_URL = (
   process.env.NEXT_PUBLIC_BOOK_AWARE_URL ?? "/api/book-aware"
 ).replace(/\/$/, "");
 
-export type AiAction = "ask" | "dictionary" | "summarize" | "analyze";
+// "research" is a frontend-only action that routes to the deep-research
+// pipeline (/ai/research/stream). The backend itself only knows the agent
+// actions, so it is remapped to "analyze" in aiQueryStream before sending.
+export type AiAction = "ask" | "dictionary" | "summarize" | "analyze" | "research";
 
 export interface BookAwareBook {
   id: string;
@@ -264,12 +267,19 @@ export async function* aiQueryStream(
   request: AiQueryRequest,
   abortSignal?: AbortSignal
 ): AsyncGenerator<SseEvent> {
+  // The deep-research pipeline lives behind a dedicated endpoint and can take a
+  // long time. The backend doesn't recognise a "research" action, so we remap it
+  // to "analyze" while routing the call to /ai/research/stream.
+  const isResearch = request.action === "research";
+  const endpoint = isResearch ? "/ai/research/stream" : "/ai/query/stream";
+  const body = isResearch ? { ...request, action: "analyze" as const } : request;
+
   let res: Response;
   try {
-    res = await fetch(`${BASE_URL}/ai/query/stream`, {
+    res = await fetch(`${BASE_URL}${endpoint}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(request),
+      body: JSON.stringify(body),
       signal: abortSignal,
     });
   } catch (err) {
