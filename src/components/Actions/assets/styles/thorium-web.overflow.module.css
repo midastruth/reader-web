@@ -5,10 +5,9 @@
 }
 
 :global(.thorium_web_layeredUI.thorium_web_isImmersive:not(.thorium_web_isHovering)) .hint {
-  transform: translateY(calc(var(--th-icon-size, 24px) * 2.5));
-  transition-property: transform, opacity;
-  transition-duration: 200ms, 400ms;
-  transition-delay: 0s, 5s;
+  transition-property: opacity;
+  transition-duration: 200ms;
+  transition-delay: 0s;
   transition-timing-function: ease-in-out;
   opacity: 0;
 }
