@@ -12,8 +12,8 @@
             },
             "header": {
                 "backLink": {
-                    "trigger": "Ritorna alla tua libreria",
-                    "tooltip": "Libreria"
+                    "trigger": "Ritorna alla tua biblioteca",
+                    "tooltip": "Biblioteca"
                 },
                 "label": "Barra in alto",
                 "runningHead": "Titolo principale",
@@ -56,7 +56,7 @@
                 "network": "Server non disponibile, si prega di riprovare.",
                 "serverError": "Errore del server. Si prega di riprovare.",
                 "clientError": "Richiesta non valida.",
-                "generic": "Impossible caricare la pubblicazione."
+                "generic": "Impossibile caricare la pubblicazione."
             },
             "printingDisabled": "La stampa è stata disabilitata"
         },
@@ -102,6 +102,28 @@
                     "tooltip": "Opzioni avanzate",
                     "trigger": "Opzioni avanzate di spaziatura"
                 }
+            }
+        }
+    },
+    "audio": {
+        "player": {
+            "progress": "Progressione della riproduzione",
+            "controls": "Controlli della riproduzione",
+            "mediaControls": "Impostazioni audio",
+            "coverAlt": "Copertina dell'audiolibro"
+        },
+        "remotePlayback": {
+            "trigger": "Riproduzione da remoto",
+            "connected": "Dispositivo connesso"
+        },
+        "settings": {
+            "sleepTimer": {
+                "hours": "h",
+                "minutes": "min",
+                "seconds": "s",
+                "start": "Avvio",
+                "instruction": "La riproduzione si interromperà dopo l'intervallo di tempo selezionato.",
+                "remaining": "Arresto in {{ remaining }}"
             }
         }
     }

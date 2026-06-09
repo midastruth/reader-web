@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { Locator, Publication } from "@readium/shared";
-import { ThLineHeightOptions } from "@/preferences/models";
 import { EpubNavigatorListeners, IContentProtectionConfig, ILinkInjectable, IBlobInjectable } from "@readium/navigator";
+import { useEpubKeyboardPeripherals } from "./useEpubKeyboardPeripherals";
 import { ThPreferences } from "@/preferences";
 import { FontMetadata, InjectableFontResources } from "@/preferences/services/fonts";
 
@@ -30,7 +30,6 @@ interface UseEpubReaderInitProps {
   getFontInjectables: (options?: { language?: string } | { key?: string }, optimize?: boolean) => InjectableFontResources | null;
   fxlThemeKeys: string[];
   reflowThemeKeys: string[];
-  lineHeightOptions: Record<ThLineHeightOptions, number | null>;
   arrowsOccupySpace: boolean;
   arrowsWidth: React.RefObject<number>;
   colorScheme: any;
@@ -39,7 +38,6 @@ interface UseEpubReaderInitProps {
   onNavigatorReady?: () => void;
   onNavigatorLoaded?: () => void;
   onCleanup?: () => void;
-  fxlProgressionCallback?: (locator: Locator) => void;
 }
 
 export const useEpubReaderInit = ({
@@ -59,7 +57,6 @@ export const useEpubReaderInit = ({
   getFontInjectables,
   fxlThemeKeys,
   reflowThemeKeys,
-  lineHeightOptions,
   arrowsOccupySpace,
   arrowsWidth,
   colorScheme,
@@ -68,7 +65,6 @@ export const useEpubReaderInit = ({
   onNavigatorReady,
   onNavigatorLoaded,
   onCleanup,
-  fxlProgressionCallback,
 }: UseEpubReaderInitProps) => {
   const [navigatorReady, setNavigatorReady] = useState(false);
 
@@ -81,7 +77,6 @@ export const useEpubReaderInit = ({
     arrowsWidth,
     preferences,
     getFontMetadata,
-    lineHeightOptions,
     fxlThemeKeys,
     reflowThemeKeys,
   });
@@ -99,6 +94,7 @@ export const useEpubReaderInit = ({
     onCleanup?.();
   }, [isFXL, removeFontResources, onCleanup]);
 
+  const keyboardPeripherals = useEpubKeyboardPeripherals();
   const { EpubNavigatorLoad, EpubNavigatorDestroy } = useEpubNavigator();
   const isNavigatorLoadedEpub = useRef(false);
   
@@ -123,6 +119,7 @@ export const useEpubReaderInit = ({
       defaults: epubDefaults,
       injectables: injectables || undefined,
       contentProtection: contentProtectionConfig,
+      keyboardPeripherals,
     };
 
     isNavigatorLoadedEpub.current = true;
@@ -135,7 +132,7 @@ export const useEpubReaderInit = ({
       // Set navigatorReady to true only after navigator actually loads
       setNavigatorReady(true);
       onNavigatorLoaded?.();
-    }, fxlProgressionCallback);
+    });
 
     return () => {
       if (isNavigatorLoadedEpub.current) {
