@@ -54,8 +54,8 @@
                 "title": "Fel",
                 "notFound": "Ingen bok hittades.",
                 "accessDenied": "Access nekas.",
-                "network": "Server otillgänglig - försök igen senare.",
-                "serverError": "Serverfel - försök igen senare.",
+                "network": "Servern kan inte nås – försök igen senare.",
+                "serverError": "Serverfel – försök igen senare.",
                 "clientError": "Ogiltig begäran.",
                 "generic": "Kan inte ladda boken."
             }
