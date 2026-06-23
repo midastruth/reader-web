@@ -15,14 +15,14 @@ importers:
         specifier: '>=2.0.5'
         version: 2.0.5
       '@readium/navigator':
-        specifier: '>=2.5.8'
-        version: 2.5.8
+        specifier: '>=2.6.1'
+        version: 2.6.1
       '@readium/navigator-html-injectables':
         specifier: '>=2.4.4'
         version: 2.4.4
       '@readium/shared':
-        specifier: ^2.2.1
-        version: 2.2.1
+        specifier: '>=2.2.3'
+        version: 2.2.3
       '@reduxjs/toolkit':
         specifier: ^2.11.2
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
@@ -1176,12 +1176,12 @@ packages:
     resolution: {integrity: sha512-Ow6xaV9FNq2Ech8MSGgb0c1D+ozSgrHu3hYhuL8BxVL4CxCgaEPWzXEDyuc3jM+Ep60bK3I+MJkhUirdlFwZaQ==}
     engines: {node: '>=18'}
 
-  '@readium/navigator@2.5.8':
-    resolution: {integrity: sha512-j8Ak8TRB+V2e4E9h+hVF1d3sY1ax1LsrH2Uu1ppwL56uE/fmtxdSm6S7VxnYOBdCe7pincIQ7HUwa/PBDxue5A==}
+  '@readium/navigator@2.6.1':
+    resolution: {integrity: sha512-xbIvlbXrhHcxK73ctztp0G7YrkzSDEK0LwKNfBlaHoXQ9XGNNVt2ZPcm80QmQJdkDfPyC1C8DK9y/J2YM5rB7g==}
     engines: {node: '>=18'}
 
-  '@readium/shared@2.2.1':
-    resolution: {integrity: sha512-FSEYdxKAVB/gaGVvIiLh/6Fa7/FEVbETjbKJggIqOeOtR4xGl6SuMY7HH86DdMgVacXFRYzWvEuIkqFCNRFMRQ==}
+  '@readium/shared@2.2.3':
+    resolution: {integrity: sha512-DW6BE0J3oBdb87q9gEz1UpGBgzJkuDyDnboChuGwpaXYNfOuy57PsDl52ch426v7CzoR4hNi8VoUXL1YHn4MPA==}
     engines: {node: '>=18'}
 
   '@reduxjs/toolkit@2.11.2':
@@ -4525,9 +4525,9 @@ snapshots:
 
   '@readium/navigator-html-injectables@2.4.4': {}
 
-  '@readium/navigator@2.5.8': {}
+  '@readium/navigator@2.6.1': {}
 
-  '@readium/shared@2.2.1':
+  '@readium/shared@2.2.3':
     dependencies:
       '@edrlab/thorium-locales': thorium-locales@https://codeload.github.com/edrlab/thorium-locales/tar.gz/b416fdb5cfa7ade7562fe108550e3b566857a7b1
 
