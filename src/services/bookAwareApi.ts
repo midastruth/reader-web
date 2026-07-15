@@ -244,6 +244,32 @@ export async function resolveBook(
   return data.book;
 }
 
+// Quick-ask suggestions: per-book question chips shown on the AI panel
+// welcome screen. They are a durable book asset generated and curated by the
+// AI itself (via its manage_suggestions tool). An empty list means the book
+// has not been bootstrapped yet — the panel then shows a "generate" chip.
+export interface BookSuggestion {
+  id: string;
+  /** Short button label shown on the chip. */
+  text: string;
+  /** Full question sent to the assistant when the chip is tapped. */
+  prompt: string;
+}
+
+export async function fetchBookSuggestions(sha256: string): Promise<BookSuggestion[]> {
+  const data = await apiFetch(`/books/${encodeURIComponent(sha256)}/suggestions`) as {
+    ok: boolean;
+    suggestions?: BookSuggestion[];
+  };
+  // Fail loudly on schema drift: an empty array has semantic meaning ("book
+  // not bootstrapped yet" → the panel shows the ✨ generate chip), so a
+  // malformed payload must never be silently coerced into it.
+  if (!Array.isArray(data.suggestions)) {
+    throw new Error('book-aware suggestions response is malformed: expected "suggestions" array');
+  }
+  return data.suggestions;
+}
+
 export async function aiQuery(request: AiQueryRequest): Promise<AiQueryResponse> {
   return apiFetch("/ai/query", {
     method: "POST",

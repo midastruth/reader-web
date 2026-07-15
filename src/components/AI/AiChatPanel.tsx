@@ -22,7 +22,7 @@ import {
 } from "@assistant-ui/react";
 import { Thread, makeMarkdownText } from "@assistant-ui/react-ui";
 import { useSelector } from "react-redux";
-import { aiQueryStream, resolveBook } from "@/services/bookAwareApi";
+import { aiQueryStream, fetchBookSuggestions, resolveBook, type BookSuggestion } from "@/services/bookAwareApi";
 import type { RootState } from "@/lib/store";
 import { ThColorScheme } from "@/core/Hooks/useColorScheme";
 import { usePreferences } from "@/preferences/hooks/usePreferences";
@@ -217,16 +217,44 @@ function RunningBridge({ onRunningChange }: { onRunningChange: (running: boolean
   return null;
 }
 
+// Static fallbacks: shown while the per-book suggestions are loading, when
+// the book-aware backend is unavailable, and for text selections (which are
+// ephemeral and served well by generic prompts).
+const SELECTION_SUGGESTIONS = [
+  { prompt: "解释这段文字", text: "解释这段文字" },
+  { prompt: "总结这段文字的要点", text: "总结要点" },
+  { prompt: "这段文字里有哪些关键信息？", text: "提取关键信息" },
+  { prompt: "为我导读当前章节", text: "章节导读" },
+];
+
+const FALLBACK_SUGGESTIONS = [
+  { prompt: "为我导读当前章节", text: "章节导读" },
+  { prompt: "总结当前章节", text: "总结当前章节" },
+  { prompt: "这本书主要讲什么？", text: "概括本书" },
+  { prompt: "帮我梳理人物和关系", text: "梳理人物关系" },
+];
+
+// Sent when the reader taps the bootstrap chip on a book that has no saved
+// suggestions yet. The agent explores the book and saves a starter set via
+// its manage_suggestions tool; the panel refreshes the chips when the run
+// finishes.
+const BOOTSTRAP_SUGGESTION = {
+  prompt: "请浏览这本书的结构和内容，为我生成 4-6 个针对本书具体内容、值得探究的快捷提问并保存，之后我可以直接点选使用。",
+  text: "✨ 生成本书专属提问",
+};
+
 function AiThread({
   runtime,
   selectedText,
   initialAction,
   onRunningChange,
+  bookSuggestions,
 }: {
   runtime: ReturnType<typeof useLocalRuntime>;
   selectedText: string;
   initialAction: AiAction;
   onRunningChange: (running: boolean) => void;
+  bookSuggestions: BookSuggestion[] | null;
 }) {
   const autoSendText =
     initialAction === "dictionary" ? selectedText :
@@ -235,18 +263,15 @@ function AiThread({
     null;
 
   const suggestions = selectedText
-    ? [
-        { prompt: "解释这段文字", text: "解释这段文字" },
-        { prompt: "总结这段文字的要点", text: "总结要点" },
-        { prompt: "这段文字里有哪些关键信息？", text: "提取关键信息" },
-        { prompt: "为我导读当前章节", text: "章节导读" },
-      ]
-    : [
-        { prompt: "为我导读当前章节", text: "章节导读" },
-        { prompt: "总结当前章节", text: "总结当前章节" },
-        { prompt: "这本书主要讲什么？", text: "概括本书" },
-        { prompt: "帮我梳理人物和关系", text: "梳理人物关系" },
-      ];
+    ? SELECTION_SUGGESTIONS
+    : bookSuggestions === null
+      // Loading or backend unavailable: behave exactly like before.
+      ? FALLBACK_SUGGESTIONS
+      : bookSuggestions.length > 0
+        // The book has its own AI-curated quick-ask chips.
+        ? bookSuggestions.map(({ text, prompt }) => ({ text, prompt }))
+        // New book: lead with the bootstrap chip, keep generic ones below.
+        : [BOOTSTRAP_SUGGESTION, ...FALLBACK_SUGGESTIONS.slice(0, 3)];
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
@@ -363,6 +388,11 @@ function relativeLuminanceFromColor(color?: string): number | null {
   return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue);
 }
 
+// Session-level cache of per-book quick-ask suggestions so reopening the
+// panel doesn't refetch. Refreshed after every AI run (the agent may have
+// added/removed suggestions during the conversation).
+const suggestionsCache = new Map<string, BookSuggestion[]>();
+
 export function AiChatPanel({
   selectedText,
   initialAction = "ask",
@@ -381,11 +411,53 @@ export function AiChatPanel({
   const bookCacheRef = useRef<{ sha256: string; title: string; author: string } | null>(null);
   const [messageSent, setMessageSent] = useState(false);
 
+  // null = loading / unavailable (render static fallbacks); [] = book has no
+  // saved suggestions yet (render the bootstrap chip); […] = the book's own
+  // AI-curated quick-ask chips.
+  const [bookSuggestions, setBookSuggestions] = useState<BookSuggestion[] | null>(() =>
+    bookId ? suggestionsCache.get(bookId) ?? null : null,
+  );
+
+  // Tracks the book currently shown so a slow fetch that resolves after a
+  // book switch can't overwrite the new book's chips with stale data.
+  const suggestionsBookIdRef = useRef(bookId);
+
+  const refreshSuggestions = useCallback(async () => {
+    const sha = bookId;
+    if (!sha || !/^[0-9a-f]{64}$/i.test(sha)) return;
+    try {
+      const list = await fetchBookSuggestions(sha);
+      suggestionsCache.set(sha, list);
+      if (suggestionsBookIdRef.current === sha) setBookSuggestions(list);
+    } catch (err) {
+      // UI boundary: on failure (backend down, book not registered, malformed
+      // response) the panel keeps rendering the static fallback chips instead
+      // of surfacing an error — but log it so failures stay diagnosable.
+      console.warn("[AiChatPanel] failed to fetch book suggestions:", err);
+    }
+  }, [bookId]);
+
+  useEffect(() => {
+    suggestionsBookIdRef.current = bookId;
+    // Re-sync from the session cache on book switch: the useState lazy
+    // initializer only ran for the first book this component mounted with.
+    setBookSuggestions(bookId ? suggestionsCache.get(bookId) ?? null : null);
+    void refreshSuggestions();
+  }, [bookId, refreshSuggestions]);
+
   // Deep research can take a long time, so the panel starts minimized to let
   // the user keep reading while the research runs in the background.
   const [minimized, setMinimized] = useState(initialAction === "research");
   const [isClosing, setIsClosing] = useState(false);
   const [isAiRunning, setIsAiRunning] = useState(false);
+
+  // After each AI run finishes, refetch: the agent may have created or edited
+  // quick-ask suggestions during the conversation (bootstrap or curation).
+  const wasRunningRef = useRef(false);
+  useEffect(() => {
+    if (wasRunningRef.current && !isAiRunning) void refreshSuggestions();
+    wasRunningRef.current = isAiRunning;
+  }, [isAiRunning, refreshSuggestions]);
   const [dragY, setDragY] = useState(0);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -622,6 +694,7 @@ export function AiChatPanel({
               selectedText={selectedText}
               initialAction={initialAction}
               onRunningChange={setIsAiRunning}
+              bookSuggestions={bookSuggestions}
             />
           </div>
         </div>
@@ -1005,6 +1078,8 @@ export function AiChatPanel({
         }
         .aichat-thread-wrap .aui-assistant-message-content {
           color: var(--aichat-text);
+          /* 默认被限制为 thread 宽度的 80%，放开让回复占满可用宽度 */
+          max-width: none;
         }
         .aichat-thread-wrap .aui-avatar-root {
           width: 28px;
