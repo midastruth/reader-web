@@ -234,13 +234,12 @@ const FALLBACK_SUGGESTIONS = [
   { prompt: "帮我梳理人物和关系", text: "梳理人物关系" },
 ];
 
-// Sent when the reader taps the bootstrap chip on a book that has no saved
-// suggestions yet. The agent explores the book and saves a starter set via
-// its manage_suggestions tool; the panel refreshes the chips when the run
-// finishes.
-const BOOTSTRAP_SUGGESTION = {
-  prompt: "请浏览这本书的结构和内容，为我生成 4-6 个针对本书具体内容、值得探究的快捷提问并保存，之后我可以直接点选使用。",
-  text: "✨ 生成本书专属提问",
+// Permanent entry for creating or removing book-specific shortcut buttons.
+// Clicking it starts a guided conversation; the agent must propose a concrete
+// shortcut and wait for confirmation before calling manage_suggestions.
+const MANAGE_SHORTCUTS_SUGGESTION = {
+  prompt: "我想创建或管理这本书的快捷按钮。",
+  text: "✨ 管理快捷按钮",
 };
 
 function AiThread({
@@ -263,28 +262,25 @@ function AiThread({
     null;
 
   // The panel is (currently) only ever opened from a text selection, so the
-  // book's own quick-ask chips must also be reachable when selectedText is
+  // book's own shortcut chips must also be reachable when selectedText is
   // set — otherwise they would never render at all.
-  const bookChips = bookSuggestions === null
-    ? null // loading or backend unavailable
-    : bookSuggestions.length > 0
-      // The book has its own AI-curated quick-ask chips.
-      ? bookSuggestions.map(({ text, prompt }) => ({ text, prompt }))
-      // New book: the bootstrap chip asks the agent to generate a starter set.
-      : [BOOTSTRAP_SUGGESTION];
+  // The management chip is permanent. Saved per-book shortcuts are appended
+  // when available; loading or an unavailable backend only hides that saved
+  // portion, never the guided management entry.
+  const bookChips = [
+    MANAGE_SHORTCUTS_SUGGESTION,
+    ...(bookSuggestions ?? []).map(({ text, prompt }) => ({ text, prompt })),
+  ];
 
   const suggestions = selectedText
-    ? bookChips
-      // Selection chips first (they act on the selected text), then the
-      // book's durable chips (or the ✨ bootstrap chip).
-      ? [...SELECTION_SUGGESTIONS.slice(0, 2), ...bookChips]
-      : SELECTION_SUGGESTIONS
-    : bookChips
-      ? bookSuggestions!.length > 0
-        ? bookChips
-        : [BOOTSTRAP_SUGGESTION, ...FALLBACK_SUGGESTIONS.slice(0, 3)]
-      // Loading or backend unavailable: behave exactly like before.
-      : FALLBACK_SUGGESTIONS;
+    // Selection chips act on the current text; management and saved book
+    // shortcuts remain reachable alongside them.
+    ? [...SELECTION_SUGGESTIONS.slice(0, 2), ...bookChips]
+    : bookSuggestions?.length
+      ? bookChips
+      // Until saved shortcuts exist (or while they are unavailable), retain
+      // the generic actions after the permanent management entry.
+      : [MANAGE_SHORTCUTS_SUGGESTION, ...FALLBACK_SUGGESTIONS.slice(0, 3)];
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
@@ -401,9 +397,9 @@ function relativeLuminanceFromColor(color?: string): number | null {
   return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue);
 }
 
-// Session-level cache of per-book quick-ask suggestions so reopening the
-// panel doesn't refetch. Refreshed after every AI run (the agent may have
-// added/removed suggestions during the conversation).
+// Session-level cache of per-book shortcut buttons so reopening the panel
+// doesn't refetch. Refreshed after every AI run (the agent may have added or
+// removed shortcuts during the conversation).
 const suggestionsCache = new Map<string, BookSuggestion[]>();
 
 export function AiChatPanel({
@@ -421,12 +417,14 @@ export function AiChatPanel({
   const themeObject = useSelector((state: RootState) => state.theming.theme);
   const colorScheme = useSelector((state: RootState) => state.theming.colorScheme);
   const sessionIdRef = useRef<string | undefined>(undefined);
+  // Once the permanent management chip starts its guided flow, keep every
+  // turn book-level so the stale selection cannot bias proposals or confirms.
+  const shortcutManagementRef = useRef(false);
   const bookCacheRef = useRef<{ sha256: string; title: string; author: string } | null>(null);
   const [messageSent, setMessageSent] = useState(false);
 
-  // null = loading / unavailable (render static fallbacks); [] = book has no
-  // saved suggestions yet (render the bootstrap chip); […] = the book's own
-  // AI-curated quick-ask chips.
+  // null = loading / unavailable; [] = no saved shortcuts; […] = the book's
+  // saved shortcuts. The guided management chip is rendered in every state.
   const [bookSuggestions, setBookSuggestions] = useState<BookSuggestion[] | null>(() =>
     bookId ? suggestionsCache.get(bookId) ?? null : null,
   );
@@ -452,6 +450,7 @@ export function AiChatPanel({
 
   useEffect(() => {
     suggestionsBookIdRef.current = bookId;
+    shortcutManagementRef.current = false;
     // Re-sync from the session cache on book switch: the useState lazy
     // initializer only ran for the first book this component mounted with.
     setBookSuggestions(bookId ? suggestionsCache.get(bookId) ?? null : null);
@@ -464,8 +463,8 @@ export function AiChatPanel({
   const [isClosing, setIsClosing] = useState(false);
   const [isAiRunning, setIsAiRunning] = useState(false);
 
-  // After each AI run finishes, refetch: the agent may have created or edited
-  // quick-ask suggestions during the conversation (bootstrap or curation).
+  // After each AI run finishes, refetch: the agent may have created, edited,
+  // or removed shortcut buttons after the user's confirmation.
   const wasRunningRef = useRef(false);
   useEffect(() => {
     if (wasRunningRef.current && !isAiRunning) void refreshSuggestions();
@@ -572,14 +571,26 @@ export function AiChatPanel({
     async *run({ messages, abortSignal }) {
       setMessageSent(true);
       const userMessages = messages.filter((m) => m.role === "user");
-      const action = userMessages.length === 1 ? initialAction : "ask";
-
       const lastUser = [...messages].reverse().find((m) => m.role === "user");
       const question =
         lastUser?.content
           .filter((c): c is { type: "text"; text: string } => c.type === "text")
           .map((c) => c.text)
           .join("") ?? "";
+
+      const normalizedQuestion = question.trim();
+      if (
+        normalizedQuestion === MANAGE_SHORTCUTS_SUGGESTION.prompt ||
+        normalizedQuestion === MANAGE_SHORTCUTS_SUGGESTION.text
+      ) {
+        shortcutManagementRef.current = true;
+      }
+      const isManagingShortcuts = shortcutManagementRef.current;
+      // Shortcut management is a book-level conversation even if the panel
+      // was opened from an analyze/research selection action.
+      const action = isManagingShortcuts
+        ? "ask"
+        : userMessages.length === 1 ? initialAction : "ask";
 
       // Render any thrown error as an assistant bubble. assistant-ui's
       // useLocalRuntime does NOT surface adapter exceptions in the chat;
@@ -594,8 +605,9 @@ export function AiChatPanel({
 
         for await (const event of aiQueryStream({
           action,
-          text: selectedText,
+          text: isManagingShortcuts ? "" : selectedText,
           question,
+          context_mode: isManagingShortcuts ? "book" : "selection",
           book: bookCacheRef.current,
           location: { chapter, progress },
           session_id: sessionIdRef.current,

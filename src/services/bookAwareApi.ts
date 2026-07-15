@@ -20,6 +20,8 @@ export interface AiQueryRequest {
   action: AiAction;
   text: string;
   question: string;
+  /** Whether this turn should be grounded in selected text or the whole book. */
+  context_mode?: "selection" | "book";
   book: { sha256: string; title?: string; author?: string };
   location: { chapter?: string; progress?: number };
   session_id?: string;
@@ -244,15 +246,15 @@ export async function resolveBook(
   return data.book;
 }
 
-// Quick-ask suggestions: per-book question chips shown on the AI panel
-// welcome screen. They are a durable book asset generated and curated by the
-// AI itself (via its manage_suggestions tool). An empty list means the book
-// has not been bootstrapped yet — the panel then shows a "generate" chip.
+// Per-book shortcut buttons shown on the AI panel welcome screen. They are a
+// durable book asset created or removed by the AI through a guided,
+// user-confirmed flow (via its manage_suggestions tool). The panel always
+// shows a separate management chip, including when this list is empty.
 export interface BookSuggestion {
   id: string;
   /** Short button label shown on the chip. */
   text: string;
-  /** Full question sent to the assistant when the chip is tapped. */
+  /** Full instruction sent to the assistant when the button is tapped. */
   prompt: string;
 }
 
@@ -261,9 +263,8 @@ export async function fetchBookSuggestions(sha256: string): Promise<BookSuggesti
     ok: boolean;
     suggestions?: BookSuggestion[];
   };
-  // Fail loudly on schema drift: an empty array has semantic meaning ("book
-  // not bootstrapped yet" → the panel shows the ✨ generate chip), so a
-  // malformed payload must never be silently coerced into it.
+  // Fail loudly on schema drift: an empty array means there are no saved
+  // shortcuts, so a malformed payload must never be silently coerced into it.
   if (!Array.isArray(data.suggestions)) {
     throw new Error('book-aware suggestions response is malformed: expected "suggestions" array');
   }
