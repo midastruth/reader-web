@@ -262,16 +262,29 @@ function AiThread({
     initialAction === "research" ? "深度研究" :
     null;
 
+  // The panel is (currently) only ever opened from a text selection, so the
+  // book's own quick-ask chips must also be reachable when selectedText is
+  // set — otherwise they would never render at all.
+  const bookChips = bookSuggestions === null
+    ? null // loading or backend unavailable
+    : bookSuggestions.length > 0
+      // The book has its own AI-curated quick-ask chips.
+      ? bookSuggestions.map(({ text, prompt }) => ({ text, prompt }))
+      // New book: the bootstrap chip asks the agent to generate a starter set.
+      : [BOOTSTRAP_SUGGESTION];
+
   const suggestions = selectedText
-    ? SELECTION_SUGGESTIONS
-    : bookSuggestions === null
+    ? bookChips
+      // Selection chips first (they act on the selected text), then the
+      // book's durable chips (or the ✨ bootstrap chip).
+      ? [...SELECTION_SUGGESTIONS.slice(0, 2), ...bookChips]
+      : SELECTION_SUGGESTIONS
+    : bookChips
+      ? bookSuggestions!.length > 0
+        ? bookChips
+        : [BOOTSTRAP_SUGGESTION, ...FALLBACK_SUGGESTIONS.slice(0, 3)]
       // Loading or backend unavailable: behave exactly like before.
-      ? FALLBACK_SUGGESTIONS
-      : bookSuggestions.length > 0
-        // The book has its own AI-curated quick-ask chips.
-        ? bookSuggestions.map(({ text, prompt }) => ({ text, prompt }))
-        // New book: lead with the bootstrap chip, keep generic ones below.
-        : [BOOTSTRAP_SUGGESTION, ...FALLBACK_SUGGESTIONS.slice(0, 3)];
+      : FALLBACK_SUGGESTIONS;
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
