@@ -88,6 +88,14 @@ function ImeSafeComposer() {
     textareaRef.current?.focus({ preventScroll: true });
   }, []);
 
+  // Auto-resize: grow with content up to the CSS max-height, then scroll.
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text]);
+
   const syncText = useCallback((value: string) => {
     setText(value);
     if (!isComposingRef.current) {
@@ -968,6 +976,10 @@ export function AiChatPanel({
           min-height: 48px;
           max-height: 120px;
           overflow-y: auto;
+          height: 48px; /* JS auto-resize 的初始值 */
+        }
+        .aichat-thread-wrap .aui-thread-followup-suggestions:empty {
+          display: none;
         }
         .aichat-thread-wrap .aui-composer-send,
         .aichat-thread-wrap .aui-composer-cancel {
