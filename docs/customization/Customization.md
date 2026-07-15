@@ -9,16 +9,6 @@ Otherwise you should be able to modify the preferences object directly in [defau
 > [!NOTE]
 > Audio has its own separate preferences system. Use `createAudioPreferences` and `ThAudioPreferencesProvider` instead of their EPUB/WebPub equivalents. See the [Audio Customization doc](./audio/Customization.md) for a full overview.
 
-## Direction
-
-The App UI supports both Left-to-Right (LTR) and Right-to-Left (RTL) languages through optional property `direction`. It will switch the entire layout, including the docking panels, independently of the publication’s reading progression.
-
-Values can be `ltr` or `rtl` and a `ThLayoutDirection` enum is available as well. 
-
-## Locale
-
-For direction to work properly, the `locale` has to be set as well, since React Aria Components require this locale to derive the correct direction. If you don’t set it, then the user’s system/browser locale will be used, with the risk of resulting to a conflicting `dir` being used. 
-
 ## Metadata
 
 ### Document Title
